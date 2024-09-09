@@ -11,3 +11,8 @@
 html, body {
     scroll-behavior: smooth;
 }
+
+.scrollsnap {
+    scroll-snap-type: x mandatory;
+    box-sizing: border-box;
+}

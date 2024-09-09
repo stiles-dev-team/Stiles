@@ -6,7 +6,7 @@ const Navbar = () => {
     <nav className='w-full absolute top-0 left-0 py-3 lg:py-5 z-50'>
       <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
         <a href='/'><img src="/images/logo_white.png" alt="" className='h-12 lg:h-16' /></a>
-        <div className='lg:flex flex-row justify-end items-center gap-7 hidden'>
+        <div className='lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden'>
           <a href="#" className='text-white font-medium'>Brands</a>
           <a href="#" className='text-white font-medium'>Tiles</a>
           <a href="#" className='text-white font-medium'>Sanitaryware</a>

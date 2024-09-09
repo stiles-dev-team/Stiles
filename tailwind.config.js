@@ -13,7 +13,9 @@ module.exports = withMT({
       },
       colors: {
         "dark": "#333333",
-        "primary": "#F5ED1E"
+        "primary": "#F5ED1E",
+        "opaque": "#CBCBCB",
+        "danger": "#FC4231"
       }
     },
   },
