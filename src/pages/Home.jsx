@@ -6,18 +6,26 @@ import ProductCard from '../components/ProductCard';
 
 import { Input, Button } from "@material-tailwind/react";
 
+import { Chip } from "@material-tailwind/react";
+
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
+import { AutoScroll } from '@splidejs/splide-extension-auto-scroll'
+
 import { useState } from 'react';
+import BlogCard from '../components/BlogCard';
 
 const Home = () => {
   return (
     <Layout>
-      <main className='w-full flex flex-col justify-start items-start gap-14 lg:gap-28'>
+      <main className='w-full flex flex-col justify-start items-start gap-14 lg:gap-28 pb-14 lg:pb-28 '>
         <Hero />
         <WhoWeAre />
         <OurProducts />
         <SubscribeBanner />
+        <ShopCategory />
+        <WeWorkWithTheBest />
+        <Blog />
       </main>
     </Layout>
   )
@@ -56,7 +64,7 @@ const OurProducts = () => {
     <div className='w-full'>
       <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
         <div className="flex flex-row justify-between items-end gap-5 w-full">
-          <h2 className='font-bold text-4xl lg:text-6xl uppercase'>Products we are proud of</h2>
+          <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
           <a href="#" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
         </div>
         <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap">
@@ -83,6 +91,7 @@ const OurProducts = () => {
         perMove: 1,
         arrows: false,
         gap: '1rem',
+        pagination: false,
         padding: '2rem',
         breakpoints: {
           1: {
@@ -110,15 +119,168 @@ const SubscribeBanner = () => {
   const onChange = ({ target }) => setEmail(target.value);
 
   return (
-    <section className='w-full py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
+    <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
       <div className='bg-black/40 w-full h-full absolute top-0 left-0 z-0'></div>
       <div className='flex flex-col justify-center items-center gap-6 w-full max-w-5xl z-10 relative'>
-        <p className='text-xl lg:text-4xl font-medium text-white text-center'>Lorem ipsum dolor sit amet consectetur. Pretium fermentum aliquet ultrices eget pharetra in porttitor. Molestie est dolor.</p>
+        <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Lorem ipsum dolor sit amet consectetur. Pretium fermentum aliquet ultrices eget pharetra in porttitor. Molestie est dolor.</p>
         <div className='relative w-full max-w-[460px] flex justify-center items-center'>
-          <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0' placeholder='Email Address' />
+          <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' placeholder='Email Address' />
           <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
         </div>
       </div>
     </section>
+  )
+}
+
+const ShopCategory = () => {
+  return (
+    <section className='container mx-auto px-0 lg:px-4'>
+      <div className="flex flex-row justify-between items-end gap-5 w-full pb-2 lg:pb-5 px-4 lg:px-0">
+        <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Shop by category</h2>
+        <a href="#" className='hidden lg:block'>VIEW ALL OUR CATEGORIES</a>
+      </div>
+      <div className='lg:grid lg:grid-cols-3 lg:grid-rows-2 lg:gap-4 w-full'>
+        <div className="row-span-2 relative hidden lg:block">
+          <img src="/images/hero.png" alt="" className='w-full h-full object-cover object-center relative z-0 rounded-2xl' />
+          <Chip size="lg" value="Kitchen Tiles" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold' />
+        </div>
+        <div className=' relative hidden lg:block'>
+          <img src="/images/hero.png" alt="" className='w-full aspect-[16/12] object-cover object-center relative z-0 rounded-2xl' />
+          <Chip size="lg" value="Bathrooms" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold' />
+        </div>
+        <div className="col-start-2 row-start-2 relative hidden lg:block">
+          <img src="/images/hero.png" alt="" className='w-full aspect-[16/12] object-cover object-center relative z-0 rounded-2xl' />
+          <Chip size="lg" value="Commercial" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold' />
+        </div>
+        <div className="row-span-2 col-start-3 row-start-1 relative hidden lg:block">
+          <img src="/images/hero.png" alt="" className='w-full h-full object-cover object-center relative z-0 rounded-2xl' />
+          <Chip size="lg" value="Fireplaces" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold' />
+        </div>
+        <Splide className="lg:hidden" options={{
+          perPage: 1,
+          type: 'loop',
+          perMove: 1,
+          arrows: false,
+          pagination: false,
+          gap: '1rem',
+          padding: '2rem',
+          breakpoints: {
+            1: {
+              perPage: 1,
+              type: 'loop',
+            },
+          },
+        }}>
+          <SplideSlide>
+            <div className='w-full relative'>
+              <img src="/images/hero.png" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
+              <Chip size="lg" value="Kitchen Tiles" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold' />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <div className='w-full relative'>
+              <img src="/images/hero.png" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
+              <Chip size="lg" value="Bathrooms" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold' />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <div className='w-full relative'>
+              <img src="/images/hero.png" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
+              <Chip size="lg" value="Commercial" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold' />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <div className='w-full relative'>
+              <img src="/images/hero.png" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
+              <Chip size="lg" value="Fireplaces" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold' />
+            </div>
+          </SplideSlide>
+        </Splide>
+      </div>
+    </section>
+  )
+}
+
+const WeWorkWithTheBest = () => {
+  return (
+    <section id="WeWorkWithTheBest" className='container mx-auto px-4 flex flex-col justify-start items-start gap-5'>
+      <div className='flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20 w-full pb-5'>
+        <h2 className='text-3xl lg:text-5xl uppercase text-dark font-bold w-full lg:w-4/12'>We work with the best</h2>
+        <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
+          <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. A lot of brands are exclusively available to us like Italy’s Monocibec and Newform or Spain’s Realonda and Brazil’s Ceusa. We also pride ourselves in stocking top quality well-known brands like Duravit, Hansgrohe, Blutide and Geberit. To see our full range of brands, Visit our Shop by Brand section.</p>
+        </div>
+      </div>
+      <Splide className="w-full" extensions={{AutoScroll}} options={{
+        perPage: 7,
+        arrows: false,
+        pagination: false,
+        gap: '1rem',
+        type: 'loop',
+        focus: 'center',
+        drag: false,
+        autoScroll: {
+          speed: 1,
+          pauseOnHover: false,
+          pauseOnFocus: false,
+        },
+        breakpoints: {
+          768: {
+            perPage: 2,
+            type: 'loop',
+          },
+          1024: {
+            perPage: 4,
+            type: 'loop',
+          }
+        },
+      }}>
+        <SplideSlide>
+          <img src="/images/partner.png" alt="" className='w-full object-cover object-center' />
+        </SplideSlide>
+      </Splide>
+    </section>
+  )
+}
+
+const Blog = () => {
+  return (
+    <div className='w-full'>
+      <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
+        <div className="flex flex-row justify-between items-end gap-5 w-full">
+          <h2 className='font-bold text-3xl lg:text-5xl uppercase'>THE STILES BLOG</h2>
+          <a href="#" className='hidden lg:block'>VIEW ALL OUR STORIES</a>
+        </div>
+        <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
+          <BlogCard />
+          <BlogCard />
+          <BlogCard />
+        </div>
+      </section>
+      <Splide className="lg:hidden w-full mt-5" options={{
+        perPage: 1,
+        type: 'loop',
+        perMove: 1,
+        arrows: false,
+        gap: '1rem',
+        pagination: false,
+        padding: '2rem',
+        breakpoints: {
+          1: {
+            perPage: 1,
+            type: 'loop',
+          },
+        },
+      }}>
+        <SplideSlide>
+          <BlogCard />
+        </SplideSlide>
+        <SplideSlide>
+          <BlogCard />
+        </SplideSlide>
+        <SplideSlide>
+          <BlogCard />
+        </SplideSlide>
+      </Splide>
+    </div>
   )
 }
