@@ -3,7 +3,7 @@ import { FaRegHeart } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import PropTypes from 'prop-types';
 
-const ProductCard = ({ promo }) => {
+const ProductCard = ({ promo, onClick }) => {
 
     const [isFavourite, setIsFavourite] = useState(false);
 
@@ -17,11 +17,11 @@ const ProductCard = ({ promo }) => {
     };
 
   return (
-    <div className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden'>
+    <div className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden' onClick={onClick}>
         {
             promo && <div className='absolute top-0 left-0 bg-primary text-dark px-4 py-2 lg:py-3 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>Promo</div>
         }
-        <img src="/images/product_ph.png" alt="Product Image" className='w-full rounded-lg lg:rounded-xl aspect-video object-cover object-center relative z-0' />
+        <img src="/images/product_ph.png" alt="Product Image" className='w-full rounded-lg lg:rounded-xl aspect-[16/11] object-cover object-center relative z-0' />
         <div className={`absolute top-3 lg:top-6 right-3 lg:right-6 rounded-full flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-white"}`} onClick={() => setIsFavourite(!isFavourite)}>
             <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             

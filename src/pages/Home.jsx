@@ -77,12 +77,12 @@ const OurProducts = () => {
           <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Pavers</button>
         </div>
         <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard promo={true} />
-          <ProductCard />
-          <ProductCard />
+          <ProductCard onClick={() => window.location.href = "/product"} />
+          <ProductCard onClick={() => window.location.href = "/product"} />
+          <ProductCard onClick={() => window.location.href = "/product"} />
+          <ProductCard onClick={() => window.location.href = "/product"} promo={true} />
+          <ProductCard onClick={() => window.location.href = "/product"} />
+          <ProductCard onClick={() => window.location.href = "/product"} />
         </div>
       </section>
       <Splide className="lg:hidden w-full mt-5" options={{

@@ -15,7 +15,8 @@ module.exports = withMT({
         "dark": "#333333",
         "primary": "#F5ED1E",
         "opaque": "#CBCBCB",
-        "danger": "#FC4231"
+        "danger": "#FC4231",
+        "secondary": "#666"
       }
     },
   },

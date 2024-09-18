@@ -3,7 +3,7 @@ import { FaUser, FaHeart, FaCartShopping } from "react-icons/fa6";
 import { IoMenu, IoClose, IoSearch } from "react-icons/io5";
 import { IoChevronDown } from "react-icons/io5";
 
-const Navbar = () => {
+const NavbarDark = () => {
 
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
@@ -12,49 +12,49 @@ const Navbar = () => {
     <>
     <nav className='w-full absolute top-0 left-0 py-3 lg:py-5 z-50'>
       <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
-        <a href='/'><img src="/images/logo_white.png" alt="" className='h-12 lg:h-16' /></a>
+        <a href='/'><img src="/images/logo.png" alt="" className='h-12 lg:h-16' /></a>
         <div className='lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden'>
-          <a href="/shop" className='text-white font-medium'>Brands</a>
+          <a href="#" className='text-dark font-medium'>Brands</a>
           <div className="relative">
-            <a href="/shop" onMouseEnter={() => setShowTiles(true)} className='text-white font-medium'>Tiles</a>
-            <div onMouseLeave={() => setShowTiles(false)} className={`absolute top-8 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
+            <a href="#" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
+            <div onMouseLeave={() => setShowTiles(false)} className={`absolute top-8 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 shadow ${showTiles ? "flex" : "hidden"}`}>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Floor Tiles</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Floor Tiles</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Wall Tiles</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Wall Tiles</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Large Slabs</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Large Slabs</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Mosaics</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Mosaics</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">2cm Pavers</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">2cm Pavers</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
               <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Accessories</a>
+                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Accessories</a>
                 <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
               </div>
             </div>
           </div>
-          <a href="/shop" className='text-white font-medium'>Sanitaryware</a>
-          <a href="/shop" className='text-white font-medium'>Flooring</a>
-          <a href="/shop" className='text-white font-medium'>Fireplaces</a>
-          <a href="/shop" className='text-white font-medium'>Promos</a>
-          <a href="/shop" className='text-white font-medium'>Contact Us</a>
-          <a href="#"><FaUser fill="white" /></a>
-          <a href="/wishlist"><FaHeart fill="white" /></a>
-          <a href="#"><FaCartShopping fill="white" /></a>
-          <a href="#"><IoSearch fill="white" size={20} /></a>
+          <a href="#" className='text-dark font-medium'>Sanitaryware</a>
+          <a href="#" className='text-dark font-medium'>Flooring</a>
+          <a href="#" className='text-dark font-medium'>Fireplaces</a>
+          <a href="#" className='text-dark font-medium'>Promos</a>
+          <a href="#" className='text-dark font-medium'>Contact Us</a>
+          <a href="#"><FaUser fill="dark" /></a>
+          <a href="#"><FaHeart fill="dark" /></a>
+          <a href="#"><FaCartShopping fill="dark" /></a>
+          <a href="#"><IoSearch fill="dark" size={20} /></a>
         </div>
-        <IoMenu className='lg:hidden' stroke="white" size={30} onClick={() => setShowMenu(true)} />
+        <IoMenu className='lg:hidden' stroke="black" size={30} onClick={() => setShowMenu(true)} />
       </div>
     </nav>
     <div className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${showMenu ? "right-0" : "-right-full"}`}>
@@ -108,7 +108,7 @@ const Navbar = () => {
       </div>
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">
         <a href="#"><FaUser className="fill-dark" size={20} /></a>
-        <a href="/wishlist"><FaHeart className="fill-dark" size={20} /></a>
+        <a href="#"><FaHeart className="fill-dark" size={20} /></a>
         <a href="#"><FaCartShopping className="fill-dark" size={20} /></a>
       </div>
       <input type="search" className="w-11/12 mx-auto border border-opaque p-3 text-sm rounded-full" placeholder="Search for products" />
@@ -117,4 +117,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default NavbarDark
