@@ -12,7 +12,7 @@ import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 import { AutoScroll } from '@splidejs/splide-extension-auto-scroll'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import BlogCard from '../components/BlogCard';
 
 const Home = () => {
@@ -60,6 +60,26 @@ const WhoWeAre = () => {
 }
 
 const OurProducts = () => {
+
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+      fetch(`/data/products.json`)
+      .then(res => res.json())
+      .then(data => {
+          // Shuffle the array
+          const shuffledData = data.sort(() => 0.5 - Math.random());
+          // Get the first 30 items
+          const selectedProducts = shuffledData.slice(0, 6);
+          setProduct(selectedProducts);
+          setLoading(false);
+      })
+      .catch(err => {
+          console.log(err);
+          setLoading(false);
+      });
+  }, []);
   return (
     <div className='w-full'>
       <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
@@ -77,12 +97,11 @@ const OurProducts = () => {
           <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Pavers</button>
         </div>
         <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
-          <ProductCard onClick={() => window.location.href = "/product"} />
-          <ProductCard onClick={() => window.location.href = "/product"} />
-          <ProductCard onClick={() => window.location.href = "/product"} />
-          <ProductCard onClick={() => window.location.href = "/product"} promo={true} />
-          <ProductCard onClick={() => window.location.href = "/product"} />
-          <ProductCard onClick={() => window.location.href = "/product"} />
+        {
+            product && product.map((item, index) => (
+                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+            ))
+        }
         </div>
       </section>
       <Splide className="lg:hidden w-full mt-5" options={{

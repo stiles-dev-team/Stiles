@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import LayoutDark from '../layout/LayoutDark'
 
 import { FaRegHeart } from "react-icons/fa";
@@ -13,6 +13,7 @@ import {
     TabsBody,
     Tab,
     TabPanel,
+    Spinner,
   } from "@material-tailwind/react";
 
   import {
@@ -24,6 +25,7 @@ import {
   import { Splide, SplideSlide } from '@splidejs/react-splide';
   import '@splidejs/react-splide/css';
 import ProductCard from '../components/ProductCard';
+import { useParams } from 'react-router-dom';
    
   function Icon({ id, open }) {
     return (
@@ -41,11 +43,39 @@ import ProductCard from '../components/ProductCard';
   }
 
 const Product = () => {
+
+    const { id } = useParams();
     
     const [activeTab, setActiveTab] = useState("desc");
+    const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState(null);
+    const [imageSelected, setImageSelected] = useState(0);
+
+    useEffect(() => {
+        fetch(`/data/products.json`)
+        .then(res => res.json())
+        .then(data => {
+            const product = data.find(item => item.slug === id);
+            if (product) {
+                const images = product.images.split('|').map(imageBlock => {
+                    const [url, alt, title, desc, caption] = imageBlock.split('!').map(str => str.split(':').pop().trim());
+                    return { url, alt, title, desc, caption };
+                });
+                product.images = images;
+            }
+            setProduct(product);
+            console.log(product);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.log(err);
+            setLoading(false);
+        });
+    }, [id]);
+
     const data = [
         {
-            label: "Descriptions",
+            label: "Description",
             value: "desc",
             desc: [
                 "Brand: Essence",
@@ -64,7 +94,7 @@ const Product = () => {
             ],
         },
         {
-            label: "Additional Information",
+            label: "Product Details",
             value: "additional",
             desc: [
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla varius magna a consequat pulvinar. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla varius magna a consequat pulvinar. ",
@@ -87,27 +117,33 @@ const Product = () => {
     <LayoutDark>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2'>
-                <img src="/images/product_ph.png" alt="" className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
+                <img src={product?.images[imageSelected].url} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
                 <div className="flex flex-row lg:flex-col justify-start items-start gap-2">
-                    <img src="/images/product_ph.png" alt="" className='w-12 lg:w-20 aspect-square object-cover object-center rounded-md' />
-                    <img src="/images/product_ph.png" alt="" className='w-12 lg:w-20 aspect-square object-cover object-center rounded-md opacity-40' />
-                    <img src="/images/product_ph.png" alt="" className='w-12 lg:w-20 aspect-square object-cover object-center rounded-md opacity-40' />
-                    <img src="/images/product_ph.png" alt="" className='w-12 lg:w-20 aspect-square object-cover object-center rounded-md opacity-40' />
-                    <img src="/images/product_ph.png" alt="" className='w-12 lg:w-20 aspect-square object-cover object-center rounded-md opacity-40' />
+                    {product?.images.map((image, index) => (
+                        <img onClick={() => setImageSelected(index)} key={index} src={image.url} alt={image.alt} title={image.title} className={`w-10 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
+                    ))}
                 </div>
             </div>
             <div className='w-full lg:w-6/12 flex flex-col justify-start items-start gap-1'>
-                <h1 className='font-bold text-xl'>Essence Torino Calacatta Polished Rectified 600x1200mm</h1>
-                <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> 116-ST111200</p>
+                <h1 className='font-bold text-xl'>{product?.title}</h1>
+                <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">
-                    <p className='text-[#B3B3B3] line-through text-2xl'>R3,186</p>
-                    <p className='text-dark text-2xl'>R2,399 m2</p>
+                    {
+                        product?.sale_price  == "" ?
+                        <p className='text-dark text-2xl'>R{product?.regular_price} m2</p>
+                        :
+                        <>
+                            <p className='text-[#B3B3B3] line-through text-2xl'>R{product?.regular_price}</p>
+                            <p className='text-dark text-2xl'>R{product?.sale_price} m2</p>
+                        </>
+                    }
                 </div>
-                <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p>
+                {/* <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p> */}
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
-                    <div className='flex flex-row justify-start items-center gap-1 font-bold'>
+                    <div className='flex flex-row justify-start items-center gap-1 font-normal'>
                         Brand:
-                        <img src="/images/partner.png" alt="" className='size-20 object-contain object-center' />
+                        <a href={"/product-category/brands/" + product?.brands} className='text-dark underline font-bold'>{product?.brands}</a>
+                        {/* <img src="/images/partner.png" alt="" className='size-20 object-contain object-center' /> */}
                     </div>
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                         Share Item:
@@ -128,7 +164,9 @@ const Product = () => {
                         </div>
                     </div>
                 </div>
-                <p>Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla nibh diam, blandit vel consequat nec, ultrices et ipsum. Nulla varius magna a consequat pulvinar. </p>
+                <div className="productdesc flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full pb-5">
+                    <div dangerouslySetInnerHTML={{ __html: product?.description }} />
+                </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
                     <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
                         <button className='text-dark font-negro aspect-square w-7'>-</button>
@@ -146,9 +184,15 @@ const Product = () => {
                 <button className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'>
                 Technical Specifications
                 </button>
-                <button className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
-                View this in your room
-                </button>
+                <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-2">
+                    <button className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
+                    View this in your room
+                    </button>
+                    <button className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
+                    View in 3D
+                    </button>
+
+                </div>
             </div>
         </div>
         <div className="container mx-auto pb-20 hidden lg:block">

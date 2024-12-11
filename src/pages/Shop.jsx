@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
@@ -15,7 +15,8 @@ import {
     Select,
     Option,
     Slider,
-    Radio
+    Radio,
+    Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
@@ -65,12 +66,38 @@ const Content = () => {
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
 
+    const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState(null);
+
+    useEffect(() => {
+        fetch(`/data/products.json`)
+        .then(res => res.json())
+        .then(data => {
+            // Shuffle the array
+            const shuffledData = data.sort(() => 0.5 - Math.random());
+            // Get the first 30 items
+            const selectedProducts = shuffledData.slice(0, 30);
+            setProduct(selectedProducts);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.log(err);
+            setLoading(false);
+        });
+    }, []);
+
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
     return (
         <>
+            {
+                loading &&
+                <div className='w-full h-svh fixed top-0 left-0 bg-black/90 z-50 flex justify-center items-center'>
+                    <Spinner color='white' className="h-12 w-12" />
+                </div>
+            }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative lg:sticky top-3'>
                     <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
@@ -187,15 +214,12 @@ const Content = () => {
                         </Select>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full relative">
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
-                        <ProductCard onClick={handleOpenDialog}  />
+                        {
+                            product && product.map((item, index) => (
+                                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                            ))
+                        }
+                        {/* <ProductCard onClick={handleOpenDialog}  /> */}
                     </div>
                     <CircularPagination />
                 </div>

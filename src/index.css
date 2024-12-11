@@ -16,3 +16,8 @@ html, body {
     scroll-snap-type: x mandatory;
     box-sizing: border-box;
 }
+
+.productdesc a {
+    text-decoration: underline;
+    font-weight: 800;
+}
