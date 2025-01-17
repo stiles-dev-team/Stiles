@@ -1,8 +1,9 @@
-
 import Layout from '../layout/Layout'
 import ButtonStiles from '../components/ButtonStiles'
 import { IoIosArrowDown } from "react-icons/io";
 import ProductCard from '../components/ProductCard';
+import { Skeleton } from "../components/ui/skeleton"
+import { BlurFade } from "../components/ui/blur-fade" // Updated import statement
 
 import { Input, Button } from "@material-tailwind/react";
 
@@ -81,55 +82,55 @@ const OurProducts = () => {
       });
   }, []);
   return (
-    <div className='w-full'>
-      <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
-        <div className="flex flex-row justify-between items-end gap-5 w-full">
-          <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
-          <a href="#" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
-        </div>
-        <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap">
-          <button className='underline text-lg font-semibold uppercase underline-offset-4'>TILES</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Taps</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>sanitaryware</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Baths</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Basins</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Mosaics</button>
-          <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Pavers</button>
-        </div>
-        <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
-        {
-            product && product.map((item, index) => (
-                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
-            ))
-        }
-        </div>
-      </section>
-      <Splide className="lg:hidden w-full mt-5" options={{
-        perPage: 1,
-        type: 'loop',
-        perMove: 1,
-        arrows: false,
-        gap: '1rem',
-        pagination: false,
-        padding: '2rem',
-        breakpoints: {
-          1: {
-            perPage: 1,
-            type: 'loop',
+    <BlurFade delay={0.2} inView className='w-full'>
+        <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
+          <div className="flex flex-row justify-between items-end gap-5 w-full">
+            <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
+            <a href="#" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
+          </div>
+          <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap">
+            <button className='underline text-lg font-semibold uppercase underline-offset-4'>TILES</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Taps</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>sanitaryware</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Baths</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Basins</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Mosaics</button>
+            <button className='text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'>Pavers</button>
+          </div>
+          <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
+          {
+              product && product.map((item, index) => (
+                  <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+              ))
+          }
+          </div>
+        </section>
+        <Splide className="lg:hidden w-full mt-5" options={{
+          perPage: 1,
+          type: 'loop',
+          perMove: 1,
+          arrows: false,
+          gap: '1rem',
+          pagination: false,
+          padding: '2rem',
+          breakpoints: {
+            1: {
+              perPage: 1,
+              type: 'loop',
+            },
           },
-        },
-      }}>
-        <SplideSlide>
-          <ProductCard />
-        </SplideSlide>
-        <SplideSlide>
-          <ProductCard />
-        </SplideSlide>
-        <SplideSlide>
-          <ProductCard promo={true} />
-        </SplideSlide>
-      </Splide>
-    </div>
+        }}>
+          <SplideSlide>
+            <ProductCard />
+          </SplideSlide>
+          <SplideSlide>
+            <ProductCard />
+          </SplideSlide>
+          <SplideSlide>
+            <ProductCard promo={true} />
+          </SplideSlide>
+        </Splide>
+    </BlurFade>
   )
 }
 

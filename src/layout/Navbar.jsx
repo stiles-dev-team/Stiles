@@ -1,12 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUser, FaHeart, FaCartShopping } from "react-icons/fa6";
 import { IoMenu, IoClose, IoSearch } from "react-icons/io5";
 import { IoChevronDown } from "react-icons/io5";
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react";
+
+function Icon({ id, open }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className={`${id === open ? "-rotate-0" : "-rotate-90"} size-3 transition-transform`}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
 
 const Navbar = () => {
 
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
+  const [showSanware, setShowSanware] = useState(false);
+  const [showFlooring, setShowFlooring] = useState(false);
+  const [subMenu, setSubMenu] = useState("");
+  const [slug, setSlug] = useState("");
+
+  const [data, setData] = useState([]);
+
+  const [open, setOpen] = useState(0);
+
+  const handleOpen = (value) => setOpen(open === value ? 0 : value);
+
+  useEffect(() => {
+    fetch('/data/categories.json')
+      .then(response => response.json())
+      .then(data => {
+        setData(data);
+      });
+
+  }, []);
 
   return (
     <>
@@ -15,38 +54,103 @@ const Navbar = () => {
         <a href='/'><img src="/images/logo_white.png" alt="" className='h-12 lg:h-16' /></a>
         <div className='lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden'>
           <a href="/shop" className='text-white font-medium'>Brands</a>
-          <div className="relative">
+          <div className="relative"  onMouseLeave={() => {
+              setShowTiles(false);
+              setSubMenu("");
+            }}>
             <a href="/shop" onMouseEnter={() => setShowTiles(true)} className='text-white font-medium'>Tiles</a>
-            <div onMouseLeave={() => setShowTiles(false)} className={`absolute top-8 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Floor Tiles</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Wall Tiles</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Large Slabs</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Mosaics</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">2cm Pavers</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="/shop" className="text-sm font-medium text-gray-400 group-hover:text-dark">Accessories</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1262)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                  </div>
+                ))
+              }
+            </div>
+            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showTiles ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
             </div>
           </div>
-          <a href="/shop" className='text-white font-medium'>Sanitaryware</a>
-          <a href="/shop" className='text-white font-medium'>Flooring</a>
-          <a href="/shop" className='text-white font-medium'>Fireplaces</a>
+          <div className="relative"  onMouseLeave={() => {
+              setShowSanware(false);
+              setSubMenu("");
+            }}>
+            <a href="/shop" onMouseEnter={() => setShowSanware(true)} className='text-white font-medium'>Sanware</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showSanware ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1091)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                  </div>
+                ))
+              }
+            </div>
+            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showSanware ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div className="relative"  onMouseLeave={() => {
+              setShowFlooring(false);
+              setSubMenu("");
+            }}>
+            <a href="/shop" onMouseEnter={() => setShowFlooring(true)} className='text-white font-medium'>Flooring</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showFlooring ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1562)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    {/* <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" /> */}
+                  </div>
+                ))
+              }
+            </div>
+            {/* <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showFlooring ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
+            </div> */}
+          </div>
+          <a href="/calore-kamado-jan/" className='text-white font-medium'>Fireplaces</a>
           <a href="/shop" className='text-white font-medium'>Promos</a>
           <a href="/shop" className='text-white font-medium'>Contact Us</a>
           <a href="#"><FaUser fill="white" /></a>
@@ -67,37 +171,68 @@ const Navbar = () => {
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Promos
-          <IoChevronDown className="-rotate-90" />
+          {/* <IoChevronDown className="-rotate-90" /> */}
         </p>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Tiles
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Sanity Ware
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Flooring
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 1} icon={<Icon id={1} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1262)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 2} icon={<Icon id={2} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanity Ware</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1091)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 3} icon={<Icon id={3} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(3)}>Flooring</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1562)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Fireplaces
-          <IoChevronDown className="-rotate-90" />
         </p>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Shop By Brand
-          <IoChevronDown className="-rotate-90" />
         </p>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
