@@ -70,7 +70,7 @@ const Content = () => {
     const [product, setProduct] = useState(null);
 
     useEffect(() => {
-        fetch(`/data/products.json`)
+        fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
             // Shuffle the array

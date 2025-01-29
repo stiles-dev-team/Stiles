@@ -52,7 +52,7 @@ const Product = () => {
     const [imageSelected, setImageSelected] = useState(0);
 
     useEffect(() => {
-        fetch(`/data/products.json`)
+        fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
             const product = data.find(item => item.slug === id);

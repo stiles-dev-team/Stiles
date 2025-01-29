@@ -1,12 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUser, FaHeart, FaCartShopping } from "react-icons/fa6";
 import { IoMenu, IoClose, IoSearch } from "react-icons/io5";
 import { IoChevronDown } from "react-icons/io5";
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react";
+
+function Icon({ id, open }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className={`${id === open ? "-rotate-0" : "-rotate-90"} size-3 transition-transform`}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
 
 const NavbarDark = () => {
 
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
+  const [showSanware, setShowSanware] = useState(false);
+  const [showFlooring, setShowFlooring] = useState(false);
+  const [subMenu, setSubMenu] = useState("");
+  const [slug, setSlug] = useState("");
+
+  const [data, setData] = useState([]);
+
+  const [open, setOpen] = useState(0);
+
+  const handleOpen = (value) => setOpen(open === value ? 0 : value);
+
+  useEffect(() => {
+    fetch('/data/categories.json')
+      .then(response => response.json())
+      .then(data => {
+        setData(data);
+      });
+
+  }, []);
 
   return (
     <>
@@ -14,47 +53,112 @@ const NavbarDark = () => {
       <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
         <a href='/'><img src="/images/logo.png" alt="" className='h-12 lg:h-16' /></a>
         <div className='lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden'>
-          <a href="#" className='text-dark font-medium'>Brands</a>
-          <div className="relative">
-            <a href="#" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
-            <div onMouseLeave={() => setShowTiles(false)} className={`absolute top-8 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 shadow ${showTiles ? "flex" : "hidden"}`}>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Floor Tiles</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Wall Tiles</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Large Slabs</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Mosaics</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">2cm Pavers</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
-              <div className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                <a href="#" className="text-sm font-medium text-gray-400 group-hover:text-dark">Accessories</a>
-                <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-              </div>
+          <a href="/shop" className='text-dark font-medium'>Brands</a>
+          <div className="relative"  onMouseLeave={() => {
+              setShowTiles(false);
+              setSubMenu("");
+            }}>
+            <a href="/shop" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1262)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                  </div>
+                ))
+              }
+            </div>
+            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showTiles ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
             </div>
           </div>
-          <a href="#" className='text-dark font-medium'>Sanitaryware</a>
-          <a href="#" className='text-dark font-medium'>Flooring</a>
-          <a href="#" className='text-dark font-medium'>Fireplaces</a>
-          <a href="#" className='text-dark font-medium'>Promos</a>
-          <a href="#" className='text-dark font-medium'>Contact Us</a>
-          <a href="#"><FaUser fill="dark" /></a>
-          <a href="#"><FaHeart fill="dark" /></a>
-          <a href="#"><FaCartShopping fill="dark" /></a>
-          <a href="#"><IoSearch fill="dark" size={20} /></a>
+          <div className="relative"  onMouseLeave={() => {
+              setShowSanware(false);
+              setSubMenu("");
+            }}>
+            <a href="/shop" onMouseEnter={() => setShowSanware(true)} className='text-dark font-medium'>Sanware</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 z-[9999999] shadow-lg ${showSanware ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1091)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                  </div>
+                ))
+              }
+            </div>
+            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 z-[9999998] shadow-lg ${subMenu !== "" && showSanware ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div className="relative"  onMouseLeave={() => {
+              setShowFlooring(false);
+              setSubMenu("");
+            }}>
+            <a href="/shop" onMouseEnter={() => setShowFlooring(true)} className='text-dark font-medium'>Flooring</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showFlooring ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === 1562)
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                      setSubMenu(item.term_id);
+                      setSlug(item.slug);
+                    }}>
+                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    {/* <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" /> */}
+                  </div>
+                ))
+              }
+            </div>
+            {/* <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showFlooring ? "flex" : "hidden"}`}>
+              {
+                data?.filter(item => item.parent === subMenu)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item, index) => (
+                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  </div>
+                ))
+              }
+            </div> */}
+          </div>
+          <a href="/calore-kamado-jan/" className='text-dark font-medium'>Fireplaces</a>
+          <a href="/shop" className='text-dark font-medium'>Promos</a>
+          <a href="/shop" className='text-dark font-medium'>Contact Us</a>
+          <a href="#"><FaUser fill="white" /></a>
+          <a href="/wishlist"><FaHeart fill="white" /></a>
+          <a href="#"><FaCartShopping fill="white" /></a>
+          <a href="#"><IoSearch fill="white" size={20} /></a>
         </div>
-        <IoMenu className='lg:hidden' stroke="black" size={30} onClick={() => setShowMenu(true)} />
+        <IoMenu className='lg:hidden' stroke="white" size={30} onClick={() => setShowMenu(true)} />
       </div>
     </nav>
     <div className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${showMenu ? "right-0" : "-right-full"}`}>
@@ -67,37 +171,68 @@ const NavbarDark = () => {
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Promos
-          <IoChevronDown className="-rotate-90" />
+          {/* <IoChevronDown className="-rotate-90" /> */}
         </p>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Tiles
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Sanity Ware
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Flooring
-          <IoChevronDown className="-rotate-90" />
-        </p>
-      </div>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 1} icon={<Icon id={1} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1262)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 2} icon={<Icon id={2} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanity Ware</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1091)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 3} icon={<Icon id={3} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(3)}>Flooring</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {
+            data?.filter(item => item.parent === 1562)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item, index) => (
+              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
+                  {item.name}
+                </p>
+                {/* <IoChevronDown className="-rotate-90" /> */}
+              </a>
+            ))
+          }
+        </AccordionBody>
+      </Accordion>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Fireplaces
-          <IoChevronDown className="-rotate-90" />
         </p>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
           Shop By Brand
-          <IoChevronDown className="-rotate-90" />
         </p>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
@@ -108,7 +243,7 @@ const NavbarDark = () => {
       </div>
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">
         <a href="#"><FaUser className="fill-dark" size={20} /></a>
-        <a href="#"><FaHeart className="fill-dark" size={20} /></a>
+        <a href="/wishlist"><FaHeart className="fill-dark" size={20} /></a>
         <a href="#"><FaCartShopping className="fill-dark" size={20} /></a>
       </div>
       <input type="search" className="w-11/12 mx-auto border border-opaque p-3 text-sm rounded-full" placeholder="Search for products" />

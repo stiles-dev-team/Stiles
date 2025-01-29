@@ -42,11 +42,19 @@ function Icon({ id, open }) {
 const ProductCategory = () => {
 
     const { slug } = useParams();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const productsPerPage = 15;
+
+    const handlePageChange = (pageNumber) => {
+        setLoading(true);
+        setCurrentPage(pageNumber);
+    };
 
   return (
     <Layout>
         <Hero slug={slug} />
-        <Content slug={slug} />
+        <Content slug={slug} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
     </Layout>
   )
 }
@@ -80,12 +88,11 @@ const Hero = ({slug}) => {
     )
 }
 
-const Content = ({slug}) => {
+const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
 
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
 
-    const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState(null);
 
     const [minPrice, setMinPrice] = useState(0);
@@ -104,7 +111,8 @@ const Content = ({slug}) => {
     }, []);
 
     useEffect(() => {
-        fetch(`/data/products.json`)
+        setLoading(true);
+        fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
             const selectedProducts = data.filter(item => item.product_cat.includes(dataSlug?.name));
@@ -124,8 +132,15 @@ const Content = ({slug}) => {
         })
         .catch(err => {
             console.log(err);
+            setLoading(false);
         });
-    }, [dataSlug]);
+    }, [dataSlug, currentPage]);
+
+    useEffect(() => {
+        if (product) {
+            setLoading(false);
+        }
+    }, [product]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -134,6 +149,10 @@ const Content = ({slug}) => {
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
+
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
 
     return (
         <>
@@ -235,13 +254,19 @@ const Content = ({slug}) => {
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full relative">
                         {
-                            product && product.map((item, index) => (
+                            currentProducts.map((item, index) => (
                                 <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                             ))
                         }
-                        {/* <ProductCard onClick={handleOpenDialog}  /> */}
                     </div>
-                    <CircularPagination />
+                    <CircularPagination
+                        totalItems={product ? product.length : 0}
+                        itemsPerPage={productsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={onPageChange}
+                    />
+                    <br />
+                    <br />
                 </div>
             </div>
             <Dialog size='lg' open={openDialog} handler={handleOpenDialog}>

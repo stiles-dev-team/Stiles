@@ -22,7 +22,8 @@ const ProductCard = ({ promo, onClick, prod }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`/data/products.json`)
+        setLoading(true);
+        fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
             const product = data.find(item => item.slug === prod);
