@@ -5,18 +5,9 @@ import PropTypes from 'prop-types';
 import { Spinner } from '@material-tailwind/react';
 import { Skeleton } from './ui/skeleton';
 
-const ProductCard = ({ promo, onClick, prod }) => {
+const ProductCard = ({ onClick, prod }) => {
 
     const [isFavourite, setIsFavourite] = useState(false);
-
-    ProductCard.propTypes = {
-        promo: PropTypes.bool,
-    };
-    
-    // Define default props
-    ProductCard.defaultProps = {
-        promo: false,
-    };
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,6 +30,7 @@ const ProductCard = ({ promo, onClick, prod }) => {
         })
         .catch(err => {
             setLoading(false);
+            console.error(err);
         });
     }, [prod]);
     
@@ -56,10 +48,10 @@ const ProductCard = ({ promo, onClick, prod }) => {
             :
             <>
                 {
-                    promo && <div className='absolute top-0 left-0 bg-primary text-dark px-4 py-2 lg:py-3 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>Promo</div>
+                    product.sale_price > 0 && <div className='absolute top-0 left-0 bg-primaryStiles text-dark px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>Promo</div>
                 }
                 <img src={product?.images[0].url} alt="Product Image" className='w-full rounded-lg lg:rounded-xl aspect-[16/11] object-contain object-center relative z-0 cursor-pointer' onClick={onClick} />
-                <div className={`absolute top-3 lg:top-6 right-3 lg:right-6 rounded-full flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-white"}`} onClick={() => setIsFavourite(!isFavourite)}>
+                <div className={`absolute top-3 lg:top-4 right-3 lg:right-6 rounded-full flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 drop-shadow-md ${isFavourite ? "bg-danger" : "bg-white"}`} onClick={() => setIsFavourite(!isFavourite)}>
                     <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
                     
                 </div>

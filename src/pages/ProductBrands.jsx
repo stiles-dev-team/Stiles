@@ -41,7 +41,7 @@ function Icon({ id, open }) {
     );
   }
 
-const ProductCategory = () => {
+const ProductBrands = () => {
 
     const { slug } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,30 +61,15 @@ const ProductCategory = () => {
   )
 }
 
-export default ProductCategory
+export default ProductBrands
 
 const Hero = ({slug}) => {
-
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
 
     return (
       <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
-            <div className='!text-white text-center w-full max-w-3xl'>
-                <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
-            </div>
+            <h1 className='text-white font-bold text-5xl text-center'>{slug}</h1>
         </div>
       </section>
     )
@@ -116,18 +101,6 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
-    const [size, setSize] = useState([]);
-
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            console.log(selectedData);
-            setDataSlug(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
 
     useEffect(() => {
         setLoading(true);
@@ -135,7 +108,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         .then(res => res.json())
         .then(data => {
             const selectedProducts = data
-                .filter(item => item.product_cat.includes(dataSlug?.name) && item.status === 'publish')
+                .filter(item => item.brands.includes(slug) && item.status === 'publish')
                 .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
             
             setProduct(selectedProducts);
@@ -277,8 +250,8 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href={"/product-category/" + slug}>
-                                {dataSlug?.name}
+                            <a href={"/product-category/brands/" + slug}>
+                                {slug}
                             </a>
                         </Breadcrumbs>
                     </div>

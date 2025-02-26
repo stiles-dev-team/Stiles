@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
-import MultiRangeSlider from "multi-range-slider-react";
 
 import {
     Accordion,
@@ -10,13 +9,12 @@ import {
     AccordionBody,
     Dialog,
     DialogBody,
-    Breadcrumbs,
     Select,
     Option,
     Slider,
     Radio,
-    Spinner,
-    Tooltip
+    Breadcrumbs,
+    Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
@@ -25,6 +23,8 @@ import { RiHandbagLine } from 'react-icons/ri';
 import { useParams } from 'react-router-dom';
 import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
+import { data } from 'autoprefixer';
+import { sub } from 'motion/react-client';
 
 function Icon({ id, open }) {
     return (
@@ -41,9 +41,9 @@ function Icon({ id, open }) {
     );
   }
 
-const ProductCategory = () => {
+const ProductTagCategory = () => {
 
-    const { slug } = useParams();
+    const { slug, category, subcategory } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const productsPerPage = 15;
@@ -56,12 +56,12 @@ const ProductCategory = () => {
   return (
     <Layout>
         <Hero slug={slug} />
-        <Content slug={slug} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
+        <Content slug={slug} category={category} subcategory={subcategory} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
     </Layout>
   )
 }
 
-export default ProductCategory
+export default ProductTagCategory
 
 const Hero = ({slug}) => {
 
@@ -90,7 +90,7 @@ const Hero = ({slug}) => {
     )
 }
 
-const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
+const Content = ({slug, category, subcategory, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
 
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
@@ -100,15 +100,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(0);
 
-    const [minValue, set_minValue] = useState(0);
-    const [maxValue, set_maxValue] = useState(0);
-
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-    };
-
     const [dataSlug, setDataSlug] = useState(null);
+    const [dataCategory, setDataCategory] = useState(null);
+    const [dataSubCategory, setDataSubCategory] = useState(null);
 
     const [sortBy, setSortBy] = useState('asc');
 
@@ -116,7 +110,6 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
-    const [size, setSize] = useState([]);
 
     useEffect(() => {
         fetch(`/data/categories.json`)
@@ -125,6 +118,33 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
             const selectedData = data.filter(item => item.slug === slug);
             console.log(selectedData);
             setDataSlug(selectedData[0]);
+        })
+        .then(() => {
+            fetch(`/data/categories.json`)
+            .then(res => res.json())
+            .then(data => {
+                const selectedData = data.filter(item => item.slug === category);
+                console.log(selectedData);
+                setDataCategory(selectedData[0]);
+            })
+        })
+        .then(() => {
+            fetch(`/data/categories.json`)
+            .then(res => res.json())
+            .then(data => {
+                const selectedData = data.filter(item => item.slug === category);
+                console.log(selectedData);
+                setDataCategory(selectedData[0]);
+            })
+        })
+        .then(() => {
+            fetch(`/data/categories.json`)
+            .then(res => res.json())
+            .then(data => {
+                const selectedData = data.filter(item => item.slug === subcategory);
+                console.log(selectedData);
+                setDataSubCategory(selectedData[0]);
+            })
         })
         .catch(err => console.log(err));
     }, []);
@@ -149,8 +169,6 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     
             setMinPrice(minPrice);
             setMaxPrice(maxPrice);
-            // set_minValue(minPrice);
-            // set_maxValue(maxPrice);
 
             const colours = [...new Set(selectedProducts
                 .map(item => item.colour)
@@ -197,29 +215,12 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                 </div>
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
-                <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
+                <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative lg:sticky top-3'>
                     <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
-                            <div className='w-full pt-6 pb-2 px-1'>
-                                <Tooltip content={formatCurrency(maxPrice)}>
-                                    <Slider defaultValue={100} />
-                                </Tooltip>
-                                {/* <MultiRangeSlider
-                                    className='border-none shadow-none'
-                                    min={minValue}
-                                    max={maxValue}
-                                    ruler={false}
-                                    step={10}
-                                    minValue={minPrice}
-                                    maxValue={maxPrice}
-                                    barLeftColor='white'
-                                    barRightColor='white'
-                                    barInnerColor='black'
-                                    onInput={(e) => {
-                                        handleInput(e);
-                                    }}
-                                /> */}
+                            <div className='w-full pt-4 pb-2'>
+                                <Slider defaultValue={50} />
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
                                 <p className='text-gray-500'>{formatCurrency(minPrice)}</p>
@@ -277,7 +278,13 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href={"/product-category/" + slug}>
+                            <a href={"/product-category/" + category} className="opacity-60">
+                                {dataCategory?.name}
+                            </a>
+                            <a href={"/product-category/" + category + "/" + subcategory} className="opacity-60">
+                                {dataSubCategory?.name}
+                            </a>
+                            <a href={"/product-category/" + category + "/" + subcategory + "/" + slug}>
                                 {dataSlug?.name}
                             </a>
                         </Breadcrumbs>
@@ -299,7 +306,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
                             currentProducts.map((item, index) => (
-                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                             ))
                         }
                     </div>

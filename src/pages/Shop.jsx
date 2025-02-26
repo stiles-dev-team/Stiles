@@ -105,25 +105,25 @@ const Content = () => {
                         <AccordionBody className="py-1 px-1">
                             <ul className='flex flex-col gap-0'>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Tiles <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Tiles <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Taps <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Taps <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Saniti Ware <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Saniti Ware <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Baths <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Baths <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Basins <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Basins <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Mosaics <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Mosaics <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                                 <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>Pavers <span className='text-gray-500'>(134)</span></span>} />
+                                    <Radio name='categories' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" onClick={() => window.location.href = '/'} label={<span className='uppercase text-base'>Pavers <span className='text-gray-500'>(134)</span></span>} />
                                 </li>
                             </ul>
                         </AccordionBody>

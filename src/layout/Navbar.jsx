@@ -32,6 +32,9 @@ const Navbar = () => {
   const [subMenu, setSubMenu] = useState("");
   const [slug, setSlug] = useState("");
 
+  const [showSearch, setShowSearch] = useState(false);
+  const [search, setSearch] = useState("");
+
   const [data, setData] = useState([]);
 
   const [open, setOpen] = useState(0);
@@ -49,6 +52,14 @@ const Navbar = () => {
 
   return (
     <>
+    {
+      showSearch &&
+      <div className="w-full fixed h-screen top-0 z-[999] flex flex-col justify-center items-center gap-5 px-4 py-3">
+        <div className="bg-dark/80  w-full h-full absolute top-0 left-0 z-0" onClick={() => setShowSearch(false)}></div>
+        <input type="search" className="w-11/12 max-w-3xl border border-gray-300 p-4 text-sm rounded-full relative z-10" placeholder="Search for products" />
+      </div>
+
+    }
     <nav className='w-full absolute top-0 left-0 py-3 lg:py-5 z-50'>
       <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
         <a href='/'><img src="/images/logo_white.png" alt="" className='h-12 lg:h-16' /></a>
@@ -58,29 +69,33 @@ const Navbar = () => {
               setShowTiles(false);
               setSubMenu("");
             }}>
-            <a href="/shop" onMouseEnter={() => setShowTiles(true)} className='text-white font-medium'>Tiles</a>
+            <a href="/product-category/tiles" onMouseEnter={() => setShowTiles(true)} className='text-white font-medium'>Tiles</a>
             <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1262)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
                       setSubMenu(item.term_id);
                       setSlug(item.slug);
                     }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                    <a href={"/product-category/tiles/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    {
+                      !item.no_children
+                      &&
+                      <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                    }
                   </div>
                 ))
               }
             </div>
-            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showTiles ? "flex" : "hidden"}`}>
+            <div className={`absolute top-6 left-52 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showTiles && data?.filter(item => item.parent === subMenu).length > 0 ? "flex bg-white p-5" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === subMenu)
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/tiles/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
                   </div>
                 ))
               }
@@ -90,29 +105,33 @@ const Navbar = () => {
               setShowSanware(false);
               setSubMenu("");
             }}>
-            <a href="/shop" onMouseEnter={() => setShowSanware(true)} className='text-white font-medium'>Sanware</a>
+            <a href="/product-category/sanitary-ware/" onMouseEnter={() => setShowSanware(true)} className='text-white font-medium'>Sanware</a>
             <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showSanware ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1091)
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
                       setSubMenu(item.term_id);
                       setSlug(item.slug);
                     }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                    <a href={"/product-category/sanitary-ware/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    {
+                      !item.no_children
+                      &&
+                      <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
+                    }
                   </div>
                 ))
               }
             </div>
-            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showSanware ? "flex" : "hidden"}`}>
+            <div className={`absolute top-6 left-52 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showSanware && data?.filter(item => item.parent === subMenu).length > 0 ? "flex bg-white p-5" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === subMenu)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                    <a href={"/product-category/sanitary-ware/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
                   </div>
                 ))
               }
@@ -122,17 +141,17 @@ const Navbar = () => {
               setShowFlooring(false);
               setSubMenu("");
             }}>
-            <a href="/shop" onMouseEnter={() => setShowFlooring(true)} className='text-white font-medium'>Flooring</a>
+            <a href="/product-category/flooring" onMouseEnter={() => setShowFlooring(true)} className='text-white font-medium'>Flooring</a>
             <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showFlooring ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1562)
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
                       setSubMenu(item.term_id);
                       setSlug(item.slug);
                     }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
+                    <a href={"/product-category/flooring/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
                     {/* <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" /> */}
                   </div>
                 ))
@@ -143,7 +162,7 @@ const Navbar = () => {
                 data?.filter(item => item.parent === subMenu)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
+                  <div key={item.term_id} className="w-full flex flex-row justify-between items-center gap-2 relative group">
                     <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
                   </div>
                 ))
@@ -151,12 +170,12 @@ const Navbar = () => {
             </div> */}
           </div>
           <a href="/calore-kamado-jan/" className='text-white font-medium'>Fireplaces</a>
-          <a href="/shop" className='text-white font-medium'>Promos</a>
+          <a href="/promos" className='text-white font-medium'>Promos</a>
           <a href="/shop" className='text-white font-medium'>Contact Us</a>
           <a href="#"><FaUser fill="white" /></a>
           <a href="/wishlist"><FaHeart fill="white" /></a>
-          <a href="#"><FaCartShopping fill="white" /></a>
-          <a href="#"><IoSearch fill="white" size={20} /></a>
+          <a href="/cart"><FaCartShopping fill="white" /></a>
+          <div className="cursor-pointer" onClick={() => setShowSearch(true)}><IoSearch fill="white" size={20} /></div>
         </div>
         <IoMenu className='lg:hidden' stroke="white" size={30} onClick={() => setShowMenu(true)} />
       </div>
@@ -181,7 +200,7 @@ const Navbar = () => {
             data?.filter(item => item.parent === 1262)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>
@@ -198,7 +217,7 @@ const Navbar = () => {
             data?.filter(item => item.parent === 1091)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>
@@ -215,7 +234,7 @@ const Navbar = () => {
             data?.filter(item => item.parent === 1562)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>

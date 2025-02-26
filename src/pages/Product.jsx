@@ -51,6 +51,8 @@ const Product = () => {
     const [product, setProduct] = useState(null);
     const [imageSelected, setImageSelected] = useState(0);
 
+    const [related, setRelated] = useState([]);
+
     useEffect(() => {
         fetch(`/data/products2.json`)
         .then(res => res.json())
@@ -65,6 +67,21 @@ const Product = () => {
             }
             setProduct(product);
             console.log(product);
+            
+            fetch(`/data/products2.json`)
+            .then(res => res.json())
+            .then(data => {
+            const selectedData = data.filter(item => item.brands === product.brands && item.slug !== product.slug);
+                // Shuffle the array
+                const shuffledData = selectedData.sort(() => 0.5 - Math.random());
+                // Get the first 30 items
+                const selectedProducts = shuffledData.slice(0, 10);
+                setRelated(selectedProducts);
+                console.log(selectedProducts);
+            })
+            .catch(err => {
+                console.log(err);
+            });
             setLoading(false);
         })
         .catch(err => {
@@ -126,7 +143,7 @@ const Product = () => {
             </div>
             <div className='w-full lg:w-6/12 flex flex-col justify-start items-start gap-1'>
                 <h1 className='font-bold text-xl'>{product?.title}</h1>
-                <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
+                <p className='text-dark/60'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">
                     {
                         product?.sale_price  == "" ?
@@ -173,9 +190,9 @@ const Product = () => {
                         <input type="text" className=' border-0 appearance-none text-dark text-center w-16 outline-none' min={1} value={1} />
                         <button className='text-dark font-negro aspect-square w-7'>+</button>
                     </div>
-                    <button className='text-xs bg-primary text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'>
+                    <button className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'>
                         ADD TO CART
-                        <RiHandbagLine className='fill-dark' size={14} />
+                        <RiHandbagLine className='fill-whtie' size={14} />
                     </button>
                     <div className={`rounded-full hidden lg:flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 bg-secondary/10`}>
                         <FaHeart size={20} className={`transition-all fill-dark`} />
@@ -263,7 +280,6 @@ const Product = () => {
             <br />
             <Splide options={{
                 perPage: 4,
-                type: "loop",
                 gap: '1rem',
                 pagination: false,
                 breakpoints: {
@@ -280,9 +296,13 @@ const Product = () => {
                     },
                 }
             }}>
-                <SplideSlide>
-                    <ProductCard />
-                </SplideSlide>
+                    {
+                        related.map((item) => (
+                            <SplideSlide>
+                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                            </SplideSlide>
+                        ))
+                    }
             </Splide>
         </div>
         <SubscribeBanner />
@@ -302,7 +322,7 @@ const SubscribeBanner = () => {
       <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
         <div className='bg-black/40 w-full h-full absolute top-0 left-0 z-0'></div>
         <div className='flex flex-col justify-center items-center gap-6 w-full max-w-5xl z-10 relative'>
-          <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Lorem ipsum dolor sit amet consectetur. Pretium fermentum aliquet ultrices eget pharetra in porttitor. Molestie est dolor.</p>
+          <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Subscribe to our weekly newsletter to get the latest updates and amazing offers delivered in your inbox</p>
           <div className='relative w-full max-w-[460px] flex justify-center items-center'>
             <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' placeholder='Email Address' />
             <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
