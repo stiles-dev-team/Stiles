@@ -6,7 +6,9 @@ import {
   Accordion,
   AccordionHeader,
   AccordionBody,
+  Badge
 } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
 
 function Icon({ id, open }) {
   return (
@@ -24,141 +26,440 @@ function Icon({ id, open }) {
 }
 
 const NavbarDark = () => {
-
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
   const [showSanware, setShowSanware] = useState(false);
   const [showFlooring, setShowFlooring] = useState(false);
+  const [showBrands, setShowBrands] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [subMenu, setSubMenu] = useState("");
   const [slug, setSlug] = useState("");
 
-  const [data, setData] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
 
+  const [data, setData] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(0);
+  const [openBrandSection, setOpenBrandSection] = useState(null);
+  const [openTilesSection, setOpenTilesSection] = useState(null);
+  const [openSanwareSection, setOpenSanwareSection] = useState(null);
+  const [openFlooringSection, setOpenFlooringSection] = useState(null);
+
+  const categorizedBrands = {
+    'A-C': brands.filter(brand => /^[A-C]/i.test(brand)),
+    'D-G': brands.filter(brand => /^[D-G]/i.test(brand)),
+    'H-M': brands.filter(brand => /^[H-M]/i.test(brand)),
+    'N-R': brands.filter(brand => /^[N-R]/i.test(brand)),
+    'S-Z': brands.filter(brand => /^[S-Z]/i.test(brand))
+  };
 
   const handleOpen = (value) => setOpen(open === value ? 0 : value);
+  const handleBrandSectionOpen = (value) => setOpenBrandSection(openBrandSection === value ? null : value);
+  const handleTilesSectionOpen = (value) => setOpenTilesSection(openTilesSection === value ? null : value);
+  const handleSanwareSectionOpen = (value) => setOpenSanwareSection(openSanwareSection === value ? null : value);
+  const handleFlooringSectionOpen = (value) => setOpenFlooringSection(openFlooringSection === value ? null : value);
 
   useEffect(() => {
+    // Fetch categories
     fetch('/data/categories.json')
       .then(response => response.json())
       .then(data => {
         setData(data);
       });
 
+    // Fetch products and extract unique brands
+    fetch('/data/products2.json')
+      .then(response => response.json())
+      .then(products => {
+        const uniqueBrands = [...new Set(products.map(product => product.brands))].filter(Boolean).sort();
+        setBrands(uniqueBrands);
+        setAllProducts(products);
+      });
+
+    // Fetch locations
+    fetch('/data/stiles-locations.json')
+      .then(response => response.json())
+      .then(data => {
+        setLocations(data.locations);
+      });
+
+    const cart = JSON.parse(localStorage.getItem('stiles_cart_ls') || '[]');
+    const totalQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    setCartCount(totalQuantity);
+
   }, []);
+
+  useEffect(() => {
+    if (search.trim()) {
+      const results = allProducts
+        .filter(product => {
+          if (!product || product.status !== 'publish') return false;
+          
+          const searchTerm = search.toLowerCase();
+          const name = (product.name || '').toLowerCase();
+          const brands = (product.brands || '').toLowerCase();
+          const category = (product.product_cat || '').toLowerCase();
+          
+          return name.includes(searchTerm) || 
+                 brands.includes(searchTerm) || 
+                 category.includes(searchTerm);
+        })
+        .slice(0, 4);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [search, allProducts]);
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value || 0);
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && search.trim()) {
+      setShowSearch(false);
+      navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+    }
+  };
 
   return (
     <>
+    {
+      showSearch &&
+      <div className="w-full fixed h-screen top-0 z-[999] flex flex-col justify-center items-center gap-5 px-4 py-3">
+        <div className="bg-dark/80 w-full h-full absolute top-0 left-0 z-0" onClick={() => setShowSearch(false)}></div>
+        <div className="w-11/12 max-w-3xl relative z-10">
+          <input 
+            type="search" 
+            className="w-full border border-gray-300 p-4 text-sm rounded-full" 
+            placeholder="Search for products" 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchSubmit}
+          />
+          {searchResults.length > 0 && (
+            <div className="w-full bg-white mt-2 rounded-lg shadow-lg overflow-hidden">
+              {searchResults.map((product) => (
+                <a 
+                  key={product.slug} 
+                  href={`/product/${product.slug}`}
+                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                >
+                  <div className="w-16 h-16 flex-shrink-0">
+                    <img 
+                      src={product.images.split('|')[0].split('!')[0].split(':')[1].trim()} 
+                      alt={product.title} 
+                      className="w-full h-full object-cover rounded"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
+                    <p className="text-sm text-gray-500">{product.brands}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {product.sale_price > 0 ? (
+                        <>
+                          <span className="text-red-600">{formatCurrency(product.sale_price)}</span>
+                          <span className="ml-2 line-through text-gray-400">{formatCurrency(product.regular_price)}</span>
+                        </>
+                      ) : (
+                        formatCurrency(product.regular_price)
+                      )}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    }
     <nav className='w-full absolute top-0 left-0 py-3 lg:py-5 z-50'>
       <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
         <a href='/'><img src="/images/logo.png" alt="" className='h-12 lg:h-16' /></a>
         <div className='lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden'>
-          <a href="/shop" className='text-dark font-medium'>Brands</a>
-          <div className="relative"  onMouseLeave={() => {
+          <div className="relative" onMouseLeave={() => {
+            setShowBrands(false);
+            setOpenBrandSection(null);
+          }}>
+            <a onMouseEnter={() => setShowBrands(true)} className='text-dark font-medium'>Brands</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showBrands ? "flex" : "hidden"}`}>
+              {Object.entries(categorizedBrands).map(([range, brandList]) => (
+                brandList.length > 0 && (
+                  <Accordion 
+                    key={range} 
+                    open={openBrandSection === range}
+                    className="w-full border-b border-b-gray-200"
+                    icon={<Icon id={range} open={openBrandSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleBrandSectionOpen(range)}
+                      className="text-xs py-2 font-bold border-none flex justify-between items-center"
+                    >
+                      Brands {range}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1">
+                        {brandList.map(brand => (
+                          <a 
+                            key={brand} 
+                            href={`/product-category/brands/${brand}`} 
+                            className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                          >
+                            {brand}
+                          </a>
+                        ))}
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                )
+              ))}
+            </div>
+          </div>
+          <div className="relative" onMouseLeave={() => {
               setShowTiles(false);
-              setSubMenu("");
+              setOpenTilesSection(null);
             }}>
-            <a href="/shop" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showTiles ? "flex" : "hidden"}`}>
+            <a href="/product-category/tiles" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showTiles ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1262)
                 .sort((a, b) => a.name.localeCompare(b.name))
-                .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
-                      setSubMenu(item.term_id);
-                      setSlug(item.slug);
-                    }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-                  </div>
-                ))
-              }
-            </div>
-            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showTiles ? "flex" : "hidden"}`}>
-              {
-                data?.filter(item => item.parent === subMenu)
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                  </div>
-                ))
+                .map((item, index) => {
+                  // Check if the item has subcategories
+                  const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+                  
+                  if (hasSubcategories) {
+                    return (
+                      <Accordion 
+                        key={item.term_id} 
+                        open={openTilesSection === item.term_id}
+                        className="w-full border-b border-b-gray-200"
+                        icon={<Icon id={item.term_id} open={openTilesSection} />}
+                      >
+                        <AccordionHeader 
+                          onClick={() => handleTilesSectionOpen(item.term_id)}
+                          className="text-xs py-2 font-bold border-none flex justify-between items-center text-dark"
+                        >
+                          {item.name}
+                        </AccordionHeader>
+                        <AccordionBody className="py-1">
+                          <div className="flex flex-col gap-1">
+                            {data?.filter(subItem => subItem.parent === item.term_id)
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((subItem) => (
+                                <a 
+                                  key={subItem.term_id} 
+                                  href={`/product-category/tiles/${item.slug}/${subItem.slug}`} 
+                                  className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                                >
+                                  {subItem.name}
+                                </a>
+                              ))}
+                            <a 
+                              href={`/product-category/tiles/${item.slug}`} 
+                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                            >
+                              See all {item.name}
+                            </a>
+                          </div>
+                        </AccordionBody>
+                      </Accordion>
+                    );
+                  } else {
+                    return (
+                      <a 
+                        key={item.term_id} 
+                        href={`/product-category/tiles/${item.slug}`} 
+                        className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
+                      >
+                        {item.name}
+                      </a>
+                    );
+                  }
+                })
               }
             </div>
           </div>
-          <div className="relative"  onMouseLeave={() => {
+          <div className="relative" onMouseLeave={() => {
               setShowSanware(false);
-              setSubMenu("");
+              setOpenSanwareSection(null);
             }}>
-            <a href="/shop" onMouseEnter={() => setShowSanware(true)} className='text-dark font-medium'>Sanware</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 z-[9999999] shadow-lg ${showSanware ? "flex" : "hidden"}`}>
+            <a href="/product-category/sanitary-ware/" onMouseEnter={() => setShowSanware(true)} className='text-dark font-medium'>Sanware</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showSanware ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1091)
                   .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
-                      setSubMenu(item.term_id);
-                      setSlug(item.slug);
-                    }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                    <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" />
-                  </div>
-                ))
-              }
-            </div>
-            <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 z-[9999998] shadow-lg ${subMenu !== "" && showSanware ? "flex" : "hidden"}`}>
-              {
-                data?.filter(item => item.parent === subMenu)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                  </div>
-                ))
+                  .map((item, index) => {
+                    // Check if the item has subcategories
+                    const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+                    
+                    if (hasSubcategories) {
+                      return (
+                        <Accordion 
+                          key={item.term_id} 
+                          open={openSanwareSection === item.term_id}
+                          className="w-full border-b border-b-gray-200"
+                          icon={<Icon id={item.term_id} open={openSanwareSection} />}
+                        >
+                          <AccordionHeader 
+                            onClick={() => handleSanwareSectionOpen(item.term_id)}
+                            className="text-xs py-2 font-bold border-none text-dark flex justify-between items-center"
+                          >
+                            {item.name}
+                          </AccordionHeader>
+                          <AccordionBody className="py-1">
+                            <div className="flex flex-col gap-1">
+                              {data?.filter(subItem => subItem.parent === item.term_id)
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((subItem) => (
+                                  <a 
+                                    key={subItem.term_id} 
+                                    href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`} 
+                                    className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                                  >
+                                    {subItem.name}
+                                  </a>
+                                ))}
+                              <a 
+                                href={`/product-category/sanitary-ware/${item.slug}`} 
+                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                              >
+                                See all {item.name}
+                              </a>
+                            </div>
+                          </AccordionBody>
+                        </Accordion>
+                      );
+                    } else {
+                      return (
+                        <a 
+                          key={item.term_id} 
+                          href={`/product-category/sanitary-ware/${item.slug}`} 
+                          className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
+                        >
+                          {item.name}
+                        </a>
+                      );
+                    }
+                  })
               }
             </div>
           </div>
-          <div className="relative"  onMouseLeave={() => {
+          <div className="relative" onMouseLeave={() => {
               setShowFlooring(false);
-              setSubMenu("");
+              setOpenFlooringSection(null);
             }}>
-            <a href="/shop" onMouseEnter={() => setShowFlooring(true)} className='text-dark font-medium'>Flooring</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${showFlooring ? "flex" : "hidden"}`}>
+            <a href="/product-category/flooring" onMouseEnter={() => setShowFlooring(true)} className='text-dark font-medium'>Flooring</a>
+            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showFlooring ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1562)
                   .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group" onMouseEnter={() => {
-                      setSubMenu(item.term_id);
-                      setSlug(item.slug);
-                    }}>
-                    <a href={"/product-category/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                    {/* <IoChevronDown className="-rotate-90 stroke-gray-400 group-hover:stroke-dark" /> */}
+                  .map((item, index) => {
+                    // Check if the item has subcategories
+                    const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+                    
+                    if (hasSubcategories) {
+                      return (
+                        <Accordion 
+                          key={item.term_id} 
+                          open={openFlooringSection === item.term_id}
+                          className="w-full border-b border-b-gray-200"
+                          icon={<Icon id={item.term_id} open={openFlooringSection} />}
+                        >
+                          <AccordionHeader 
+                            onClick={() => handleFlooringSectionOpen(item.term_id)}
+                            className="text-xs py-2 font-bold text-dark border-none flex justify-between items-center"
+                          >
+                            {item.name}
+                          </AccordionHeader>
+                          <AccordionBody className="py-1">
+                            <div className="flex flex-col gap-1">
+                              {data?.filter(subItem => subItem.parent === item.term_id)
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((subItem) => (
+                                  <a 
+                                    key={subItem.term_id} 
+                                    href={`/product-category/flooring/${item.slug}/${subItem.slug}`} 
+                                    className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                                  >
+                                    {subItem.name}
+                                  </a>
+                                ))}
+                              <a 
+                                href={`/product-category/flooring/${item.slug}`} 
+                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
+                              >
+                                See all {item.name}
+                              </a>
+                            </div>
+                          </AccordionBody>
+                        </Accordion>
+                      );
+                    } else {
+                      return (
+                        <a 
+                          key={item.term_id} 
+                          href={`/product-category/flooring/${item.slug}`} 
+                          className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
+                        >
+                          {item.name}
+                        </a>
+                      );
+                    }
+                  })
+              }
+            </div>
+          </div>
+          <a href="/calore-kamado-jan/" className='text-dark font-medium'>Fireplaces</a>
+          <a href="/promos" className='text-dark font-medium'>Promos</a>
+          <div className="relative" onMouseLeave={() => setShowContact(false)}>
+            <a href="/contact-us" className='text-dark font-medium cursor-pointer' onMouseEnter={() => setShowContact(true)}>Contact Us</a>
+            <div className={`absolute top-6 right-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showContact ? "flex" : "hidden"}`}>
+              {
+                Object.entries(
+                  locations.reduce((acc, location) => {
+                    if (!acc[location.region]) {
+                      acc[location.region] = [];
+                    }
+                    acc[location.region].push(location);
+                    return acc;
+                  }, {})
+                ).map(([region, locationsList]) => (
+                  <div key={region} className="w-full mb-3 last:mb-0">
+                    <p className="text-sm font-bold mb-2">{region}</p>
+                    <div className="flex flex-col gap-2">
+                      {locationsList.map((location) => (
+                        <a 
+                          key={location.title} 
+                          href={`/contact/${location.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
+                          className="text-sm text-gray-400 hover:text-dark transition-colors"
+                        >
+                          {location.title}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 ))
               }
             </div>
-            {/* <div className={`absolute top-6 left-52 bg-white p-5 flex-col justify-start items-start gap-3 w-52 ${subMenu !== "" && showFlooring ? "flex" : "hidden"}`}>
-              {
-                data?.filter(item => item.parent === subMenu)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((item, index) => (
-                  <div key={index} className="w-full flex flex-row justify-between items-center gap-2 relative group">
-                    <a href={"/product-category/" + slug + "/" + item.slug} className="text-sm font-medium text-gray-400 group-hover:text-dark">{item.name}</a>
-                  </div>
-                ))
-              }
-            </div> */}
           </div>
-          <a href="/calore-kamado-jan/" className='text-dark font-medium'>Fireplaces</a>
-          <a href="/shop" className='text-dark font-medium'>Promos</a>
-          <a href="/shop" className='text-dark font-medium'>Contact Us</a>
-          <a href="#"><FaUser fill="white" /></a>
-          <a href="/wishlist"><FaHeart fill="white" /></a>
-          <a href="#"><FaCartShopping fill="white" /></a>
-          <a href="#"><IoSearch fill="white" size={20} /></a>
+          <a href="#"><FaUser fill="black" /></a>
+          <a href="/wishlist"><FaHeart fill="black" /></a>
+          {
+            cartCount > 0 ?
+            <a href="/cart" className="relative flex justify-center items-center"><Badge color="red"><FaCartShopping fill="black" size={20} /></Badge></a>
+            :
+            <a href="/cart" className="relative flex justify-center items-center"><FaCartShopping fill="black" size={18} /></a>
+          }
+          <div className="cursor-pointer" onClick={() => setShowSearch(true)}><IoSearch fill="black" size={20} /></div>
         </div>
-        <IoMenu className='lg:hidden' stroke="white" size={30} onClick={() => setShowMenu(true)} />
+        <IoMenu className='lg:hidden' stroke="black" size={30} onClick={() => setShowMenu(true)} />
       </div>
     </nav>
     <div className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${showMenu ? "right-0" : "-right-full"}`}>
@@ -181,7 +482,7 @@ const NavbarDark = () => {
             data?.filter(item => item.parent === 1262)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>
@@ -198,7 +499,7 @@ const NavbarDark = () => {
             data?.filter(item => item.parent === 1091)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>
@@ -215,7 +516,7 @@ const NavbarDark = () => {
             data?.filter(item => item.parent === 1562)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <a href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
+              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
                 <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
                   {item.name}
                 </p>

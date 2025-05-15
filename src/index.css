@@ -13,6 +13,18 @@ html, body {
     box-sizing: border-box;
 }
 
+.blogpost-content {
+  h2 {
+    @apply text-2xl font-bold;
+  }
+  h3 {
+    @apply text-xl font-bold;
+  }
+  img {
+    @apply w-full object-cover rounded-lg;
+  }
+}
+
 .productdesc a {
     text-decoration: underline;
     font-weight: 800;

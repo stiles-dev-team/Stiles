@@ -1,4 +1,5 @@
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaPinterest } from "react-icons/fa";
+import locationData from '/public/data/stiles-locations.json';
 
 const Footer = () => {
   return (
@@ -24,16 +25,16 @@ const Footer = () => {
         <div className="flex flex-col justify-start items-center lg:items-start gap-2 lg:col-span-2">
           <h3 className="text-2xl font-bold text-white">GET IN TOUCH</h3>
           <div className="pt-4 grid grid-cols-1 lg:grid-cols-2 w-full gap-2">
-            <a href="tel:+27(021)5108310" target="_blank" className="text-white text-sm text-center lg:text-left">Cape Town (P. Eiland): +27 (021) 510 8310</a>
-            <a href="tel:+27(087)0943227" target="_blank" className="text-white text-sm text-center lg:text-left">Paarl: +27 (087) 094 3227</a>
-            <a href="tel:+27(021)8795657" target="_blank" className="text-white text-sm text-center lg:text-left">Somerset West: +27 (021) 879 5657</a>
-            <a href="tel:+27(022)8800310" target="_blank" className="text-white text-sm text-center lg:text-left">West Coast: +27 (022) 880 0310</a>
-            <a href="tel:+27(044)8713222" target="_blank" className="text-white text-sm text-center lg:text-left">George: +27 (044) 871 3222</a>
-            <a href="tel:+27(044)6951800" target="_blank" className="text-white text-sm text-center lg:text-left">Mossel Bay: +27 (044) 695 1800</a>
-            <a href="tel:+27(014)4953040" target="_blank" className="text-white text-sm text-center lg:text-left">Rustenburg: +27 (014) 495 3040</a>
-            <a href="tel:+27(012)8804737" target="_blank" className="text-white text-sm text-center lg:text-left">Pretoria (Menlyn Maine): +27 (012) 880 4737</a>
-            <a href="tel:+27(012)8840084" target="_blank" className="text-white text-sm text-center lg:text-left">Centurion: +27 (012) 884 0084</a>
-            <a href="tel:+27(031)2631192" target="_blank" className="text-white text-sm text-center lg:text-left">Durban: +27 (031) 263 1192</a>
+            {locationData.locations.map((location) => (
+              <a 
+                key={location.title}
+                href={`tel:${location.phone.replace(/\s/g, '')}`} 
+                target="_blank" 
+                className="text-white text-sm text-center lg:text-left"
+              >
+                {location.title}: {location.phone}
+              </a>
+            ))}
           </div>
         </div>
       </div>

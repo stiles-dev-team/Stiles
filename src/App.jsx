@@ -13,7 +13,14 @@ import ProductDisclaimer from "./pages/ProductDisclaimer"
 import ProductBrands from "./pages/ProductBrands"
 import ProductPromos from "./pages/ProductPromos"
 import Cart from "./pages/Cart"
-
+import ContactUs from "./pages/ContactUs"
+import ContactSingle from "./pages/ContactSingle"
+import Search from "./pages/Search"
+import Checkout from "./pages/Checkout"
+// import TileVisualiser from "./pages/TileVisualiser"
+import Blogs from "./pages/Blogs"
+import CategoryBlogs from "./pages/CategoryBlogs"
+import BlogPost from "./pages/BlogPost"
 
 function App() {
 
@@ -23,8 +30,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/promos" element={<ProductPromos />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/product-category/brands/:slug" element={<ProductBrands />} />
         <Route path="/product-category/:slug" element={<ProductCategory />} />
         <Route path="/product-category/:category/:slug" element={<ProductSubCategory />} />
@@ -34,6 +43,12 @@ function App() {
         <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
         <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/contact/:slug" element={<ContactSingle />} />
+        {/* <Route path="/tile-visualiser" element={<TileVisualiser />} /> */}
+        <Route path="/stiles-blog" element={<Blogs />} />
+        <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
+        <Route path="/stiles-blog/:slug" element={<BlogPost />} />
       </Routes>
     </BrowserRouter>
   )

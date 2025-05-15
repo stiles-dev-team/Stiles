@@ -14,8 +14,90 @@ import { AutoScroll } from '@splidejs/splide-extension-auto-scroll'
 
 import { useEffect, useState } from 'react';
 import BlogCard from '../components/BlogCard';
+import { toast } from 'sonner';
 
 const Home = () => {
+  const [location, setLocation] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+
+  // useEffect(() => {
+  //   // Check if geolocation is supported
+  //   if (!navigator.geolocation) {
+  //     alert("Geolocation is not supported in this browser.");
+  //     return;
+  //   }
+
+  //   // Check if running in a secure context (HTTPS or localhost)
+  //   const isSecureContext = window.isSecureContext;
+  //   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+  //   if (!isSecureContext && !isLocalhost) {
+  //     alert("Geolocation requires a secure connection (HTTPS). Please access this site via HTTPS.");
+  //     return;
+  //   }
+
+  //   // Detect iOS device
+  //   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  //   const isChromeOnIOS = isIOS && /Chrome/.test(navigator.userAgent);
+    
+  //   if (isChromeOnIOS) {
+  //     alert("On iOS, Chrome has limitations with geolocation. Please use Safari or enable location in Settings > Privacy > Location Services.");
+  //     return;
+  //   }
+
+  //   // Options for geolocation - optimized for precision
+  //   const options = {
+  //     enableHighAccuracy: true,  // Request the most accurate position available
+  //     timeout: 30000,            // Increased timeout to allow for more accurate readings
+  //     maximumAge: 0              // Don't use cached position
+  //   };
+
+  //   // Use watchPosition instead of getCurrentPosition for better accuracy
+  //   // This will continuously update the position as it becomes more accurate
+  //   const watchId = navigator.geolocation.watchPosition(
+  //     (position) => {
+  //       const { latitude, longitude, accuracy } = position.coords;
+  //       setLocation({ latitude, longitude, accuracy });
+  //       setLocationError(null);
+  //       alert(`Current location: ${latitude}, ${longitude}\nAccuracy: ${accuracy} meters`);
+  //     },
+  //     (error) => {
+  //       let errorMessage = "Error getting location: ";
+  //       switch(error.code) {
+  //         case error.PERMISSION_DENIED:
+  //           if (isIOS) {
+  //             errorMessage += "Permission denied. Go to Settings > Privacy > Location Services and enable location for this site.";
+  //           } else if (!isSecureContext && !isLocalhost) {
+  //             errorMessage += "Permission denied. Geolocation requires a secure connection (HTTPS).";
+  //           } else {
+  //             errorMessage += "Permission denied. Please enable geolocation on your device to use this feature.";
+  //           }
+  //           break;
+  //         case error.POSITION_UNAVAILABLE:
+  //           errorMessage += "Location information unavailable. Check your internet connection.";
+  //           break;
+  //         case error.TIMEOUT:
+  //           errorMessage += "Request timed out. Please try again.";
+  //           break;
+  //         default:
+  //           errorMessage += "Unknown error.";
+  //           break;
+  //       }
+  //       console.log("Geolocation error:", error);
+  //       setLocationError(errorMessage);
+  //       alert(errorMessage);
+  //     },
+  //     options
+  //   );
+
+  //   // Clean up the watch when component unmounts
+  //   return () => {
+  //     if (watchId) {
+  //       navigator.geolocation.clearWatch(watchId);
+  //     }
+  //   };
+  // }, []);
+
   return (
     <Layout>
       <main className='w-full flex flex-col justify-start items-start gap-14 lg:gap-28 pb-14 lg:pb-28 '>
@@ -50,19 +132,27 @@ const Hero = () => {
       }}>
         <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/hero.png" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <img src="/images/hero2.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
           <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-5xl md:text-8xl font-bold uppercase pb-5'>SMART<br />BESPOKE<br />INTERIORS.</h1>
+            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
             <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
           </div>
         </SplideSlide>
         <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
           <img src="/images/1920x550.webp" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <div className='relative z-10 container mx-auto px-4'>
+            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
+            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
+          </div>
         </SplideSlide>
         <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/Artboard-1-copy-2.webp" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <img src="/images/hero.png" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <div className='relative z-10 container mx-auto px-4'>
+            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
+            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
+          </div>
         </SplideSlide>
       </Splide>
       <a href='#whoweareHome' className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>KNOW MORE <IoIosArrowDown fill='white' /></a>
@@ -75,7 +165,7 @@ const WhoWeAre = () => {
     <section id="whoweareHome" className='container mx-auto px-4 flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20'>
       <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>WE ARE STILES</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
-        <p className='text-sm lg:text-base'>At Stiles, we’re all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.</p>
+        <p className='text-sm lg:text-base'>At Stiles, we're all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.</p>
         <p className='text-sm lg:text-basepb-6'>Along with importing products from top tile and sanitaryware factories across the globe, we pride ourselves in being a community-driven South African company. Stiles supports local industry, artisans and artists from South Africa. We believe in the tiles and sanitaryware we market, and employ creative people with an enthusiasm to keep all things stylish, making us leaders in service, technical advice, creative ability and innovative ideas.</p>
         <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} />
       </div>
@@ -126,7 +216,7 @@ const OurProducts = () => {
         <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
           <div className="flex flex-row justify-between items-end gap-5 w-full">
             <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
-            <a href="#" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
+            <a href="/shop" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
           </div>
           <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap pb-4">
             <button className={category === "Tiles" ? 'underline text-lg font-semibold uppercase underline-offset-4' : 'text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'} onClick={() => updateCat("Tiles")}>TILES</button>
@@ -174,15 +264,47 @@ const SubscribeBanner = () => {
   const [email, setEmail] = useState("");
   const onChange = ({ target }) => setEmail(target.value);
 
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    // Here you would typically send the email to your backend
+    // For now, we'll just show a success toast
+    toast.success("Thank you for subscribing to our newsletter!");
+    setEmail(""); // Clear the input after successful subscription
+  };
+
   return (
     <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
       <div className='bg-black/40 w-full h-full absolute top-0 left-0 z-0'></div>
       <div className='flex flex-col justify-center items-center gap-6 w-full max-w-5xl z-10 relative'>
         <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Subscribe to our weekly newsletter to get the latest updates and amazing offers delivered in your inbox</p>
-        <div className='relative w-full max-w-[460px] flex justify-center items-center'>
-          <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' placeholder='Email Address' />
-          <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
-        </div>
+        <form onSubmit={handleSubscribe} className='relative w-full max-w-[460px] flex justify-center items-center'>
+          <input 
+            type="email" 
+            value={email}
+            onChange={onChange}
+            className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' 
+            placeholder='Email Address' 
+          />
+          <button 
+            type="submit"
+            className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'
+          >
+            Subscribe
+          </button>
+        </form>
       </div>
     </section>
   )
@@ -263,7 +385,7 @@ const WeWorkWithTheBest = () => {
       <div className='flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20 w-full pb-5'>
         <h2 className='text-3xl lg:text-5xl uppercase text-dark font-bold w-full lg:w-4/12'>We work with the best</h2>
         <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
-          <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. A lot of brands are exclusively available to us like Italy’s Monocibec and Newform or Spain’s Realonda and Brazil’s Ceusa. We also pride ourselves in stocking top quality well-known brands like Duravit, Hansgrohe, Blutide and Geberit. To see our full range of brands, Visit our Shop by Brand section.</p>
+          <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. A lot of brands are exclusively available to us like Italy's Monocibec and Newform or Spain's Realonda and Brazil's Ceusa. We also pride ourselves in stocking top quality well-known brands like Duravit, Hansgrohe, Blutide and Geberit. To see our full range of brands, Visit our Shop by Brand section.</p>
         </div>
       </div>
       <Splide className="w-full" extensions={{AutoScroll}} options={{
@@ -291,19 +413,25 @@ const WeWorkWithTheBest = () => {
         },
       }}>
         <SplideSlide>
+          <img src="/images/Etienne.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Etienne"} />
+        </SplideSlide>
+        <SplideSlide>
+          <img src="/images/FunkyTiles.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Funky Tiles"} />
+        </SplideSlide>
+        <SplideSlide>
+          <img src="/images/Nala.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nala"} />
+        </SplideSlide>
+        <SplideSlide>
+          <img src="/images/Nest.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nest"} />
+        </SplideSlide>
+        <SplideSlide>
+          <img src="/images/Oak.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Oak"} />
+        </SplideSlide>
+        <SplideSlide>
           <img src="/images/partner.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Blutilde"} />
         </SplideSlide>
         <SplideSlide>
-          <img src="/images/ceusa.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Ceusa"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/coem.jpg" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Coem"} />
-        </SplideSlide>
-        <SplideSlide>
           <img src="/images/monocieb.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Monocibec"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/newform.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Newform"} />
         </SplideSlide>
         <SplideSlide>
           <img src="/images/florim.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Florim"} />
@@ -314,17 +442,39 @@ const WeWorkWithTheBest = () => {
 }
 
 const Blog = () => {
+  const [blogPosts, setBlogPosts] = useState([]);
+
+  useEffect(() => {
+    fetch(`/data/blogs.json`)
+    .then(res => res.json())
+    .then(data => {
+      // Sort posts by date in descending order (newest first)
+      const sortedPosts = data.sort((a, b) => {
+        const dateA = new Date(a.post_date);
+        const dateB = new Date(b.post_date);
+        return dateB - dateA;
+      });
+      // Take only the latest 3 posts
+      setBlogPosts(sortedPosts.slice(0, 3));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }, []);
+
   return (
     <div className='w-full'>
       <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
         <div className="flex flex-row justify-between items-end gap-5 w-full">
           <h2 className='font-bold text-3xl lg:text-5xl uppercase'>THE STILES BLOG</h2>
-          <a href="#" className='hidden lg:block'>VIEW ALL OUR STORIES</a>
+          <a href="/stiles-blog" className='hidden lg:block'>VIEW ALL OUR STORIES</a>
         </div>
         <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
-          <BlogCard title="The Rise of Green Tiles in South Africa: A Trend Reimagined" cat="DÉCOR INSPIRATION" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/10/Keradom-Home-Brick-Forest-Gloss-60x250mm_Stiles_Lifestyle_Image-1080x1080.webp?resize=1080%2C1080&ssl=1" desc='Gone are the days of the bland beige bathroom. With a tombstone that reads, "Here lies Beige, the inoffensive one...' />
-          <BlogCard title="Artful Living, design inspiration for your walls." cat="UNCATEGORIZED" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/08/Stevie-Joubert-scaled-1-1080x1080.jpg?resize=1080%2C1080&ssl=1" desc='“It’s not about a tile. It’s about a lifestyle,” says Stevie Joubert, CEO of tile retailer, Stiles.' />
-          <BlogCard title="Elevate Your Home Décor with Matiz: A Guide to Using Pastel Colour Decor Tiles with Stiles Tiles" cat="DÉCOR INSPIRATION" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/01/Portinari-Matiz-BL-Lux-80x250mm_Stiles_Lifestyle_Image-1080x1080.png?resize=1080%2C1080&ssl=1" desc='Are you looking to breathe new life into yo...' />
+          {
+            blogPosts && blogPosts.map((post, index) => (
+              <BlogCard key={index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.desc} slug={post.slug} />
+            ))
+          }
         </div>
       </section>
       <Splide className="lg:hidden w-full mt-5" options={{
@@ -342,15 +492,13 @@ const Blog = () => {
           },
         },
       }}>
-        <SplideSlide>
-          <BlogCard title="The Rise of Green Tiles in South Africa: A Trend Reimagined" cat="DÉCOR INSPIRATION" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/10/Keradom-Home-Brick-Forest-Gloss-60x250mm_Stiles_Lifestyle_Image-1080x1080.webp?resize=1080%2C1080&ssl=1" desc='Gone are the days of the bland beige bathroom. With a tombstone that reads, "Here lies Beige, the inoffensive one...' />
-        </SplideSlide>
-        <SplideSlide>
-          <BlogCard title="Artful Living, design inspiration for your walls." cat="UNCATEGORIZED" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/08/Stevie-Joubert-scaled-1-1080x1080.jpg?resize=1080%2C1080&ssl=1" desc='“It’s not about a tile. It’s about a lifestyle,” says Stevie Joubert, CEO of tile retailer, Stiles.' />
-        </SplideSlide>
-        <SplideSlide>
-          <BlogCard title="Elevate Your Home Décor with Matiz: A Guide to Using Pastel Colour Decor Tiles with Stiles Tiles" cat="DÉCOR INSPIRATION" img="https://i0.wp.com/stiles.co.za/wp-content/uploads/2024/01/Portinari-Matiz-BL-Lux-80x250mm_Stiles_Lifestyle_Image-1080x1080.png?resize=1080%2C1080&ssl=1" desc='Are you looking to breathe new life into yo...' />
-        </SplideSlide>
+        {
+          blogPosts && blogPosts.map((post, index) => (
+            <SplideSlide key={index}>
+              <BlogCard title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.desc} slug={post.slug} />
+            </SplideSlide>
+          ))
+        }
       </Splide>
     </div>
   )

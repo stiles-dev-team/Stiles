@@ -10,22 +10,21 @@ import {
     AccordionBody,
     Dialog,
     DialogBody,
+    Breadcrumbs,
     Select,
     Option,
     Slider,
     Radio,
-    Breadcrumbs,
-    Spinner
+    Spinner,
+    Tooltip
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
 import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
-import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
-import { data } from 'autoprefixer';
-import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 
 function Icon({ id, open }) {
     return (
@@ -42,9 +41,11 @@ function Icon({ id, open }) {
     );
   }
 
-const ProductSubCategory = () => {
+const Search = () => {
 
-    const { slug, category } = useParams();
+    const [searchParams] = useSearchParams();
+    const query = searchParams.get("q") || "";
+
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const productsPerPage = 15;
@@ -56,42 +57,27 @@ const ProductSubCategory = () => {
 
   return (
     <Layout>
-        <Hero slug={slug} />
-        <Content slug={slug} category={category} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
+        <Hero slug={query} />
+        <Content slug={query} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
     </Layout>
   )
 }
 
-export default ProductSubCategory
+export default Search
 
 const Hero = ({slug}) => {
 
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
-
     return (
-      <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
-        <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
-        <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
-            <div className='!text-white text-center w-full max-w-3xl'>
-                <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
-            </div>
-        </div>
-      </section>
+        <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
+          <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
+          <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
+              <h1 className='text-white font-bold text-5xl text-center'>Results for: {slug}</h1>
+          </div>
+        </section>
     )
 }
 
-const Content = ({slug, category, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
+const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
 
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
@@ -103,10 +89,13 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
 
     const [minValue, set_minValue] = useState(0);
     const [maxValue, set_maxValue] = useState(0);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+
+    const handleInput = (e) => {
+        set_minValue(e.minValue);
+        set_maxValue(e.maxValue);
+    };
 
     const [dataSlug, setDataSlug] = useState(null);
-    const [dataCategory, setDataCategory] = useState(null);
 
     const [sortBy, setSortBy] = useState('asc');
 
@@ -114,51 +103,28 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
-    const [brands, setBrands] = useState([]);
-    
-    // Add state for selected filters
-    const [selectedFinish, setSelectedFinish] = useState([]);
-    const [selectedColours, setSelectedColours] = useState([]);
-    const [selectedBrands, setSelectedBrands] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            console.log(selectedData);
-            setDataSlug(selectedData[0]);
-        })
-        .then(() => {
-            fetch(`/data/categories.json`)
-            .then(res => res.json())
-            .then(data => {
-                const selectedData = data.filter(item => item.slug === category);
-                console.log(selectedData);
-                setDataCategory(selectedData[0]);
-            })
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const [size, setSize] = useState([]);
 
     useEffect(() => {
         setLoading(true);
         fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
-            // First, get all products for the category
+            const searchTerm = slug.toLowerCase();
             const selectedProducts = data
-                .filter(item => item.product_cat.includes(dataSlug?.name) && item.status === 'publish')
+                .filter(product => {
+                    const name = (product.name || '').toLowerCase();
+                    const brands = (product.brands || '').toLowerCase();
+                    const category = (product.product_cat || '').toLowerCase();
+                    
+                    return name.includes(searchTerm) || 
+                           brands.includes(searchTerm) || 
+                           category.includes(searchTerm);
+                })
                 .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
             
-            // Set the original product list
             setProduct(selectedProducts);
-            
-            // Initially set filtered products to all products
-            setFilteredProducts(selectedProducts);
     
-            // Calculate price ranges
             const prices = selectedProducts
                 .map(item => parseFloat(item.regular_price))
                 .filter(price => !isNaN(price));
@@ -166,35 +132,18 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
             const minPrice = prices.length ? Math.min(...prices) : 0;
             const maxPrice = prices.length ? Math.max(...prices) : 0;
     
-            // Set price range values
             setMinPrice(minPrice);
             setMaxPrice(maxPrice);
-            set_minValue(minPrice);
-            set_maxValue(maxPrice);
-            setPriceRange({ min: minPrice, max: maxPrice });
 
-            // Extract unique values for filters
-            
             const colours = [...new Set(selectedProducts
-                .map(item => item.colour?.split(',').map(c => c.trim()))
-                .flat()
-                .filter(colour => colour !== ''))]
-                .sort((a, b) => a.localeCompare(b));
+                .map(item => item.colour)
+                .filter(colour => colour !== ''))];
             setColours(colours);
 
             const finish = [...new Set(selectedProducts
-                .map(item => item.finish?.split(',').map(f => f.trim()))
-                .flat()
-                .filter(finish => finish !== ''))]
-                .sort((a, b) => a.localeCompare(b));
+                .map(item => item.finish)
+                .filter(finish => finish !== ''))];
             setFinish(finish);
-            
-            const brands = [...new Set(selectedProducts
-                .map(item => item.brands?.split(',').map(b => b.trim()))
-                .flat()
-                .filter(brand => brand !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setBrands(brands);
     
             setLoading(false);
         })
@@ -202,91 +151,7 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
             console.log(err);
             setLoading(false);
         });
-    }, [dataSlug]);
-
-    // New useEffect to handle sorting when sortBy changes
-    useEffect(() => {
-        if (product) {
-            setLoading(true);
-            let sortedProducts = [...product];
-            
-            switch (sortBy) {
-                case 'asc':
-                    // Latest (default sort by post date)
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-                    break;
-                case 'desc':
-                    // Popularity (assuming there's a popularity field, otherwise using a placeholder)
-                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                    break;
-                case 'nuev':
-                    // Price: Low to High
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceA - priceB;
-                    });
-                    break;
-                case 'vend':
-                    // Price: High to Low
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceB - priceA;
-                    });
-                    break;
-                default:
-                    // Default sort by post date
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            }
-            
-            setProduct(sortedProducts);
-            // Apply filters to the sorted products
-            applyFilters(sortedProducts);
-            setLoading(false);
-        }
-    }, [sortBy]);
-
-    // Separate function to apply filters
-    const applyFilters = (productsToFilter) => {
-        if (!productsToFilter) return;
-        
-        setLoading(true);
-        let filtered = [...productsToFilter];
-        
-        // Apply brand filter
-        if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => selectedBrands.includes(item.brands));
-        }
-        
-        // Apply finish filter
-        if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => selectedFinish.includes(item.finish));
-        }
-        
-        // Apply colour filter
-        if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => selectedColours.includes(item.colour));
-        }
-        
-        // Apply price filter
-        if (priceRange.min > 0 || priceRange.max > 0) {
-            filtered = filtered.filter(item => {
-                const price = parseFloat(item.regular_price) || 0;
-                return price >= priceRange.min && price <= priceRange.max;
-            });
-        }
-        
-        setFilteredProducts(filtered);
-        setLoading(false);
-    };
-
-    // Add useEffect to handle filtering when filters change
-    useEffect(() => {
-        if (product) {
-            applyFilters(product);
-        }
-    }, [selectedFinish, selectedColours, selectedBrands, priceRange]);
+    }, [slug]);
 
     useEffect(() => {
         if (product) {
@@ -298,40 +163,13 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
-    // Add function to handle finish filter selection
-    const handleFinishFilter = (finishItem) => {
-        if (selectedFinish.includes(finishItem)) {
-            setSelectedFinish(selectedFinish.filter(item => item !== finishItem));
-        } else {
-            setSelectedFinish([...selectedFinish, finishItem]);
-        }
-    };
-
-    // Add function to handle colour filter selection
-    const handleColourFilter = (colourItem) => {
-        if (selectedColours.includes(colourItem)) {
-            setSelectedColours(selectedColours.filter(item => item !== colourItem));
-        } else {
-            setSelectedColours([...selectedColours, colourItem]);
-        }
-    };
-
-    // Add function to handle brand filter selection
-    const handleBrandFilter = (brandItem) => {
-        if (selectedBrands.includes(brandItem)) {
-            setSelectedBrands(selectedBrands.filter(item => item !== brandItem));
-        } else {
-            setSelectedBrands([...selectedBrands, brandItem]);
-        }
-    };
-
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
 
     return (
         <>
@@ -342,51 +180,33 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
                 </div>
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
-                <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative lg:sticky top-3'>
-                    <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
-                        <AccordionBody className="py-1 px-1">
-                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
-                                    brands.map((item, index) => (
-                                        <p 
-                                            key={index} 
-                                            className={`${selectedBrands.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleBrandFilter(item)}
-                                        >
-                                            {item}
-                                        </p>
-                                    ))
-                                }
-                            </div>
-                        </AccordionBody>
-                    </Accordion>
+                <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
                     <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='w-full pt-6 pb-2 px-1'>
-                                <MultiRangeSlider
+                                <Tooltip content={formatCurrency(maxPrice)}>
+                                    <Slider defaultValue={100} />
+                                </Tooltip>
+                                {/* <MultiRangeSlider
                                     className='border-none shadow-none'
-                                    min={minPrice}
-                                    max={maxPrice}
+                                    min={minValue}
+                                    max={maxValue}
                                     ruler={false}
                                     step={10}
-                                    minValue={minValue}
-                                    maxValue={maxValue}
+                                    minValue={minPrice}
+                                    maxValue={maxPrice}
                                     barLeftColor='white'
                                     barRightColor='white'
                                     barInnerColor='black'
                                     onInput={(e) => {
                                         handleInput(e);
                                     }}
-                                    label={true}
-                                    labelColor="white"
-                                    labelBackgroundColor="black"
-                                />
+                                /> */}
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
-                                <p className='text-gray-500'>{formatCurrency(minValue)}</p>
-                                <p className='text-gray-500'>{formatCurrency(maxValue)}</p>
+                                <p className='text-gray-500'>{formatCurrency(minPrice)}</p>
+                                <p className='text-gray-500'>{formatCurrency(maxPrice)}</p>
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -396,34 +216,41 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     finish.map((item, index) => (
-                                        <p 
-                                            key={index} 
-                                            className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleFinishFilter(item)}
-                                        >
-                                            {item}
-                                        </p>
+                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
                                     ))
                                 }
                             </div>
                         </AccordionBody>
                     </Accordion>
                     <Accordion open={open === 4} icon={<Icon id={4} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Colour</AccordionHeader>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Color</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     colours.map((item, index) => (
-                                        <p 
-                                            key={index} 
-                                            className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleColourFilter(item)}
-                                        >
-                                            {item}
-                                        </p>
+                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
                                     ))
                                 }
                             </div>
+                        </AccordionBody>
+                    </Accordion>
+                    <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
+                        <AccordionBody className="py-1 px-1">
+                            <ul className='flex flex-col gap-0'>
+                                <li className='text-sm font-normal radioCheck'>
+                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
+                                </li>
+                                <li className='text-sm font-normal radioCheck'>
+                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
+                                </li>
+                                <li className='text-sm font-normal radioCheck'>
+                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
+                                </li>
+                                <li className='text-sm font-normal radioCheck'>
+                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
+                                </li>
+                            </ul>
                         </AccordionBody>
                     </Accordion>
                 </aside>
@@ -433,11 +260,8 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href={"/product-category/" + category} className="opacity-60">
-                                {dataCategory?.name}
-                            </a>
-                            <a href={"/product-category/" + category + "/" + slug}>
-                                {dataSlug?.name}
+                            <a href={"/search?q=" + slug}>
+                                {slug}
                             </a>
                         </Breadcrumbs>
                     </div>
@@ -458,12 +282,12 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
                             currentProducts.map((item, index) => (
-                                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                             ))
                         }
                     </div>
                     <CircularPagination
-                        totalItems={filteredProducts ? filteredProducts.length : 0}
+                        totalItems={product ? product.length : 0}
                         itemsPerPage={productsPerPage}
                         currentPage={currentPage}
                         onPageChange={onPageChange}
@@ -491,7 +315,7 @@ const Content = ({slug, category, currentPage, productsPerPage, onPageChange, lo
                             <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> 116-ST111200</p>
                             <div className="flex flex-row justify-start items-end gap-2">
                                 <p className='text-[#B3B3B3] line-through'>R3,186</p>
-                                <p className='text-dark text-2xl'>{formatPriceWithUnit(2399, getPricingUnit({product_cat: ["Tiles"]}))}</p>
+                                <p className='text-dark text-2xl'>R2,399 m2</p>
                             </div>
                             <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p>
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">

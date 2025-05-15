@@ -25,6 +25,7 @@ import { RiHandbagLine } from 'react-icons/ri';
 import { useParams } from 'react-router-dom';
 import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
+import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 
 function Icon({ id, open }) {
     return (
@@ -69,7 +70,7 @@ const Hero = ({slug}) => {
       <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>PROMOS @ STILES</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>PROMOS / STILES</h1>
         </div>
       </section>
     )
@@ -87,11 +88,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const [minValue, set_minValue] = useState(0);
     const [maxValue, set_maxValue] = useState(0);
-
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-    };
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
 
     const [dataSlug, setDataSlug] = useState(null);
 
@@ -101,6 +98,11 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
+    
+    // Add state for selected filters
+    const [selectedFinish, setSelectedFinish] = useState([]);
+    const [selectedColours, setSelectedColours] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState(null);
 
     useEffect(() => {
         setLoading(true);
@@ -111,8 +113,13 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                 .filter(item => item.sale_price > 0 && item.status === 'publish')
                 .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
             
+            // Set the original product list
             setProduct(selectedProducts);
+            
+            // Initially set filtered products to all products
+            setFilteredProducts(selectedProducts);
     
+            // Calculate price ranges
             const prices = selectedProducts
                 .map(item => parseFloat(item.regular_price))
                 .filter(price => !isNaN(price));
@@ -120,11 +127,14 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
             const minPrice = prices.length ? Math.min(...prices) : 0;
             const maxPrice = prices.length ? Math.max(...prices) : 0;
     
+            // Set price range values
             setMinPrice(minPrice);
             setMaxPrice(maxPrice);
-            // set_minValue(minPrice);
-            // set_maxValue(maxPrice);
+            set_minValue(minPrice);
+            set_maxValue(maxPrice);
+            setPriceRange({ min: minPrice, max: maxPrice });
 
+            // Extract unique values for filters
             const colours = [...new Set(selectedProducts
                 .map(item => item.colour)
                 .filter(colour => colour !== ''))];
@@ -143,6 +153,85 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         });
     }, [dataSlug, currentPage]);
 
+    // New useEffect to handle sorting when sortBy changes
+    useEffect(() => {
+        if (product) {
+            setLoading(true);
+            let sortedProducts = [...product];
+            
+            switch (sortBy) {
+                case 'asc':
+                    // Latest (default sort by post date)
+                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+                    break;
+                case 'desc':
+                    // Popularity (assuming there's a popularity field, otherwise using a placeholder)
+                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                    break;
+                case 'nuev':
+                    // Price: Low to High
+                    sortedProducts.sort((a, b) => {
+                        const priceA = parseFloat(a.regular_price) || 0;
+                        const priceB = parseFloat(b.regular_price) || 0;
+                        return priceA - priceB;
+                    });
+                    break;
+                case 'vend':
+                    // Price: High to Low
+                    sortedProducts.sort((a, b) => {
+                        const priceA = parseFloat(a.regular_price) || 0;
+                        const priceB = parseFloat(b.regular_price) || 0;
+                        return priceB - priceA;
+                    });
+                    break;
+                default:
+                    // Default sort by post date
+                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+            }
+            
+            setProduct(sortedProducts);
+            // Apply filters to the sorted products
+            applyFilters(sortedProducts);
+            setLoading(false);
+        }
+    }, [sortBy]);
+
+    // Separate function to apply filters
+    const applyFilters = (productsToFilter) => {
+        if (!productsToFilter) return;
+        
+        setLoading(true);
+        let filtered = [...productsToFilter];
+        
+        // Apply finish filter
+        if (selectedFinish.length > 0) {
+            filtered = filtered.filter(item => selectedFinish.includes(item.finish));
+        }
+        
+        // Apply colour filter
+        if (selectedColours.length > 0) {
+            filtered = filtered.filter(item => selectedColours.includes(item.colour));
+        }
+        
+        // Apply price filter
+        if (priceRange.min > 0 || priceRange.max > 0) {
+            filtered = filtered.filter(item => {
+                const price = parseFloat(item.regular_price) || 0;
+                return price >= priceRange.min && price <= priceRange.max;
+            });
+        }
+        
+        setFilteredProducts(filtered);
+        setLoading(false);
+    };
+
+    // Add useEffect to handle filtering when filters change
+    useEffect(() => {
+        if (product) {
+            applyFilters(product);
+        }
+    }, [selectedFinish, selectedColours, priceRange]);
+
     useEffect(() => {
         if (product) {
             setLoading(false);
@@ -153,13 +242,38 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
+    // Add function to handle finish filter selection
+    const handleFinishFilter = (finishItem) => {
+        if (selectedFinish.includes(finishItem)) {
+            setSelectedFinish(selectedFinish.filter(item => item !== finishItem));
+        } else {
+            setSelectedFinish([...selectedFinish, finishItem]);
+        }
+    };
+
+    // Add function to handle colour filter selection
+    const handleColourFilter = (colourItem) => {
+        if (selectedColours.includes(colourItem)) {
+            setSelectedColours(selectedColours.filter(item => item !== colourItem));
+        } else {
+            setSelectedColours([...selectedColours, colourItem]);
+        }
+    };
+
+    // Add function to handle price range input
+    const handleInput = (e) => {
+        set_minValue(e.minValue);
+        set_maxValue(e.maxValue);
+        setPriceRange({ min: e.minValue, max: e.maxValue });
+    };
+
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
 
     return (
         <>
@@ -175,28 +289,28 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='w-full pt-6 pb-2 px-1'>
-                                <Tooltip content={formatCurrency(maxPrice)}>
-                                    <Slider defaultValue={100} />
-                                </Tooltip>
-                                {/* <MultiRangeSlider
+                                <MultiRangeSlider
                                     className='border-none shadow-none'
-                                    min={minValue}
-                                    max={maxValue}
+                                    min={minPrice}
+                                    max={maxPrice}
                                     ruler={false}
                                     step={10}
-                                    minValue={minPrice}
-                                    maxValue={maxPrice}
+                                    minValue={minValue}
+                                    maxValue={maxValue}
                                     barLeftColor='white'
                                     barRightColor='white'
                                     barInnerColor='black'
                                     onInput={(e) => {
                                         handleInput(e);
                                     }}
-                                /> */}
+                                    label={true}
+                                    labelColor="white"
+                                    labelBackgroundColor="black"
+                                />
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
-                                <p className='text-gray-500'>{formatCurrency(minPrice)}</p>
-                                <p className='text-gray-500'>{formatCurrency(maxPrice)}</p>
+                                <p className='text-gray-500'>{formatCurrency(minValue)}</p>
+                                <p className='text-gray-500'>{formatCurrency(maxValue)}</p>
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -206,7 +320,13 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     finish.map((item, index) => (
-                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleFinishFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
                                     ))
                                 }
                             </div>
@@ -218,42 +338,35 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     colours.map((item, index) => (
-                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleColourFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
                                     ))
                                 }
                             </div>
                         </AccordionBody>
                     </Accordion>
-                    <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
-                        <AccordionBody className="py-1 px-1">
-                            <ul className='flex flex-col gap-0'>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                            </ul>
-                        </AccordionBody>
-                    </Accordion>
                 </aside>
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
-                    <div className='w-full flex flex-row justify-start items-center gap-3'>
-                        <Breadcrumbs>
-                            <a href="/" className="opacity-60">
-                                Home
-                            </a>
-                            <a href={"/promos"}>
-                                Promos
-                            </a>
-                        </Breadcrumbs>
+                    <div className='w-full flex flex-row justify-between items-center gap-3'>
+                        <div className='w-full flex flex-row justify-start items-center gap-3'>
+                            <Breadcrumbs>
+                                <a href="/" className="opacity-60">
+                                    Home
+                                </a>
+                                <a href={"/promos"}>
+                                    Promos
+                                </a>
+                            </Breadcrumbs>
+                        </div>
+                        <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
+                            <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
+                            <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                        </div>
                     </div>
                     <div className='w-full flex flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
@@ -264,10 +377,6 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                 <Option value="vend">Price: High to Low</Option>
                             </Select>
                         </div>
-                        <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
-                            <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
-                            <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
-                        </div>
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
@@ -277,7 +386,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         }
                     </div>
                     <CircularPagination
-                        totalItems={product ? product.length : 0}
+                        totalItems={filteredProducts ? filteredProducts.length : 0}
                         itemsPerPage={productsPerPage}
                         currentPage={currentPage}
                         onPageChange={onPageChange}
@@ -305,9 +414,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> 116-ST111200</p>
                             <div className="flex flex-row justify-start items-end gap-2">
                                 <p className='text-[#B3B3B3] line-through'>R3,186</p>
-                                <p className='text-dark text-2xl'>R2,399 m2</p>
+                                <p className='text-dark text-2xl'>{formatPriceWithUnit(2399, getPricingUnit({product_cat: ["Tiles"]}))}</p>
                             </div>
-                            <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p>
+                            <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p>
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
                                 <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                                     Brand:

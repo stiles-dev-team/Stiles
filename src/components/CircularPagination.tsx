@@ -35,18 +35,39 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, currentPage + 2);
+    let startPage = Math.max(2, currentPage - 1);
+    let endPage = Math.min(totalPages - 1, currentPage + 1);
 
-    if (currentPage <= 3) {
-      endPage = Math.min(5, totalPages);
-    } else if (currentPage + 2 >= totalPages) {
-      startPage = Math.max(1, totalPages - 4);
+    // Always add first page
+    pageNumbers.push(
+      <Button key={1} {...getItemProps(1)}>{1}</Button>
+    );
+
+    // Add ellipsis if needed after first page
+    if (startPage > 2) {
+      pageNumbers.push(
+        <span key="ellipsis1" className="px-2">...</span>
+      );
     }
 
+    // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(
         <Button key={i} {...getItemProps(i)}>{i}</Button>
+      );
+    }
+
+    // Add ellipsis if needed before last page
+    if (endPage < totalPages - 1) {
+      pageNumbers.push(
+        <span key="ellipsis2" className="px-2">...</span>
+      );
+    }
+
+    // Add last page if there is more than one page
+    if (totalPages > 1) {
+      pageNumbers.push(
+        <Button key={totalPages} {...getItemProps(totalPages)}>{totalPages}</Button>
       );
     }
 
@@ -57,6 +78,7 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
     <div className="lg:flex items-center gap-4 mx-auto py-5 hidden">
       <Button
         variant="text"
+        color="gray"
         className="flex items-center gap-2 rounded-full"
         onClick={prev}
         disabled={currentPage === 1}
@@ -68,6 +90,7 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
       </div>
       <Button
         variant="text"
+        color="gray"
         className="flex items-center gap-2 rounded-full"
         onClick={next}
         disabled={currentPage === totalPages}

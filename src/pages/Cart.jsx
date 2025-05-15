@@ -1,10 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
-
 import { Card, Typography, Checkbox } from "@material-tailwind/react";
-
 import { RiHandbagLine } from "react-icons/ri";
-
+import { toast } from 'sonner';
 const Cart = () => {
     return (
         <Layout>
@@ -23,13 +21,88 @@ const Hero = () => {
       <section id='heroHome' className='w-full h-[40vh] bg-dark relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>Generate Quote</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>Request Order</h1>
         </div>
       </section>
     )
 }
 
 const Main = () => {
+    const [cartItems, setCartItems] = useState([]);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [quantities, setQuantities] = useState({});
+
+    useEffect(() => {
+        // Load cart from localStorage
+        const cart = JSON.parse(localStorage.getItem('stiles_cart_ls') || '[]');
+        setCartItems(cart);
+        // Initialize quantities
+        const initialQuantities = {};
+        cart.forEach(item => {
+            initialQuantities[item.slug] = item.quantity || 1;
+        });
+        setQuantities(initialQuantities);
+    }, []);
+
+    const handleQuantityChange = (slug, newValue) => {
+        // If newValue is empty string or NaN, default to 1
+        const parsedValue = parseInt(newValue);
+        const validValue = isNaN(parsedValue) ? 1 : Math.max(1, parsedValue);
+        setQuantities(prev => ({
+            ...prev,
+            [slug]: validValue
+        }));
+        
+        // Update localStorage with new quantity
+        const updatedCart = cartItems.map(item => 
+            item.slug === slug ? { ...item, quantity: validValue } : item
+        );
+        setCartItems(updatedCart);
+        localStorage.setItem('stiles_cart_ls', JSON.stringify(updatedCart));
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedItems(cartItems.map(item => item.slug));
+        } else {
+            setSelectedItems([]);
+        }
+    };
+
+    const handleSelectItem = (slug) => {
+        setSelectedItems(prev => {
+            if (prev.includes(slug)) {
+                return prev.filter(item => item !== slug);
+            } else {
+                return [...prev, slug];
+            }
+        });
+    };
+
+    const removeFromCart = (slug) => {
+        const newCart = cartItems.filter(item => item.slug !== slug);
+        setCartItems(newCart);
+        localStorage.setItem('stiles_cart_ls', JSON.stringify(newCart));
+        toast.error(`Product removed from cart`);
+    };
+
+    const calculateSubtotal = (item) => {
+        return item.regular_price * (quantities[item.slug] || 1);
+    };
+
+    const calculateTotal = () => {
+        return cartItems.reduce((total, item) => total + calculateSubtotal(item), 0);
+    };
+
+    if (cartItems.length === 0) {
+        return (
+            <section className='container mx-auto px-4'>
+                <h2 className='font-bold text-3xl mb-4'>Your Cart</h2>
+                <p className='text-gray-600'>Your cart is empty. Add some products to your cart!</p>
+            </section>
+        );
+    }
+
     return (
         <section className='container mx-auto px-4'>
             <div className='w-full grid grid-cols-6 gap-10'>                
@@ -39,7 +112,12 @@ const Main = () => {
                         <thead>
                             <tr>
                                 <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Checkbox ripple={false} color='yellow' />
+                                    <Checkbox 
+                                        ripple={false} 
+                                        color='yellow'
+                                        checked={selectedItems.length === cartItems.length}
+                                        onChange={handleSelectAll}
+                                    />
                                 </th>
                                 <th className="border-b border-gray-300 pb-4 pt-4">
                                     <Typography
@@ -80,44 +158,74 @@ const Main = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="hover:bg-gray-50">
-                                <td>
-                                    <Checkbox ripple={false} color='yellow' />
-                                </td>
-                                <td className='flex justify-start items-center gap-2 py-2'>
-                                    <img src="/images/product_ph.png" className="size-16 object-cover" />
-                                    <Typography
-                                    variant="small"
-                                    className="font-normal text-gray-600 text-left w-full max-w-64"
-                                    >
-                                        Funky Tiles Cuore My C Deluxe Cream Gloss Rectified 100x390mm
-                                    </Typography>
-                                </td>
-                                <td>
-                                    <Typography
-                                    variant="small"
-                                    className="font-normal text-gray-600 text-center"
-                                    >
-                                        R2,399.00 m2
-                                    </Typography>
-                                </td>
-                                <td>
-                                    <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
-                                        <button className='text-dark font-negro aspect-square w-5'>-</button>
-                                        <input type="text" className=' border-0 appearance-none text-dark text-center w-8 outline-none' value={1} />
-                                        <button className='text-dark font-negro aspect-square w-5'>+</button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <Typography
-                                    variant="small"
-                                    className="font-normal text-gray-600 text-center"
-                                    >
-                                        R2,399.00 m2
-                                    </Typography>
-                                </td>
-                            </tr>
-                            
+                            {cartItems.map((item) => (
+                                <tr key={item.slug} className="hover:bg-gray-50">
+                                    <td>
+                                        <Checkbox 
+                                            ripple={false} 
+                                            color='yellow'
+                                            checked={selectedItems.includes(item.slug)}
+                                            onChange={() => handleSelectItem(item.slug)}
+                                        />
+                                    </td>
+                                    <td className='flex justify-start items-center gap-2 py-2'>
+                                        <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
+                                        <div className="flex flex-col gap-1">
+                                            <Typography
+                                                variant="small"
+                                                className="font-normal text-gray-600 text-left w-full max-w-64"
+                                            >
+                                                {item.title}
+                                            </Typography>
+                                            <button 
+                                                className='text-xs text-danger hover:underline text-left'
+                                                onClick={() => removeFromCart(item.slug)}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <Typography
+                                            variant="small"
+                                            className="font-normal text-gray-600 text-center"
+                                        >
+                                            R{item.regular_price}.00 m2
+                                        </Typography>
+                                    </td>
+                                    <td>
+                                        <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                                            <button 
+                                                className='text-dark font-negro aspect-square w-5'
+                                                onClick={() => handleQuantityChange(item.slug, quantities[item.slug] - 1)}
+                                            >
+                                                -
+                                            </button>
+                                            <input 
+                                                type="text" 
+                                                className='border-0 appearance-none text-dark text-center w-8 outline-none' 
+                                                value={quantities[item.slug]} 
+                                                onChange={(e) => handleQuantityChange(item.slug, e.target.value)}
+                                                min={1}
+                                            />
+                                            <button 
+                                                className='text-dark font-negro aspect-square w-5'
+                                                onClick={() => handleQuantityChange(item.slug, quantities[item.slug] + 1)}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <Typography
+                                            variant="small"
+                                            className="font-normal text-gray-600 text-center"
+                                        >
+                                            R{calculateSubtotal(item)}.00 m2
+                                        </Typography>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                         </table>
                     </Card>
@@ -128,7 +236,7 @@ const Main = () => {
                         <br />
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 border-b border-b-dark/10">
                             <p className='text-sm font-bold'>Subtotal</p>
-                            <p className='text-sm text-dark/70'>R2,399.00 m2</p>
+                            <p className='text-sm text-dark/70'>R{calculateTotal()}.00</p>
                         </div>
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 border-b border-b-dark/10">
                             <p className='text-sm font-bold'>Shipping</p>
@@ -136,11 +244,11 @@ const Main = () => {
                         </div>
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 mb-5">
                             <p className='text-lg font-bold'>Total</p>
-                            <p className='text-lg text-dark/70'>R2,399.00 m2</p>
+                            <p className='text-lg text-dark/70'>R{calculateTotal()}.00</p>
                         </div>
-                        <button className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full'>
-                        CONFIRM ORDER
-                        </button>
+                        <a href="/checkout" className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full'>
+                            CONFIRM ORDER
+                        </a>
                     </Card>
                 </section>
             </div>

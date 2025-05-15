@@ -1,0 +1,33 @@
+{
+	"id": "04c20b2c-57b3-4463-8323-90095e46773e",
+	"name": "IQCCService",
+	"values": [
+		{
+			"key": "host",
+			"value": "102.37.48.148",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "port",
+			"value": "5006",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "User",
+			"value": "WebUser1142",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "Password",
+			"value": "e$Ye6!g]I~X@K!D",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-03-26T04:57:14.283Z",
+	"_postman_exported_using": "Postman/11.37.5"
+}

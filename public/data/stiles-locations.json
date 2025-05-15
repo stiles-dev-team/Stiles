@@ -1,0 +1,145 @@
+{
+  "locations": [
+    {
+      "title": "Cape Town (Paarden Eiland)",
+      "region": "Western Cape, Cape Region",
+      "phone": "+27 (021) 510 8310",
+      "address": "26 Paarden Eiland Road, Paarden Eiland, Cape Town",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/ZC7CDAQpUAXKiqf78"
+    },
+    {
+      "title": "Somerset West",
+      "region": "Western Cape, Cape Region",
+      "phone": "+27 (021) 879 5657",
+      "address": "Gants Centre, Cnr N2 and Gerber Boulevard, Van Der Stel, Cape Town, 7130",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/VZLmfVc7j1TTfvj69"
+    },
+    {
+      "title": "Paarl",
+      "region": "Western Cape, Cape Region",
+      "phone": "+27 (087) 094 3227",
+      "phone_after_hours": "+27 (082) 920 3711",
+      "address": "Rembrandt Mall, Shop G102-103, Cnr of Bergriver Boulevard & Dorp Street, Paarl, 7647",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/n544WcUPAH17VPhS6"
+    },
+    {
+      "title": "West Coast",
+      "region": "Western Cape, Cape Region",
+      "phone": "+27 (022) 880 0310",
+      "address": "16 Sterling Road, Marais Park, Vredenburg, 7380",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/5DxxT4WRijS2JosA7"
+    },
+    {
+      "title": "George",
+      "region": "Western Cape, Garden Route",
+      "phone": "+27 (044) 871 3222",
+      "address": "11 Commercial Close, Levallia, George, 6529",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/GDpYQGwQth5ekZDz8"
+    },
+    {
+      "title": "Mossel Bay",
+      "region": "Western Cape, Garden Route",
+      "phone": "+27 (044) 695 1800",
+      "address": "Bolton Rd, Diaz Dustria, Mossel Bay, 6506",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/C1N585UgKxQo9vwh9"
+    },
+    {
+      "title": "Pretoria (Menlyn Maine)",
+      "region": "Gauteng",
+      "phone": "+27 (012) 880 4737",
+      "address": "188 Lois Ave, Newlands, Pretoria, 0049",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/3dM4GS4hxXzBwHMg7"
+    },
+    {
+      "title": "Centurion",
+      "region": "Gauteng",
+      "phone": "+27 (012) 884 0084",
+      "address": "Unit 1 Highway Businesspark, 95 Park Avenue North, Rooihuiskraal, Centurion, 0154",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/gSiEQ65QewN4sfFd6"
+    },
+    {
+      "title": "Rustenburg",
+      "region": "North West",
+      "phone": "+27 (014) 495 3040",
+      "address": "Cnr of. Line Road and Wall Street, Mountain view Complex, Waterval East, Rustenburg, 0299",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/UxEKyoQM8U58UD6f6"
+    },
+    {
+      "title": "Durban",
+      "region": "KwaZulu-Natal",
+      "phone": "+27 (031) 263 1192",
+      "address": "398 Chris Hani Rd, Durban North, Durban, 4065",
+      "email": "websales@stiles.co.za",
+      "google_iframe": null,
+      "hours": [
+        "Mon – Thurs 8AM – 5PM",
+        "Fri 8AM – 4:30PM",
+        "Sat and Public Holidays 9AM – 1PM"
+      ],
+      "google_maps": "https://maps.app.goo.gl/mKqCzhakRBzb89VH8"
+    }
+  ]
+} 
