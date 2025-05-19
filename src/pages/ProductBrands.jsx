@@ -3,6 +3,8 @@ import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import MultiRangeSlider from "multi-range-slider-react";
+import { useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import {
     Accordion,
@@ -43,21 +45,48 @@ function Icon({ id, open }) {
   }
 
 const ProductBrands = () => {
-
     const { slug } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const productsPerPage = 15;
+    const [productsPerPage, setProductsPerPage] = useState(15);
 
     const handlePageChange = (pageNumber) => {
-        setLoading(true);
         setCurrentPage(pageNumber);
     };
 
+    const handleProductsPerPageChange = (value) => {
+        setProductsPerPage(parseInt(value));
+        setCurrentPage(1); // Reset to first page when changing items per page
+    };
+
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        fetch(`/data/categories.json`)
+        .then(res => res.json())
+        .then(data => {
+            const selectedData = data.filter(item => item.slug === slug);
+            setData(selectedData[0]);
+        })
+        .catch(err => console.log(err));
+    }, []);
+
   return (
     <Layout>
+        <Helmet>
+            <title>{data?.name || 'Products'} | Stiles</title>
+            <meta name="description" content="Stiles Product Brands" />
+        </Helmet>
         <Hero slug={slug} />
-        <Content slug={slug} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
+        <Content 
+            slug={slug} 
+            currentPage={currentPage} 
+            productsPerPage={productsPerPage} 
+            onPageChange={handlePageChange} 
+            loading={loading} 
+            setLoading={setLoading}
+            onProductsPerPageChange={handleProductsPerPageChange}
+        />
     </Layout>
   )
 }
@@ -76,109 +105,171 @@ const Hero = ({slug}) => {
     )
 }
 
-const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
-
+const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading, onProductsPerPageChange }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
-
     const [product, setProduct] = useState(null);
 
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(0);
-
     const [minValue, set_minValue] = useState(0);
     const [maxValue, set_maxValue] = useState(0);
     const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
 
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-        setPriceRange({ min: e.minValue, max: e.maxValue });
-    };
-
     const [dataSlug, setDataSlug] = useState(null);
-
-    const [sortBy, setSortBy] = useState('asc');
-
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
     
-    // Add state for selected filters
-    const [selectedFinish, setSelectedFinish] = useState([]);
-    const [selectedColours, setSelectedColours] = useState([]);
+    // Initialize selected filters from URL params
+    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',') || []);
+    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',') || []);
     const [filteredProducts, setFilteredProducts] = useState(null);
 
-    // Function to sort products based on the selected option
-    const sortProducts = (products, sortOption) => {
-        if (!products) return [];
+    // Function to update URL parameters
+    const updateUrlParams = (updates) => {
+        const newParams = new URLSearchParams(searchParams);
         
-        const sortedProducts = [...products];
+        // Update each parameter
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value && value.length > 0) {
+                newParams.set(key, Array.isArray(value) ? value.join(',') : value);
+            } else {
+                newParams.delete(key);
+            }
+        });
         
-        switch (sortOption) {
-            case 'asc': // Latest
-                return sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            case 'desc': // Popularity
-                return sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-            case 'nuev': // Price: Low to High
-                return sortedProducts.sort((a, b) => parseFloat(a.regular_price) - parseFloat(b.regular_price));
-            case 'vend': // Price: High to Low
-                return sortedProducts.sort((a, b) => parseFloat(b.regular_price) - parseFloat(a.regular_price));
-            default:
-                return sortedProducts;
+        setSearchParams(newParams);
+    };
+
+    // Update URL when filters change
+    useEffect(() => {
+        updateUrlParams({
+            finish: selectedFinish,
+            colours: selectedColours,
+            sort: sortBy,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            perPage: productsPerPage
+        });
+    }, [selectedFinish, selectedColours, sortBy, priceRange, productsPerPage]);
+
+    // Modify the initial data loading effect to be more efficient
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`/data/products2.json`);
+                const data = await response.json();
+                
+                // First, get all products for the brand
+                const selectedProducts = data
+                    .filter(item => {
+                        if (!item.brands) return false;
+                        if (Array.isArray(item.brands)) {
+                            return item.brands.includes(slug);
+                        }
+                        return item.brands.includes(slug);
+                    })
+                    .filter(item => item.status === 'publish');
+                
+                // Set the original product list
+                setProduct(selectedProducts);
+                
+                // Calculate price ranges
+                const prices = selectedProducts
+                    .map(item => {
+                        const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
+                        return parseFloat(priceStr) || 0;
+                    })
+                    .filter(price => !isNaN(price) && price > 0);
+        
+                const minPrice = prices.length ? Math.min(...prices) : 0;
+                const maxPrice = prices.length ? Math.max(...prices) : 0;
+        
+                // Initialize price range from URL params or calculated values
+                const urlMinPrice = searchParams.get('minPrice');
+                const urlMaxPrice = searchParams.get('maxPrice');
+                
+                setMinPrice(minPrice);
+                setMaxPrice(maxPrice);
+                set_minValue(urlMinPrice ? parseFloat(urlMinPrice) : minPrice);
+                set_maxValue(urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice);
+                setPriceRange({ 
+                    min: urlMinPrice ? parseFloat(urlMinPrice) : minPrice, 
+                    max: urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice 
+                });
+
+                // Extract unique values for filters
+                const colours = [...new Set(selectedProducts
+                    .map(item => item.colour?.split(',').map(c => c.trim()))
+                    .flat()
+                    .filter(colour => colour !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setColours(colours);
+
+                const finish = [...new Set(selectedProducts
+                    .map(item => item.finish?.split(',').map(f => f.trim()))
+                    .flat()
+                    .filter(finish => finish !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setFinish(finish);
+        
+                // Apply initial filters
+                applyFilters(selectedProducts);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [slug, searchParams]);
+
+    // Add a new useEffect to handle page changes
+    useEffect(() => {
+        if (product) {
+            setLoading(true);
+            // Apply filters to the current product list
+            applyFilters(product);
+            setLoading(false);
+        }
+    }, [currentPage, productsPerPage]);
+
+    // Modify the price range handling to be more efficient
+    const handleInput = (e) => {
+        // Debounce the price range updates
+        const newMinValue = e.minValue;
+        const newMaxValue = e.maxValue;
+        
+        // Only update if values actually changed
+        if (newMinValue !== minValue || newMaxValue !== maxValue) {
+            set_minValue(newMinValue);
+            set_maxValue(newMaxValue);
+            setPriceRange({ min: newMinValue, max: newMaxValue });
+            
+            if (product) {
+                // Use requestAnimationFrame to batch DOM updates
+                requestAnimationFrame(() => {
+                    applyFilters(product);
+                });
+            }
         }
     };
 
     useEffect(() => {
-        setLoading(true);
-        fetch(`/data/products2.json`)
+        fetch(`/data/categories.json`)
         .then(res => res.json())
         .then(data => {
-            const selectedProducts = data
-                .filter(item => item.brands.includes(slug) && item.status === 'publish');
-            
-            // Set the original product list
-            setProduct(selectedProducts);
-            
-            // Initially set filtered products to all products
-            setFilteredProducts(selectedProducts);
-    
-            const prices = selectedProducts
-                .map(item => parseFloat(item.regular_price))
-                .filter(price => !isNaN(price));
-    
-            const minPrice = prices.length ? Math.min(...prices) : 0;
-            const maxPrice = prices.length ? Math.max(...prices) : 0;
-    
-            setMinPrice(minPrice);
-            setMaxPrice(maxPrice);
-            set_minValue(minPrice);
-            set_maxValue(maxPrice);
-            setPriceRange({ min: minPrice, max: maxPrice });
-
-            
-            const colours = [...new Set(selectedProducts
-                .map(item => item.colour?.split(',').map(c => c.trim()))
-                .flat()
-                .filter(colour => colour !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setColours(colours);
-
-            const finish = [...new Set(selectedProducts
-                .map(item => item.finish?.split(',').map(f => f.trim()))
-                .flat()
-                .filter(finish => finish !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setFinish(finish);
-    
-            setLoading(false);
+            const selectedData = data.filter(item => item.slug === slug);
+            setDataSlug(selectedData[0]);
         })
-        .catch(err => {
-            console.log(err);
-            setLoading(false);
-        });
-    }, [dataSlug, currentPage, sortBy]);
+        .catch(err => console.log(err));
+    }, []);
 
     // New useEffect to handle sorting when sortBy changes
     useEffect(() => {
@@ -223,11 +314,10 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         }
     }, [sortBy]);
 
-    // Separate function to apply filters
+    // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
         if (!productsToFilter) return;
         
-        setLoading(true);
         let filtered = [...productsToFilter];
         
         // Apply finish filter
@@ -241,50 +331,39 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         }
         
         // Apply price filter
-        if (priceRange.min > 0 || priceRange.max > 0) {
-            filtered = filtered.filter(item => {
-                const price = parseFloat(item.regular_price) || 0;
-                return price >= priceRange.min && price <= priceRange.max;
-            });
-        }
+        filtered = filtered.filter(item => {
+            const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
+            const price = parseFloat(priceStr) || 0;
+            return price >= priceRange.min && price <= priceRange.max;
+        });
         
         setFilteredProducts(filtered);
-        setLoading(false);
     };
 
-    // Add useEffect to handle filtering when filters change
+    // Consolidate all filter changes into a single effect
     useEffect(() => {
         if (product) {
             applyFilters(product);
         }
-    }, [selectedFinish, selectedColours, priceRange]);
-
-    useEffect(() => {
-        if (product) {
-            setLoading(false);
-        }
-    }, [product]);
+    }, [selectedFinish, selectedColours, priceRange.min, priceRange.max]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
-    // Add function to handle finish filter selection
+    // Modify the filter handlers to use the new URL param system
     const handleFinishFilter = (finishItem) => {
-        if (selectedFinish.includes(finishItem)) {
-            setSelectedFinish(selectedFinish.filter(item => item !== finishItem));
-        } else {
-            setSelectedFinish([...selectedFinish, finishItem]);
-        }
+        const newFinish = selectedFinish.includes(finishItem)
+            ? selectedFinish.filter(item => item !== finishItem)
+            : [...selectedFinish, finishItem];
+        setSelectedFinish(newFinish);
     };
 
-    // Add function to handle colour filter selection
     const handleColourFilter = (colourItem) => {
-        if (selectedColours.includes(colourItem)) {
-            setSelectedColours(selectedColours.filter(item => item !== colourItem));
-        } else {
-            setSelectedColours([...selectedColours, colourItem]);
-        }
+        const newColours = selectedColours.includes(colourItem)
+            ? selectedColours.filter(item => item !== colourItem)
+            : [...selectedColours, colourItem];
+        setSelectedColours(newColours);
     };
 
     const formatCurrency = (value) => {
@@ -310,6 +389,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionBody className="py-1 px-1">
                             <div className='w-full pt-6 pb-2 px-1'>
                                 <MultiRangeSlider
+                                    key={`${minPrice}-${maxPrice}`}
                                     className='border-none shadow-none'
                                     min={minPrice}
                                     max={maxPrice}
@@ -320,12 +400,17 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                     barLeftColor='white'
                                     barRightColor='white'
                                     barInnerColor='black'
-                                    onInput={(e) => {
-                                        handleInput(e);
-                                    }}
+                                    onInput={handleInput}
                                     label={true}
                                     labelColor="white"
                                     labelBackgroundColor="black"
+                                    preventWheel={true}
+                                    style={{
+                                        border: 'none',
+                                        boxShadow: 'none',
+                                        padding: '0',
+                                        margin: '0'
+                                    }}
                                 />
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
@@ -391,9 +476,23 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                 <Option value="vend">Price: High to Low</Option>
                             </Select>
                         </div>
-                        <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
-                            <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
-                            <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                        <div className='flex flex-row justify-end items-center gap-2'>
+                            <div className='w-52'>
+                                <Select 
+                                    label="Products per page" 
+                                    value={productsPerPage.toString()} 
+                                    onChange={(e) => onProductsPerPageChange(e)}
+                                >
+                                    <Option value="9">9 per page</Option>
+                                    <Option value="15">15 per page</Option>
+                                    <Option value="24">24 per page</Option>
+                                    <Option value="36">36 per page</Option>
+                                </Select>
+                            </div>
+                            <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
+                                <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
+                                <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                            </div>
                         </div>
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>

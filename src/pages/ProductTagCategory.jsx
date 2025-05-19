@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import MultiRangeSlider from "multi-range-slider-react";
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import {
     Accordion,
@@ -15,8 +16,7 @@ import {
     Slider,
     Radio,
     Breadcrumbs,
-    Spinner,
-    Tooltip
+    Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
@@ -26,8 +26,15 @@ import { useParams } from 'react-router-dom';
 import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { data } from 'autoprefixer';
-import { sub } from 'motion/react-client';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
+import { Helmet } from 'react-helmet';
+
+// Add cache object at the top level
+const dataCache = {
+    products: null,
+    categories: null,
+    lastFetch: null
+};
 
 function Icon({ id, open }) {
     return (
@@ -45,217 +52,274 @@ function Icon({ id, open }) {
   }
 
 const ProductTagCategory = () => {
-
+    const navigate = useNavigate();
     const { slug, category, subcategory } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const productsPerPage = 15;
+    const [productsPerPage, setProductsPerPage] = useState(15);
+    const [data, setData] = useState(null);
+
+    // Combine data fetching into a single useEffect with caching
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                
+                // Check if we have cached data that's less than 5 minutes old
+                const now = Date.now();
+                if (dataCache.lastFetch && (now - dataCache.lastFetch) < 300000) {
+                    const selectedData = dataCache.categories.filter(item => item.slug === slug);
+                    setData(selectedData[0]);
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`/data/categories.json`);
+                const categoriesData = await response.json();
+                dataCache.categories = categoriesData;
+                dataCache.lastFetch = now;
+                
+                const selectedData = categoriesData.filter(item => item.slug === slug);
+                setData(selectedData[0]);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [slug]);
 
     const handlePageChange = (pageNumber) => {
-        setLoading(true);
         setCurrentPage(pageNumber);
     };
 
-  return (
-    <Layout>
-        <Hero slug={slug} />
-        <Content slug={slug} category={category} subcategory={subcategory} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
-    </Layout>
-  )
-}
+    const handleProductsPerPageChange = (value) => {
+        setProductsPerPage(parseInt(value));
+        setCurrentPage(1);
+    };
 
-export default ProductTagCategory
-
-const Hero = ({slug}) => {
-
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const handleProductClick = (slug) => {
+        navigate(`/product/${slug}`);
+    };
 
     return (
-      <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
-        <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
-        <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
-            <div className='!text-white text-center w-full max-w-3xl'>
-                <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
+        <Layout>
+            <Helmet>
+                <title>{data?.name || 'Products'} | Stiles</title>
+                <meta name="description" content="Stiles Product Sub Category" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+                <style>
+                    {`
+                        html {
+                            overscroll-behavior-y: none;
+                        }
+                    `}
+                </style>
+            </Helmet>
+            <div>
+                <Hero slug={slug} data={data} />
+                <Content 
+                    slug={slug} 
+                    category={category} 
+                    subcategory={subcategory}
+                    currentPage={currentPage} 
+                    productsPerPage={productsPerPage} 
+                    onPageChange={handlePageChange} 
+                    loading={loading} 
+                    setLoading={setLoading}
+                    onProductsPerPageChange={handleProductsPerPageChange}
+                    onProductClick={handleProductClick}
+                />
             </div>
-        </div>
-      </section>
+        </Layout>
     )
 }
 
-const Content = ({slug, category, subcategory, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
+const Hero = ({slug, data}) => {
+    return (
+        <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
+            <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
+            <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
+                <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
+                <div className='!text-white text-center w-full max-w-3xl'>
+                    <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
+                </div>
+            </div>
+        </section>
+    )
+}
 
+const Content = ({slug, category, subcategory, currentPage, productsPerPage, onPageChange, loading, setLoading, onProductsPerPageChange, onProductClick }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
-
     const [product, setProduct] = useState(null);
-
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(0);
-    const [minValue, set_minValue] = useState(0);
-    const [maxValue, set_maxValue] = useState(0);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
-
     const [dataSlug, setDataSlug] = useState(null);
     const [dataCategory, setDataCategory] = useState(null);
     const [dataSubCategory, setDataSubCategory] = useState(null);
-
-    const [sortBy, setSortBy] = useState('asc');
-
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
+
+    // Split filterState into individual states like ProductCategory.jsx
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(0);
+    const [minValue, setMinValue] = useState(0);
+    const [maxValue, setMaxValue] = useState(0);
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
+    const [brands, setBrands] = useState([]);
     
-    // Add state for selected filters
-    const [selectedFinish, setSelectedFinish] = useState([]);
-    const [selectedColours, setSelectedColours] = useState([]);
+    // Initialize selected filters from URL params
+    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',') || []);
+    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',') || []);
+    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',') || []);
     const [filteredProducts, setFilteredProducts] = useState(null);
 
-    useEffect(() => {
-        fetch(`/data/categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            console.log(selectedData);
-            setDataSlug(selectedData[0]);
-        })
-        .then(() => {
-            fetch(`/data/categories.json`)
-            .then(res => res.json())
-            .then(data => {
-                const selectedData = data.filter(item => item.slug === category);
-                console.log(selectedData);
-                setDataCategory(selectedData[0]);
-            })
-        })
-        .then(() => {
-            fetch(`/data/categories.json`)
-            .then(res => res.json())
-            .then(data => {
-                const selectedData = data.filter(item => item.slug === subcategory);
-                console.log(selectedData);
-                setDataSubCategory(selectedData[0]);
-            })
-        })
-        .catch(err => console.log(err));
-    }, []);
-
-    useEffect(() => {
-        setLoading(true);
-        fetch(`/data/products2.json`)
-        .then(res => res.json())
-        .then(data => {
-            // First, get all products for the category
-            const selectedProducts = data
-                .filter(item => item.product_cat.includes(dataSlug?.name) && item.status === 'publish')
-                .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            
-            // Set the original product list
-            setProduct(selectedProducts);
-            
-            // Initially set filtered products to all products
-            setFilteredProducts(selectedProducts);
-    
-            // Calculate price ranges
-            const prices = selectedProducts
-                .map(item => parseFloat(item.regular_price))
-                .filter(price => !isNaN(price));
-    
-            const minPrice = prices.length ? Math.min(...prices) : 0;
-            const maxPrice = prices.length ? Math.max(...prices) : 0;
-    
-            // Set price range values
-            setMinPrice(minPrice);
-            setMaxPrice(maxPrice);
-            set_minValue(minPrice);
-            set_maxValue(maxPrice);
-            setPriceRange({ min: minPrice, max: maxPrice });
-
-            // Extract unique values for filters
-            
-            
-            const colours = [...new Set(selectedProducts
-                .map(item => item.colour?.split(',').map(c => c.trim()))
-                .flat()
-                .filter(colour => colour !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setColours(colours);
-
-            const finish = [...new Set(selectedProducts
-                .map(item => item.finish?.split(',').map(f => f.trim()))
-                .flat()
-                .filter(finish => finish !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setFinish(finish);
-    
-            setLoading(false);
-        })
-        .catch(err => {
-            console.log(err);
-            setLoading(false);
-        });
-    }, [dataSlug]);
-
-    // New useEffect to handle sorting when sortBy changes
-    useEffect(() => {
-        if (product) {
-            setLoading(true);
-            let sortedProducts = [...product];
-            
-            switch (sortBy) {
-                case 'asc':
-                    // Latest (default sort by post date)
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-                    break;
-                case 'desc':
-                    // Popularity (assuming there's a popularity field, otherwise using a placeholder)
-                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                    break;
-                case 'nuev':
-                    // Price: Low to High
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceA - priceB;
-                    });
-                    break;
-                case 'vend':
-                    // Price: High to Low
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceB - priceA;
-                    });
-                    break;
-                default:
-                    // Default sort by post date
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+    // Function to update URL parameters
+    const updateUrlParams = useCallback((updates) => {
+        const newParams = new URLSearchParams(searchParams);
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value && value.length > 0) {
+                newParams.set(key, Array.isArray(value) ? value.join(',') : value);
+            } else {
+                newParams.delete(key);
             }
-            
-            setProduct(sortedProducts);
-            // Apply filters to the sorted products
-            applyFilters(sortedProducts);
-            setLoading(false);
-        }
-    }, [sortBy]);
+        });
+        setSearchParams(newParams);
+    }, [searchParams, setSearchParams]);
 
-    // Separate function to apply filters
-    const applyFilters = (productsToFilter) => {
+    // Update URL when filters change
+    useEffect(() => {
+        updateUrlParams({
+            brands: selectedBrands,
+            finish: selectedFinish,
+            colours: selectedColours,
+            sort: sortBy,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max
+        });
+    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange, updateUrlParams]);
+
+    // Modify the initial data loading effect to be more efficient
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [categoriesRes, productsRes] = await Promise.all([
+                    fetch('/data/categories.json'),
+                    fetch('/data/products2.json')
+                ]);
+                
+                const [categoriesData, productsData] = await Promise.all([
+                    categoriesRes.json(),
+                    productsRes.json()
+                ]);
+
+                const selectedData = categoriesData.filter(item => item.slug === slug);
+                const categoryData = categoriesData.filter(item => item.slug === category);
+                const subcategoryData = categoriesData.filter(item => item.slug === subcategory);
+
+                setDataSlug(selectedData[0]);
+                setDataCategory(categoryData[0]);
+                setDataSubCategory(subcategoryData[0]);
+
+                const selectedProducts = productsData
+                    .filter(item => {
+                        if (!item.product_cat) return false;
+                        if (Array.isArray(item.product_cat)) {
+                            return item.product_cat.includes(selectedData[0]?.name);
+                        }
+                        return item.product_cat.includes(selectedData[0]?.name);
+                    })
+                    .filter(item => item.status === 'publish');
+
+                setProduct(selectedProducts);
+
+                // Calculate price ranges
+                const prices = selectedProducts
+                    .map(item => parseFloat(item.regular_price.toString().replace(/[^\d.-]/g, '')) || 0)
+                    .filter(price => !isNaN(price) && price > 0);
+
+                const minPrice = prices.length ? Math.min(...prices) : 0;
+                const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+                const urlMinPrice = searchParams.get('minPrice');
+                const urlMaxPrice = searchParams.get('maxPrice');
+
+                setMinPrice(minPrice);
+                setMaxPrice(maxPrice);
+                setMinValue(urlMinPrice ? parseFloat(urlMinPrice) : minPrice);
+                setMaxValue(urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice);
+                setPriceRange({
+                    min: urlMinPrice ? parseFloat(urlMinPrice) : minPrice,
+                    max: urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice
+                });
+
+                // Extract unique values for filters
+                const colours = [...new Set(selectedProducts
+                    .map(item => item.colour?.split(',').map(c => c.trim()))
+                    .flat()
+                    .filter(colour => colour !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setColours(colours);
+
+                const finish = [...new Set(selectedProducts
+                    .map(item => item.finish?.split(',').map(f => f.trim()))
+                    .flat()
+                    .filter(finish => finish !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setFinish(finish);
+
+                const brands = [...new Set(selectedProducts
+                    .map(item => item.brands?.split(',').map(b => b.trim()))
+                    .flat()
+                    .filter(brand => brand !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setBrands(brands);
+
+                // Apply initial filters
+                applyFilters(selectedProducts);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [slug, category, searchParams]);
+
+    // Modify the price range handling to be more efficient
+    const handleInput = useCallback((e) => {
+        const newMinValue = e.minValue;
+        const newMaxValue = e.maxValue;
+        
+        // Only update if values actually changed
+        if (newMinValue !== minValue || newMaxValue !== maxValue) {
+            setMinValue(newMinValue);
+            setMaxValue(newMaxValue);
+            setPriceRange({ min: newMinValue, max: newMaxValue });
+            
+            if (product) {
+                applyFilters(product);
+            }
+        }
+    }, [minValue, maxValue, product]);
+
+    // Modify the filter application to be more efficient
+    const applyFilters = useCallback((productsToFilter) => {
         if (!productsToFilter) return;
         
-        setLoading(true);
         let filtered = [...productsToFilter];
+        
+        // Apply brand filter
+        if (selectedBrands.length > 0) {
+            filtered = filtered.filter(item => selectedBrands.includes(item.brands));
+        }
         
         // Apply finish filter
         if (selectedFinish.length > 0) {
@@ -268,66 +332,65 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
         }
         
         // Apply price filter
-        if (priceRange.min > 0 || priceRange.max > 0) {
-            filtered = filtered.filter(item => {
-                const price = parseFloat(item.regular_price) || 0;
-                return price >= priceRange.min && price <= priceRange.max;
-            });
-        }
+        filtered = filtered.filter(item => {
+            const price = parseFloat(item.regular_price.toString().replace(/[^\d.-]/g, '')) || 0;
+            return price >= priceRange.min && price <= priceRange.max;
+        });
         
         setFilteredProducts(filtered);
-        setLoading(false);
-    };
+    }, [selectedBrands, selectedFinish, selectedColours, priceRange]);
 
-    // Add useEffect to handle filtering when filters change
+    // Consolidate all filter changes into a single effect
     useEffect(() => {
         if (product) {
             applyFilters(product);
         }
-    }, [selectedFinish, selectedColours, priceRange]);
+    }, [product, selectedFinish, selectedColours, selectedBrands, priceRange, applyFilters]);
 
-    useEffect(() => {
-        if (product) {
-            setLoading(false);
-        }
-    }, [product]);
+    // Modify the filter handlers to be more efficient
+    const handleFinishFilter = useCallback((finishItem) => {
+        setSelectedFinish(prev => 
+            prev.includes(finishItem)
+                ? prev.filter(item => item !== finishItem)
+                : [...prev, finishItem]
+        );
+    }, []);
 
-    const handleOpen = (value) => setOpen(open === value ? 0 : value);
+    const handleColourFilter = useCallback((colourItem) => {
+        setSelectedColours(prev => 
+            prev.includes(colourItem)
+                ? prev.filter(item => item !== colourItem)
+                : [...prev, colourItem]
+        );
+    }, []);
 
-    const handleOpenDialog = () => setOpenDialog(!openDialog);
-
-    // Add function to handle finish filter selection
-    const handleFinishFilter = (finishItem) => {
-        if (selectedFinish.includes(finishItem)) {
-            setSelectedFinish(selectedFinish.filter(item => item !== finishItem));
-        } else {
-            setSelectedFinish([...selectedFinish, finishItem]);
-        }
-    };
-
-    // Add function to handle colour filter selection
-    const handleColourFilter = (colourItem) => {
-        if (selectedColours.includes(colourItem)) {
-            setSelectedColours(selectedColours.filter(item => item !== colourItem));
-        } else {
-            setSelectedColours([...selectedColours, colourItem]);
-        }
-    };
-
-    // Add function to handle price range input
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-        setPriceRange({ min: e.minValue, max: e.maxValue });
-    };
+    const handleBrandFilter = useCallback((brandItem) => {
+        setSelectedBrands(prev => 
+            prev.includes(brandItem)
+                ? prev.filter(item => item !== brandItem)
+                : [...prev, brandItem]
+        );
+    }, []);
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
 
+    const handleOpen = (value) => setOpen(open === value ? 0 : value);
+
+    const handleOpenDialog = () => setOpenDialog(!openDialog);
+
+    // Calculate current products for pagination
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+
+    // Memoize filter handlers to prevent unnecessary re-renders
+    const filterHandlers = useMemo(() => ({
+        handleBrandFilter,
+        handleFinishFilter,
+        handleColourFilter
+    }), [handleBrandFilter, handleFinishFilter, handleColourFilter]);
 
     return (
         <>
@@ -339,11 +402,30 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative lg:sticky top-3'>
+                    <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
+                        <AccordionBody className="py-1 px-1">
+                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
+                                {
+                                    brands.map((item, index) => (
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedBrands.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => filterHandlers.handleBrandFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
+                                    ))
+                                }
+                            </div>
+                        </AccordionBody>
+                    </Accordion>
                     <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='w-full pt-6 pb-2 px-1'>
                                 <MultiRangeSlider
+                                    key={`${minPrice}-${maxPrice}`}
                                     className='border-none shadow-none'
                                     min={minPrice}
                                     max={maxPrice}
@@ -354,12 +436,17 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
                                     barLeftColor='white'
                                     barRightColor='white'
                                     barInnerColor='black'
-                                    onInput={(e) => {
-                                        handleInput(e);
-                                    }}
+                                    onInput={handleInput}
                                     label={true}
                                     labelColor="white"
                                     labelBackgroundColor="black"
+                                    preventWheel={true}
+                                    style={{
+                                        border: 'none',
+                                        boxShadow: 'none',
+                                        padding: '0',
+                                        margin: '0'
+                                    }}
                                 />
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
@@ -377,7 +464,7 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
                                         <p 
                                             key={index} 
                                             className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleFinishFilter(item)}
+                                            onClick={() => filterHandlers.handleFinishFilter(item)}
                                         >
                                             {item}
                                         </p>
@@ -395,7 +482,7 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
                                         <p 
                                             key={index} 
                                             className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleColourFilter(item)}
+                                            onClick={() => filterHandlers.handleColourFilter(item)}
                                         >
                                             {item}
                                         </p>
@@ -431,15 +518,33 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
                                 <Option value="vend">Price: High to Low</Option>
                             </Select>
                         </div>
-                        <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
-                            <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
-                            <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                        <div className='flex flex-row justify-end items-center gap-2'>
+                            <div className='w-52'>
+                                <Select 
+                                    label="Products per page" 
+                                    value={productsPerPage.toString()} 
+                                    onChange={(e) => onProductsPerPageChange(e)}
+                                >
+                                    <Option value="9">9 per page</Option>
+                                    <Option value="15">15 per page</Option>
+                                    <Option value="24">24 per page</Option>
+                                    <Option value="36">36 per page</Option>
+                                </Select>
+                            </div>
+                            <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
+                                <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
+                                <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                            </div>
                         </div>
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
                             currentProducts.map((item, index) => (
-                                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <ProductCard 
+                                    key={index} 
+                                    onClick={() => onProductClick(item.slug)} 
+                                    prod={item.slug} 
+                                />
                             ))
                         }
                     </div>
@@ -521,3 +626,5 @@ const Content = ({slug, category, subcategory, currentPage, productsPerPage, onP
         </>
     )
 }
+
+export default ProductTagCategory;

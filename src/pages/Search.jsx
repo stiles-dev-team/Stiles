@@ -25,7 +25,7 @@ import { RiHandbagLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
 import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
-
+import { Helmet } from 'react-helmet';
 function Icon({ id, open }) {
     return (
       <svg
@@ -48,17 +48,34 @@ const Search = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const productsPerPage = 15;
+    const [productsPerPage, setProductsPerPage] = useState(15);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
         setCurrentPage(pageNumber);
     };
 
+    const handleProductsPerPageChange = (value) => {
+        setProductsPerPage(parseInt(value));
+        setCurrentPage(1); // Reset to first page when changing items per page
+    };
+
   return (
     <Layout>
+        <Helmet>
+            <title>Search Results for: {query} | Stiles</title>
+            <meta name="description" content="Stiles Search Results for: {query}" />
+        </Helmet>
         <Hero slug={query} />
-        <Content slug={query} currentPage={currentPage} productsPerPage={productsPerPage} onPageChange={handlePageChange} loading={loading} setLoading={setLoading} />
+        <Content 
+            slug={query} 
+            currentPage={currentPage} 
+            productsPerPage={productsPerPage} 
+            onPageChange={handlePageChange} 
+            loading={loading} 
+            setLoading={setLoading}
+            onProductsPerPageChange={handleProductsPerPageChange}
+        />
     </Layout>
   )
 }
@@ -77,33 +94,81 @@ const Hero = ({slug}) => {
     )
 }
 
-const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading }) => {
+const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading, onProductsPerPageChange }) => {
 
+    const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
-
     const [product, setProduct] = useState(null);
+    const [filteredProducts, setFilteredProducts] = useState(null);
 
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(0);
-
     const [minValue, set_minValue] = useState(0);
     const [maxValue, set_maxValue] = useState(0);
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
 
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-    };
-
-    const [dataSlug, setDataSlug] = useState(null);
-
-    const [sortBy, setSortBy] = useState('asc');
-
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
-    const [size, setSize] = useState([]);
+    const [brands, setBrands] = useState([]);
+    
+    // Initialize selected filters from URL params
+    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',') || []);
+    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',') || []);
+    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',') || []);
+
+    // Function to update URL parameters
+    const updateUrlParams = (updates) => {
+        const newParams = new URLSearchParams(searchParams);
+        
+        // Update each parameter
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value && value.length > 0) {
+                newParams.set(key, Array.isArray(value) ? value.join(',') : value);
+            } else {
+                newParams.delete(key);
+            }
+        });
+        
+        setSearchParams(newParams);
+    };
+
+    // Update URL when filters change
+    useEffect(() => {
+        updateUrlParams({
+            brands: selectedBrands,
+            finish: selectedFinish,
+            colours: selectedColours,
+            sort: sortBy,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max
+        });
+    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange]);
+
+    const handleInput = (e) => {
+        set_minValue(e.minValue);
+        set_maxValue(e.maxValue);
+        setPriceRange({ min: e.minValue, max: e.maxValue });
+    };
+
+    // Add a useEffect to ensure minValue and maxValue are properly set
+    useEffect(() => {
+        if (minPrice !== 0 && maxPrice !== 0) {
+            set_minValue(minPrice);
+            set_maxValue(maxPrice);
+            setPriceRange({ min: minPrice, max: maxPrice });
+        }
+    }, [minPrice, maxPrice]);
+
+    // Add a separate useEffect to handle price range changes
+    useEffect(() => {
+        if (product) {
+            applyFilters(product);
+        }
+    }, [priceRange.min, priceRange.max]);
 
     useEffect(() => {
         setLoading(true);
@@ -124,6 +189,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                 .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
             
             setProduct(selectedProducts);
+            setFilteredProducts(selectedProducts);
     
             const prices = selectedProducts
                 .map(item => parseFloat(item.regular_price))
@@ -135,15 +201,27 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
             setMinPrice(minPrice);
             setMaxPrice(maxPrice);
 
+            // Extract unique values for filters
             const colours = [...new Set(selectedProducts
-                .map(item => item.colour)
-                .filter(colour => colour !== ''))];
+                .map(item => item.colour?.split(',').map(c => c.trim()))
+                .flat()
+                .filter(colour => colour !== ''))]
+                .sort((a, b) => a.localeCompare(b));
             setColours(colours);
 
             const finish = [...new Set(selectedProducts
-                .map(item => item.finish)
-                .filter(finish => finish !== ''))];
+                .map(item => item.finish?.split(',').map(f => f.trim()))
+                .flat()
+                .filter(finish => finish !== ''))]
+                .sort((a, b) => a.localeCompare(b));
             setFinish(finish);
+            
+            const brands = [...new Set(selectedProducts
+                .map(item => item.brands?.split(',').map(b => b.trim()))
+                .flat()
+                .filter(brand => brand !== ''))]
+                .sort((a, b) => a.localeCompare(b));
+            setBrands(brands);
     
             setLoading(false);
         })
@@ -153,11 +231,97 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         });
     }, [slug]);
 
+    // New useEffect to handle sorting when sortBy changes
     useEffect(() => {
         if (product) {
+            setLoading(true);
+            let sortedProducts = [...product];
+            
+            switch (sortBy) {
+                case 'asc':
+                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+                    break;
+                case 'desc':
+                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                    break;
+                case 'nuev':
+                    sortedProducts.sort((a, b) => {
+                        const priceA = parseFloat(a.regular_price) || 0;
+                        const priceB = parseFloat(b.regular_price) || 0;
+                        return priceA - priceB;
+                    });
+                    break;
+                case 'vend':
+                    sortedProducts.sort((a, b) => {
+                        const priceA = parseFloat(a.regular_price) || 0;
+                        const priceB = parseFloat(b.regular_price) || 0;
+                        return priceB - priceA;
+                    });
+                    break;
+                default:
+                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+            }
+            
+            setProduct(sortedProducts);
+            applyFilters(sortedProducts);
             setLoading(false);
         }
-    }, [product]);
+    }, [sortBy]);
+
+    // Separate function to apply filters
+    const applyFilters = (productsToFilter) => {
+        if (!productsToFilter) return;
+        
+        setLoading(true);
+        let filtered = [...productsToFilter];
+        
+        // Apply brand filter
+        if (selectedBrands.length > 0) {
+            filtered = filtered.filter(item => selectedBrands.includes(item.brands));
+        }
+        
+        // Apply finish filter
+        if (selectedFinish.length > 0) {
+            filtered = filtered.filter(item => selectedFinish.includes(item.finish));
+        }
+        
+        // Apply colour filter
+        if (selectedColours.length > 0) {
+            filtered = filtered.filter(item => selectedColours.includes(item.colour));
+        }
+        
+        // Apply price filter
+        filtered = filtered.filter(item => {
+            const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
+            const price = parseFloat(priceStr) || 0;
+            return price >= priceRange.min && price <= priceRange.max;
+        });
+        
+        setFilteredProducts(filtered);
+        setLoading(false);
+    };
+
+    // Filter handlers
+    const handleFinishFilter = (finishItem) => {
+        const newFinish = selectedFinish.includes(finishItem)
+            ? selectedFinish.filter(item => item !== finishItem)
+            : [...selectedFinish, finishItem];
+        setSelectedFinish(newFinish);
+    };
+
+    const handleColourFilter = (colourItem) => {
+        const newColours = selectedColours.includes(colourItem)
+            ? selectedColours.filter(item => item !== colourItem)
+            : [...selectedColours, colourItem];
+        setSelectedColours(newColours);
+    };
+
+    const handleBrandFilter = (brandItem) => {
+        const newBrands = selectedBrands.includes(brandItem)
+            ? selectedBrands.filter(item => item !== brandItem)
+            : [...selectedBrands, brandItem];
+        setSelectedBrands(newBrands);
+    };
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -169,7 +333,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
 
     return (
         <>
@@ -181,32 +345,51 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
+                    <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
+                        <AccordionBody className="py-1 px-1">
+                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
+                                {
+                                    brands.map((item, index) => (
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedBrands.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleBrandFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
+                                    ))
+                                }
+                            </div>
+                        </AccordionBody>
+                    </Accordion>
                     <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='w-full pt-6 pb-2 px-1'>
-                                <Tooltip content={formatCurrency(maxPrice)}>
-                                    <Slider defaultValue={100} />
-                                </Tooltip>
-                                {/* <MultiRangeSlider
+                                <MultiRangeSlider
+                                    key={`${minPrice}-${maxPrice}`}
                                     className='border-none shadow-none'
-                                    min={minValue}
-                                    max={maxValue}
+                                    min={minPrice}
+                                    max={maxPrice}
                                     ruler={false}
                                     step={10}
-                                    minValue={minPrice}
-                                    maxValue={maxPrice}
+                                    minValue={minValue}
+                                    maxValue={maxValue}
                                     barLeftColor='white'
                                     barRightColor='white'
                                     barInnerColor='black'
                                     onInput={(e) => {
                                         handleInput(e);
                                     }}
-                                /> */}
+                                    label={true}
+                                    labelColor="white"
+                                    labelBackgroundColor="black"
+                                />
                             </div>
                             <div className='w-full flex flex-row justify-between items-center gap-2'>
-                                <p className='text-gray-500'>{formatCurrency(minPrice)}</p>
-                                <p className='text-gray-500'>{formatCurrency(maxPrice)}</p>
+                                <p className='text-gray-500'>{formatCurrency(minValue)}</p>
+                                <p className='text-gray-500'>{formatCurrency(maxValue)}</p>
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -216,41 +399,34 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     finish.map((item, index) => (
-                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleFinishFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
                                     ))
                                 }
                             </div>
                         </AccordionBody>
                     </Accordion>
                     <Accordion open={open === 4} icon={<Icon id={4} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Color</AccordionHeader>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Colour</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
                                 {
                                     colours.map((item, index) => (
-                                        <p key={index} className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>{item}</p>
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleColourFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
                                     ))
                                 }
                             </div>
-                        </AccordionBody>
-                    </Accordion>
-                    <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
-                        <AccordionBody className="py-1 px-1">
-                            <ul className='flex flex-col gap-0'>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                                <li className='text-sm font-normal radioCheck'>
-                                    <Radio name='size' className="border-gray-900/10 bg-gray-900/5 p-0 transition-all hover:before:opacity-0" label={<span className='uppercase text-base'>1000x1000</span>} />
-                                </li>
-                            </ul>
                         </AccordionBody>
                     </Accordion>
                 </aside>
@@ -274,9 +450,23 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                 <Option value="vend">Price: High to Low</Option>
                             </Select>
                         </div>
-                        <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
-                            <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
-                            <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                        <div className='flex flex-row justify-end items-center gap-2'>
+                            <div className='w-52'>
+                                <Select 
+                                    label="Products per page" 
+                                    value={productsPerPage.toString()} 
+                                    onChange={(e) => onProductsPerPageChange(e)}
+                                >
+                                    <Option value="9">9 per page</Option>
+                                    <Option value="15">15 per page</Option>
+                                    <Option value="24">24 per page</Option>
+                                    <Option value="36">36 per page</Option>
+                                </Select>
+                            </div>
+                            <div className='hidden xl:flex flex-row justify-end items-center gap-2'>
+                                <BsFillGrid3X3GapFill className={`cursor-pointer transition-all ${gridView === true ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(true)} />
+                                <BsFillGridFill  className={`cursor-pointer transition-all ${gridView === false ? "fill-dark" : "fill-dark/50 hover:fill-dark/70"}`} size={20} onClick={() => setGridView(false)} />
+                            </div>
                         </div>
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>

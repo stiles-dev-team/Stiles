@@ -77,9 +77,20 @@ const Navbar = () => {
     fetch('/data/products2.json')
       .then(response => response.json())
       .then(products => {
-        const uniqueBrands = [...new Set(products.map(product => product.brands))].filter(Boolean).sort();
+        // Ensure all products have the required properties
+        const processedProducts = products.map(product => ({
+          ...product,
+          title: product.title || '',
+          brands: product.brands || '',
+          status: product.status || 'draft',
+          images: product.images || '',
+          sale_price: product.sale_price || 0,
+          regular_price: product.regular_price || 0,
+          slug: product.slug || ''
+        }));
+        const uniqueBrands = [...new Set(processedProducts.map(product => product.brands))].filter(Boolean).sort();
         setBrands(uniqueBrands);
-        setAllProducts(products);
+        setAllProducts(processedProducts);
       });
 
     // Fetch locations
@@ -102,44 +113,10 @@ const Navbar = () => {
           if (!product || product.status !== 'publish') return false;
           
           const searchTerm = search.toLowerCase();
-          const name = (product.name || '').toLowerCase();
-          const brands = (product.brands || '').toLowerCase();
-          const category = (product.product_cat || '').toLowerCase();
-          const sku = (product.sku || '').toLowerCase();
+          const title = String(product.title || '').toLowerCase();
           
           // Direct match check
-          const directMatch = name.includes(searchTerm) || 
-                            brands.includes(searchTerm) || 
-                            category.includes(searchTerm) ||
-                            sku.includes(searchTerm);
-          
-          // If there's a direct match, return true
-          if (directMatch) return true;
-          
-          // Fuzzy matching for spelling help
-          // Check if search term is close to any product name, brand, or SKU
-          const searchWords = searchTerm.split(/\s+/);
-          
-          // Check if any search word is close to any product name word
-          const nameWords = name.split(/\s+/);
-          const nameMatch = searchWords.some(searchWord => 
-            nameWords.some(nameWord => 
-              levenshteinDistance(searchWord, nameWord) <= 2 && searchWord.length > 2
-            )
-          );
-          
-          // Check if any search word is close to any brand word
-          const brandWords = brands.split(/\s+/);
-          const brandMatch = searchWords.some(searchWord => 
-            brandWords.some(brandWord => 
-              levenshteinDistance(searchWord, brandWord) <= 2 && searchWord.length > 2
-            )
-          );
-          
-          // Check if search term is close to SKU
-          const skuMatch = levenshteinDistance(searchTerm, sku) <= 2 && searchTerm.length > 2;
-          
-          return nameMatch || brandMatch || skuMatch;
+          return title.includes(searchTerm);
         })
         .slice(0, 4);
       setSearchResults(results);
@@ -147,32 +124,6 @@ const Navbar = () => {
       setSearchResults([]);
     }
   }, [search, allProducts]);
-
-  // Levenshtein distance function for fuzzy matching
-  const levenshteinDistance = (str1, str2) => {
-    const m = str1.length;
-    const n = str2.length;
-    const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
-    
-    for (let i = 0; i <= m; i++) dp[i][0] = i;
-    for (let j = 0; j <= n; j++) dp[0][j] = j;
-    
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
-        if (str1[i - 1] === str2[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1];
-        } else {
-          dp[i][j] = Math.min(
-            dp[i - 1][j - 1] + 1, // substitution
-            dp[i - 1][j] + 1,     // deletion
-            dp[i][j - 1] + 1      // insertion
-          );
-        }
-      }
-    }
-    
-    return dp[m][n];
-  };
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value || 0);
@@ -210,14 +161,22 @@ const Navbar = () => {
                 >
                   <div className="w-16 h-16 flex-shrink-0">
                     <img 
-                      src={product.images.split('|')[0].split('!')[0].split(':')[1].trim()} 
+                      src={(() => {
+                        if (typeof product.images !== 'string') return '';
+                        const parts = product.images.split(', ');
+                        if (!parts[0]) return '';
+                        const subParts = parts[0].split('!');
+                        if (!subParts[0]) return '';
+                        const urlParts = subParts[0].split(':');
+                        return urlParts[1] ? urlParts[1].trim() : '';
+                      })()}
                       alt={product.title} 
                       className="w-full h-full object-cover rounded"
                     />
                   </div>
                   <div className="flex-grow">
                     <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
-                    <p className="text-sm text-gray-500">{product.brands}</p>
+                    <p className="text-sm text-gray-500">{product.brands || ''}</p>
                     <p className="text-sm font-medium text-gray-900">
                       {product.sale_price > 0 ? (
                         <>

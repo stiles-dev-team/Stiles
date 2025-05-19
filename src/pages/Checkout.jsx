@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import LayoutDark from '../layout/LayoutDark'
 import { Card, Input, Select, Option, Checkbox, Textarea } from "@material-tailwind/react"
 import { RiHandbagLine } from "react-icons/ri"
+import { Helmet } from 'react-helmet';
 
 const Checkout = () => {
   const [cartItems, setCartItems] = useState([])
@@ -145,6 +146,10 @@ const Checkout = () => {
 
   return (
     <LayoutDark>
+      <Helmet>
+        <title>Checkout | Stiles</title>
+        <meta name="description" content="Checkout on Stiles" />
+      </Helmet>
       <div className='container mx-auto px-4 py-8 pt-40 min-h-[80dvh]'>
         <div className='flex flex-col lg:flex-row gap-8'>
           {/* Left Section - Form */}

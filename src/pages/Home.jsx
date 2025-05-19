@@ -138,7 +138,7 @@ const Hero = () => {
             <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
           </div>
         </SplideSlide>
-        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
+        {/* <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
           <img src="/images/1920x550.webp" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
           <div className='relative z-10 container mx-auto px-4'>
@@ -153,7 +153,7 @@ const Hero = () => {
             <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
             <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
           </div>
-        </SplideSlide>
+        </SplideSlide> */}
       </Splide>
       <a href='#whoweareHome' className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>KNOW MORE <IoIosArrowDown fill='white' /></a>
     </section>
@@ -165,9 +165,9 @@ const WhoWeAre = () => {
     <section id="whoweareHome" className='container mx-auto px-4 flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20'>
       <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>WE ARE STILES</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
-        <p className='text-sm lg:text-base'>At Stiles, we're all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.</p>
-        <p className='text-sm lg:text-basepb-6'>Along with importing products from top tile and sanitaryware factories across the globe, we pride ourselves in being a community-driven South African company. Stiles supports local industry, artisans and artists from South Africa. We believe in the tiles and sanitaryware we market, and employ creative people with an enthusiasm to keep all things stylish, making us leaders in service, technical advice, creative ability and innovative ideas.</p>
-        <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} />
+        <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country</p>
+        <p className='text-sm lg:text-basepb-6'>We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
+        {/* <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} /> */}
       </div>
     </section>
   )
@@ -183,7 +183,17 @@ const OurProducts = () => {
       fetch(`/data/products2.json`)
       .then(res => res.json())
       .then(data => {
-        const selectedData = data.filter(item => item.product_cat.includes("Tiles"));
+        const selectedData = data.filter(item => {
+          // Check if product_cat exists and is a string or array
+          if (!item.product_cat) return false;
+          if (Array.isArray(item.product_cat)) {
+            return item.product_cat.includes("Tiles");
+          }
+          if (typeof item.product_cat === 'string') {
+            return item.product_cat.includes("Tiles");
+          }
+          return false;
+        });
           // Shuffle the array
           const shuffledData = selectedData.sort(() => 0.5 - Math.random());
           // Get the first 30 items
@@ -200,7 +210,17 @@ const OurProducts = () => {
     fetch(`/data/products2.json`)
     .then(res => res.json())
     .then(data => {
-        const selectedData = data.filter(item => item.product_cat.includes(cat));
+        const selectedData = data.filter(item => {
+          // Check if product_cat exists and is a string or array
+          if (!item.product_cat) return false;
+          if (Array.isArray(item.product_cat)) {
+            return item.product_cat.includes(cat);
+          }
+          if (typeof item.product_cat === 'string') {
+            return item.product_cat.includes(cat);
+          }
+          return false;
+        });
         // Shuffle the array
         const shuffledData = selectedData.sort(() => 0.5 - Math.random());
         // Get the first 30 items

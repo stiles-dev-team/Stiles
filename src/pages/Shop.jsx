@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
+import { Helmet } from 'react-helmet';
 
 import {
     Accordion,
@@ -41,6 +42,10 @@ function Icon({ id, open }) {
 const Shop = () => {
   return (
     <Layout>
+        <Helmet>
+            <title>Shop | Stiles</title>
+            <meta name="description" content="Shop on Stiles" />
+        </Helmet>
         <Hero />
         <Content />
     </Layout>

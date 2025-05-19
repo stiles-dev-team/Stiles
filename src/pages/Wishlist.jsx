@@ -3,10 +3,15 @@ import Layout from '../layout/Layout'
 import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
+import { Helmet } from 'react-helmet';
 
 const Wishlist = () => {
     return (
         <Layout>
+            <Helmet>
+                <title>Wishlist | Stiles</title>
+                <meta name="description" content="Your wishlist on Stiles" />
+            </Helmet>
           <main className='w-full flex flex-col justify-start items-start gap-10 lg:gap-20 pb-10 lg:pb-20 '>
             <Hero />
             <Main />

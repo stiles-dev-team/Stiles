@@ -3,9 +3,15 @@ import Layout from '../layout/Layout'
 import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
+import { Helmet } from 'react-helmet';
+
 const Cart = () => {
     return (
         <Layout>
+            <Helmet>
+                <title>Cart | Stiles</title>
+                <meta name="description" content="Your cart on Stiles" />
+            </Helmet>
           <main className='w-full flex flex-col justify-start items-start gap-10 lg:gap-10 pb-10 lg:pb-20 '>
             <Hero />
             <Main />
@@ -111,14 +117,14 @@ const Main = () => {
                         <table className="w-full overflow-x-auto table-auto text-left">
                         <thead>
                             <tr>
-                                <th className="border-b border-gray-300 pb-4 pt-4">
+                                {/* <th className="border-b border-gray-300 pb-4 pt-4">
                                     <Checkbox 
                                         ripple={false} 
                                         color='yellow'
                                         checked={selectedItems.length === cartItems.length}
                                         onChange={handleSelectAll}
                                     />
-                                </th>
+                                </th> */}
                                 <th className="border-b border-gray-300 pb-4 pt-4">
                                     <Typography
                                         variant="small"
@@ -160,14 +166,14 @@ const Main = () => {
                         <tbody>
                             {cartItems.map((item) => (
                                 <tr key={item.slug} className="hover:bg-gray-50">
-                                    <td>
+                                    {/* <td>
                                         <Checkbox 
                                             ripple={false} 
                                             color='yellow'
                                             checked={selectedItems.includes(item.slug)}
                                             onChange={() => handleSelectItem(item.slug)}
                                         />
-                                    </td>
+                                    </td> */}
                                     <td className='flex justify-start items-center gap-2 py-2'>
                                         <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
                                         <div className="flex flex-col gap-1">

@@ -1,4 +1,3 @@
-import { Button } from "@material-tailwind/react";
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 interface CircularPaginationProps {
@@ -12,13 +11,15 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const getItemProps = (index: number) => ({
-    variant: currentPage === index ? "filled" : "text",
-    color: "gray",
     onClick: () => {
       onPageChange(index);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    className: "rounded-full",
+    className: `rounded-full px-4 py-2 transition-all ${
+      currentPage === index 
+        ? 'bg-gray-900 text-white' 
+        : 'bg-transparent text-gray-700 hover:bg-gray-100'
+    }`
   });
 
   const next = () => {
@@ -40,7 +41,9 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
 
     // Always add first page
     pageNumbers.push(
-      <Button key={1} {...getItemProps(1)}>{1}</Button>
+      <button key={1} {...getItemProps(1)}>
+        {1}
+      </button>
     );
 
     // Add ellipsis if needed after first page
@@ -53,7 +56,9 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
     // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(
-        <Button key={i} {...getItemProps(i)}>{i}</Button>
+        <button key={i} {...getItemProps(i)}>
+          {i}
+        </button>
       );
     }
 
@@ -67,7 +72,9 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
     // Add last page if there is more than one page
     if (totalPages > 1) {
       pageNumbers.push(
-        <Button key={totalPages} {...getItemProps(totalPages)}>{totalPages}</Button>
+        <button key={totalPages} {...getItemProps(totalPages)}>
+          {totalPages}
+        </button>
       );
     }
 
@@ -75,29 +82,33 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
   };
 
   return (
-    <div className="lg:flex items-center gap-4 mx-auto py-5 hidden">
-      <Button
-        variant="text"
-        color="gray"
-        className="flex items-center gap-2 rounded-full"
+    <div className="flex flex-col lg:flex-row items-center gap-4 mx-auto py-5">
+      <button
+        className={`flex items-center gap-2 rounded-full px-4 py-2 transition-all ${
+          currentPage === 1 
+            ? 'text-gray-400 cursor-not-allowed' 
+            : 'text-gray-700 hover:bg-gray-100'
+        }`}
         onClick={prev}
         disabled={currentPage === 1}
       >
         <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
-      </Button>
-      <div className="flex items-center gap-2">
+      </button>
+      <div className="flex items-center gap-2 overflow-x-auto w-full justify-center">
         {renderPageNumbers()}
       </div>
-      <Button
-        variant="text"
-        color="gray"
-        className="flex items-center gap-2 rounded-full"
+      <button
+        className={`flex items-center gap-2 rounded-full px-4 py-2 transition-all ${
+          currentPage === totalPages 
+            ? 'text-gray-400 cursor-not-allowed' 
+            : 'text-gray-700 hover:bg-gray-100'
+        }`}
         onClick={next}
         disabled={currentPage === totalPages}
       >
         Next
         <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   );
 }

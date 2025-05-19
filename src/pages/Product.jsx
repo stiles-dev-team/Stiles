@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import LayoutDark from '../layout/LayoutDark'
 import axios from 'axios';
+import { Helmet } from 'react-helmet';
 
 import { FaRegHeart } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
@@ -132,10 +133,12 @@ const Product = () => {
             fetch(`/data/products2.json`)
             .then(res => res.json())
             .then(data => {
-                const selectedData = data.filter(item => item.brands === product.brands && item.slug !== product.slug);
-                const shuffledData = selectedData.sort(() => 0.5 - Math.random());
-                const selectedProducts = shuffledData.slice(0, 10);
-                setRelated(selectedProducts);
+                if (product) {
+                    const selectedData = data.filter(item => item.brands === product.brands && item.slug !== product.slug);
+                    const shuffledData = selectedData.sort(() => 0.5 - Math.random());
+                    const selectedProducts = shuffledData.slice(0, 10);
+                    setRelated(selectedProducts);
+                }
             })
             .catch(err => {
                 console.log(err);
@@ -236,6 +239,20 @@ const Product = () => {
 
   return (
     <LayoutDark>
+        <Helmet>
+            <title>{product?.title ? `${product.title} | Stiles` : 'Stiles'}</title>
+            <meta name="description" content={product?.metadesc || ''} />
+            <meta property="og:image" content={product?.images?.[0]?.url || ''} />
+            <meta property="og:title" content={product?.title || 'Stiles'} />
+            <meta property="og:description" content={product?.metadesc || ''} />
+            <meta property="og:url" content={currentUrl} />
+            <meta property="og:type" content="product" />
+            <meta property="og:site_name" content="Stiles" />
+            <meta property="og:locale" content="en_ZA" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={product?.title || 'Stiles'} />
+        </Helmet>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2'>
                 <img src={product?.images[imageSelected].url} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
@@ -339,10 +356,10 @@ const Product = () => {
                         <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
                     </div>
                 </div>
-                <button onClick={() => window.open("/pdf/placeholder.pdf", "_blank")} className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'>
+                {/* <button onClick={() => window.open("/pdf/placeholder.pdf", "_blank")} className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'>
                 Technical Specifications
-                </button>
-                <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-2">
+                </button> */}
+                {/* <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-2">
                     <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
                     View this in your room
                     </a>
@@ -350,7 +367,7 @@ const Product = () => {
                     View in 3D
                     </a>
 
-                </div>
+                </div> */}
             </div>
         </div>
         <div className="container mx-auto pb-20 hidden lg:block">
