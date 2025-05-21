@@ -28,6 +28,8 @@ import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet';
+import { toast } from 'sonner';
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -49,10 +51,12 @@ const ProductCategory = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
+    const [retryCount, setRetryCount] = useState(0);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
         setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Add useEffect to clear loading state after page change
@@ -69,6 +73,7 @@ const ProductCategory = () => {
     const handleProductsPerPageChange = (value) => {
         setProductsPerPage(parseInt(value));
         setCurrentPage(1); // Reset to first page when changing items per page
+        setLoading(true);
     };
 
     
@@ -139,6 +144,8 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
+    const [retryCount, setRetryCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(0);
@@ -176,118 +183,186 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         setSearchParams(newParams);
     };
 
-    // Update URL when filters change
-    useEffect(() => {
-        updateUrlParams({
-            brands: selectedBrands,
-            finish: selectedFinish,
-            colours: selectedColours,
-            sort: sortBy,
-            minPrice: priceRange.min,
-            maxPrice: priceRange.max,
-            perPage: productsPerPage
-        });
-    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange, productsPerPage]);
-
     // Modify the initial data loading effect to be more efficient
     useEffect(() => {
-        setLoading(true);
-        fetch(`/data/products2.json`)
-        .then(res => res.json())
-        .then(data => {
-            // First, get all products for the category
-            const selectedProducts = data
-                .filter(item => {
-                    if (!item.product_cat) return false;
-                    if (Array.isArray(item.product_cat)) {
-                        return item.product_cat.includes(dataSlug?.name);
-                    }
-                    if (typeof item.product_cat === 'string') {
-                        return item.product_cat.includes(dataSlug?.name);
-                    }
-                    return false;
-                })
-                .filter(item => item.status === 'publish');
-            
-            // Set the original product list
-            setProduct(selectedProducts);
-            
-            // Calculate price ranges
-            const prices = selectedProducts
-                .map(item => {
-                    const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
-                    return parseFloat(priceStr) || 0;
-                })
-                .filter(price => !isNaN(price) && price > 0);
-    
-            const minPrice = prices.length ? Math.min(...prices) : 0;
-            const maxPrice = prices.length ? Math.max(...prices) : 0;
-    
-            // Initialize price range from URL params or calculated values
-            const urlMinPrice = searchParams.get('minPrice');
-            const urlMaxPrice = searchParams.get('maxPrice');
-            
-            setMinPrice(minPrice);
-            setMaxPrice(maxPrice);
-            set_minValue(urlMinPrice ? parseFloat(urlMinPrice) : minPrice);
-            set_maxValue(urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice);
-            setPriceRange({ 
-                min: urlMinPrice ? parseFloat(urlMinPrice) : minPrice, 
-                max: urlMaxPrice ? parseFloat(urlMaxPrice) : maxPrice 
-            });
-
-            // Extract unique values for filters
-            const colours = [...new Set(selectedProducts
-                .map(item => item.colour?.split(',').map(c => c.trim()))
-                .flat()
-                .filter(colour => colour !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setColours(colours);
-
-            const finish = [...new Set(selectedProducts
-                .map(item => item.finish?.split(',').map(f => f.trim()))
-                .flat()
-                .filter(finish => finish !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setFinish(finish);
-            
-            const brands = [...new Set(selectedProducts
-                .map(item => item.brands?.split(',').map(b => b.trim()))
-                .flat()
-                .filter(brand => brand !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setBrands(brands);
-    
-            // Apply initial filters
-            applyFilters(selectedProducts);
-            setLoading(false);
-        })
-        .catch(err => {
-            console.log(err);
-            setLoading(false);
-        });
-    }, [dataSlug, searchParams]);
-
-    // Modify the price range handling to be more efficient
-    const handleInput = (e) => {
-        // Debounce the price range updates
-        const newMinValue = e.minValue;
-        const newMaxValue = e.maxValue;
+        if (!dataSlug?.name) return;
         
-        // Only update if values actually changed
-        if (newMinValue !== minValue || newMaxValue !== maxValue) {
-            set_minValue(newMinValue);
-            set_maxValue(newMaxValue);
-            setPriceRange({ min: newMinValue, max: newMaxValue });
-            
-            if (product) {
-                // Use requestAnimationFrame to batch DOM updates
-                requestAnimationFrame(() => {
-                    applyFilters(product);
+        setLoading(true);
+        const fetchProducts = async () => {
+            try {
+                // Calculate offset based on current page and products per page
+                const offset = (currentPage - 1) * productsPerPage;
+                
+                // Build query parameters for filters
+                const queryParams = new URLSearchParams({
+                    category: dataSlug.name,
+                    limit: productsPerPage,
+                    offset: offset,
+                    _: new Date().getTime()
                 });
+
+                // Add all filter parameters at once
+                if (selectedBrands.length > 0) {
+                    queryParams.append('brands', selectedBrands.join(','));
+                }
+                if (selectedFinish.length > 0) {
+                    queryParams.append('finish', selectedFinish.join(','));
+                }
+                if (selectedColours.length > 0) {
+                    queryParams.append('colours', selectedColours.join(','));
+                }
+                if (priceRange.min > 0) {
+                    queryParams.append('min_price', priceRange.min);
+                }
+                if (priceRange.max > 0) {
+                    queryParams.append('max_price', priceRange.max);
+                }
+                if (sortBy) {
+                    queryParams.append('sort', sortBy);
+                }
+
+                // Log the request URL for debugging
+                const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
+                console.log('Fetching products from:', requestUrl);
+                
+                const res = await fetch(requestUrl, {
+                    headers: {
+                        'Accept-Encoding': 'gzip, deflate',
+                        'Accept': 'application/json',
+                        'Connection': 'keep-alive'
+                    },
+                    cache: 'no-store',
+                    credentials: 'omit'
+                });
+                
+                if (!res.ok) {
+                    console.error('HTTP Error:', res.status, res.statusText);
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                // Get the response as text first
+                const text = await res.text();
+                
+                // Try to parse the response
+                let data;
+                try {
+                    // Clean the response text before parsing
+                    const cleanText = text.trim();
+                    data = JSON.parse(cleanText);
+                } catch (e) {
+                    console.error('JSON Parse Error:', e);
+                    
+                    // If we get a parse error and haven't retried too many times
+                    if (retryCount < 3) {
+                        console.log(`Retrying... Attempt ${retryCount + 1}`);
+                        setRetryCount(prev => prev + 1);
+                        return;
+                    }
+                    
+                    throw new Error('Invalid JSON response from server');
+                }
+                
+                // Validate the response structure
+                if (!data || typeof data !== 'object') {
+                    console.error('Invalid response format:', data);
+                    throw new Error('Invalid response format');
+                }
+                
+                if (data.status !== 'success' || !Array.isArray(data.data)) {
+                    console.error('Invalid response structure:', data);
+                    throw new Error('Invalid response structure');
+                }
+                
+                // Process the data
+                const selectedProducts = data.data;
+                
+                if (selectedProducts.length === 0) {
+                    console.log('No products found for category:', dataSlug.name);
+                    setProduct([]);
+                    setTotalCount(0);
+                    setLoading(false);
+                    return;
+                }
+                
+                // Set the product list and total count
+                setProduct(selectedProducts);
+                setTotalCount(data.total_count || 0);
+                
+                // Calculate price ranges only if we don't have them yet
+                if (minPrice === 0 && maxPrice === 0) {
+                    const prices = selectedProducts
+                        .map(item => item.price?.regular)
+                        .filter(price => !isNaN(price) && price > 0);
+            
+                    const newMinPrice = prices.length ? Math.min(...prices) : 0;
+                    const newMaxPrice = prices.length ? Math.max(...prices) : 0;
+            
+                    // Initialize price range from URL params or calculated values
+                    const urlMinPrice = searchParams.get('minPrice');
+                    const urlMaxPrice = searchParams.get('maxPrice');
+                    
+                    setMinPrice(newMinPrice);
+                    setMaxPrice(newMaxPrice);
+                    set_minValue(urlMinPrice ? parseFloat(urlMinPrice) : newMinPrice);
+                    set_maxValue(urlMaxPrice ? parseFloat(urlMaxPrice) : newMaxPrice);
+                    setPriceRange({ 
+                        min: urlMinPrice ? parseFloat(urlMinPrice) : newMinPrice, 
+                        max: urlMaxPrice ? parseFloat(urlMaxPrice) : newMaxPrice 
+                    });
+                }
+
+                // Extract unique values for filters
+                const colours = [...new Set(selectedProducts
+                    .map(item => item.colour?.split(',').map(c => c.trim()))
+                    .flat()
+                    .filter(colour => colour !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setColours(colours);
+
+                const finish = [...new Set(selectedProducts
+                    .map(item => item.finish?.split(',').map(f => f.trim()))
+                    .flat()
+                    .filter(finish => finish !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setFinish(finish);
+                
+                const brands = [...new Set(selectedProducts
+                    .map(item => item.brands?.split(',').map(b => b.trim()))
+                    .flat()
+                    .filter(brand => brand !== ''))]
+                    .sort((a, b) => a.localeCompare(b));
+                setBrands(brands);
+        
+                setRetryCount(0); // Reset retry count on success
+                setLoading(false);
+                
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                
+                // If we get a fetch error and haven't retried too many times
+                if (retryCount < 3) {
+                    console.log(`Retrying... Attempt ${retryCount + 1}`);
+                    setRetryCount(prev => prev + 1);
+                    return;
+                }
+                
+                toast.error('Failed to load products. Please try again later.');
+                setLoading(false);
             }
+        };
+
+        fetchProducts();
+    }, [dataSlug, currentPage, productsPerPage, retryCount, selectedBrands, selectedFinish, selectedColours, priceRange, sortBy]);
+
+    // Add a small delay to the loading state to prevent flickering
+    useEffect(() => {
+        if (loading) {
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 300);
+            return () => clearTimeout(timer);
         }
-    };
+    }, [loading]);
 
     useEffect(() => {
         fetch(`/data/categories.json`)
@@ -297,7 +372,20 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
             setDataSlug(selectedData[0]);
         })
         .catch(err => console.log(err));
-    }, []);
+    }, [slug]);
+
+    // Modify the price range handling to reset to first page when price changes
+    const handleInput = (e) => {
+        const newMinValue = e.minValue;
+        const newMaxValue = e.maxValue;
+        
+        if (newMinValue !== minValue || newMaxValue !== maxValue) {
+            set_minValue(newMinValue);
+            set_maxValue(newMaxValue);
+            setPriceRange({ min: newMinValue, max: newMaxValue });
+            setCurrentPage(1);
+        }
+    };
 
     // New useEffect to handle sorting when sortBy changes
     useEffect(() => {
@@ -350,28 +438,47 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         
         // Apply brand filter
         if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => selectedBrands.includes(item.brands));
+            filtered = filtered.filter(item => 
+                selectedBrands.some(brand => item.brands?.includes(brand))
+            );
         }
         
         // Apply finish filter
         if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => selectedFinish.includes(item.finish));
+            filtered = filtered.filter(item => 
+                selectedFinish.some(finish => item.finish?.includes(finish))
+            );
         }
         
         // Apply colour filter
         if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => selectedColours.includes(item.colour));
+            filtered = filtered.filter(item => 
+                selectedColours.some(colour => item.colour?.includes(colour))
+            );
         }
         
         // Apply price filter
         filtered = filtered.filter(item => {
-            const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
-            const price = parseFloat(priceStr) || 0;
+            const price = item.price.regular;
             return price >= priceRange.min && price <= priceRange.max;
         });
         
         setFilteredProducts(filtered);
     };
+
+    // Update URL when filters change
+    useEffect(() => {
+        updateUrlParams({
+            brands: selectedBrands,
+            finish: selectedFinish,
+            colours: selectedColours,
+            sort: sortBy,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            perPage: productsPerPage,
+            page: currentPage
+        });
+    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange, productsPerPage, currentPage]);
 
     // Consolidate all filter changes into a single effect
     useEffect(() => {
@@ -384,26 +491,32 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
-    // Modify the filter handlers to use the new URL param system
+    // Modify the filter handlers to reset to first page when filters change
     const handleFinishFilter = (finishItem) => {
-        const newFinish = selectedFinish.includes(finishItem)
-            ? selectedFinish.filter(item => item !== finishItem)
-            : [...selectedFinish, finishItem];
-        setSelectedFinish(newFinish);
+        setSelectedFinish(prev => 
+            prev.includes(finishItem)
+                ? prev.filter(item => item !== finishItem)
+                : [...prev, finishItem]
+        );
+        setCurrentPage(1);
     };
 
     const handleColourFilter = (colourItem) => {
-        const newColours = selectedColours.includes(colourItem)
-            ? selectedColours.filter(item => item !== colourItem)
-            : [...selectedColours, colourItem];
-        setSelectedColours(newColours);
+        setSelectedColours(prev => 
+            prev.includes(colourItem)
+                ? prev.filter(item => item !== colourItem)
+                : [...prev, colourItem]
+        );
+        setCurrentPage(1);
     };
 
     const handleBrandFilter = (brandItem) => {
-        const newBrands = selectedBrands.includes(brandItem)
-            ? selectedBrands.filter(item => item !== brandItem)
-            : [...selectedBrands, brandItem];
-        setSelectedBrands(newBrands);
+        setSelectedBrands(prev => 
+            prev.includes(brandItem)
+                ? prev.filter(item => item !== brandItem)
+                : [...prev, brandItem]
+        );
+        setCurrentPage(1);
     };
 
     const formatCurrency = (value) => {
@@ -555,13 +668,13 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
-                            currentProducts.map((item, index) => (
-                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                            product && product.map((item, index) => (
+                                <ProductCard key={item.id} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                             ))
                         }
                     </div>
                     <CircularPagination
-                        totalItems={filteredProducts ? filteredProducts.length : 0}
+                        totalItems={totalCount}
                         itemsPerPage={productsPerPage}
                         currentPage={currentPage}
                         onPageChange={onPageChange}

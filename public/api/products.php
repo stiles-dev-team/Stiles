@@ -166,20 +166,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['admin']) && $_GET['admi
 }
 
 // Get random products by category with limit
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_GET['limit'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
     try {
         $category = $_GET['category'];
-        $limit = (int)$_GET['limit'];
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
+        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
         
         // Validate limit
         if ($limit <= 0 || $limit > 100) {
-            $limit = 6; // Default to 6 if invalid
+            $limit = 15; // Default to 15 if invalid
         }
         
         // Debug log
-        error_log("Fetching products for category: {$category} with limit: {$limit}");
+        error_log("Fetching products for category: {$category} with limit: {$limit} and offset: {$offset}");
         
-        // First, let's check how many products match our category
+        // First, get total count of products in this category
         $countStmt = $pdo->prepare('
             SELECT COUNT(*) as total 
             FROM stiles_products 
@@ -192,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
         $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
         error_log("Total products matching category pattern {$categoryPattern}: {$totalCount}");
         
-        // Now get our limited random selection with only essential fields
+        // Now get our paginated selection with only essential fields
         $stmt = $pdo->prepare('
             SELECT 
                 ID,
@@ -200,15 +201,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
                 slug,
                 featured_image,
                 regular_price,
-                sale_price
+                sale_price,
+                product_category,
+                `attribute:pa_colour` as colour,
+                `attribute:pa_finish` as finish,
+                `attribute:pa_brands` as brands,
+                status,
+                post_date
             FROM stiles_products 
             WHERE status = "publish" 
             AND product_category LIKE ? 
-            ORDER BY RAND() 
-            LIMIT ?
+            ORDER BY post_date DESC
+            LIMIT ? OFFSET ?
         ');
         
-        $stmt->execute([$categoryPattern, $limit]);
+        $stmt->execute([$categoryPattern, $limit, $offset]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Debug log
@@ -225,7 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
                 'price' => [
                     'regular' => (float)$product['regular_price'],
                     'sale' => $product['sale_price'] ? (float)$product['sale_price'] : null
-                ]
+                ],
+                'category' => $product['product_category'],
+                'colour' => $product['colour'],
+                'finish' => $product['finish'],
+                'brands' => $product['brands'],
+                'status' => $product['status'],
+                'post_date' => $product['post_date']
             ];
             
             // Remove any null or empty values
@@ -241,7 +254,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
         
         $response = [
             'status' => 'success',
-            'data' => $processedProducts
+            'data' => $processedProducts,
+            'total_count' => (int)$totalCount,
+            'current_page' => floor($offset / $limit) + 1,
+            'total_pages' => ceil($totalCount / $limit),
+            'per_page' => $limit
         ];
         
         // Debug log
@@ -262,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
         http_response_code(500);
         echo json_encode([
             'status' => 'error',
-            'message' => 'Error fetching random products',
+            'message' => 'Error fetching products',
             'error' => $e->getMessage(),
             'error_code' => $e->getCode()
         ]);
