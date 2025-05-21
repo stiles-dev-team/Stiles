@@ -174,63 +174,139 @@ const WhoWeAre = () => {
 }
 
 const OurProducts = () => {
-
-  const [loading, setLoading] = useState(true);
+  
   const [product, setProduct] = useState(null);
   const [category, setCategory] = useState("Tiles");
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-      fetch(`/data/products2.json`)
-      .then(res => res.json())
-      .then(data => {
-        const selectedData = data.filter(item => {
-          // Check if product_cat exists and is a string or array
-          if (!item.product_cat) return false;
-          if (Array.isArray(item.product_cat)) {
-            return item.product_cat.includes("Tiles");
-          }
-          if (typeof item.product_cat === 'string') {
-            return item.product_cat.includes("Tiles");
-          }
-          return false;
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        // Add a timestamp to prevent caching
+        const timestamp = new Date().getTime();
+        const res = await fetch(`https://stiles.co.za/api/products.php?category=${category}&limit=6&_=${timestamp}`, {
+          headers: {
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept': 'application/json',
+            'Connection': 'keep-alive'
+          },
+          cache: 'no-store',
+          credentials: 'omit'
         });
-          // Shuffle the array
-          const shuffledData = selectedData.sort(() => 0.5 - Math.random());
-          // Get the first 30 items
-          const selectedProducts = shuffledData.slice(0, 6);
-          setProduct(selectedProducts);
-      })
-      .catch(err => {
-          console.log(err);
-      });
-  }, []);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        // Get the response as text first
+        const text = await res.text();
+        
+        // Log the response size
+        console.log('Response size:', text.length);
+        
+        // Try to parse the response
+        let data;
+        try {
+          // Clean the response text before parsing
+          const cleanText = text.trim();
+          data = JSON.parse(cleanText);
+        } catch (e) {
+          console.error('JSON Parse Error:', e);
+          console.error('Response text length:', text.length);
+          console.error('First 1000 characters:', text.substring(0, 1000));
+          
+          // If we get a parse error and haven't retried too many times
+          if (retryCount < 3) {
+            console.log(`Retrying... Attempt ${retryCount + 1}`);
+            setRetryCount(prev => prev + 1);
+            return;
+          }
+          
+          throw new Error('Invalid JSON response from server');
+        }
+        
+        // Validate the response structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response format');
+        }
+        
+        if (data.status !== 'success' || !Array.isArray(data.data)) {
+          throw new Error('Invalid response structure');
+        }
+        
+        // Process the data
+        const processedData = data.data.filter(product => {
+          return product && 
+                 typeof product === 'object' && 
+                 product.slug && 
+                 product.title;
+        });
+        
+        if (processedData.length === 0) {
+          throw new Error('No valid products found');
+        }
+        
+        setProduct(processedData);
+        setError(null);
+        setRetryCount(0); // Reset retry count on success
+        
+      } catch (err) {
+        console.error('Error:', err);
+        setError(err.message);
+        toast.error('Failed to load products');
+        
+        // If we get a protocol error, try one more time with different options
+        if (err.message.includes('HTTP2_PROTOCOL_ERROR') && retryCount < 3) {
+          console.log('HTTP/2 protocol error, retrying with different options...');
+          setRetryCount(prev => prev + 1);
+          return;
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [category, retryCount]);
 
   const updateCat = (cat) => {
     setCategory(cat);
-    fetch(`/data/products2.json`)
-    .then(res => res.json())
-    .then(data => {
-        const selectedData = data.filter(item => {
-          // Check if product_cat exists and is a string or array
-          if (!item.product_cat) return false;
-          if (Array.isArray(item.product_cat)) {
-            return item.product_cat.includes(cat);
-          }
-          if (typeof item.product_cat === 'string') {
-            return item.product_cat.includes(cat);
-          }
-          return false;
-        });
-        // Shuffle the array
-        const shuffledData = selectedData.sort(() => 0.5 - Math.random());
-        // Get the first 30 items
-        const selectedProducts = shuffledData.slice(0, 6);
-        setProduct(selectedProducts);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+    setRetryCount(0); // Reset retry count when changing category
   };
+
+  if (error) {
+    return (
+      <BlurFade delay={0.2} inView className='w-full'>
+        <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
+          <div className="flex flex-row justify-between items-end gap-5 w-full">
+            <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
+          </div>
+          <div className="w-full py-8 text-center text-red-500">
+            Failed to load products. Please try again later.
+          </div>
+        </section>
+      </BlurFade>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <BlurFade delay={0.2} inView className='w-full'>
+        <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
+          <div className="flex flex-row justify-between items-end gap-5 w-full">
+            <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
+          </div>
+          <div className="w-full py-8 text-center">
+            Loading products...
+          </div>
+        </section>
+      </BlurFade>
+    );
+  }
+
   return (
     <BlurFade delay={0.2} inView className='w-full'>
         <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
@@ -270,8 +346,8 @@ const OurProducts = () => {
         }}>
             {
               product && product.map((item, index) => (
-                <SplideSlide>
-                  <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                <SplideSlide key={index}>
+                  <ProductCard onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                 </SplideSlide>
               ))
             }

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { Spinner } from '@material-tailwind/react';
 import { Skeleton } from './ui/skeleton';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
+import { toast } from 'sonner';
 
 const ProductCard = memo(({ onClick, prod }) => {
     const [isFavourite, setIsFavourite] = useState(false);
@@ -21,22 +22,44 @@ const ProductCard = memo(({ onClick, prod }) => {
         let isMounted = true;
         setLoading(true);
         
-        fetch(`/data/products2.json`)
-        .then(res => res.json())
+        fetch(`https://stiles.co.za/api/products.php?slug=${prod}`)
+        .then(async res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const text = await res.text(); // Get response as text first
+            try {
+                return JSON.parse(text); // Try to parse as JSON
+            } catch (e) {
+                console.error('JSON Parse Error:', e);
+                console.error('Response text:', text);
+                throw new Error('Invalid JSON response from server');
+            }
+        })
         .then(data => {
             if (!isMounted) return;
             
-            const product = data.find(item => item.slug === prod);
-            if (product) {
-                product.images = product.images.split(',').map(url => ({ url: url.trim() }));
+            if (data.status === 'success' && data.data) {
+                const productData = data.data;
+                // Convert gallery_images string to array of objects
+                if (productData.gallery_images) {
+                    productData.images = productData.gallery_images.split(',').map(url => ({ url: url.trim() }));
+                } else {
+                    // If no gallery images, use featured image
+                    productData.images = [{ url: productData.featured_image }];
+                }
+                setProduct(productData);
+            } else {
+                console.error('Product not found:', data.message);
+                toast.error('Failed to load product details');
             }
-            setProduct(product);
             setLoading(false);
         })
         .catch(err => {
             if (!isMounted) return;
             setLoading(false);
-            console.error(err);
+            console.error('Error fetching product:', err);
+            toast.error('Failed to load product details');
         });
 
         return () => {
@@ -88,6 +111,10 @@ const ProductCard = memo(({ onClick, prod }) => {
         );
     }
 
+    if (!product) {
+        return null;
+    }
+
     return (
         <div className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden'>
             {product.sale_price > 0 && (
@@ -101,19 +128,19 @@ const ProductCard = memo(({ onClick, prod }) => {
                 onMouseLeave={handleMouseLeave}
             >
                 <img 
-                    src={product?.images[0].url} 
-                    alt="Product Image"
+                    src={product.images[0]?.url || '/images/placeholder-images-image_large.webp'} 
+                    alt={product.title}
                     loading="lazy"
-                    className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product?.images.length > 1 ? 'opacity-0' : 'opacity-100'}`} 
+                    className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product.images.length > 1 ? 'opacity-0' : 'opacity-100'}`} 
                     onClick={onClick} 
                     onError={(e) => {
                         e.target.src = '/images/placeholder-images-image_large.webp';
                     }} 
                 />
-                {product?.images.length > 1 && (
+                {product.images.length > 1 && (
                     <img 
-                        src={product?.images[1].url} 
-                        alt="Product Image Hover" 
+                        src={product.images[1]?.url || '/images/placeholder-images-image_large.webp'} 
+                        alt={`${product.title} - Hover`} 
                         className={`absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
                         onClick={onClick}
                         onError={(e) => {
@@ -128,10 +155,10 @@ const ProductCard = memo(({ onClick, prod }) => {
             >
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             </div>
-            <h3 onClick={onClick} className='font-bold text-xl cursor-pointer'>{product?.title}</h3>
+            <h3 onClick={onClick} className='font-bold text-xl cursor-pointer'>{product.title}</h3>
             <div onClick={onClick} className="flex justify-start items-center gap-3 w-full cursor-pointer">
-                <p className='text-lg font-medium'>{formatPriceWithUnit(product?.regular_price, getPricingUnit(product))}</p>
-                <p className='text-sm text-opaque'>{product?.sku}</p>
+                <p className='text-lg font-medium'>{formatPriceWithUnit(product.regular_price, getPricingUnit(product))}</p>
+                <p className='text-sm text-opaque'>{product.sku}</p>
             </div>
         </div>
     );
