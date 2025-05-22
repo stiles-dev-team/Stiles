@@ -166,7 +166,7 @@ const WhoWeAre = () => {
       <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>WE ARE STILES</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
         <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country</p>
-        <p className='text-sm lg:text-basepb-6'>We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
+        <p className='text-sm lg:text-base pb-6'>We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
         {/* <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} /> */}
       </div>
     </section>
@@ -203,9 +203,6 @@ const OurProducts = () => {
         
         // Get the response as text first
         const text = await res.text();
-        
-        // Log the response size
-        console.log('Response size:', text.length);
         
         // Try to parse the response
         let data;

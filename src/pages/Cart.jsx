@@ -93,7 +93,7 @@ const Main = () => {
     };
 
     const calculateSubtotal = (item) => {
-        return item.regular_price * (quantities[item.slug] || 1);
+        return item.price * (quantities[item.slug] || 1);
     };
 
     const calculateTotal = () => {
@@ -179,7 +179,8 @@ const Main = () => {
                                         <div className="flex flex-col gap-1">
                                             <Typography
                                                 variant="small"
-                                                className="font-normal text-gray-600 text-left w-full max-w-64"
+                                                className="font-normal text-gray-600 text-left w-full max-w-64 cursor-pointer hover:underline"
+                                                onClick={() => window.open(`/product/${item.slug}`, '_blank')}
                                             >
                                                 {item.title}
                                             </Typography>
@@ -196,7 +197,7 @@ const Main = () => {
                                             variant="small"
                                             className="font-normal text-gray-600 text-center"
                                         >
-                                            R{item.regular_price}.00 m2
+                                            R{item.price}.00 m2
                                         </Typography>
                                     </td>
                                     <td>

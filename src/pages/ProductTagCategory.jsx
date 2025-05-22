@@ -624,7 +624,7 @@ const Content = ({
                             </a>
                         </Breadcrumbs>
                     </div>
-                    <div className='w-full flex flex-row justify-between items-center gap-3'>
+                    <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
                             <Select label="Sort By" value={sortBy} onChange={(e) => setSortBy(e)}>
                                 <Option value="asc">Latest</Option>
@@ -633,8 +633,8 @@ const Content = ({
                                 <Option value="vend">Price: High to Low</Option>
                             </Select>
                         </div>
-                        <div className='flex flex-row justify-end items-center gap-2'>
-                            <div className='w-52'>
+                        <div className='flex flex-row justify-end items-center gap-2 w-full lg:w-fit'>
+                            <div className='w-full lg:w-52'>
                                 <Select 
                                     label="Products per page" 
                                     value={productsPerPage.toString()} 

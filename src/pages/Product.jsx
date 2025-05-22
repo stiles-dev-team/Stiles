@@ -19,6 +19,14 @@ import {
   } from "@material-tailwind/react";
 
   import {
+    Button,
+    Dialog,
+    DialogHeader,
+    DialogBody,
+    DialogFooter,
+  } from "@material-tailwind/react";
+
+  import {
     Accordion,
     AccordionHeader,
     AccordionBody,
@@ -30,6 +38,7 @@ import ProductCard from '../components/ProductCard';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
+import { IoAddCircleOutline } from 'react-icons/io5';
    
   function Icon({ id, open }) {
     return (
@@ -50,7 +59,7 @@ const Product = () => {
 
     const { id } = useParams();
     
-    const [activeTab, setActiveTab] = useState("desc");
+    const [activeTab, setActiveTab] = useState("additional");
     const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState(null);
     const [imageSelected, setImageSelected] = useState(0);
@@ -59,6 +68,52 @@ const Product = () => {
     const [stockInfo, setStockInfo] = useState(null);
 
     const [related, setRelated] = useState([]);
+
+    const [openQuote, setOpenQuote] = useState(false);
+    const [roomLength, setRoomLength] = useState('');
+    const [roomWidth, setRoomWidth] = useState('');
+    const [calculatedQuantity, setCalculatedQuantity] = useState(null);
+ 
+    const handleOpenQuote = () => {
+        setOpenQuote(!openQuote);
+        if (!openQuote) {
+            // Reset values when opening the dialog
+            setRoomLength('');
+            setRoomWidth('');
+            setCalculatedQuantity(null);
+        }
+    };
+
+    const calculateQuantity = () => {
+        if (!roomLength || !roomWidth || !stockInfo?.packSize) return;
+        
+        const area = parseFloat(roomLength) * parseFloat(roomWidth);
+        const areaWithWastage = area * 1.15; // Adding 15% wastage
+        const packsNeeded = Math.ceil(areaWithWastage / stockInfo.packSize);
+        
+        setCalculatedQuantity(packsNeeded);
+    };
+
+    const addToQuote = () => {
+        if (!product || !calculatedQuantity) return;
+
+        const quote = JSON.parse(localStorage.getItem('stiles_cart_ls') || '[]');
+        const existingItemIndex = quote.findIndex(item => item.slug === product.slug);
+        
+        if (existingItemIndex !== -1) {
+            quote[existingItemIndex].quantity = calculatedQuantity;
+        } else {
+            quote.push({
+                ...product,
+                quantity: calculatedQuantity,
+                price: stockInfo?.sellPInc1
+            });
+        }
+        
+        localStorage.setItem('stiles_cart_ls', JSON.stringify(quote));
+        toast.success(`${product.title} x ${calculatedQuantity} added to quote`);
+        handleOpenQuote();
+    };
     
     // Get current URL for sharing
     const currentUrl = window.location.href;
@@ -94,11 +149,19 @@ const Product = () => {
     };
 
     useEffect(() => {
+        console.log("Starting product fetch for ID:", id);
         fetch(`https://stiles.co.za/api/products.php?slug=${id}`)
-        .then(res => res.json())
+        .then(res => {
+            console.log("Product API response status:", res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
         .then(response => {
+            console.log('Product data:', response);
             if (response.status === 'success' && response.data) {
-                console.log(response.data);
+                console.log('Product data:', response.data);
                 const product = response.data;
                 // Process images if they exist in the format we expect
                 const images = [];
@@ -135,25 +198,31 @@ const Product = () => {
                 }
 
                 product.images = images;
-
-                // Fetch stock information with Basic Auth
-                // const username = 'WebUser1142';
-                // const password = 'e$Ye6!g]I~X@K!D';
-                // const authHeader = 'Basic ' + btoa(username + ':' + password);
-
-                // axios.get(`http://102.37.48.148:5006/Stock/GetByCode?code=${product.sku}`, {
-                //     headers: {
-                //         'Authorization': authHeader,
-                //         'X-Requested-With': 'XMLHttpRequest'
-                //     }
-                // })
-                // .then(response => {
-                //     setStockInfo(response.data);
-                //     console.log(response.data);
-                // })
-                // .catch(err => {
-                //     console.error('Error fetching stock:', err);
-                // });
+                
+                // Fetch stock info
+                if (product.sku) {
+                    console.log('Fetching stock info for SKU:', product.sku);
+                    fetch(`https://stiles.javapple.io/api/iq.php?code=${product.sku}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(response => {
+                        console.log('Stock info response:', response);
+                        if (response && response.data) {
+                            setStockInfo(response.data);
+                        } else {
+                            console.warn('Stock info response did not contain expected fields:', response);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching stock info:', err);
+                    });
+                } else {
+                    console.warn('No SKU found for product');
+                }
 
                 setProduct(product);
                 
@@ -171,13 +240,15 @@ const Product = () => {
                     }
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.error('Error fetching related products:', err);
                 });
+            } else {
+                console.warn('Product response did not contain success status or data:', response);
             }
             setLoading(false);
         })
         .catch(err => {
-            console.log(err);
+            console.error('Error fetching product:', err);
             setLoading(false);
         });
     }, [id]);
@@ -240,8 +311,8 @@ const Product = () => {
 
     const data = [
         {
-            label: "Description",
-            value: "desc",
+            label: "Product Details",
+            value: "additional",
             desc: product?.["meta:product_details"] ? product?.["meta:product_details"].split('\r\n').map((line, index) => {
                 // Convert text inside strong/b tags to bold font weight
                 const formattedLine = line.replace(/<(strong|b)>(.*?)<\/\1>/g, '<span class="font-bold">$2</span>');
@@ -249,8 +320,8 @@ const Product = () => {
             }) : [],
         },
         {
-            label: "Product Details",
-            value: "additional",
+            label: "Description",
+            value: "desc",
             desc: [
                 <div className='productdesc' dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join(' ') || "No product details available" }} />
             ],
@@ -284,6 +355,111 @@ const Product = () => {
             <meta property="og:image:height" content="630" />
             <meta property="og:image:alt" content={product?.title || 'Stiles'} />
         </Helmet>
+        <Dialog open={openQuote} handler={handleOpenQuote} className="bg-white">
+            <DialogHeader className="justify-between">
+                <div>
+                    <h3 className="text-2xl font-bold text-dark">Calculate Quote</h3>
+                    <p className="text-sm text-dark/60 mt-1">Enter your room measurements to calculate the required quantity</p>
+                </div>
+                <button
+                    onClick={handleOpenQuote}
+                    className="text-dark/60 hover:text-dark transition-colors"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </DialogHeader>
+            <DialogBody className="overflow-y-auto">
+                <div className="flex flex-col gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="length" className="text-sm font-medium text-dark">Room Length</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    id="length"
+                                    value={roomLength}
+                                    onChange={(e) => setRoomLength(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-dark focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                    placeholder="Enter length"
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/60">m</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="width" className="text-sm font-medium text-dark">Room Width</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    id="width"
+                                    value={roomWidth}
+                                    onChange={(e) => setRoomWidth(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-dark focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                    placeholder="Enter width"
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/60">m</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {calculatedQuantity && (
+                        <div className="mt-2 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                            <h4 className="text-lg font-semibold text-dark mb-4">Calculation Results</h4>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-dark/60">Total Area:</span>
+                                    <span className="font-medium text-dark">{(parseFloat(roomLength) * parseFloat(roomWidth)).toFixed(2)} m²</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-dark/60">Area with 15% wastage:</span>
+                                    <span className="font-medium text-dark">{(parseFloat(roomLength) * parseFloat(roomWidth) * 1.15).toFixed(2)} m²</span>
+                                </div>
+                                <div className="pt-3 border-t border-gray-200">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-dark font-medium">Boxes needed:</span>
+                                        <span className="text-xl font-bold text-primary">{calculatedQuantity}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-6">
+                                <Button
+                                    variant="gradient"
+                                    color="green"
+                                    onClick={addToQuote}
+                                    className="w-full"
+                                >
+                                    <span>Add to Quote</span>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </DialogBody>
+            <DialogFooter className="flex justify-between items-center gap-2">
+                <Button
+                    variant="text"
+                    color="red"
+                    onClick={handleOpenQuote}
+                    className="px-4"
+                >
+                    <span>Cancel</span>
+                </Button>
+                <Button 
+                    variant="gradient" 
+                    color="green" 
+                    onClick={calculateQuantity}
+                    disabled={!roomLength || !roomWidth || !stockInfo?.packSize}
+                    className="px-6"
+                >
+                    <span>Calculate</span>
+                </Button>
+            </DialogFooter>
+        </Dialog>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2'>
                 <img src={product?.images[imageSelected].url} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
@@ -298,14 +474,23 @@ const Product = () => {
                 <p className='text-dark/60'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">
                     {
-                        product?.sale_price  == null ?
+                        stockInfo?.promoPrice  == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ?
+                        <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                        :
+                        <>
+                            <p className='text-[#B3B3B3] line-through text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                            <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product))}</p>
+                        </>
+                    }
+                    {/* {
+                        product?.sale_price  == null || product?.sale_price == 0 || product?.sale_price == '' ?
                         <p className='text-dark text-2xl'>{formatPriceWithUnit(product?.regular_price, getPricingUnit(product))}</p>
                         :
                         <>
                             <p className='text-[#B3B3B3] line-through text-2xl'>{formatPriceWithUnit(product?.regular_price, getPricingUnit(product))}</p>
                             <p className='text-dark text-2xl'>{formatPriceWithUnit(product?.sale_price, getPricingUnit(product))}</p>
                         </>
-                    }
+                    } */}
                 </div>
                 {/* <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p> */}
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
@@ -352,7 +537,7 @@ const Product = () => {
                     <div dangerouslySetInnerHTML={{ __html: product?.excerpt?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
-                    <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                    {/* <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
                         <button 
                             className='text-dark font-negro aspect-square w-7'
                             onClick={() => handleQuantityChange(-1)}
@@ -372,13 +557,13 @@ const Product = () => {
                         >
                             +
                         </button>
-                    </div>
+                    </div> */}
                     <button 
                         className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
-                        onClick={addToCart}
+                        onClick={handleOpenQuote}
                     >
-                        ADD TO CART
-                        <RiHandbagLine className='fill-whtie' size={14} />
+                        CALCULATE/ADD TO QUOTE
+                        <IoAddCircleOutline className='fill-whtie' size={14} />
                     </button>
                     <div 
                         className={`rounded-full hidden lg:flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-secondary/10"}`}
@@ -390,7 +575,7 @@ const Product = () => {
                 {product?.pdf_url && (
                     <button 
                         onClick={() => window.open(product.pdf_url, "_blank")} 
-                        className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'
+                        className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1 mt-2'
                     >
                         Technical Specifications
                     </button>
