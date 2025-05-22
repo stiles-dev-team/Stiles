@@ -41,13 +41,20 @@ const ProductCard = memo(({ onClick, prod }) => {
             
             if (data.status === 'success' && data.data) {
                 const productData = data.data;
-                // Convert gallery_images string to array of objects
-                if (productData.gallery_images) {
-                    productData.images = productData.gallery_images.split(',').map(url => ({ url: url.trim() }));
-                } else {
-                    // If no gallery images, use featured image
-                    productData.images = [{ url: productData.featured_image }];
+                // Create images array with featured image first
+                productData.images = [];
+                
+                // Add featured image first if it exists
+                if (productData.featured_image) {
+                    productData.images.push({ url: productData.featured_image });
                 }
+                
+                // Add gallery images if they exist
+                if (productData.gallery_images) {
+                    const galleryImages = productData.gallery_images.split(',').map(url => ({ url: url.trim() }));
+                    productData.images = [...productData.images, ...galleryImages];
+                }
+                
                 setProduct(productData);
             } else {
                 console.error('Product not found:', data.message);

@@ -14,17 +14,13 @@ import {
     Breadcrumbs,
     Select,
     Option,
-    Slider,
-    Radio,
-    Spinner,
-    Tooltip
+    Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
 import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
 import { useParams } from 'react-router-dom';
-import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet';
@@ -51,7 +47,6 @@ const ProductCategory = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
-    const [retryCount, setRetryCount] = useState(0);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
@@ -100,6 +95,7 @@ const ProductCategory = () => {
         <Content 
             slug={slug} 
             currentPage={currentPage} 
+            setCurrentPage={setCurrentPage}
             productsPerPage={productsPerPage} 
             onPageChange={handlePageChange} 
             loading={loading} 
@@ -139,20 +135,21 @@ const Hero = ({slug}) => {
     )
 }
 
-const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading, onProductsPerPageChange }) => {
+const Content = ({
+    slug, 
+    currentPage, 
+    setCurrentPage,
+    productsPerPage, 
+    onPageChange, 
+    loading, 
+    setLoading, 
+    onProductsPerPageChange 
+}) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
-    const [retryCount, setRetryCount] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(0);
-    const [minValue, set_minValue] = useState(0);
-    const [maxValue, set_maxValue] = useState(0);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
-
     const [dataSlug, setDataSlug] = useState(null);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
@@ -160,12 +157,67 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
     const [brands, setBrands] = useState([]);
+    const [sizes, setSizes] = useState([]);
     
     // Initialize selected filters from URL params
-    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',') || []);
-    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',') || []);
-    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',') || []);
+    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',').filter(Boolean) || []);
+    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',').filter(Boolean) || []);
+    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',').filter(Boolean) || []);
+    const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
     const [filteredProducts, setFilteredProducts] = useState(null);
+
+    // Fetch filter values when category changes
+    useEffect(() => {
+        if (!dataSlug?.name) return;
+
+        const fetchFilterValues = async () => {
+            try {
+                const response = await fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(dataSlug.name)}&filters=true`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch filter values');
+                }
+                const data = await response.json();
+                
+                console.log('Raw API response:', data);
+                
+                if (data.status === 'success' && data.data) {
+                    // Process the data to ensure we have arrays of unique values
+                    const processValues = (values) => {
+                        if (!Array.isArray(values)) {
+                            // If it's a string, split by comma and process
+                            if (typeof values === 'string') {
+                                return values.split(',').map(v => v.trim()).filter(v => v);
+                            }
+                            return [];
+                        }
+                        // Ensure values are unique and sorted
+                        return [...new Set(values)].filter(v => v && v.trim() !== '').sort();
+                    };
+
+                    // Extract and process values from the response
+                    const processedData = {
+                        colours: processValues(data.data.colours || []),
+                        finishes: processValues(data.data.finishes || []),
+                        brands: processValues(data.data.brands || []),
+                        sizes: processValues(data.data.sizes || [])
+                    };
+
+                    console.log('Processed filter values:', processedData);
+
+                    // Update state with processed values
+                    setColours(processedData.colours);
+                    setFinish(processedData.finishes);
+                    setBrands(processedData.brands);
+                    setSizes(processedData.sizes);
+                }
+            } catch (error) {
+                console.error('Error fetching filter values:', error);
+                toast.error('Failed to load filter options');
+            }
+        };
+
+        fetchFilterValues();
+    }, [dataSlug]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -203,156 +255,43 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
                 // Add all filter parameters at once
                 if (selectedBrands.length > 0) {
-                    queryParams.append('brands', selectedBrands.join(','));
+                    queryParams.set('brands', selectedBrands.join(','));
                 }
                 if (selectedFinish.length > 0) {
-                    queryParams.append('finish', selectedFinish.join(','));
+                    queryParams.set('finish', selectedFinish.join(','));
                 }
                 if (selectedColours.length > 0) {
-                    queryParams.append('colours', selectedColours.join(','));
+                    queryParams.set('colours', selectedColours.join(','));
                 }
-                if (priceRange.min > 0) {
-                    queryParams.append('min_price', priceRange.min);
-                }
-                if (priceRange.max > 0) {
-                    queryParams.append('max_price', priceRange.max);
+                if (selectedSizes.length > 0) {
+                    queryParams.set('sizes', selectedSizes.join(','));
                 }
                 if (sortBy) {
-                    queryParams.append('sort', sortBy);
+                    queryParams.set('sort', sortBy);
                 }
 
                 // Log the request URL for debugging
                 const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
-                console.log('Fetching products from:', requestUrl);
+                console.log('Fetching products with URL:', requestUrl);
                 
-                const res = await fetch(requestUrl, {
-                    headers: {
-                        'Accept-Encoding': 'gzip, deflate',
-                        'Accept': 'application/json',
-                        'Connection': 'keep-alive'
-                    },
-                    cache: 'no-store',
-                    credentials: 'omit'
-                });
+                const res = await fetch(requestUrl);
+                if (!res.ok) throw new Error('Failed to fetch products');
                 
-                if (!res.ok) {
-                    console.error('HTTP Error:', res.status, res.statusText);
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error('Invalid response format');
                 
-                // Get the response as text first
-                const text = await res.text();
-                
-                // Try to parse the response
-                let data;
-                try {
-                    // Clean the response text before parsing
-                    const cleanText = text.trim();
-                    data = JSON.parse(cleanText);
-                } catch (e) {
-                    console.error('JSON Parse Error:', e);
-                    
-                    // If we get a parse error and haven't retried too many times
-                    if (retryCount < 3) {
-                        console.log(`Retrying... Attempt ${retryCount + 1}`);
-                        setRetryCount(prev => prev + 1);
-                        return;
-                    }
-                    
-                    throw new Error('Invalid JSON response from server');
-                }
-                
-                // Validate the response structure
-                if (!data || typeof data !== 'object') {
-                    console.error('Invalid response format:', data);
-                    throw new Error('Invalid response format');
-                }
-                
-                if (data.status !== 'success' || !Array.isArray(data.data)) {
-                    console.error('Invalid response structure:', data);
-                    throw new Error('Invalid response structure');
-                }
-                
-                // Process the data
-                const selectedProducts = data.data;
-                
-                if (selectedProducts.length === 0) {
-                    console.log('No products found for category:', dataSlug.name);
-                    setProduct([]);
-                    setTotalCount(0);
-                    setLoading(false);
-                    return;
-                }
-                
-                // Set the product list and total count
-                setProduct(selectedProducts);
+                setProduct(data.data);
                 setTotalCount(data.total_count || 0);
-                
-                // Calculate price ranges only if we don't have them yet
-                if (minPrice === 0 && maxPrice === 0) {
-                    const prices = selectedProducts
-                        .map(item => item.price?.regular)
-                        .filter(price => !isNaN(price) && price > 0);
-            
-                    const newMinPrice = prices.length ? Math.min(...prices) : 0;
-                    const newMaxPrice = prices.length ? Math.max(...prices) : 0;
-            
-                    // Initialize price range from URL params or calculated values
-                    const urlMinPrice = searchParams.get('minPrice');
-                    const urlMaxPrice = searchParams.get('maxPrice');
-                    
-                    setMinPrice(newMinPrice);
-                    setMaxPrice(newMaxPrice);
-                    set_minValue(urlMinPrice ? parseFloat(urlMinPrice) : newMinPrice);
-                    set_maxValue(urlMaxPrice ? parseFloat(urlMaxPrice) : newMaxPrice);
-                    setPriceRange({ 
-                        min: urlMinPrice ? parseFloat(urlMinPrice) : newMinPrice, 
-                        max: urlMaxPrice ? parseFloat(urlMaxPrice) : newMaxPrice 
-                    });
-                }
-
-                // Extract unique values for filters
-                const colours = [...new Set(selectedProducts
-                    .map(item => item.colour?.split(',').map(c => c.trim()))
-                    .flat()
-                    .filter(colour => colour !== ''))]
-                    .sort((a, b) => a.localeCompare(b));
-                setColours(colours);
-
-                const finish = [...new Set(selectedProducts
-                    .map(item => item.finish?.split(',').map(f => f.trim()))
-                    .flat()
-                    .filter(finish => finish !== ''))]
-                    .sort((a, b) => a.localeCompare(b));
-                setFinish(finish);
-                
-                const brands = [...new Set(selectedProducts
-                    .map(item => item.brands?.split(',').map(b => b.trim()))
-                    .flat()
-                    .filter(brand => brand !== ''))]
-                    .sort((a, b) => a.localeCompare(b));
-                setBrands(brands);
-        
-                setRetryCount(0); // Reset retry count on success
                 setLoading(false);
-                
             } catch (err) {
                 console.error('Error fetching products:', err);
-                
-                // If we get a fetch error and haven't retried too many times
-                if (retryCount < 3) {
-                    console.log(`Retrying... Attempt ${retryCount + 1}`);
-                    setRetryCount(prev => prev + 1);
-                    return;
-                }
-                
-                toast.error('Failed to load products. Please try again later.');
+                toast.error('Failed to load products');
                 setLoading(false);
             }
         };
 
         fetchProducts();
-    }, [dataSlug, currentPage, productsPerPage, retryCount, selectedBrands, selectedFinish, selectedColours, priceRange, sortBy]);
+    }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
     // Add a small delay to the loading state to prevent flickering
     useEffect(() => {
@@ -373,19 +312,6 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         })
         .catch(err => console.log(err));
     }, [slug]);
-
-    // Modify the price range handling to reset to first page when price changes
-    const handleInput = (e) => {
-        const newMinValue = e.minValue;
-        const newMaxValue = e.maxValue;
-        
-        if (newMinValue !== minValue || newMaxValue !== maxValue) {
-            set_minValue(newMinValue);
-            set_maxValue(newMaxValue);
-            setPriceRange({ min: newMinValue, max: newMaxValue });
-            setCurrentPage(1);
-        }
-    };
 
     // New useEffect to handle sorting when sortBy changes
     useEffect(() => {
@@ -438,29 +364,42 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         
         // Apply brand filter
         if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => 
-                selectedBrands.some(brand => item.brands?.includes(brand))
-            );
+            filtered = filtered.filter(item => {
+                const itemBrands = item.brands?.split(',').map(b => b.trim()) || [];
+                return selectedBrands.some(brand => itemBrands.includes(brand));
+            });
         }
         
         // Apply finish filter
         if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => 
-                selectedFinish.some(finish => item.finish?.includes(finish))
-            );
+            filtered = filtered.filter(item => {
+                const itemFinishes = item.finish?.split(',').map(f => f.trim()) || [];
+                return selectedFinish.some(finish => itemFinishes.includes(finish));
+            });
         }
         
         // Apply colour filter
         if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => 
-                selectedColours.some(colour => item.colour?.includes(colour))
-            );
+            filtered = filtered.filter(item => {
+                const itemColours = item.colour?.split(',').map(c => c.trim()) || [];
+                return selectedColours.some(colour => itemColours.includes(colour));
+            });
         }
         
-        // Apply price filter
-        filtered = filtered.filter(item => {
-            const price = item.price.regular;
-            return price >= priceRange.min && price <= priceRange.max;
+        // Apply size filter - recreated exactly like other filters
+        if (selectedSizes.length > 0) {
+            filtered = filtered.filter(item => {
+                const itemSizes = item.size?.split(',').map(s => s.trim()) || [];
+                return selectedSizes.some(size => itemSizes.includes(size));
+            });
+        }
+        
+        console.log('Filtered products:', {
+            total: filtered.length,
+            selectedBrands,
+            selectedFinish,
+            selectedColours,
+            selectedSizes
         });
         
         setFilteredProducts(filtered);
@@ -468,24 +407,44 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
 
     // Update URL when filters change
     useEffect(() => {
-        updateUrlParams({
-            brands: selectedBrands,
-            finish: selectedFinish,
-            colours: selectedColours,
-            sort: sortBy,
-            minPrice: priceRange.min,
-            maxPrice: priceRange.max,
-            perPage: productsPerPage,
-            page: currentPage
-        });
-    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange, productsPerPage, currentPage]);
-
-    // Consolidate all filter changes into a single effect
-    useEffect(() => {
-        if (product) {
-            applyFilters(product);
+        const newParams = new URLSearchParams(searchParams);
+        
+        // Update each parameter
+        if (selectedBrands.length > 0) {
+            newParams.set('brands', selectedBrands.join(','));
+        } else {
+            newParams.delete('brands');
         }
-    }, [selectedFinish, selectedColours, selectedBrands, priceRange.min, priceRange.max]);
+
+        if (selectedFinish.length > 0) {
+            newParams.set('finish', selectedFinish.join(','));
+        } else {
+            newParams.delete('finish');
+        }
+
+        if (selectedColours.length > 0) {
+            newParams.set('colours', selectedColours.join(','));
+        } else {
+            newParams.delete('colours');
+        }
+
+        if (selectedSizes.length > 0) {
+            newParams.set('sizes', selectedSizes.join(','));
+        } else {
+            newParams.delete('sizes');
+        }
+
+        if (sortBy) {
+            newParams.set('sort', sortBy);
+        } else {
+            newParams.delete('sort');
+        }
+
+        newParams.set('perPage', productsPerPage.toString());
+        newParams.set('page', currentPage.toString());
+        
+        setSearchParams(newParams);
+    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, productsPerPage, currentPage]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -511,10 +470,23 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     };
 
     const handleBrandFilter = (brandItem) => {
-        setSelectedBrands(prev => 
-            prev.includes(brandItem)
+        console.log('Selected brand:', brandItem);
+        setSelectedBrands(prev => {
+            const newBrands = prev.includes(brandItem)
                 ? prev.filter(item => item !== brandItem)
-                : [...prev, brandItem]
+                : [...prev, brandItem];
+            console.log('Updated brands:', newBrands);
+            return newBrands;
+        });
+        setCurrentPage(1);
+    };
+
+    const handleSizeFilter = (sizeItem) => {
+        setLoading(true); // Set loading state when filter changes
+        setSelectedSizes(prev => 
+            prev.includes(sizeItem)
+                ? prev.filter(item => item !== sizeItem)
+                : [...prev, sizeItem]
         );
         setCurrentPage(1);
     };
@@ -526,6 +498,18 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+
+    // Add this console log before the return statement to debug the state values
+    console.log('Current filter states:', {
+        brands,
+        finish,
+        colours,
+        sizes,
+        selectedBrands,
+        selectedFinish,
+        selectedColours,
+        selectedSizes
+    });
 
     return (
         <>
@@ -541,7 +525,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(brands) && brands.length > 0 ? (
                                     brands.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -551,42 +535,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
-                            </div>
-                        </AccordionBody>
-                    </Accordion>
-                    <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
-                        <AccordionBody className="py-1 px-1">
-                            <div className='w-full pt-6 pb-2 px-1'>
-                                <MultiRangeSlider
-                                    key={`${minPrice}-${maxPrice}`}
-                                    className='border-none shadow-none'
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    ruler={false}
-                                    step={10}
-                                    minValue={minValue}
-                                    maxValue={maxValue}
-                                    barLeftColor='white'
-                                    barRightColor='white'
-                                    barInnerColor='black'
-                                    onInput={handleInput}
-                                    label={true}
-                                    labelColor="white"
-                                    labelBackgroundColor="black"
-                                    preventWheel={true}
-                                    style={{
-                                        border: 'none',
-                                        boxShadow: 'none',
-                                        padding: '0',
-                                        margin: '0'
-                                    }}
-                                />
-                            </div>
-                            <div className='w-full flex flex-row justify-between items-center gap-2'>
-                                <p className='text-gray-500'>{formatCurrency(minValue)}</p>
-                                <p className='text-gray-500'>{formatCurrency(maxValue)}</p>
+                                ) : (
+                                    <p className="text-gray-500">No brands available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -594,7 +545,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(3)}>Finish</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(finish) && finish.length > 0 ? (
                                     finish.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -604,7 +555,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
+                                ) : (
+                                    <p className="text-gray-500">No finishes available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -612,7 +565,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Colour</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(colours) && colours.length > 0 ? (
                                     colours.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -622,7 +575,29 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
+                                ) : (
+                                    <p className="text-gray-500">No colours available</p>
+                                )}
+                            </div>
+                        </AccordionBody>
+                    </Accordion>
+                    <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
+                        <AccordionBody className="py-1 px-1">
+                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
+                                {Array.isArray(sizes) && sizes.length > 0 ? (
+                                    sizes.map((item, index) => (
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedSizes.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleSizeFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">No sizes available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>

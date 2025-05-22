@@ -94,55 +94,86 @@ const Product = () => {
     };
 
     useEffect(() => {
-        fetch(`/data/products2.json`)
+        fetch(`https://stiles.co.za/api/products.php?slug=${id}`)
         .then(res => res.json())
-        .then(data => {
-            const product = data.find(item => item.slug === id);
-            if (product) {
-                const images = product.images.split(',').map(imageBlock => {
-                    const [url, alt, title, desc, caption] = imageBlock.split('!').map(str => str.split(':').pop().trim());
-                    return { url, alt, title, desc, caption };
-                });
+        .then(response => {
+            if (response.status === 'success' && response.data) {
+                console.log(response.data);
+                const product = response.data;
+                // Process images if they exist in the format we expect
+                const images = [];
+                
+                // Add featured image first if it exists
+                if (product.featured_image) {
+                    images.push({
+                        url: product.featured_image,
+                        alt: product.title,
+                        title: product.title,
+                        desc: '',
+                        caption: ''
+                    });
+                }
+
+                // Add gallery images if they exist
+                if (product.gallery_images) {
+                    const galleryImages = product.gallery_images.split(',').map(imageBlock => {
+                        const [url, alt, title, desc, caption] = imageBlock.split('!').map(str => str.split(':').pop().trim());
+                        return { url, alt, title, desc, caption };
+                    });
+                    images.push(...galleryImages);
+                }
+
+                // If no images were added, create one with the featured image
+                if (images.length === 0 && product.featured_image) {
+                    images.push({
+                        url: product.featured_image,
+                        alt: product.title,
+                        title: product.title,
+                        desc: '',
+                        caption: ''
+                    });
+                }
+
                 product.images = images;
 
                 // Fetch stock information with Basic Auth
-                const username = 'WebUser1142';
-                const password = 'e$Ye6!g]I~X@K!D';
-                const authHeader = 'Basic ' + btoa(username + ':' + password);
+                // const username = 'WebUser1142';
+                // const password = 'e$Ye6!g]I~X@K!D';
+                // const authHeader = 'Basic ' + btoa(username + ':' + password);
 
-                axios.get(`http://102.37.48.148:5006/Stock/GetByCode?code=${product.sku}`, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'X-Requested-With': 'XMLHttpRequest'
+                // axios.get(`http://102.37.48.148:5006/Stock/GetByCode?code=${product.sku}`, {
+                //     headers: {
+                //         'Authorization': authHeader,
+                //         'X-Requested-With': 'XMLHttpRequest'
+                //     }
+                // })
+                // .then(response => {
+                //     setStockInfo(response.data);
+                //     console.log(response.data);
+                // })
+                // .catch(err => {
+                //     console.error('Error fetching stock:', err);
+                // });
+
+                setProduct(product);
+                
+                // Check if product is in wishlist
+                const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
+                setIsFavourite(wishlist.some(item => item.slug === id));
+                
+                // Fetch related products
+                fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(product.product_category)}&limit=10`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success' && response.data) {
+                        const selectedProducts = response.data.filter(item => item.slug !== product.slug);
+                        setRelated(selectedProducts);
                     }
                 })
-                .then(response => {
-                    setStockInfo(response.data);
-                    console.log(response.data);
-                })
                 .catch(err => {
-                    console.error('Error fetching stock:', err);
+                    console.log(err);
                 });
             }
-            setProduct(product);
-            
-            // Check if product is in wishlist
-            const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
-            setIsFavourite(wishlist.some(item => item.slug === id));
-            
-            fetch(`/data/products2.json`)
-            .then(res => res.json())
-            .then(data => {
-                if (product) {
-                    const selectedData = data.filter(item => item.brands === product.brands && item.slug !== product.slug);
-                    const shuffledData = selectedData.sort(() => 0.5 - Math.random());
-                    const selectedProducts = shuffledData.slice(0, 10);
-                    setRelated(selectedProducts);
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            });
             setLoading(false);
         })
         .catch(err => {
@@ -211,7 +242,7 @@ const Product = () => {
         {
             label: "Description",
             value: "desc",
-            desc: product?.details ? product.details.split('|n|').map((line, index) => {
+            desc: product?.["meta:product_details"] ? product?.["meta:product_details"].split('\r\n').map((line, index) => {
                 // Convert text inside strong/b tags to bold font weight
                 const formattedLine = line.replace(/<(strong|b)>(.*?)<\/\1>/g, '<span class="font-bold">$2</span>');
                 return <div key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
@@ -267,7 +298,7 @@ const Product = () => {
                 <p className='text-dark/60'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">
                     {
-                        product?.sale_price  == "" ?
+                        product?.sale_price  == null ?
                         <p className='text-dark text-2xl'>{formatPriceWithUnit(product?.regular_price, getPricingUnit(product))}</p>
                         :
                         <>
@@ -280,7 +311,7 @@ const Product = () => {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
                     <div className='flex flex-row justify-start items-center gap-1 font-normal'>
                         Brand:
-                        <a href={"/product-category/brands/" + product?.brands} className='text-dark underline font-bold'>{product?.brands}</a>
+                        <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{product?.["attribute:pa_brands"]}</a>
                         {/* <img src="/images/partner.png" alt="" className='size-20 object-contain object-center' /> */}
                     </div>
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
@@ -356,9 +387,14 @@ const Product = () => {
                         <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
                     </div>
                 </div>
-                {/* <button onClick={() => window.open("/pdf/placeholder.pdf", "_blank")} className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'>
-                Technical Specifications
-                </button> */}
+                {product?.pdf_url && (
+                    <button 
+                        onClick={() => window.open(product.pdf_url, "_blank")} 
+                        className='w-full text-xs bg-[#EBEBEB] text-dark rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase lg:mb-1'
+                    >
+                        Technical Specifications
+                    </button>
+                )}
                 {/* <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-2">
                     <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
                     View this in your room

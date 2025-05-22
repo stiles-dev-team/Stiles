@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
-import MultiRangeSlider from "multi-range-slider-react";
+import { useSearchParams } from 'react-router-dom';
 
 import {
     Accordion,
@@ -13,19 +13,18 @@ import {
     Breadcrumbs,
     Select,
     Option,
-    Slider,
-    Radio,
-    Spinner,
-    Tooltip
+    Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
-import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
+import { FaFacebookF, FaInstagram, FaPinterestP, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
-import { useSearchParams } from 'react-router-dom';
-import { MdOutlineGridView } from 'react-icons/md';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
+import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet';
+import { toast } from 'sonner';
+import PropTypes from 'prop-types';
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -41,11 +40,14 @@ function Icon({ id, open }) {
     );
   }
 
+Icon.propTypes = {
+    id: PropTypes.number.isRequired,
+    open: PropTypes.number.isRequired
+};
+
 const Search = () => {
-
     const [searchParams] = useSearchParams();
-    const query = searchParams.get("q") || "";
-
+    const searchQuery = searchParams.get('q');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
@@ -53,287 +55,267 @@ const Search = () => {
     const handlePageChange = (pageNumber) => {
         setLoading(true);
         setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Add useEffect to clear loading state after page change
+    useEffect(() => {
+        if (loading) {
+            // Small delay to ensure smooth transition
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [currentPage, loading]);
 
     const handleProductsPerPageChange = (value) => {
         setProductsPerPage(parseInt(value));
         setCurrentPage(1); // Reset to first page when changing items per page
+        setLoading(true);
     };
 
-  return (
-    <Layout>
-        <Helmet>
-            <title>Search Results for: {query} | Stiles</title>
-            <meta name="description" content="Stiles Search Results for: {query}" />
-        </Helmet>
-        <Hero slug={query} />
-        <Content 
-            slug={query} 
-            currentPage={currentPage} 
-            productsPerPage={productsPerPage} 
-            onPageChange={handlePageChange} 
-            loading={loading} 
-            setLoading={setLoading}
-            onProductsPerPageChange={handleProductsPerPageChange}
-        />
-    </Layout>
-  )
+    return (
+        <Layout>
+            <Helmet>
+                <title>Search Results for "{searchQuery}" | Stiles</title>
+                <meta name="description" content={`Search results for ${searchQuery} on Stiles`} />
+            </Helmet>
+            <Hero searchQuery={searchQuery} />
+            <Content 
+                searchQuery={searchQuery}
+                currentPage={currentPage} 
+                setCurrentPage={setCurrentPage}
+                productsPerPage={productsPerPage} 
+                onPageChange={handlePageChange} 
+                loading={loading} 
+                setLoading={setLoading}
+                onProductsPerPageChange={handleProductsPerPageChange}
+            />
+        </Layout>
+    )
 }
 
 export default Search
 
-const Hero = ({slug}) => {
-
+const Hero = ({searchQuery}) => {
     return (
-        <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
-          <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
-          <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-              <h1 className='text-white font-bold text-5xl text-center'>Results for: {slug}</h1>
-          </div>
-        </section>
+      <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
+        <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
+        <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
+            <h1 className='text-white font-bold text-5xl text-center'>Search Results</h1>
+            <p className='text-white text-lg text-center'>Showing results for "{searchQuery}"</p>
+        </div>
+      </section>
     )
 }
 
-const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, setLoading, onProductsPerPageChange }) => {
+Hero.propTypes = {
+    searchQuery: PropTypes.string.isRequired
+};
 
-    const [searchParams, setSearchParams] = useSearchParams();
+const Content = ({
+    searchQuery, 
+    currentPage, 
+    setCurrentPage,
+    productsPerPage, 
+    onPageChange, 
+    loading, 
+    setLoading, 
+    onProductsPerPageChange 
+}) => {
+    const [searchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
-    const [filteredProducts, setFilteredProducts] = useState(null);
-
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(0);
-    const [minValue, set_minValue] = useState(0);
-    const [maxValue, set_maxValue] = useState(0);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
-
+    const [totalCount, setTotalCount] = useState(0);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
     const [brands, setBrands] = useState([]);
+    const [sizes, setSizes] = useState([]);
     
     // Initialize selected filters from URL params
-    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',') || []);
-    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',') || []);
-    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',') || []);
+    const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',').filter(Boolean) || []);
+    const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',').filter(Boolean) || []);
+    const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',').filter(Boolean) || []);
+    const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
 
-    // Function to update URL parameters
-    const updateUrlParams = (updates) => {
-        const newParams = new URLSearchParams(searchParams);
-        
-        // Update each parameter
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value && value.length > 0) {
-                newParams.set(key, Array.isArray(value) ? value.join(',') : value);
-            } else {
-                newParams.delete(key);
+    // Fetch filter values when search query changes
+    useEffect(() => {
+        if (!searchQuery) return;
+
+        const fetchFilterValues = async () => {
+            try {
+                const response = await fetch(`https://stiles.co.za/api/search.php?q=${searchQuery}&filters=true`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch filter values');
+                }
+                const data = await response.json();
+                
+                console.log('Raw API response:', data);
+                
+                if (data.status === 'success' && data.data) {
+                    // Process the data to ensure we have arrays of unique values
+                    const processValues = (values) => {
+                        if (!Array.isArray(values)) {
+                            return [];
+                        }
+                        // Ensure values are unique and sorted, and trim whitespace
+                        return [...new Set(values.map(v => v.trim()))].filter(v => v).sort();
+                    };
+
+                    // Extract and process values from the response
+                    const processedData = {
+                        colours: processValues(data.data.colours || []),
+                        finishes: processValues(data.data.finishes || []),
+                        brands: processValues(data.data.brands || []),
+                        sizes: processValues(data.data.sizes || [])
+                    };
+
+                    console.log('Processed filter values:', processedData);
+
+                    // Update state with processed values
+                    setColours(processedData.colours);
+                    setFinish(processedData.finishes);
+                    setBrands(processedData.brands);
+                    setSizes(processedData.sizes);
+                }
+            } catch (error) {
+                console.error('Error fetching filter values:', error);
+                toast.error('Failed to load filter options');
             }
-        });
-        
-        setSearchParams(newParams);
-    };
+        };
 
-    // Update URL when filters change
+        fetchFilterValues();
+    }, [searchQuery]);
+
+    // Modify the initial data loading effect to be more efficient
     useEffect(() => {
-        updateUrlParams({
-            brands: selectedBrands,
-            finish: selectedFinish,
-            colours: selectedColours,
-            sort: sortBy,
-            minPrice: priceRange.min,
-            maxPrice: priceRange.max
-        });
-    }, [selectedBrands, selectedFinish, selectedColours, sortBy, priceRange]);
-
-    const handleInput = (e) => {
-        set_minValue(e.minValue);
-        set_maxValue(e.maxValue);
-        setPriceRange({ min: e.minValue, max: e.maxValue });
-    };
-
-    // Add a useEffect to ensure minValue and maxValue are properly set
-    useEffect(() => {
-        if (minPrice !== 0 && maxPrice !== 0) {
-            set_minValue(minPrice);
-            set_maxValue(maxPrice);
-            setPriceRange({ min: minPrice, max: maxPrice });
-        }
-    }, [minPrice, maxPrice]);
-
-    // Add a separate useEffect to handle price range changes
-    useEffect(() => {
-        if (product) {
-            applyFilters(product);
-        }
-    }, [priceRange.min, priceRange.max]);
-
-    useEffect(() => {
-        setLoading(true);
-        fetch(`/data/products2.json`)
-        .then(res => res.json())
-        .then(data => {
-            const searchTerm = slug.toLowerCase();
-            const selectedProducts = data
-                .filter(product => {
-                    const name = (product.name || '').toLowerCase();
-                    const brands = (product.brands || '').toLowerCase();
-                    const category = (product.product_cat || '').toLowerCase();
-                    
-                    return name.includes(searchTerm) || 
-                           brands.includes(searchTerm) || 
-                           category.includes(searchTerm);
-                })
-                .sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            
-            setProduct(selectedProducts);
-            setFilteredProducts(selectedProducts);
-    
-            const prices = selectedProducts
-                .map(item => parseFloat(item.regular_price))
-                .filter(price => !isNaN(price));
-    
-            const minPrice = prices.length ? Math.min(...prices) : 0;
-            const maxPrice = prices.length ? Math.max(...prices) : 0;
-    
-            setMinPrice(minPrice);
-            setMaxPrice(maxPrice);
-
-            // Extract unique values for filters
-            const colours = [...new Set(selectedProducts
-                .map(item => item.colour?.split(',').map(c => c.trim()))
-                .flat()
-                .filter(colour => colour !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setColours(colours);
-
-            const finish = [...new Set(selectedProducts
-                .map(item => item.finish?.split(',').map(f => f.trim()))
-                .flat()
-                .filter(finish => finish !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setFinish(finish);
-            
-            const brands = [...new Set(selectedProducts
-                .map(item => item.brands?.split(',').map(b => b.trim()))
-                .flat()
-                .filter(brand => brand !== ''))]
-                .sort((a, b) => a.localeCompare(b));
-            setBrands(brands);
-    
-            setLoading(false);
-        })
-        .catch(err => {
-            console.log(err);
-            setLoading(false);
-        });
-    }, [slug]);
-
-    // New useEffect to handle sorting when sortBy changes
-    useEffect(() => {
-        if (product) {
-            setLoading(true);
-            let sortedProducts = [...product];
-            
-            switch (sortBy) {
-                case 'asc':
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-                    break;
-                case 'desc':
-                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                    break;
-                case 'nuev':
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceA - priceB;
-                    });
-                    break;
-                case 'vend':
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceB - priceA;
-                    });
-                    break;
-                default:
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            }
-            
-            setProduct(sortedProducts);
-            applyFilters(sortedProducts);
-            setLoading(false);
-        }
-    }, [sortBy]);
-
-    // Separate function to apply filters
-    const applyFilters = (productsToFilter) => {
-        if (!productsToFilter) return;
+        if (!searchQuery) return;
         
         setLoading(true);
-        let filtered = [...productsToFilter];
-        
-        // Apply brand filter
-        if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => selectedBrands.includes(item.brands));
-        }
-        
-        // Apply finish filter
-        if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => selectedFinish.includes(item.finish));
-        }
-        
-        // Apply colour filter
-        if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => selectedColours.includes(item.colour));
-        }
-        
-        // Apply price filter
-        filtered = filtered.filter(item => {
-            const priceStr = item.regular_price.toString().replace(/[^\d.-]/g, '');
-            const price = parseFloat(priceStr) || 0;
-            return price >= priceRange.min && price <= priceRange.max;
-        });
-        
-        setFilteredProducts(filtered);
-        setLoading(false);
-    };
+        const fetchProducts = async () => {
+            try {
+                // Calculate offset based on current page and products per page
+                const offset = (currentPage - 1) * productsPerPage;
+                
+                // Build query parameters for filters
+                const queryParams = new URLSearchParams({
+                    q: searchQuery,
+                    limit: productsPerPage,
+                    offset: offset,
+                    _: new Date().getTime()
+                });
 
-    // Filter handlers
+                // Add all filter parameters at once
+                if (selectedFinish.length > 0) {
+                    queryParams.set('finish', selectedFinish.join(','));
+                }
+                if (selectedColours.length > 0) {
+                    queryParams.set('colours', selectedColours.join(','));
+                }
+                if (selectedSizes.length > 0) {
+                    queryParams.set('sizes', selectedSizes.join(','));
+                }
+                if (sortBy) {
+                    queryParams.set('sort', sortBy);
+                }
+
+                // Log the request URL for debugging
+                const requestUrl = `https://stiles.co.za/api/search.php?${queryParams.toString()}`;
+                console.log('Fetching products with URL:', requestUrl);
+                
+                const res = await fetch(requestUrl);
+                if (!res.ok) throw new Error('Failed to fetch products');
+                
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error('Invalid response format');
+                
+                setProduct(data.data);
+                setTotalCount(data.total_count || 0);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                toast.error('Failed to load products');
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [searchQuery, currentPage, productsPerPage, selectedFinish, selectedColours, selectedSizes, sortBy]);
+
+    // Add a small delay to the loading state to prevent flickering
+    useEffect(() => {
+        if (loading) {
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
+
+    const handleOpen = (value) => setOpen(open === value ? 0 : value);
+    const handleOpenDialog = () => setOpenDialog(!openDialog);
+
+    // Modify the filter handlers to reset to first page when filters change
     const handleFinishFilter = (finishItem) => {
-        const newFinish = selectedFinish.includes(finishItem)
-            ? selectedFinish.filter(item => item !== finishItem)
-            : [...selectedFinish, finishItem];
-        setSelectedFinish(newFinish);
+        setSelectedFinish(prev => 
+            prev.includes(finishItem)
+                ? prev.filter(item => item !== finishItem)
+                : [...prev, finishItem]
+        );
+        setCurrentPage(1);
     };
 
     const handleColourFilter = (colourItem) => {
-        const newColours = selectedColours.includes(colourItem)
-            ? selectedColours.filter(item => item !== colourItem)
-            : [...selectedColours, colourItem];
-        setSelectedColours(newColours);
+        setSelectedColours(prev => 
+            prev.includes(colourItem)
+                ? prev.filter(item => item !== colourItem)
+                : [...prev, colourItem]
+        );
+        setCurrentPage(1);
     };
 
     const handleBrandFilter = (brandItem) => {
-        const newBrands = selectedBrands.includes(brandItem)
-            ? selectedBrands.filter(item => item !== brandItem)
-            : [...selectedBrands, brandItem];
-        setSelectedBrands(newBrands);
+        console.log('Selected brand:', brandItem);
+        setSelectedBrands(prev => {
+            const newBrands = prev.includes(brandItem)
+                ? prev.filter(item => item !== brandItem)
+                : [...prev, brandItem];
+            console.log('Updated brands:', newBrands);
+            return newBrands;
+        });
+        setCurrentPage(1);
     };
 
-    const handleOpen = (value) => setOpen(open === value ? 0 : value);
-
-    const handleOpenDialog = () => setOpenDialog(!openDialog);
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
+    const handleSizeFilter = (sizeItem) => {
+        setLoading(true); // Set loading state when filter changes
+        setSelectedSizes(prev => 
+            prev.includes(sizeItem)
+                ? prev.filter(item => item !== sizeItem)
+                : [...prev, sizeItem]
+        );
+        setCurrentPage(1);
     };
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+
+    // Add this console log before the return statement to debug the state values
+    console.log('Current filter states:', {
+        brands,
+        finish,
+        colours,
+        sizes,
+        selectedBrands,
+        selectedFinish,
+        selectedColours,
+        selectedSizes
+    });
 
     return (
         <>
@@ -349,7 +331,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(brands) && brands.length > 0 ? (
                                     brands.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -359,37 +341,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
-                            </div>
-                        </AccordionBody>
-                    </Accordion>
-                    <Accordion open={open === 2} icon={<Icon id={2} open={open} />}>
-                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(2)}>Price</AccordionHeader>
-                        <AccordionBody className="py-1 px-1">
-                            <div className='w-full pt-6 pb-2 px-1'>
-                                <MultiRangeSlider
-                                    key={`${minPrice}-${maxPrice}`}
-                                    className='border-none shadow-none'
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    ruler={false}
-                                    step={10}
-                                    minValue={minValue}
-                                    maxValue={maxValue}
-                                    barLeftColor='white'
-                                    barRightColor='white'
-                                    barInnerColor='black'
-                                    onInput={(e) => {
-                                        handleInput(e);
-                                    }}
-                                    label={true}
-                                    labelColor="white"
-                                    labelBackgroundColor="black"
-                                />
-                            </div>
-                            <div className='w-full flex flex-row justify-between items-center gap-2'>
-                                <p className='text-gray-500'>{formatCurrency(minValue)}</p>
-                                <p className='text-gray-500'>{formatCurrency(maxValue)}</p>
+                                ) : (
+                                    <p className="text-gray-500">No brands available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -397,7 +351,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(3)}>Finish</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(finish) && finish.length > 0 ? (
                                     finish.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -407,7 +361,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
+                                ) : (
+                                    <p className="text-gray-500">No finishes available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -415,7 +371,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(4)}>Colour</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {
+                                {Array.isArray(colours) && colours.length > 0 ? (
                                     colours.map((item, index) => (
                                         <p 
                                             key={index} 
@@ -425,7 +381,29 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                             {item}
                                         </p>
                                     ))
-                                }
+                                ) : (
+                                    <p className="text-gray-500">No colours available</p>
+                                )}
+                            </div>
+                        </AccordionBody>
+                    </Accordion>
+                    <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
+                        <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
+                        <AccordionBody className="py-1 px-1">
+                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
+                                {Array.isArray(sizes) && sizes.length > 0 ? (
+                                    sizes.map((item, index) => (
+                                        <p 
+                                            key={index} 
+                                            className={`${selectedSizes.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            onClick={() => handleSizeFilter(item)}
+                                        >
+                                            {item}
+                                        </p>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">No sizes available</p>
+                                )}
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -436,8 +414,8 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href={"/search?q=" + slug}>
-                                {slug}
+                            <a href={"/product-category/brands/" + searchQuery}>
+                                {searchQuery}
                             </a>
                         </Breadcrumbs>
                     </div>
@@ -471,13 +449,13 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
-                            currentProducts.map((item, index) => (
-                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                            currentProducts.map((item) => (
+                                <ProductCard key={item.id} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
                             ))
                         }
                     </div>
                     <CircularPagination
-                        totalItems={product ? product.length : 0}
+                        totalItems={totalCount}
                         itemsPerPage={productsPerPage}
                         currentPage={currentPage}
                         onPageChange={onPageChange}
@@ -505,7 +483,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                             <p className='text-secondary'><span className='text-dark font-bold'>SKU:</span> 116-ST111200</p>
                             <div className="flex flex-row justify-start items-end gap-2">
                                 <p className='text-[#B3B3B3] line-through'>R3,186</p>
-                                <p className='text-dark text-2xl'>R2,399 m2</p>
+                                <p className='text-dark text-2xl'>{formatPriceWithUnit(2399, getPricingUnit({product_cat: ["Tiles"]}))}</p>
                             </div>
                             <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p>
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
@@ -554,3 +532,14 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
         </>
     )
 }
+
+Content.propTypes = {
+    searchQuery: PropTypes.string.isRequired,
+    currentPage: PropTypes.number.isRequired,
+    setCurrentPage: PropTypes.func.isRequired,
+    productsPerPage: PropTypes.number.isRequired,
+    onPageChange: PropTypes.func.isRequired,
+    loading: PropTypes.bool.isRequired,
+    setLoading: PropTypes.func.isRequired,
+    onProductsPerPageChange: PropTypes.func.isRequired
+};

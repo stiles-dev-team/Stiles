@@ -39,8 +39,8 @@ const NavbarDark = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
   const [cartCount, setCartCount] = useState(0);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const [data, setData] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -79,7 +79,6 @@ const NavbarDark = () => {
       .then(products => {
         const uniqueBrands = [...new Set(products.map(product => product.brands))].filter(Boolean).sort();
         setBrands(uniqueBrands);
-        setAllProducts(products);
       });
 
     // Fetch locations
@@ -97,25 +96,34 @@ const NavbarDark = () => {
 
   useEffect(() => {
     if (search.trim()) {
-      const results = allProducts
-        .filter(product => {
-          if (!product || product.status !== 'publish') return false;
-          
-          const searchTerm = search.toLowerCase();
-          const name = (product.name || '').toLowerCase();
-          const brands = (product.brands || '').toLowerCase();
-          const category = (product.product_cat || '').toLowerCase();
-          
-          return name.includes(searchTerm) || 
-                 brands.includes(searchTerm) || 
-                 category.includes(searchTerm);
-        })
-        .slice(0, 4);
-      setSearchResults(results);
+      setIsSearchLoading(true);
+      const fetchSearchResults = async () => {
+        try {
+          const response = await fetch(`https://stiles.co.za/api/search.php?q=${encodeURIComponent(search.trim())}&limit=4`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch search results');
+          }
+          const data = await response.json();
+          if (data.status === 'success' && Array.isArray(data.data)) {
+            setSearchResults(data.data);
+          } else {
+            setSearchResults([]);
+          }
+        } catch (error) {
+          console.error('Error fetching search results:', error);
+          setSearchResults([]);
+        } finally {
+          setIsSearchLoading(false);
+        }
+      };
+
+      // Add debounce to prevent too many API calls
+      const timeoutId = setTimeout(fetchSearchResults, 300);
+      return () => clearTimeout(timeoutId);
     } else {
       setSearchResults([]);
     }
-  }, [search, allProducts]);
+  }, [search]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value || 0);
@@ -143,39 +151,47 @@ const NavbarDark = () => {
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearchSubmit}
           />
-          {searchResults.length > 0 && (
+          {isSearchLoading ? (
+            <div className="w-full bg-white mt-2 rounded-lg shadow-lg p-4 text-center">
+              <p className="text-gray-500">Loading...</p>
+            </div>
+          ) : searchResults.length > 0 ? (
             <div className="w-full bg-white mt-2 rounded-lg shadow-lg overflow-hidden">
               {searchResults.map((product) => (
                 <a 
-                  key={product.slug} 
+                  key={product.id} 
                   href={`/product/${product.slug}`}
                   className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0"
                 >
                   <div className="w-16 h-16 flex-shrink-0">
                     <img 
-                      src={product.images.split('|')[0].split('!')[0].split(':')[1].trim()} 
+                      src={product.image || ''}
                       alt={product.title} 
                       className="w-full h-full object-cover rounded"
                     />
                   </div>
                   <div className="flex-grow">
                     <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
-                    <p className="text-sm text-gray-500">{product.brands}</p>
+                    <p className="text-sm text-gray-500">{product.brands || ''}</p>
                     <p className="text-sm font-medium text-gray-900">
-                      {product.sale_price > 0 ? (
+                      {product.price.sale ? (
                         <>
-                          <span className="text-red-600">{formatCurrency(product.sale_price)}</span>
-                          <span className="ml-2 line-through text-gray-400">{formatCurrency(product.regular_price)}</span>
+                          <span className="text-red-600">{formatCurrency(product.price.sale)}</span>
+                          <span className="ml-2 line-through text-gray-400">{formatCurrency(product.price.regular)}</span>
                         </>
                       ) : (
-                        formatCurrency(product.regular_price)
+                        formatCurrency(product.price.regular)
                       )}
                     </p>
                   </div>
                 </a>
               ))}
             </div>
-          )}
+          ) : search.trim() ? (
+            <div className="w-full bg-white mt-2 rounded-lg shadow-lg p-4 text-center">
+              <p className="text-gray-500">No products found</p>
+            </div>
+          ) : null}
         </div>
       </div>
     }
