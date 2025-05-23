@@ -330,14 +330,16 @@ const OurProducts = () => {
         </section>
         <Splide className="lg:hidden w-full mt-5" options={{
           perPage: 1,
+          type: 'loop',
           perMove: 1,
           arrows: false,
-          gap: '1rem',
           pagination: false,
+          gap: '1rem',
           padding: '2rem',
           breakpoints: {
             1: {
               perPage: 1,
+              type: 'loop',
             },
           },
         }}>
@@ -355,7 +357,12 @@ const OurProducts = () => {
 
 const SubscribeBanner = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const onChange = ({ target }) => setEmail(target.value);
+
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = emailRegex.test(email);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -365,17 +372,43 @@ const SubscribeBanner = () => {
       return;
     }
     
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isEmailValid) {
       toast.error("Please enter a valid email address");
       return;
     }
     
-    // Here you would typically send the email to your backend
-    // For now, we'll just show a success toast
-    toast.success("Thank you for subscribing to our newsletter!");
-    setEmail(""); // Clear the input after successful subscription
+    setIsLoading(true);
+    
+    fetch(`https://stiles.co.za/api/everlytic.php?email=${encodeURIComponent(email)}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      if (data.error) {
+        // Handle the specific API error format
+        if (data.error.code === "01001") {
+          toast.error("Unable to subscribe at this time. Please try again later.");
+        } else if (typeof data.error === 'object' && data.error.message) {
+          toast.error(data.error.message);
+        } else if (typeof data.error === 'string') {
+          toast.error(data.error);
+        } else {
+          toast.error("Failed to subscribe. Please try again later.");
+        }
+      } else if (data.collection?.message?.data === 'Creation of duplicate Contact: ignored') {
+        toast.info("You're already subscribed to our newsletter!");
+        setEmail(""); // Clear the input after duplicate subscription
+      } else {
+        toast.success("Thank you for subscribing to our newsletter!");
+        setEmail(""); // Clear the input after successful subscription
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      toast.error('Failed to subscribe. Please try again later.');
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   return (
@@ -389,13 +422,19 @@ const SubscribeBanner = () => {
             value={email}
             onChange={onChange}
             className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' 
-            placeholder='Email Address' 
+            placeholder='Email Address'
+            disabled={isLoading}
           />
           <button 
             type="submit"
-            className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'
+            disabled={!isEmailValid || isLoading}
+            className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]'
           >
-            Subscribe
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              'Subscribe'
+            )}
           </button>
         </form>
       </div>
@@ -443,27 +482,43 @@ const ShopCategory = () => {
           },
         }}>
           <SplideSlide>
-            <a href="/product-category/tiles/floor-tile" className='w-full relative'>
-              <img src="/images/floor_tiles.webp" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
-              <Chip size="lg" value="Floor Tiles" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold text-dark' />
+            <a href="/product-category/tiles/floor-tiles" className='w-full relative block'>
+              <img src="/images/floor_tiles.webp" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
+              <div className='absolute inset-0 pointer-events-none'>
+                <div className='absolute top-3 left-3 transform-gpu'>
+                  <Chip size="lg" value="Floor Tiles" className='w-fit bg-white font-bold text-dark shadow-md' />
+                </div>
+              </div>
             </a>
           </SplideSlide>
           <SplideSlide>
-            <a href="/product-category/sanitary-ware/bathroom-accessories" className='w-full relative'>
-              <img src="/images/bathrooms.jpg" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
-              <Chip size="lg" value="Bathrooms" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold text-dark' />
+            <a href="/product-category/sanitary-ware/bathroom-accessories" className='w-full relative block'>
+              <img src="/images/bathrooms.jpg" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
+              <div className='absolute inset-0 pointer-events-none'>
+                <div className='absolute top-3 left-3 transform-gpu'>
+                  <Chip size="lg" value="Bathrooms" className='w-fit bg-white font-bold text-dark shadow-md' />
+                </div>
+              </div>
             </a>
           </SplideSlide>
           <SplideSlide>
-            <a href="/product-category/sanitary-ware/kitchen-sinks" className='w-full relative'>
-              <img src="/images/kitchen_sinks.jpg" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
-              <Chip size="lg" value="Kitchen Sinks" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold text-dark' />
+            <a href="/product-category/sanitary-ware/kitchen-sinks" className='w-full relative block'>
+              <img src="/images/kitchen_sinks.jpg" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
+              <div className='absolute inset-0 pointer-events-none'>
+                <div className='absolute top-3 left-3 transform-gpu'>
+                  <Chip size="lg" value="Kitchen Sinks" className='w-fit bg-white font-bold text-dark shadow-md' />
+                </div>
+              </div>
             </a>
           </SplideSlide>
           <SplideSlide>
-            <a href="/product-category/tiles/mosaics" className='w-full relative'>
-              <img src="/images/mosaics.png" alt="" className='w-full aspect-video object-cover object-center relative z-0 rounded-lg' />
-              <Chip size="lg" value="Mosaics" className='w-fit absolute z-10 top-3 left-3 bg-white font-bold text-dark' />
+            <a href="/product-category/tiles/mosaics" className='w-full relative block'>
+              <img src="/images/mosaics.png" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
+              <div className='absolute inset-0 pointer-events-none'>
+                <div className='absolute top-3 left-3 transform-gpu'>
+                  <Chip size="lg" value="Mosaics" className='w-fit bg-white font-bold text-dark shadow-md' />
+                </div>
+              </div>
             </a>
           </SplideSlide>
         </Splide>
@@ -478,7 +533,7 @@ const WeWorkWithTheBest = () => {
       <div className='flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20 w-full pb-5'>
         <h2 className='text-3xl lg:text-5xl uppercase text-dark font-bold w-full lg:w-4/12'>We work with the best</h2>
         <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
-          <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. A lot of brands are exclusively available to us like Italy's Monocibec and Newform or Spain's Realonda and Brazil's Ceusa. We also pride ourselves in stocking top quality well-known brands like Duravit, Hansgrohe, Blutide and Geberit. To see our full range of brands, Visit our Shop by Brand section.</p>
+          <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
         </div>
       </div>
       <Splide className="w-full" extensions={{AutoScroll}} options={{

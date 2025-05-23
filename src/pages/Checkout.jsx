@@ -3,8 +3,12 @@ import LayoutDark from '../layout/LayoutDark'
 import { Card, Input, Select, Option, Checkbox, Textarea } from "@material-tailwind/react"
 import { RiHandbagLine } from "react-icons/ri"
 import { Helmet } from 'react-helmet';
+import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 const Checkout = () => {
+  const { isAuthenticated, token, user } = useAuth()
+  const navigate = useNavigate()
   const [cartItems, setCartItems] = useState([])
   const [locations, setLocations] = useState([])
   const [shippingInfo, setShippingInfo] = useState({
@@ -27,8 +31,39 @@ const Checkout = () => {
   const [orderStatus, setOrderStatus] = useState(null)
 
   useEffect(() => {
+    // Debug authentication state
+    console.log('Auth State:', {
+      isAuthenticated,
+      token,
+      user,
+      hasCart: localStorage.getItem('stiles_cart_ls') !== null
+    })
+
+    // Only redirect if definitely not authenticated
+    if (isAuthenticated === false) {
+      console.log('Not authenticated, redirecting to login')
+      navigate('/login')
+      return
+    }
+
     const cart = JSON.parse(localStorage.getItem('stiles_cart_ls') || '[]')
+    if (cart.length === 0) {
+      console.log('Cart is empty, redirecting to cart')
+      navigate('/cart')
+      return
+    }
     setCartItems(cart)
+
+    // Set user info in shipping form
+    if (user) {
+      setShippingInfo(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }))
+    }
 
     // Fetch store locations
     fetch('/data/stiles-locations.json')
@@ -39,7 +74,7 @@ const Checkout = () => {
       .catch(err => {
         console.error('Error loading store locations:', err)
       })
-  }, [])
+  }, [isAuthenticated, token, user, navigate])
 
   const calculateSubtotal = (item) => {
     return item.regular_price * (item.quantity || 1)
@@ -65,84 +100,101 @@ const Checkout = () => {
     setStep(prev => prev - 1)
   }
 
-  const generateOrderNumber = () => {
-    return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
-  }
+  const createOrder = async (orderData) => {
+    if (!user?.id) {
+      console.error('No user ID available');
+      throw new Error('User ID required');
+    }
 
-  const createQuote = async () => {
-    setIsSubmitting(true)
-    setOrderStatus('submitting')
+    console.log('User ID:', user.id);
+    console.log('Sending order data:', orderData);
+    
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
+    
+    console.log('Request headers:', headers);
     
     try {
-      const orderNumber = generateOrderNumber()
-      const currentDate = new Date().toISOString()
-      
-      const quoteData = {
-        orderNumber: orderNumber,
-        documentNumber: `DOC-${orderNumber}`,
-        internalOrderNumber: `INT-${orderNumber}`,
-        currency: "ZAR",
-        debtorAccount: "DEFAULT",
-        items: cartItems.map(item => ({
-          stockCode: item.sku || "N/A",
-          stockDescription: item.title || "N/A",
-          quantity: item.quantity || 1,
-          itemPriceExcl: item.regular_price || 0,
-          itemPriceIncl: item.regular_price || 0
-        })),
-        dAddress1: shippingInfo.streetAddress || "",
-        dAddress2: "",
-        dAddress3: shippingInfo.city || "",
-        dAddress4: shippingInfo.state || "",
-        telephone: shippingInfo.phone || "",
-        email: shippingInfo.email || "",
-        orderDate: currentDate,
-        longDescription: shippingInfo.orderNotes || "",
-        postalCode: shippingInfo.zipCode || "",
-        vatNumber: "",
-        salesRepresentativeNumber: 0,
-        deliverMTH: "Standard",
-        inclusive: false
-      }
-
-      // Create base64 encoded credentials
-      const credentials = btoa('WebUser1142:e$Ye6!g]I~X@K!D')
-      
-      const response = await fetch('http://102.37.48.148:5006/Quote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${credentials}`
-        },
-        body: JSON.stringify(quoteData)
-      })
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
-      }
-
-      const data = await response.json()
-      console.log('Quote created successfully:', data)
-      
-      // Clear cart after successful order
-      localStorage.removeItem('stiles_cart_ls')
-      setCartItems([])
-      
-      setOrderStatus('success')
-      setStep(4) // Move to success step
+        const response = await fetch('https://stiles.co.za/api/create-order.php', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                ...orderData,
+                userId: user.id
+            }),
+            mode: 'cors'
+        });
+        
+        const data = await response.json();
+        console.log('Order response:', data);
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to create order');
+        }
+        
+        return data;
     } catch (error) {
-      console.error('Error creating quote:', error)
-      setOrderStatus('error')
-    } finally {
-      setIsSubmitting(false)
+        console.error('Error creating order:', error);
+        throw error;
     }
-  }
+  };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (step === 3 && shippingInfo.termsAccepted) {
-      createQuote()
+      setIsSubmitting(true);
+      setOrderStatus('submitting');
+      
+      try {
+        // Log cart items for debugging
+        console.log('Raw cart items:', JSON.stringify(cartItems, null, 2));
+
+        // Prepare items with required fields
+        const orderItems = cartItems.map(item => {
+          console.log('Processing cart item:', item);
+          // Extract product ID from SKU (assuming SKU format is like "004-5062696A")
+          const productId = item.sku ? parseInt(item.sku.split('-')[0]) : null;
+          
+          const preparedItem = {
+            id: productId, // Use the extracted product ID
+            title: item.title || item.name,
+            images: item.images || [],
+            regular_price: item.regular_price || item.price,
+            quantity: item.quantity || 1,
+            sku: item.sku || ''
+          };
+          console.log('Prepared item:', preparedItem);
+          return preparedItem;
+        });
+
+        console.log('Final order items:', JSON.stringify(orderItems, null, 2));
+
+        const orderData = {
+          ...shippingInfo,
+          items: orderItems,
+          total: calculateTotal(),
+          paymentMethod: shippingInfo.shoppingType
+        };
+        
+        console.log('Final order data:', JSON.stringify(orderData, null, 2));
+        
+        const result = await createOrder(orderData);
+        
+        // Clear cart after successful order
+        localStorage.removeItem('stiles_cart_ls');
+        setCartItems([]);
+        
+        setOrderStatus('success');
+        setStep(4);
+      } catch (error) {
+        console.error('Error in handlePlaceOrder:', error);
+        setOrderStatus('error');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
-  }
+  };
 
   return (
     <LayoutDark>

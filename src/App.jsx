@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { AuthProvider } from "./context/AuthContext"
 import Home from "./pages/Home"
 import Wishlist from "./pages/Wishlist"
 import Shop from "./pages/Shop"
@@ -17,40 +18,49 @@ import ContactUs from "./pages/ContactUs"
 import ContactSingle from "./pages/ContactSingle"
 import Search from "./pages/Search"
 import Checkout from "./pages/Checkout"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 // import TileVisualiser from "./pages/TileVisualiser"
 import Blogs from "./pages/Blogs"
 import CategoryBlogs from "./pages/CategoryBlogs"
 import BlogPost from "./pages/BlogPost"
-
+import Profile from "./pages/Profile"
+import Orders from "./pages/Orders"
 function App() {
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/promos" element={<ProductPromos />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/product-category/brands/:slug" element={<ProductBrands />} />
-        <Route path="/product-category/:slug" element={<ProductCategory />} />
-        <Route path="/product-category/:category/:slug" element={<ProductSubCategory />} />
-        <Route path="/product-category/:category/:subcategory/:slug" element={<ProductTagCategory />} />
-        <Route path="/product/:id" element={<Product />} />
-        <Route path="/calore-kamado-jan" element={<Fireplaces />} />
-        <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
-        <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
-        <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/contact/:slug" element={<ContactSingle />} />
-        {/* <Route path="/tile-visualiser" element={<TileVisualiser />} /> */}
-        <Route path="/stiles-blog" element={<Blogs />} />
-        <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
-        <Route path="/stiles-blog/:slug" element={<BlogPost />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/promos" element={<ProductPromos />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/product-category/brands/:slug" element={<ProductBrands />} />
+          <Route path="/product-category/:slug" element={<ProductCategory />} />
+          <Route path="/product-category/:category/:slug" element={<ProductSubCategory />} />
+          <Route path="/product-category/:category/:subcategory/:slug" element={<ProductTagCategory />} />
+          <Route path="/product/:id" element={<Product />} />
+          <Route path="/calore-kamado-jan" element={<Fireplaces />} />
+          <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
+          <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/contact/:slug" element={<ContactSingle />} />
+          {/* <Route path="/tile-visualiser" element={<TileVisualiser />} /> */}
+          <Route path="/stiles-blog" element={<Blogs />} />
+          <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
+          <Route path="/stiles-blog/:slug" element={<BlogPost />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

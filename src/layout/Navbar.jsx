@@ -9,6 +9,7 @@ import {
   Badge
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Icon({ id, open }) {
   return (
@@ -27,6 +28,7 @@ function Icon({ id, open }) {
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
   const [showSanware, setShowSanware] = useState(false);
@@ -143,6 +145,11 @@ const Navbar = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <>
     {
@@ -193,6 +200,17 @@ const Navbar = () => {
                   </div>
                 </a>
               ))}
+              {searchResults.length > 0 && (
+                <button
+                  onClick={() => {
+                    setShowSearch(false);
+                    navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+                  }}
+                  className="w-full p-4 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors border-t border-gray-200"
+                >
+                  View All Results
+                </button>
+              )}
             </div>
           ) : search.trim() ? (
             <div className="w-full bg-white mt-2 rounded-lg shadow-lg p-4 text-center">
@@ -472,17 +490,48 @@ const Navbar = () => {
               }
             </div>
           </div>
-          <a href="#"><FaUser fill="white" /></a>
-          <a href="/wishlist"><FaHeart fill="white" /></a>
-          {
-            cartCount > 0 ?
-            <a href="/cart" className="relative flex justify-center items-center"><Badge color="red"><FaCartShopping fill="white" size={20} /></Badge></a>
-            :
-            <a href="/cart" className="relative flex justify-center items-center"><FaCartShopping fill="white" size={18} /></a>
-          }
-          <div className="cursor-pointer" onClick={() => setShowSearch(true)}><IoSearch fill="white" size={20} /></div>
+          <div className="flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="relative group">
+                <button className="text-white flex items-center gap-2 py-2">
+                  <FaUser size={18} />
+                  <span className="text-sm">{user.firstName}</span>
+                </button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="py-1">
+                    <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                    <button 
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a href="/login" className="text-white">
+                <FaUser size={20} />
+              </a>
+            )}
+            <button onClick={() => setShowSearch(true)} className="text-white">
+              <IoSearch size={20} />
+            </button>
+            <a href="/wishlist" className="text-white relative">
+              <FaHeart size={20} />
+            </a>
+            {
+              cartCount > 0 ?
+              <a href="/cart" className="relative flex justify-center items-center"><Badge color="red"><FaCartShopping fill="white" size={20} /></Badge></a>
+              :
+              <a href="/cart" className="relative flex justify-center items-center"><FaCartShopping fill="white" size={18} /></a>
+            }
+          </div>
         </div>
-        <IoMenu className='lg:hidden' stroke="white" size={30} onClick={() => setShowMenu(true)} />
+        <button onClick={() => setShowMenu(true)} className="lg:hidden text-white">
+          <IoMenu size={24} />
+        </button>
       </div>
     </nav>
     <div className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${showMenu ? "right-0" : "-right-full"}`}>
@@ -492,43 +541,160 @@ const Navbar = () => {
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/" className="text-sm font-bold">Home</a>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Promos
-          {/* <IoChevronDown className="-rotate-90" /> */}
-        </p>
-      </div>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 4} icon={<Icon id={4} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(4)}>Shop By Brand</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {Object.entries(categorizedBrands).map(([range, brandList]) => (
+            brandList.length > 0 && (
+              <Accordion 
+                key={range} 
+                open={openBrandSection === range}
+                className="w-full"
+                icon={<Icon id={range} open={openBrandSection} />}
+              >
+                <AccordionHeader 
+                  onClick={() => handleBrandSectionOpen(range)}
+                  className="text-sm py-2 font-medium border-none"
+                >
+                  Brands {range}
+                </AccordionHeader>
+                <AccordionBody className="py-1">
+                  <div className="flex flex-col gap-1 pl-4">
+                    {brandList.map(brand => (
+                      <a 
+                        key={brand} 
+                        href={`/product-category/brands/${brand}`} 
+                        className="text-sm text-gray-600 hover:text-dark py-1"
+                      >
+                        {brand}
+                      </a>
+                    ))}
+                  </div>
+                </AccordionBody>
+              </Accordion>
+            )
+          ))}
+        </AccordionBody>
+      </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 1} icon={<Icon id={1} open={open} />}>
         <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1262)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openTilesSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openTilesSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleTilesSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/tiles/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/tiles/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/tiles/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 2} icon={<Icon id={2} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanity Ware</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanware</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1091)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openSanwareSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openSanwareSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleSanwareSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/sanitary-ware/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/sanitary-ware/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
@@ -538,39 +704,114 @@ const Navbar = () => {
           {
             data?.filter(item => item.parent === 1562)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openFlooringSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openFlooringSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleFlooringSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/flooring/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/flooring/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/flooring/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Fireplaces
-        </p>
+        <a href="/calore-kamado-jan/" className="text-sm font-bold">Fireplaces</a>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Shop By Brand
-        </p>
+        <a href="/promos" className="text-sm font-bold">Promos</a>
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/" className="text-sm font-bold">Tile Visualizer</a>
+        <a href="/tile-visualizer" className="text-sm font-bold">Tile Visualizer</a>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/" className="text-sm font-bold">Contact Us</a>
-      </div>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 5} icon={<Icon id={5} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(5)}>Contact Us</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {Object.entries(
+            locations.reduce((acc, location) => {
+              if (!acc[location.region]) {
+                acc[location.region] = [];
+              }
+              acc[location.region].push(location);
+              return acc;
+            }, {})
+          ).map(([region, locationsList]) => (
+            <div key={region} className="w-full mb-3 last:mb-0">
+              <p className="text-sm font-bold mb-2">{region}</p>
+              <div className="flex flex-col gap-2 pl-4">
+                {locationsList.map((location) => (
+                  <a 
+                    key={location.title} 
+                    href={`/contact/${location.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
+                    className="text-sm text-gray-600 hover:text-dark"
+                  >
+                    {location.title}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </AccordionBody>
+      </Accordion>
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">
         <a href="#"><FaUser className="fill-dark" size={20} /></a>
         <a href="/wishlist"><FaHeart className="fill-dark" size={20} /></a>
-        <a href="#"><FaCartShopping className="fill-dark" size={20} /></a>
+        <a href="/cart"><FaCartShopping className="fill-dark" size={20} /></a>
       </div>
-      <input type="search" className="w-11/12 mx-auto border border-opaque p-3 text-sm rounded-full" placeholder="Search for products" />
+      <div className="w-full px-5 pb-5">
+        <input 
+          type="search" 
+          className="w-full border border-opaque p-3 text-sm rounded-full" 
+          placeholder="Search for products" 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleSearchSubmit}
+        />
+      </div>
     </div>
     </>
   )

@@ -9,6 +9,7 @@ import {
   Badge
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Icon({ id, open }) {
   return (
@@ -27,6 +28,7 @@ function Icon({ id, open }) {
 
 const NavbarDark = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
   const [showSanware, setShowSanware] = useState(false);
@@ -143,6 +145,11 @@ const NavbarDark = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <>
     {
@@ -193,6 +200,17 @@ const NavbarDark = () => {
                   </div>
                 </a>
               ))}
+              {searchResults.length > 0 && (
+                <button
+                  onClick={() => {
+                    setShowSearch(false);
+                    navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+                  }}
+                  className="w-full p-4 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors border-t border-gray-200"
+                >
+                  View All Results
+                </button>
+              )}
             </div>
           ) : search.trim() ? (
             <div className="w-full bg-white mt-2 rounded-lg shadow-lg p-4 text-center">
@@ -472,17 +490,48 @@ const NavbarDark = () => {
               }
             </div>
           </div>
-          <a href="#"><FaUser fill="black" /></a>
-          <a href="/wishlist"><FaHeart fill="black" /></a>
-          {
-            cartCount > 0 ?
-            <a href="/cart" className="relative flex justify-center items-center"><Badge color="red"><FaCartShopping fill="black" size={20} /></Badge></a>
-            :
-            <a href="/cart" className="relative flex justify-center items-center"><FaCartShopping fill="black" size={18} /></a>
-          }
-          <div className="cursor-pointer" onClick={() => setShowSearch(true)}><IoSearch fill="black" size={20} /></div>
+          <div className="flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="relative group">
+                <button className="text-dark flex items-center gap-2 py-2">
+                  <FaUser size={18} />
+                  <span className="text-sm">{user.firstName}</span>
+                </button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="py-1">
+                    <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                    <button 
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a href="/login" className="text-dark">
+                <FaUser size={20} />
+              </a>
+            )}
+            <button onClick={() => setShowSearch(true)} className="text-dark">
+              <IoSearch size={20} />
+            </button>
+            <a href="/wishlist" className="text-dark relative">
+              <FaHeart size={20} />
+            </a>
+            {
+              cartCount > 0 ?
+              <a href="/cart" className="relative flex justify-center items-center"><Badge color="red"><FaCartShopping size={20} /></Badge></a>
+              :
+              <a href="/cart" className="relative flex justify-center items-center"><FaCartShopping size={18} /></a>
+            }
+          </div>
         </div>
-        <IoMenu className='lg:hidden' stroke="black" size={30} onClick={() => setShowMenu(true)} />
+        <button onClick={() => setShowMenu(true)} className="lg:hidden text-dark">
+          <IoMenu size={24} />
+        </button>
       </div>
     </nav>
     <div className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${showMenu ? "right-0" : "-right-full"}`}>

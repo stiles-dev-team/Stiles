@@ -401,7 +401,7 @@ const Product = () => {
                                     min="0"
                                     step="0.01"
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/60">m</span>
+                                <span className="absolute right-10 top-1/2 -translate-y-1/2 text-dark/60">m</span>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -417,7 +417,7 @@ const Product = () => {
                                     min="0"
                                     step="0.01"
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/60">m</span>
+                                <span className="absolute right-10 top-1/2 -translate-y-1/2 text-dark/60">m</span>
                             </div>
                         </div>
                     </div>
