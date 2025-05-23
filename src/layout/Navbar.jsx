@@ -43,7 +43,22 @@ const Navbar = () => {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const [data, setData] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [brands, setBrands] = useState([
+    "AB Tiles", "Alape", "Alaplana", "Angelgres", "Aspen Flooring", "Axor", "Bathroom Butler", 
+    "Benkiser", "Betta", "Blanco", "Blutide", "Bomkisi", "Boutique Baths", "Century", "Ceusa", 
+    "Clear Cube", "Cobra", "Coem", "Como", "Crystallite Stone Bathrooms", "Decobella", "Douglas Jones", 
+    "Duravit", "Dutton Plastic Engineering", "E-Ceramic", "Eliane", "Emil Group", "Essence", "Etienne", 
+    "Etienne Tiles", "Etile", "Finestra", "Flaviker", "Florim", "Franke", "Funky Tiles", "Geberit", 
+    "Geotiles", "Gio Bella", "Hansgrohe", "Hydrotec", "Jee-O", "Jeeves", "Kirk Trading", "Kit Kat", 
+    "Klay", "Krono", "Lecico", "Liquid Red", "Litokol", "LobaCare", "Lux Crete", "Luximo Design", 
+    "Macneil", "Marley", "Meir", "Mirage", "Monocibec", "Moonbay", "Mykonos", "Nala Baths", "Naxos", 
+    "Nest Flooring by KREM", "Newform", "Oak", "Pamesa", "Paramount Mirrors", "Pavit", "Perlies Bathware", 
+    "Perrin & Rowe", "Portinari", "Profilitec S.P.A.", "Provenza", "Reflect Mirrors", "Rossco", "Schell", 
+    "Shaws", "Sibo", "Simpolo", "Stiebel Eltron", "Stiles", "Stiles Subways", "Stunning", 
+    "Summer Place Spas & Baths", "Superlume", "Sure Strip", "Tal", "Tech Speckle", "Technoswiss", 
+    "Tile & Floor Care", "Tuscania Ceramiche", "Twotone Stone", "U-Tile", "Victoria + Albert", "Viva", 
+    "Waterfall"
+  ]);
   const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(0);
   const [openBrandSection, setOpenBrandSection] = useState(null);
@@ -71,25 +86,6 @@ const Navbar = () => {
       .then(response => response.json())
       .then(data => {
         setData(data);
-      });
-
-    // Fetch products and extract unique brands
-    fetch('/data/products2.json')
-      .then(response => response.json())
-      .then(products => {
-        // Ensure all products have the required properties
-        const processedProducts = products.map(product => ({
-          ...product,
-          title: product.title || '',
-          brands: product.brands || '',
-          status: product.status || 'draft',
-          images: product.images || '',
-          sale_price: product.sale_price || 0,
-          regular_price: product.regular_price || 0,
-          slug: product.slug || ''
-        }));
-        const uniqueBrands = [...new Set(processedProducts.map(product => product.brands))].filter(Boolean).sort();
-        setBrands(uniqueBrands);
       });
 
     // Fetch locations

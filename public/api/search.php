@@ -148,6 +148,20 @@ try {
         }
     }
 
+    // Add brand filter condition
+    if (isset($_GET['brands']) && !empty($_GET['brands'])) {
+        $brands = explode(',', $_GET['brands']);
+        $brandConditions = [];
+        foreach ($brands as $brand) {
+            $cleanBrand = trim($brand);
+            $brandConditions[] = 'FIND_IN_SET(?, `attribute:pa_brands`) > 0';
+            $params[] = $cleanBrand;
+        }
+        if (!empty($brandConditions)) {
+            $baseQuery .= ' AND (' . implode(' OR ', $brandConditions) . ')';
+        }
+    }
+
     // Get total count with filters
     $countStmt = $pdo->prepare($baseQuery);
     $countStmt->execute($params);

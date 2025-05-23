@@ -259,13 +259,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         $orderBy = 'ORDER BY post_date DESC';
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY post_date ASC';
+                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY regular_price ASC';
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY regular_price DESC';
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                break;
+            case 'ascBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                break;
+            case 'descBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
                 break;
         }
         
@@ -574,13 +580,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         $orderBy = 'ORDER BY post_date DESC';
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY post_date ASC';
+                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY regular_price ASC';
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY regular_price DESC';
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                break;
+            case 'ascBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                break;
+            case 'descBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
                 break;
         }
         

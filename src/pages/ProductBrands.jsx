@@ -136,6 +136,8 @@ const Content = ({
     const [finish, setFinish] = useState([]);
     const [brands, setBrands] = useState([]);
     const [sizes, setSizes] = useState([]);
+    const [filteredSizes, setFilteredSizes] = useState([]);
+    const [sizeSearchTerm, setSizeSearchTerm] = useState('');
     
     // Initialize selected filters from URL params
     const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish')?.split(',').filter(Boolean) || []);
@@ -191,6 +193,18 @@ const Content = ({
 
         fetchFilterValues();
     }, [slug]);
+
+    // Update filteredSizes whenever sizes or searchTerm changes
+    useEffect(() => {
+        if (sizeSearchTerm.trim() === '') {
+            setFilteredSizes(sizes);
+        } else {
+            const filtered = sizes.filter(size => 
+                size.toLowerCase().includes(sizeSearchTerm.toLowerCase())
+            );
+            setFilteredSizes(filtered);
+        }
+    }, [sizeSearchTerm, sizes]);
 
     // Modify the initial data loading effect to be more efficient
     useEffect(() => {
@@ -301,6 +315,17 @@ const Content = ({
         setCurrentPage(1);
     };
 
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
+    };
+
+    // Add decodeHTML function
+    const decodeHTML = (html) => {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    };
+
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
@@ -327,6 +352,18 @@ const Content = ({
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
+                    <button
+                        onClick={() => {
+                            setSelectedBrands([]);
+                            setSelectedFinish([]);
+                            setSelectedColours([]);
+                            setSelectedSizes([]);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full mb-4 px-4 py-2 bg-dark text-white rounded-lg hover:bg-dark/90 transition-all flex items-center justify-center gap-2"
+                    >
+                        Clear All Filters
+                    </button>
                     <Accordion open={open === 3} icon={<Icon id={3} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(3)}>Finish</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
@@ -338,7 +375,7 @@ const Content = ({
                                             className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleFinishFilter(item)}
                                         >
-                                            {item}
+                                            {decodeHTML(item)}
                                         </p>
                                     ))
                                 ) : (
@@ -358,7 +395,7 @@ const Content = ({
                                             className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleColourFilter(item)}
                                         >
-                                            {item}
+                                            {decodeHTML(item)}
                                         </p>
                                     ))
                                 ) : (
@@ -370,19 +407,83 @@ const Content = ({
                     <Accordion open={open === 5} icon={<Icon id={5} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(5)}>Size</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
-                            <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                {Array.isArray(sizes) && sizes.length > 0 ? (
-                                    sizes.map((item, index) => (
-                                        <p 
-                                            key={index} 
-                                            className={`${selectedSizes.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
-                                            onClick={() => handleSizeFilter(item)}
-                                        >
-                                            {item}
-                                        </p>
-                                    ))
-                                ) : (
-                                    <p className="text-gray-500">No sizes available</p>
+                            <div className='py-2'>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search sizes..."
+                                        value={sizeSearchTerm}
+                                        onChange={(e) => setSizeSearchTerm(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-dark"
+                                    />
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                        <FaAngleDown className="text-gray-400" />
+                                    </div>
+                                </div>
+                                <div className="mt-2 max-h-[200px] overflow-y-auto custom-scrollbar">
+                                    {Array.isArray(filteredSizes) && filteredSizes.length > 0 ? (
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {filteredSizes.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    onClick={() => {
+                                                        setSelectedSizes(prev => 
+                                                            prev.includes(item)
+                                                                ? prev.filter(s => s !== item)
+                                                                : [...prev, item]
+                                                        );
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className={`
+                                                        px-3 py-2 rounded cursor-pointer text-xs text-center
+                                                        ${selectedSizes.includes(item)
+                                                            ? 'bg-dark text-white'
+                                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                                        }
+                                                    `}
+                                                >
+                                                    {decodeHTML(item)}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-500 text-center py-2">No sizes available</p>
+                                    )}
+                                </div>
+                                {selectedSizes.length > 0 && (
+                                    <div className="mt-3">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-sm font-medium">Selected Sizes:</span>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedSizes([]);
+                                                    setCurrentPage(1);
+                                                }}
+                                                className="text-sm text-gray-500 hover:text-dark"
+                                            >
+                                                Clear All
+                                            </button>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedSizes.map((size, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-dark text-white"
+                                                >
+                                                    {decodeHTML(size)}
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedSizes(prev => prev.filter(s => s !== size));
+                                                            setCurrentPage(1);
+                                                        }}
+                                                        className="ml-1 hover:text-gray-300"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </AccordionBody>
@@ -406,6 +507,8 @@ const Content = ({
                                 <Option value="desc">Popularity</Option>
                                 <Option value="nuev">Price: Low to High</Option>
                                 <Option value="vend">Price: High to Low</Option>
+                                <Option value="ascBrand">A-Z Brand</Option>
+                                <Option value="descBrand">Z-A Brand</Option>
                             </Select>
                         </div>
                         <div className='flex flex-row justify-end items-center gap-2 w-full lg:w-fit'>

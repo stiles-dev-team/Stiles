@@ -358,6 +358,22 @@ const Content = ({
                         return priceB - priceA;
                     });
                     break;
+                case 'ascBrand':
+                    // A-Z Brand
+                    sortedProducts.sort((a, b) => {
+                        const brandA = (a.brands || '').toLowerCase();
+                        const brandB = (b.brands || '').toLowerCase();
+                        return brandA.localeCompare(brandB);
+                    });
+                    break;
+                case 'descBrand':
+                    // Z-A Brand
+                    sortedProducts.sort((a, b) => {
+                        const brandA = (a.brands || '').toLowerCase();
+                        const brandB = (b.brands || '').toLowerCase();
+                        return brandB.localeCompare(brandA);
+                    });
+                    break;
                 default:
                     // Default sort by post date
                     sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
@@ -525,6 +541,13 @@ const Content = ({
         selectedSizes
     });
 
+    // Add decodeHTML function
+    const decodeHTML = (html) => {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    };
+
     return (
         <>
             {
@@ -535,6 +558,18 @@ const Content = ({
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
+                    <button
+                        onClick={() => {
+                            setSelectedBrands([]);
+                            setSelectedFinish([]);
+                            setSelectedColours([]);
+                            setSelectedSizes([]);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full mb-4 px-4 py-2 bg-dark text-white rounded-lg hover:bg-dark/90 transition-all flex items-center justify-center gap-2"
+                    >
+                        Clear All Filters
+                    </button>
                     <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(1)}>Brands</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
@@ -546,7 +581,7 @@ const Content = ({
                                             className={`${selectedBrands.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleBrandFilter(item)}
                                         >
-                                            {item}
+                                            {decodeHTML(item)}
                                         </p>
                                     ))
                                 ) : (
@@ -566,7 +601,7 @@ const Content = ({
                                             className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleFinishFilter(item)}
                                         >
-                                            {item}
+                                            {decodeHTML(item)}
                                         </p>
                                     ))
                                 ) : (
@@ -586,7 +621,7 @@ const Content = ({
                                             className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleColourFilter(item)}
                                         >
-                                            {item}
+                                            {decodeHTML(item)}
                                         </p>
                                     ))
                                 ) : (

@@ -1,58 +1,71 @@
 <?php
-// Start output buffering at the very beginning
-ob_start();
-
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log errors to a file
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/api_errors.log');
-
-// Set headers that can be modified
-header('Content-Type: application/json');
-header('Cache-Control: public, max-age=300'); // Cache for 5 minutes
-
-// Handle compression
-$useCompression = false;
-if (extension_loaded('zlib')) {
-    $useCompression = true;
-    ini_set('zlib.output_compression', 'On');
-    ini_set('zlib.output_compression_level', '9');
+// Allow from any origin
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');    // cache for 1 day
 }
 
-require_once 'config.php';
+// Access-Control headers are received during OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");         
 
-// Test database connection
-try {
-    $pdo->query('SELECT 1');
-} catch(PDOException $e) {
-    error_log('Database connection failed: ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-    exit();
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+    exit(0);
 }
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+// Get the code parameter from either GET or POST
+$code = isset($_GET['code']) ? $_GET['code'] : (isset($_POST['code']) ? $_POST['code'] : null);
+
+// Validate the code parameter
+if (empty($code)) {
+    echo json_encode(['error' => 'Stock code is required']);
+    exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['sku'])) {
-    try {
-        $stmt = $pdo->prepare('SELECT * FROM iq_table WHERE code = ?');
-        $stmt->execute([$_GET['sku']]);
-        $product = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode($product);
-    } catch (PDOException $e) {
-        error_log('Database query failed: ' . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'Database query failed: ' . $e->getMessage()]);
-        exit();
-    }
+// Sanitize the code parameter
+$code = urlencode(trim($code));
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://stiles.southafricanorth.cloudapp.azure.com:5006/Stock/GetByCode?code=' . $code,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Basic V2ViVXNlcjExNDI6ZSRZZTYhZ11JflhASyFE'
+  ),
+  CURLOPT_SSL_VERIFYPEER => false,  // Disable SSL verification
+  CURLOPT_SSL_VERIFYHOST => 0,      // Don't verify the hostname
+  CURLOPT_VERBOSE => true,          // Enable verbose output
+));
+
+// Create a temporary file handle for CURL debug output
+$verbose = fopen('php://temp', 'w+');
+curl_setopt($curl, CURLOPT_STDERR, $verbose);
+
+$response = curl_exec($curl);
+
+if(curl_errno($curl)) {
+    echo json_encode([
+        'error' => 'Curl error: ' . curl_error($curl),
+        'verbose' => stream_get_contents($verbose)
+    ]);
+} else {
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    echo json_encode([
+        'status' => $httpCode,
+        'data' => json_decode($response, true)
+    ]);
 }
 
-ob_end_flush();
-?>
+fclose($verbose);
+curl_close($curl);

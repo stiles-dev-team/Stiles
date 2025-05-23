@@ -202,7 +202,15 @@ const Product = () => {
                 // Fetch stock info
                 if (product.sku) {
                     console.log('Fetching stock info for SKU:', product.sku);
-                    fetch(`https://stiles.javapple.io/api/iq.php?code=${product.sku}`)
+                    fetch(`https://stiles.javapple.io/api/iq.php?code=${product.sku}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        mode: 'cors',
+                        credentials: 'omit'
+                    })
                     .then(res => {
                         if (!res.ok) {
                             throw new Error(`HTTP error! status: ${res.status}`);
@@ -219,6 +227,12 @@ const Product = () => {
                     })
                     .catch(err => {
                         console.error('Error fetching stock info:', err);
+                        // Set a default stock info object to prevent UI issues
+                        setStockInfo({
+                            sellPInc1: 0,
+                            promoPrice: 0,
+                            packSize: 0
+                        });
                     });
                 } else {
                     console.warn('No SKU found for product');
@@ -275,6 +289,7 @@ const Product = () => {
         } else {
             cart.push({
                 ...product,
+                price: stockInfo?.sellPInc1,
                 quantity: quantity
             });
         }
@@ -537,34 +552,49 @@ const Product = () => {
                     <div dangerouslySetInnerHTML={{ __html: product?.excerpt?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
-                    {/* <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                    {
+                        stockInfo?.model == 'PC' ?
                         <button 
-                            className='text-dark font-negro aspect-square w-7'
-                            onClick={() => handleQuantityChange(-1)}
+                            className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
+                            onClick={handleOpenQuote}
                         >
-                            -
+                            CALCULATE/ADD TO QUOTE
+                            <IoAddCircleOutline className='fill-whtie' size={14} />
                         </button>
-                        <input 
-                            type="text" 
-                            className='border-0 appearance-none text-dark text-center w-16 outline-none' 
-                            min={1} 
-                            value={quantity}
-                            onChange={handleQuantityInput}
-                        />
-                        <button 
-                            className='text-dark font-negro aspect-square w-7'
-                            onClick={() => handleQuantityChange(1)}
-                        >
-                            +
-                        </button>
-                    </div> */}
-                    <button 
-                        className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
-                        onClick={handleOpenQuote}
-                    >
-                        CALCULATE/ADD TO QUOTE
-                        <IoAddCircleOutline className='fill-whtie' size={14} />
-                    </button>
+                        : stockInfo?.model == 'SI' ?
+                        <>
+                            <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                                <button 
+                                    className='text-dark font-negro aspect-square w-7'
+                                    onClick={() => handleQuantityChange(-1)}
+                                >
+                                    -
+                                </button>
+                                <input 
+                                    type="text" 
+                                    className='border-0 appearance-none text-dark text-center w-16 outline-none' 
+                                    min={1} 
+                                    value={quantity}
+                                    onChange={handleQuantityInput}
+                                />
+                                <button 
+                                    className='text-dark font-negro aspect-square w-7'
+                                    onClick={() => handleQuantityChange(1)}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <button 
+                                className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
+                                onClick={addToCart}
+                            >
+                                ADD TO QUOTE
+                                <IoAddCircleOutline className='fill-whtie' size={14} />
+                            </button>
+                        </>
+                        :
+                        <></>
+                    }
                     <div 
                         className={`rounded-full hidden lg:flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-secondary/10"}`}
                         onClick={toggleWishlist}
