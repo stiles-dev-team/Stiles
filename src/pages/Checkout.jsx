@@ -10,6 +10,7 @@ const Checkout = () => {
   const { isAuthenticated, token, user } = useAuth()
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState([])
+  const [orderItems, setOrderItems] = useState([])
   const [locations, setLocations] = useState([])
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -147,6 +148,9 @@ const Checkout = () => {
       setOrderStatus('submitting');
       
       try {
+        // Save current cart items to orderItems state before clearing
+        setOrderItems(cartItems);
+        
         // Log cart items for debugging
         console.log('Raw cart items:', JSON.stringify(cartItems, null, 2));
 
@@ -220,7 +224,7 @@ const Checkout = () => {
               {step === 1 && (
                 <div className='space-y-4'>
                   <h2 className='text-xl font-bold mb-4'>Personal Information</h2>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                     <Input
                       type="text"
                       label="First Name"
@@ -236,7 +240,7 @@ const Checkout = () => {
                       onChange={handleInputChange}
                     />
                   </div>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                     <Input
                         type="tel"
                         label="Phone"
@@ -252,7 +256,7 @@ const Checkout = () => {
                         onChange={handleInputChange}
                     />
                   </div>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                     <Input
                         type="text"
                         label="Company Name (Optional)"
@@ -407,7 +411,7 @@ const Checkout = () => {
                 Order Summary
               </h2>
               <div className='space-y-4'>
-                {cartItems.map((item, index) => (
+                {(step === 4 ? orderItems : cartItems).map((item, index) => (
                   <div key={index} className='flex items-center gap-4 py-3 border-b'>
                     <div className='relative'>
                       <img src={item.images[0].url} alt={item.title} className='w-20 h-20 object-cover rounded' />
@@ -424,15 +428,15 @@ const Checkout = () => {
                 ))}
                 
                 <div className='space-y-2 pt-4'>
-                  <div className='flex justify-between'>
+                  {/* <div className='flex justify-between'>
                     <p className='text-gray-600'>Subtotal</p>
                     <p className='font-medium'>R{calculateTotal()}.00</p>
-                  </div>
-                  <div className='flex justify-between'>
+                  </div> */}
+                  {/* <div className='flex justify-between'>
                     <p className='text-gray-600'>Shipping</p>
                     <p className='font-medium'>Calculated at next step</p>
-                  </div>
-                  <div className='flex justify-between pt-4 border-t'>
+                  </div> */}
+                  <div className='flex justify-between pt-0'>
                     <p className='font-bold'>Total</p>
                     <p className='font-bold'>R{calculateTotal()}.00</p>
                   </div>

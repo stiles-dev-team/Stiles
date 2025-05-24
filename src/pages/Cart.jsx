@@ -111,133 +111,135 @@ const Main = () => {
 
     return (
         <section className='container mx-auto px-4'>
-            <div className='w-full grid grid-cols-6 gap-10'>                
-                <section className="w-full bg-white pt-6 col-span-4">
+            <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-1 lg:gap-10'>                
+                <section className="w-full bg-white pt-6 col-span-1 lg:col-span-4">
                     <Card className="w-full border border-gray-300 px-6 block pb-4">
-                        <table className="w-full overflow-x-auto table-auto text-left">
-                        <thead>
-                            <tr>
-                                {/* <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Checkbox 
-                                        ripple={false} 
-                                        color='yellow'
-                                        checked={selectedItems.length === cartItems.length}
-                                        onChange={handleSelectAll}
-                                    />
-                                </th> */}
-                                <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-bold leading-none"
-                                    >
-                                        PRODUCT
-                                    </Typography>
-                                </th>
-                                <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-bold leading-none text-center"
-                                    >
-                                        PRICE
-                                    </Typography>
-                                </th>
-                                <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-bold leading-none text-center"
-                                    >
-                                        QTY
-                                    </Typography>
-                                </th>
-                                <th className="border-b border-gray-300 pb-4 pt-4">
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-bold leading-none text-center"
-                                    >
-                                        SUBTOTAL
-                                    </Typography>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cartItems.map((item) => (
-                                <tr key={item.slug} className="hover:bg-gray-50">
-                                    {/* <td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[640px] table-auto text-left">
+                            <thead>
+                                <tr>
+                                    {/* <th className="border-b border-gray-300 pb-4 pt-4">
                                         <Checkbox 
                                             ripple={false} 
                                             color='yellow'
-                                            checked={selectedItems.includes(item.slug)}
-                                            onChange={() => handleSelectItem(item.slug)}
+                                            checked={selectedItems.length === cartItems.length}
+                                            onChange={handleSelectAll}
                                         />
-                                    </td> */}
-                                    <td className='flex justify-start items-center gap-2 py-2'>
-                                        <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
-                                        <div className="flex flex-col gap-1">
+                                    </th> */}
+                                    <th className="border-b border-gray-300 pb-4 pt-4">
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-bold leading-none"
+                                        >
+                                            PRODUCT
+                                        </Typography>
+                                    </th>
+                                    <th className="border-b border-gray-300 pb-4 pt-4">
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-bold leading-none text-center"
+                                        >
+                                            PRICE
+                                        </Typography>
+                                    </th>
+                                    <th className="border-b border-gray-300 pb-4 pt-4">
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-bold leading-none text-center"
+                                        >
+                                            QTY
+                                        </Typography>
+                                    </th>
+                                    <th className="border-b border-gray-300 pb-4 pt-4">
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-bold leading-none text-center"
+                                        >
+                                            SUBTOTAL
+                                        </Typography>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {cartItems.map((item) => (
+                                    <tr key={item.slug} className="hover:bg-gray-50">
+                                        {/* <td>
+                                            <Checkbox 
+                                                ripple={false} 
+                                                color='yellow'
+                                                checked={selectedItems.includes(item.slug)}
+                                                onChange={() => handleSelectItem(item.slug)}
+                                            />
+                                        </td> */}
+                                        <td className='flex justify-start items-center gap-2 py-2'>
+                                            <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
+                                            <div className="flex flex-col gap-1">
+                                                <Typography
+                                                    variant="small"
+                                                    className="font-normal text-gray-600 text-left w-full max-w-[200px] lg:max-w-64 cursor-pointer hover:underline"
+                                                    onClick={() => window.open(`/product/${item.slug}`, '_blank')}
+                                                >
+                                                    {item.title}
+                                                </Typography>
+                                                <button 
+                                                    className='text-xs text-danger hover:underline text-left'
+                                                    onClick={() => removeFromCart(item.slug)}
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>
                                             <Typography
                                                 variant="small"
-                                                className="font-normal text-gray-600 text-left w-full max-w-64 cursor-pointer hover:underline"
-                                                onClick={() => window.open(`/product/${item.slug}`, '_blank')}
+                                                className="font-normal text-gray-600 text-center"
                                             >
-                                                {item.title}
+                                                R{item.price}.00 m2
                                             </Typography>
-                                            <button 
-                                                className='text-xs text-danger hover:underline text-left'
-                                                onClick={() => removeFromCart(item.slug)}
+                                        </td>
+                                        <td>
+                                            <div className="flex flex-row justify-center items-center border border-azul p-2 rounded-md w-full lg:w-fit mx-auto">
+                                                <button 
+                                                    className='text-dark font-negro aspect-square w-5'
+                                                    onClick={() => handleQuantityChange(item.slug, quantities[item.slug] - 1)}
+                                                >
+                                                    -
+                                                </button>
+                                                <input 
+                                                    type="text" 
+                                                    className='border-0 appearance-none text-dark text-center w-8 outline-none' 
+                                                    value={quantities[item.slug]} 
+                                                    onChange={(e) => handleQuantityChange(item.slug, e.target.value)}
+                                                    min={1}
+                                                />
+                                                <button 
+                                                    className='text-dark font-negro aspect-square w-5'
+                                                    onClick={() => handleQuantityChange(item.slug, quantities[item.slug] + 1)}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <Typography
+                                                variant="small"
+                                                className="font-normal text-gray-600 text-center"
                                             >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <Typography
-                                            variant="small"
-                                            className="font-normal text-gray-600 text-center"
-                                        >
-                                            R{item.price}.00 m2
-                                        </Typography>
-                                    </td>
-                                    <td>
-                                        <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
-                                            <button 
-                                                className='text-dark font-negro aspect-square w-5'
-                                                onClick={() => handleQuantityChange(item.slug, quantities[item.slug] - 1)}
-                                            >
-                                                -
-                                            </button>
-                                            <input 
-                                                type="text" 
-                                                className='border-0 appearance-none text-dark text-center w-8 outline-none' 
-                                                value={quantities[item.slug]} 
-                                                onChange={(e) => handleQuantityChange(item.slug, e.target.value)}
-                                                min={1}
-                                            />
-                                            <button 
-                                                className='text-dark font-negro aspect-square w-5'
-                                                onClick={() => handleQuantityChange(item.slug, quantities[item.slug] + 1)}
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <Typography
-                                            variant="small"
-                                            className="font-normal text-gray-600 text-center"
-                                        >
-                                            R{calculateSubtotal(item)}.00 m2
-                                        </Typography>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        </table>
+                                                R{calculateSubtotal(item)}.00 m2
+                                            </Typography>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            </table>
+                        </div>
                     </Card>
                 </section>
-                <section className="w-full bg-white pt-6 col-span-2">
+                <section className="w-full bg-white pt-6 col-span-1 lg:col-span-2">
                     <Card className="h-full w-full border border-gray-300 px-6 block p-4">
                         <h2 className='font-bold text-2xl text-dark'>Cart totals</h2>
                         <br />

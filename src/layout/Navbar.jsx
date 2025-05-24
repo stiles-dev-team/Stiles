@@ -159,6 +159,7 @@ const Navbar = () => {
         <div className="w-11/12 max-w-3xl relative z-10">
           <input 
             type="search" 
+            id="search-input-navbar"
             className="w-full border border-gray-300 p-4 text-sm rounded-full" 
             placeholder="Search for products" 
             value={search}
@@ -458,7 +459,7 @@ const Navbar = () => {
             </div>
           </div>
           <a href="/calore-kamado-jan/" className='text-white font-medium'>Fireplaces</a>
-          <a href="/promos" className='text-white font-medium'>Promos</a>
+          {/* <a href="/promos" className='text-white font-medium'>Promos</a> */}
           <div className="relative" onMouseLeave={() => setShowContact(false)}>
             <a href="/contact-us" className='text-white font-medium cursor-pointer' onMouseEnter={() => setShowContact(true)}>Contact Us</a>
             <div className={`absolute top-6 right-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 ${showContact ? "flex" : "hidden"}`}>
@@ -515,7 +516,10 @@ const Navbar = () => {
                 <FaUser size={20} />
               </a>
             )}
-            <button onClick={() => setShowSearch(true)} className="text-white">
+            <button  onClick={() => {
+              setShowSearch(true)
+              document.getElementById('search-input-navbar').focus()
+            }} className="text-white">
               <IoSearch size={20} />
             </button>
             <a href="/wishlist" className="text-white relative">
@@ -762,12 +766,12 @@ const Navbar = () => {
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/calore-kamado-jan/" className="text-sm font-bold">Fireplaces</a>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+      {/* <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/promos" className="text-sm font-bold">Promos</a>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+      </div> */}
+      {/* <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/tile-visualizer" className="text-sm font-bold">Tile Visualizer</a>
-      </div>
+      </div> */}
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 5} icon={<Icon id={5} open={open} />}>
         <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(5)}>Contact Us</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
@@ -797,20 +801,35 @@ const Navbar = () => {
           ))}
         </AccordionBody>
       </Accordion>
+      {
+        isAuthenticated ?
+        <>
+          <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+            <a href="/profile" className="text-sm font-bold">Profile</a>
+          </div>
+          <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+            <a href="/orders" className="text-sm font-bold">Orders</a>
+          </div>
+          <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+            <button onClick={handleLogout} className="text-sm font-bold">Logout</button>
+          </div>
+        </>
+        :
+        <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+          <a href="/login" className="text-sm font-bold">Login</a>
+        </div>
+      }
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">
-        <a href="#"><FaUser className="fill-dark" size={20} /></a>
+        {/* <a href="#"><FaUser className="fill-dark" size={20} /></a> */}
         <a href="/wishlist"><FaHeart className="fill-dark" size={20} /></a>
         <a href="/cart"><FaCartShopping className="fill-dark" size={20} /></a>
-      </div>
-      <div className="w-full px-5 pb-5">
-        <input 
-          type="search" 
-          className="w-full border border-opaque p-3 text-sm rounded-full" 
-          placeholder="Search for products" 
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleSearchSubmit}
-        />
+        
+        <button onClick={() => {
+          setShowSearch(true)
+          document.getElementById('search-input-navbar').focus()
+        }} className="text-dark">
+          <IoSearch size={22} />
+        </button>
       </div>
     </div>
     </>

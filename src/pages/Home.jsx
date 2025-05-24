@@ -567,16 +567,16 @@ const WeWorkWithTheBest = () => {
           <img src="/images/FunkyTiles.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Funky Tiles"} />
         </SplideSlide>
         <SplideSlide>
-          <img src="/images/Nala.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nala"} />
+          <img src="/images/Nala.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nala Baths"} />
         </SplideSlide>
         <SplideSlide>
-          <img src="/images/Nest.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nest"} />
+          <img src="/images/Nest.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nest Flooring by KREM"} />
         </SplideSlide>
         <SplideSlide>
           <img src="/images/Oak.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Oak"} />
         </SplideSlide>
         <SplideSlide>
-          <img src="/images/partner.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Blutilde"} />
+          <img src="/images/partner.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Blutide"} />
         </SplideSlide>
         <SplideSlide>
           <img src="/images/monocieb.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Monocibec"} />
@@ -627,7 +627,6 @@ const Blog = () => {
       </section>
       <Splide className="lg:hidden w-full mt-5" options={{
         perPage: 1,
-        type: 'loop',
         perMove: 3,
         arrows: false,
         gap: '1rem',

@@ -118,12 +118,13 @@ const Main = () => {
                 } else {
                     cart.push({
                         ...item,
+                        price: item.regular_price,
                         quantity: quantity
                     });
                 }
             }
         });
-        
+        toast.success(`All selected items added to cart`);
         localStorage.setItem('stiles_cart_ls', JSON.stringify(cart));
     };
 
@@ -139,11 +140,12 @@ const Main = () => {
             } else {
                 cart.push({
                     ...item,
+                    price: item.regular_price,
                     quantity: quantity
                 });
             }
         });
-        
+        toast.success(`All items added to cart`);
         localStorage.setItem('stiles_cart_ls', JSON.stringify(cart));
     };
 
@@ -315,6 +317,14 @@ const Main = () => {
                 <Card className="h-full w-full border border-gray-300 px-3 lg:hidden flex flex-col justify-start items-start gap-2 py-5">
                     {wishlistItems.map((item) => (
                         <div key={item.slug} className='w-full flex flex-col justify-start items-center gap-3 pb-10'>
+                            <div className='w-full flex justify-center items-center -mb-2'>
+                                <Checkbox 
+                                    ripple={false} 
+                                    color='yellow'
+                                    checked={selectedItems.includes(item.slug)}
+                                    onChange={() => handleSelectItem(item.slug)}
+                                />
+                            </div>
                             <img src={item.images[0].url} className="w-8/12 object-cover aspect-square" alt={item.title} />
                             <h2 className='text-center font-normal text-gray-600 text-base'>{item.title}</h2>
                             <p className='text-center font-normal text-gray-600 text-base'>R{item.regular_price}.00 m2</p>
@@ -361,9 +371,9 @@ const Main = () => {
                 </Card>
             </section>
             <div className='w-full flex flex-col lg:flex-row justify-between items-center pt-10'>
-                <button className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full lg:w-fit'>
+                {/* <button className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full lg:w-fit'>
                     ASK FOR AN ESTIMATE
-                </button>
+                </button> */}
                 <div className='flex flex-col lg:flex-row justify-end items-center gap-3 w-full lg:w-fit pt-3 lg:pt-0'>
                     <button 
                         className='text-xs bg-white border border-dark text-dark font-bold rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full lg:w-fit'

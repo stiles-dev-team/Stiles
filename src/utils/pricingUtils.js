@@ -10,6 +10,24 @@
 export const getPricingUnit = (product) => {
   if (!product || !product.product_category) return 'm2'; // Default to m2 if no category info
 
+  const skus_exception = [
+    "176-BALIAN",
+    "176-BALIAZ",
+    "176-BALIBL",
+    "176-BALIV",
+    "176-BHEX",
+    "176-CALAC",
+    "176-CIRCLEB",
+    "176-CIRCLEW",
+    "176-FLMA",
+    "176-FLTW",
+    "176-HEXWH",
+    "176-RHOMBUSB",
+    "176-RHOMBUSW",
+    "176-SHEX",
+    "176-ZELLIGE"
+  ];
+
   const categories = Array.isArray(product.product_category) 
     ? product.product_category 
     : [product.product_category];
@@ -19,6 +37,10 @@ export const getPricingUnit = (product) => {
     : [product['attribute:pa_brands']];
 
   // Check for specific product types
+
+  if (skus_exception.includes(product.sku)) {
+    return 'm2';
+  }
 
   if (brands.includes('Klay')) {
     return 'per item';

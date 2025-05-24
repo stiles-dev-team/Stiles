@@ -458,7 +458,7 @@ const NavbarDark = () => {
             </div>
           </div>
           <a href="/calore-kamado-jan/" className='text-dark font-medium'>Fireplaces</a>
-          <a href="/promos" className='text-dark font-medium'>Promos</a>
+          {/* <a href="/promos" className='text-dark font-medium'>Promos</a> */}
           <div className="relative" onMouseLeave={() => setShowContact(false)}>
             <a href="/contact-us" className='text-dark font-medium cursor-pointer' onMouseEnter={() => setShowContact(true)}>Contact Us</a>
             <div className={`absolute top-6 right-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showContact ? "flex" : "hidden"}`}>
@@ -541,43 +541,160 @@ const NavbarDark = () => {
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/" className="text-sm font-bold">Home</a>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Promos
-          {/* <IoChevronDown className="-rotate-90" /> */}
-        </p>
-      </div>
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 4} icon={<Icon id={4} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(4)}>Shop By Brand</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {Object.entries(categorizedBrands).map(([range, brandList]) => (
+            brandList.length > 0 && (
+              <Accordion 
+                key={range} 
+                open={openBrandSection === range}
+                className="w-full"
+                icon={<Icon id={range} open={openBrandSection} />}
+              >
+                <AccordionHeader 
+                  onClick={() => handleBrandSectionOpen(range)}
+                  className="text-sm py-2 font-medium border-none"
+                >
+                  Brands {range}
+                </AccordionHeader>
+                <AccordionBody className="py-1">
+                  <div className="flex flex-col gap-1 pl-4">
+                    {brandList.map(brand => (
+                      <a 
+                        key={brand} 
+                        href={`/product-category/brands/${brand}`} 
+                        className="text-sm text-gray-600 hover:text-dark py-1"
+                      >
+                        {brand}
+                      </a>
+                    ))}
+                  </div>
+                </AccordionBody>
+              </Accordion>
+            )
+          ))}
+        </AccordionBody>
+      </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 1} icon={<Icon id={1} open={open} />}>
         <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1262)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openTilesSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openTilesSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleTilesSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/tiles/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/tiles/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/tiles/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 2} icon={<Icon id={2} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanity Ware</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanware</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1091)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openSanwareSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openSanwareSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleSanwareSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/sanitary-ware/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/sanitary-ware/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
@@ -587,39 +704,111 @@ const NavbarDark = () => {
           {
             data?.filter(item => item.parent === 1562)
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((item, index) => (
-              <a key={item.term_id} href={"/product-category/" + item.slug} className="w-full relative h-10 flex flex-row justify-between items-center gap-2">
-                <p className="text-sm w-full flex flex-row justify-between items-center gap-2">
-                  {item.name}
-                </p>
-                {/* <IoChevronDown className="-rotate-90" /> */}
-              </a>
-            ))
+            .map((item, index) => {
+              const hasSubcategories = data?.some(subItem => subItem.parent === item.term_id);
+              
+              if (hasSubcategories) {
+                return (
+                  <Accordion 
+                    key={item.term_id} 
+                    open={openFlooringSection === item.term_id}
+                    className="w-full"
+                    icon={<Icon id={item.term_id} open={openFlooringSection} />}
+                  >
+                    <AccordionHeader 
+                      onClick={() => handleFlooringSectionOpen(item.term_id)}
+                      className="text-sm py-2 font-medium border-none"
+                    >
+                      {item.name}
+                    </AccordionHeader>
+                    <AccordionBody className="py-1">
+                      <div className="flex flex-col gap-1 pl-4">
+                        {data?.filter(subItem => subItem.parent === item.term_id)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((subItem) => (
+                            <a 
+                              key={subItem.term_id} 
+                              href={`/product-category/flooring/${item.slug}/${subItem.slug}`} 
+                              className="text-sm text-gray-600 hover:text-dark py-1"
+                            >
+                              {subItem.name}
+                            </a>
+                          ))}
+                        <a 
+                          href={`/product-category/flooring/${item.slug}`} 
+                          className="text-sm text-gray-600 hover:text-dark py-1"
+                        >
+                          See all {item.name}
+                        </a>
+                      </div>
+                    </AccordionBody>
+                  </Accordion>
+                );
+              } else {
+                return (
+                  <a 
+                    key={item.term_id} 
+                    href={`/product-category/flooring/${item.slug}`} 
+                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+            })
           }
         </AccordionBody>
       </Accordion>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Fireplaces
-        </p>
+        <a href="/calore-kamado-jan/" className="text-sm font-bold">Fireplaces</a>
       </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <p className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2">
-          Shop By Brand
-        </p>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/" className="text-sm font-bold">Tile Visualizer</a>
-      </div>
-      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/" className="text-sm font-bold">Contact Us</a>
-      </div>
+      {/* <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+        <a href="/promos" className="text-sm font-bold">Promos</a>
+      </div> */}
+      {/* <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+        <a href="/tile-visualizer" className="text-sm font-bold">Tile Visualizer</a>
+      </div> */}
+      <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 5} icon={<Icon id={5} open={open} />}>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(5)}>Contact Us</AccordionHeader>
+        <AccordionBody className="py-0 pb-2">
+          {Object.entries(
+            locations.reduce((acc, location) => {
+              if (!acc[location.region]) {
+                acc[location.region] = [];
+              }
+              acc[location.region].push(location);
+              return acc;
+            }, {})
+          ).map(([region, locationsList]) => (
+            <div key={region} className="w-full mb-3 last:mb-0">
+              <p className="text-sm font-bold mb-2">{region}</p>
+              <div className="flex flex-col gap-2 pl-4">
+                {locationsList.map((location) => (
+                  <a 
+                    key={location.title} 
+                    href={`/contact/${location.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
+                    className="text-sm text-gray-600 hover:text-dark"
+                  >
+                    {location.title}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </AccordionBody>
+      </Accordion>
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">
         <a href="#"><FaUser className="fill-dark" size={20} /></a>
         <a href="/wishlist"><FaHeart className="fill-dark" size={20} /></a>
-        <a href="#"><FaCartShopping className="fill-dark" size={20} /></a>
+        <a href="/cart"><FaCartShopping className="fill-dark" size={20} /></a>
+        
+        <button onClick={() => {
+          setShowSearch(true)
+          document.getElementById('search-input-navbar').focus()
+        }} className="text-dark">
+          <IoSearch size={22} />
+        </button>
       </div>
-      <input type="search" className="w-11/12 mx-auto border border-opaque p-3 text-sm rounded-full" placeholder="Search for products" />
     </div>
     </>
   )
