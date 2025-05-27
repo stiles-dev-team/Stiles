@@ -132,15 +132,7 @@ const Hero = () => {
       }}>
         <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/hero2.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
-          <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
-            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-          </div>
-        </SplideSlide>
-        {/* <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
-          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/1920x550.webp" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <img src="/images/Website_Banners.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
           <div className='relative z-10 container mx-auto px-4'>
             <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
             <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
@@ -148,12 +140,28 @@ const Hero = () => {
         </SplideSlide>
         <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
           <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/hero.png" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <img src="/images/Website_Banners2.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
           <div className='relative z-10 container mx-auto px-4'>
             <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
             <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
           </div>
-        </SplideSlide> */}
+        </SplideSlide>
+        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
+          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
+          <img src="/images/Website_Banners3.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <div className='relative z-10 container mx-auto px-4'>
+            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
+            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
+          </div>
+        </SplideSlide>
+        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
+          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
+          <img src="/images/Website_Banners4.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+          <div className='relative z-10 container mx-auto px-4'>
+            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
+            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
+          </div>
+        </SplideSlide>
       </Splide>
       <a href='#whoweareHome' className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>KNOW MORE <IoIosArrowDown fill='white' /></a>
     </section>
