@@ -543,10 +543,10 @@ const Navbar = () => {
         <IoClose stroke="black" size={30} onClick={() => setShowMenu(false)} />
       </div>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/" className="text-sm font-bold">Home</a>
+        <a href="/" className="text-sm font-bold text-dark">Home</a>
       </div>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 4} icon={<Icon id={4} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(4)}>Shop By Brand</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark" onClick={() => handleOpen(4)}>Shop By Brand</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {Object.entries(categorizedBrands).map(([range, brandList]) => (
             brandList.length > 0 && (
@@ -568,7 +568,7 @@ const Navbar = () => {
                       <a 
                         key={brand} 
                         href={`/product-category/brands/${brand}`} 
-                        className="text-sm text-gray-600 hover:text-dark py-1"
+                        className="text-sm text-dark hover:text-dark py-1"
                       >
                         {brand}
                       </a>
@@ -581,7 +581,7 @@ const Navbar = () => {
         </AccordionBody>
       </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 1} icon={<Icon id={1} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark" onClick={() => handleOpen(1)}>Tiles</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1262)
@@ -611,14 +611,14 @@ const Navbar = () => {
                             <a 
                               key={subItem.term_id} 
                               href={`/product-category/tiles/${item.slug}/${subItem.slug}`} 
-                              className="text-sm text-gray-600 hover:text-dark py-1"
+                              className="text-sm text-dark hover:text-dark py-1"
                             >
                               {subItem.name}
                             </a>
                           ))}
                         <a 
                           href={`/product-category/tiles/${item.slug}`} 
-                          className="text-sm text-gray-600 hover:text-dark py-1"
+                          className="text-sm text-dark hover:text-dark py-1"
                         >
                           See all {item.name}
                         </a>
@@ -631,7 +631,7 @@ const Navbar = () => {
                   <a 
                     key={item.term_id} 
                     href={`/product-category/tiles/${item.slug}`} 
-                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                    className="text-sm text-dark hover:text-dark py-2 block"
                   >
                     {item.name}
                   </a>
@@ -642,7 +642,7 @@ const Navbar = () => {
         </AccordionBody>
       </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 2} icon={<Icon id={2} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(2)}>Sanware</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark" onClick={() => handleOpen(2)}>Sanware</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1091)
@@ -672,14 +672,14 @@ const Navbar = () => {
                             <a 
                               key={subItem.term_id} 
                               href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`} 
-                              className="text-sm text-gray-600 hover:text-dark py-1"
+                              className="text-sm text-dark hover:text-dark py-1"
                             >
                               {subItem.name}
                             </a>
                           ))}
                         <a 
                           href={`/product-category/sanitary-ware/${item.slug}`} 
-                          className="text-sm text-gray-600 hover:text-dark py-1"
+                          className="text-sm text-dark hover:text-dark py-1"
                         >
                           See all {item.name}
                         </a>
@@ -692,7 +692,7 @@ const Navbar = () => {
                   <a 
                     key={item.term_id} 
                     href={`/product-category/sanitary-ware/${item.slug}`} 
-                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                    className="text-sm text-dark hover:text-dark py-2 block"
                   >
                     {item.name}
                   </a>
@@ -703,7 +703,7 @@ const Navbar = () => {
         </AccordionBody>
       </Accordion>
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 3} icon={<Icon id={3} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(3)}>Flooring</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark" onClick={() => handleOpen(3)}>Flooring</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {
             data?.filter(item => item.parent === 1562)
@@ -733,14 +733,14 @@ const Navbar = () => {
                             <a 
                               key={subItem.term_id} 
                               href={`/product-category/flooring/${item.slug}/${subItem.slug}`} 
-                              className="text-sm text-gray-600 hover:text-dark py-1"
+                              className="text-sm text-dark hover:text-dark py-1"
                             >
                               {subItem.name}
                             </a>
                           ))}
                         <a 
                           href={`/product-category/flooring/${item.slug}`} 
-                          className="text-sm text-gray-600 hover:text-dark py-1"
+                          className="text-sm text-dark hover:text-dark py-1"
                         >
                           See all {item.name}
                         </a>
@@ -753,7 +753,7 @@ const Navbar = () => {
                   <a 
                     key={item.term_id} 
                     href={`/product-category/flooring/${item.slug}`} 
-                    className="text-sm text-gray-600 hover:text-dark py-2 block"
+                    className="text-sm text-dark hover:text-dark py-2 block"
                   >
                     {item.name}
                   </a>
@@ -764,7 +764,7 @@ const Navbar = () => {
         </AccordionBody>
       </Accordion>
       <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-        <a href="/calore-kamado-jan/" className="text-sm font-bold">Fireplaces</a>
+        <a href="/calore-kamado-jan/" className="text-sm font-bold text-dark">Fireplaces</a>
       </div>
       {/* <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
         <a href="/promos" className="text-sm font-bold">Promos</a>
@@ -773,7 +773,7 @@ const Navbar = () => {
         <a href="/tile-visualizer" className="text-sm font-bold">Tile Visualizer</a>
       </div> */}
       <Accordion className="w-full px-5 border-b border-b-gray-300 relative" open={open === 5} icon={<Icon id={5} open={open} />}>
-        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5" onClick={() => handleOpen(5)}>Contact Us</AccordionHeader>
+        <AccordionHeader className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark" onClick={() => handleOpen(5)}>Contact Us</AccordionHeader>
         <AccordionBody className="py-0 pb-2">
           {Object.entries(
             locations.reduce((acc, location) => {
@@ -791,7 +791,7 @@ const Navbar = () => {
                   <a 
                     key={location.title} 
                     href={`/contact/${location.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
-                    className="text-sm text-gray-600 hover:text-dark"
+                    className="text-sm text-dark hover:text-dark"
                   >
                     {location.title}
                   </a>
@@ -805,18 +805,18 @@ const Navbar = () => {
         isAuthenticated ?
         <>
           <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-            <a href="/profile" className="text-sm font-bold">Profile</a>
+            <a href="/profile" className="text-sm font-bold text-dark">Profile</a>
           </div>
           <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-            <a href="/orders" className="text-sm font-bold">Orders</a>
+            <a href="/orders" className="text-sm font-bold text-dark">Orders</a>
           </div>
           <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-            <button onClick={handleLogout} className="text-sm font-bold">Logout</button>
+            <button onClick={handleLogout} className="text-sm font-bold text-dark">Logout</button>
           </div>
         </>
         :
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
-          <a href="/login" className="text-sm font-bold">Login</a>
+          <a href="/login" className="text-sm font-bold text-dark">Login</a>
         </div>
       }
       <div className="w-full flex justify-center items-center gap-8 px-5 py-5">

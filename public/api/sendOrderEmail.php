@@ -12,6 +12,7 @@ function sendOrderEmail($orderData, $recipientEmail) {
         'Content-type: text/html; charset=UTF-8',
         'From: Stiles Store <noreply@stiles.co.za>',
         'Reply-To: support@stiles.co.za',
+        'Bcc: cpadillam5@gmail.com',
         'X-Mailer: PHP/' . phpversion()
     );
 
