@@ -3,14 +3,20 @@ import Layout from '../layout/Layout'
 import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 const Cart = () => {
     return (
         <Layout>
             <Helmet>
-                <title>Cart | Stiles</title>
-                <meta name="description" content="Your cart on Stiles" />
+                <title>Your Cart | View Items In Your Cart | Stiles</title>
+                <meta name="description" content="View and manage your shopping cart at Stiles. Browse your selected items and proceed to checkout." />
+                <meta property="og:title" content="Your Cart | View Items In Your Cart | Stiles" />
+                <meta property="og:description" content="View and manage your shopping cart at Stiles. Browse your selected items and proceed to checkout." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://stiles.co.za/cart" />
+                <meta property="og:site_name" content="Stiles" />
+                <meta property="og:locale" content="en_ZA" />
             </Helmet>
           <main className='w-full flex flex-col justify-start items-start gap-10 lg:gap-10 pb-10 lg:pb-20 '>
             <Hero />
