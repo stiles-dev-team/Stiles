@@ -235,13 +235,17 @@ const Main = () => {
                                     />
                                 </td>
                                 <td className='flex justify-start items-center gap-2 py-2'>
-                                    <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
-                                    <Typography
-                                        variant="small"
-                                        className="font-normal text-gray-600"
-                                    >
-                                        {item.title}
-                                    </Typography>
+                                    <a href={"/product/" + item.slug} key={item.id}>
+                                        <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
+                                    </a>
+                                    <a href={"/product/" + item.slug} key={item.id}>
+                                        <Typography
+                                            variant="small"
+                                            className="font-normal text-gray-600 underline"
+                                        >
+                                            {item.title}
+                                        </Typography>
+                                    </a>
                                 </td>
                                 <td>
                                     <Typography
@@ -325,8 +329,12 @@ const Main = () => {
                                     onChange={() => handleSelectItem(item.slug)}
                                 />
                             </div>
-                            <img src={item.images[0].url} className="w-8/12 object-cover aspect-square" alt={item.title} />
-                            <h2 className='text-center font-normal text-gray-600 text-base'>{item.title}</h2>
+                            <a href={"/product/" + item.slug} key={item.id}>
+                                <img src={item.images[0].url} className="w-8/12 object-cover aspect-square" alt={item.title} />
+                            </a>
+                            <a href={"/product/" + item.slug} key={item.id}>
+                                <h2 className='text-center font-normal text-gray-600 text-base'>{item.title}</h2>
+                            </a>
                             <p className='text-center font-normal text-gray-600 text-base'>R{item.regular_price}.00 m2</p>
                             <p className='text-center font-normal text-gray-600 text-base'>{new Date(item.dateAdded).toLocaleDateString()}</p>
                             <p className='text-center font-normal text-gray-600 text-base'>boxes in stock</p>

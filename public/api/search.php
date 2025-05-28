@@ -47,6 +47,10 @@ try {
         throw new Exception('Search query is required');
     }
 
+    // Normalize search query - remove special characters and convert to lowercase
+    $normalizedQuery = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $searchQuery));
+    $searchTerm = "%{$normalizedQuery}%";
+
     // Check if we're just getting filters
     $getFilters = isset($_GET['filters']) && $_GET['filters'] === 'true';
 
@@ -61,13 +65,12 @@ try {
             FROM stiles_products 
             WHERE status = "publish" 
             AND (
-                title LIKE ? 
-                OR description LIKE ? 
-                OR sku LIKE ?
+                LOWER(title) LIKE ? 
+                OR LOWER(description) LIKE ? 
+                OR LOWER(sku) LIKE ?
             )
         ');
         
-        $searchTerm = "%{$searchQuery}%";
         $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -105,8 +108,8 @@ try {
     }
 
     // Build the base query for products
-    $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND (title LIKE ? OR description LIKE ? OR sku LIKE ?)';
-    $params = ["%{$searchQuery}%", "%{$searchQuery}%", "%{$searchQuery}%"];
+    $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND (LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(sku) LIKE ?)';
+    $params = ['%' . $searchTerm . '%', '%' . $searchTerm . '%', '%' . $searchTerm . '%'];
     
     // Add filter conditions
     if (isset($_GET['finish']) && !empty($_GET['finish'])) {
@@ -114,8 +117,8 @@ try {
         $finishConditions = [];
         foreach ($finishes as $finish) {
             $cleanFinish = trim($finish);
-            $finishConditions[] = 'FIND_IN_SET(?, `attribute:pa_finish`) > 0';
-            $params[] = $cleanFinish;
+            $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+            $params[] = '%' . $cleanFinish. '%';
         }
         if (!empty($finishConditions)) {
             $baseQuery .= ' AND (' . implode(' OR ', $finishConditions) . ')';
@@ -127,8 +130,8 @@ try {
         $colourConditions = [];
         foreach ($colours as $colour) {
             $cleanColour = trim($colour);
-            $colourConditions[] = 'FIND_IN_SET(?, `attribute:pa_colour`) > 0';
-            $params[] = $cleanColour;
+            $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+            $params[] = '%' . $cleanColour. '%';
         }
         if (!empty($colourConditions)) {
             $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -140,8 +143,8 @@ try {
         $sizeConditions = [];
         foreach ($sizes as $size) {
             $cleanSize = trim($size);
-            $sizeConditions[] = 'FIND_IN_SET(?, `attribute:pa_size`) > 0';
-            $params[] = $cleanSize;
+            $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+            $params[] = '%' . $cleanSize . '%';
         }
         if (!empty($sizeConditions)) {
             $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
@@ -154,8 +157,8 @@ try {
         $brandConditions = [];
         foreach ($brands as $brand) {
             $cleanBrand = trim($brand);
-            $brandConditions[] = 'FIND_IN_SET(?, `attribute:pa_brands`) > 0';
-            $params[] = $cleanBrand;
+            $brandConditions[] = '`attribute:pa_brands` LIKE ?';
+            $params[] = '%' . $cleanBrand . '%';
         }
         if (!empty($brandConditions)) {
             $baseQuery .= ' AND (' . implode(' OR ', $brandConditions) . ')';

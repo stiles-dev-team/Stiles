@@ -485,6 +485,7 @@ const Product = () => {
                 </div>
             </div>
             <div className='w-full lg:w-6/12 flex flex-col justify-start items-start gap-1'>
+                <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-dark transition-all text-sm py-2 px-4 rounded bg-secondary mb-4'>Return to results</button>
                 <h1 className='font-bold text-xl'>{product?.title}</h1>
                 <p className='text-dark/60'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">
@@ -708,7 +709,9 @@ const Product = () => {
                     {
                         related.map((item) => (
                             <SplideSlide>
-                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <a href={"/product/" + item.slug} key={item.id}>
+                                    <ProductCard key={item.id} prod={item.slug} />
+                                </a>
                             </SplideSlide>
                         ))
                     }

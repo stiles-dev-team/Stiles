@@ -221,7 +221,9 @@ const Content = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full relative">
                         {
                             product && product.map((item, index) => (
-                                <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <a href={"/product/" + item.slug} key={item.id}>
+                                    <ProductCard key={item.id} prod={item.slug} />
+                                </a>
                             ))
                         }
                         {/* <ProductCard onClick={handleOpenDialog}  /> */}

@@ -198,8 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $finishConditions = [];
             foreach ($finishes as $finish) {
                 $cleanFinish = trim($finish);
-                $finishConditions[] = 'FIND_IN_SET(?, `attribute:pa_finish`) > 0';
-                $params[] = $cleanFinish;
+                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $finishConditions) . ')';
@@ -211,8 +211,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'FIND_IN_SET(?, `attribute:pa_colour`) > 0';
-                $params[] = $cleanColour;
+                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -224,8 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $sizeConditions = [];
             foreach ($sizes as $size) {
                 $cleanSize = trim($size);
-                $sizeConditions[] = 'FIND_IN_SET(?, `attribute:pa_size`) > 0';
-                $params[] = $cleanSize;
+                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
@@ -519,8 +519,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $finishConditions = [];
             foreach ($finishes as $finish) {
                 $cleanFinish = trim($finish);
-                $finishConditions[] = 'FIND_IN_SET(?, `attribute:pa_finish`) > 0';
-                $params[] = $cleanFinish;
+                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $finishConditions) . ')';
@@ -532,8 +532,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'FIND_IN_SET(?, `attribute:pa_colour`) > 0';
-                $params[] = $cleanColour;
+                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -545,8 +545,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $sizeConditions = [];
             foreach ($sizes as $size) {
                 $cleanSize = trim($size);
-                $sizeConditions[] = 'FIND_IN_SET(?, `attribute:pa_size`) > 0';
-                $params[] = $cleanSize;
+                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';

@@ -49,7 +49,7 @@ const Navbar = () => {
     "AB Tiles", "Alape", "Alaplana", "Angelgres", "Aspen Flooring", "Axor", "Bathroom Butler", 
     "Benkiser", "Betta", "Blanco", "Blutide", "Bomkisi", "Boutique Baths", "Century", "Ceusa", 
     "Clear Cube", "Cobra", "Coem", "Como", "Crystallite Stone Bathrooms", "Decobella", "Douglas Jones", 
-    "Duravit", "Dutton Plastic Engineering", "E-Ceramic", "Eliane", "Emil Group", "Essence", "Etienne", 
+    "Duravit", "Dutton Plastic Engineering", "E-Ceramic", "Eliane", "Emil Group", "Etienne", 
     "Etienne Tiles", "Etile", "Finestra", "Flaviker", "Florim", "Franke", "Funky Tiles", "Geberit", 
     "Geotiles", "Gio Bella", "Hansgrohe", "Hydrotec", "Jee-O", "Jeeves", "Kirk Trading", "Kit Kat", 
     "Klay", "Krono", "Lecico", "Liquid Red", "Litokol", "LobaCare", "Lux Crete", "Luximo Design", 

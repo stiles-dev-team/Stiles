@@ -381,7 +381,9 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
                             currentProducts.map((item, index) => (
-                                <ProductCard key={item.ID} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                                <a href={"/product/" + item.slug} key={item.id}>
+                                    <ProductCard key={item.id} prod={item.slug} />
+                                </a>
                             ))
                         }
                     </div>

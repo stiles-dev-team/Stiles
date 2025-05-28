@@ -182,12 +182,13 @@ const Main = () => {
                                             />
                                         </td> */}
                                         <td className='flex justify-start items-center gap-2 py-2'>
-                                            <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
-                                            <div className="flex flex-col gap-1">
+                                            <a href={"/product/" + item.slug} key={item.id}>
+                                                <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
+                                            </a>
+                                            <a href={"/product/" + item.slug} key={item.id} className="flex flex-col gap-1">
                                                 <Typography
                                                     variant="small"
                                                     className="font-normal text-gray-600 text-left w-full max-w-[200px] lg:max-w-64 cursor-pointer hover:underline"
-                                                    onClick={() => window.open(`/product/${item.slug}`, '_blank')}
                                                 >
                                                     {item.title}
                                                 </Typography>
@@ -197,7 +198,7 @@ const Main = () => {
                                                 >
                                                     Remove
                                                 </button>
-                                            </div>
+                                            </a>
                                         </td>
                                         <td>
                                             <Typography

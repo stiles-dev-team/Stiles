@@ -331,7 +331,9 @@ const OurProducts = () => {
           <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
           {
               product && product.map((item, index) => (
-                  <ProductCard key={index} onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                <a href={"/product/" + item.slug} key={item.id}>
+                    <ProductCard key={item.id} prod={item.slug} />
+                </a>
               ))
           }
           </div>
@@ -354,7 +356,9 @@ const OurProducts = () => {
             {
               product && product.map((item, index) => (
                 <SplideSlide key={index}>
-                  <ProductCard onClick={() => window.location.href = "/product/" + item.slug} prod={item.slug} />
+                  <a href={"/product/" + item.slug} key={item.id}>
+                    <ProductCard key={item.id} prod={item.slug} />
+                  </a>
                 </SplideSlide>
               ))
             }
