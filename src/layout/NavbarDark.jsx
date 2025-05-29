@@ -150,6 +150,37 @@ const NavbarDark = () => {
     navigate('/');
   };
 
+  // Add click outside handlers
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const tilesDropdown = document.querySelector('.tiles-dropdown');
+      const tilesButton = event.target.closest('.tiles-button');
+      
+      if (showTiles && !tilesDropdown?.contains(event.target) && !tilesButton) {
+        setShowTiles(false);
+      }
+
+      const sanwareDropdown = document.querySelector('.sanware-dropdown');
+      const sanwareButton = event.target.closest('.sanware-button');
+      
+      if (showSanware && !sanwareDropdown?.contains(event.target) && !sanwareButton) {
+        setShowSanware(false);
+      }
+
+      const flooringDropdown = document.querySelector('.flooring-dropdown');
+      const flooringButton = event.target.closest('.flooring-button');
+      
+      if (showFlooring && !flooringDropdown?.contains(event.target) && !flooringButton) {
+        setShowFlooring(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTiles, showSanware, showFlooring]);
+
   return (
     <>
     {
@@ -266,8 +297,8 @@ const NavbarDark = () => {
               setShowTiles(false);
               setOpenTilesSection(null);
             }}>
-            <a href="/product-category/tiles" onMouseEnter={() => setShowTiles(true)} className='text-dark font-medium'>Tiles</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showTiles ? "flex" : "hidden"}`}>
+            <p onMouseEnter={() => setShowTiles(true)} onClick={() => setShowTiles(!showTiles)} className='text-dark font-medium cursor-pointer tiles-button'>Tiles</p>
+            <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] tiles-dropdown ${showTiles ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1262)
                 .sort((a, b) => a.name.localeCompare(b.name))
@@ -325,14 +356,20 @@ const NavbarDark = () => {
                   }
                 })
               }
+              <a
+                href={`/product-category/tiles`} 
+                className="text-xs py-2 font-bold text-dark w-full"
+              >
+                See all Tiles
+              </a>
             </div>
           </div>
           <div className="relative" onMouseLeave={() => {
               setShowSanware(false);
               setOpenSanwareSection(null);
             }}>
-            <a href="/product-category/sanitary-ware/" onMouseEnter={() => setShowSanware(true)} className='text-dark font-medium'>Sanware</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showSanware ? "flex" : "hidden"}`}>
+            <p onMouseEnter={() => setShowSanware(true)} onClick={() => setShowSanware(!showSanware)} className='text-dark font-medium cursor-pointer sanware-button'>Sanware</p>
+            <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] sanware-dropdown ${showSanware ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1091)
                   .sort((a, b) => a.name.localeCompare(b.name))
@@ -390,14 +427,20 @@ const NavbarDark = () => {
                     }
                   })
               }
+              <a
+                href={`/product-category/sanitary-ware`} 
+                className="text-xs py-2 font-bold text-dark w-full"
+              >
+                See all Sanware
+              </a>
             </div>
           </div>
           <div className="relative" onMouseLeave={() => {
               setShowFlooring(false);
               setOpenFlooringSection(null);
             }}>
-            <a href="/product-category/flooring" onMouseEnter={() => setShowFlooring(true)} className='text-dark font-medium'>Flooring</a>
-            <div className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 drop-shadow-lg ${showFlooring ? "flex" : "hidden"}`}>
+            <p onMouseEnter={() => setShowFlooring(true)} onClick={() => setShowFlooring(!showFlooring)} className='text-dark font-medium cursor-pointer flooring-button'>Flooring</p>
+            <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] flooring-dropdown ${showFlooring ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => item.parent === 1562)
                   .sort((a, b) => a.name.localeCompare(b.name))
@@ -455,6 +498,12 @@ const NavbarDark = () => {
                     }
                   })
               }
+              <a
+                href={`/product-category/flooring`} 
+                className="text-xs py-2 font-bold text-dark w-full"
+              >
+                See all Flooring
+              </a>
             </div>
           </div>
           <a href="/calore-kamado-jan/" className='text-dark font-medium'>Fireplaces</a>
