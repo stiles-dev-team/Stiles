@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useCallback, memo } from 'react'
-import { FaRegHeart } from "react-icons/fa";
+import { useState, useEffect, useCallback, memo } from 'react'
 import { FaHeart } from "react-icons/fa";
 import PropTypes from 'prop-types';
-import { Spinner } from '@material-tailwind/react';
 import { Skeleton } from './ui/skeleton';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { toast } from 'sonner';
@@ -12,6 +10,7 @@ const ProductCard = memo(({ onClick, prod }) => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
+    const [stockInfo, setStockInfo] = useState(null);
 
     useEffect(() => {
         const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
@@ -56,6 +55,38 @@ const ProductCard = memo(({ onClick, prod }) => {
                 }
                 
                 setProduct(productData);
+
+                // Fetch stock info if SKU exists
+                if (productData.sku) {
+                    fetch(`https://stiles.javapple.io/api/iq.php?code=${productData.sku}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        mode: 'cors',
+                        credentials: 'omit'
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(response => {
+                        if (response && response.data) {
+                            setStockInfo(response.data);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching stock info:', err);
+                        setStockInfo({
+                            sellPInc1: 0,
+                            promoPrice: 0,
+                            packSize: 0
+                        });
+                    });
+                }
             } else {
                 console.error('Product not found:', data.message);
                 toast.error('Failed to load product details');
@@ -164,12 +195,21 @@ const ProductCard = memo(({ onClick, prod }) => {
             </div>
             <h3 onClick={onClick} className='font-bold text-xl cursor-pointer'>{product.title}</h3>
             <div onClick={onClick} className="flex justify-start items-center gap-3 w-full cursor-pointer">
-                <p className='text-lg font-medium'>{formatPriceWithUnit(product.regular_price, getPricingUnit(product))}</p>
+                {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (
+                    <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                ) : (
+                    <>
+                        <p className='text-[#B3B3B3] line-through text-lg'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                        <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product))}</p>
+                    </>
+                )}
                 <p className='text-sm text-opaque'>{product.sku}</p>
             </div>
         </div>
     );
 });
+
+ProductCard.displayName = 'ProductCard';
 
 ProductCard.propTypes = {
     onClick: PropTypes.func.isRequired,
