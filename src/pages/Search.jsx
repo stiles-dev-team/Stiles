@@ -46,7 +46,7 @@ Icon.propTypes = {
 };
 
 const Search = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('q');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
@@ -124,13 +124,14 @@ const Content = ({
     setLoading, 
     onProductsPerPageChange 
 }) => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
+    const [filteredProducts, setFilteredProducts] = useState(null);
 
     const [colours, setColours] = useState([]);
     const [finish, setFinish] = useState([]);
@@ -227,7 +228,6 @@ const Content = ({
                 // Add all filter parameters at once
                 if (selectedBrands.length > 0) {
                     queryParams.set('brands', selectedBrands.join(','));
-                    console.log('Adding brands to query:', selectedBrands.join(','));
                 }
                 if (selectedFinish.length > 0) {
                     queryParams.set('finish', selectedFinish.join(','));
@@ -253,7 +253,9 @@ const Content = ({
                 console.log('API Response:', data);
                 if (data.status !== 'success') throw new Error('Invalid response format');
                 
+                // Update both product and filteredProducts with the new data
                 setProduct(data.data);
+                setFilteredProducts(data.data);
                 setTotalCount(data.total_count || 0);
                 setLoading(false);
             } catch (err) {
@@ -331,22 +333,6 @@ const Content = ({
         return txt.value;
     };
 
-    const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = product ? product.slice(indexOfFirstProduct, indexOfLastProduct) : [];
-
-    // Add this console log before the return statement to debug the state values
-    console.log('Current filter states:', {
-        brands,
-        finish,
-        colours,
-        sizes,
-        selectedBrands,
-        selectedFinish,
-        selectedColours,
-        selectedSizes
-    });
-
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
         if (!productsToFilter) return;
@@ -357,7 +343,6 @@ const Content = ({
         if (selectedBrands.length > 0) {
             filtered = filtered.filter(item => {
                 const itemBrands = item.brands?.split(',').map(b => b.trim()) || [];
-                console.log('Item brands:', itemBrands, 'Selected brands:', selectedBrands);
                 return selectedBrands.some(brand => itemBrands.includes(brand));
             });
         }
@@ -396,6 +381,70 @@ const Content = ({
         
         setFilteredProducts(filtered);
     };
+
+    // Add useEffect to apply filters when product data changes
+    useEffect(() => {
+        if (product) {
+            applyFilters(product);
+        }
+    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes]);
+
+    // Add useEffect to update URL parameters when filters or page changes
+    useEffect(() => {
+        const newParams = new URLSearchParams(searchParams);
+        
+        // Update each parameter
+        if (selectedBrands.length > 0) {
+            newParams.set('brands', selectedBrands.join(','));
+        } else {
+            newParams.delete('brands');
+        }
+
+        if (selectedFinish.length > 0) {
+            newParams.set('finish', selectedFinish.join(','));
+        } else {
+            newParams.delete('finish');
+        }
+
+        if (selectedColours.length > 0) {
+            newParams.set('colours', selectedColours.join(','));
+        } else {
+            newParams.delete('colours');
+        }
+
+        if (selectedSizes.length > 0) {
+            newParams.set('sizes', selectedSizes.join(','));
+        } else {
+            newParams.delete('sizes');
+        }
+
+        if (sortBy) {
+            newParams.set('sort', sortBy);
+        } else {
+            newParams.delete('sort');
+        }
+
+        newParams.set('perPage', productsPerPage.toString());
+        newParams.set('page', currentPage.toString());
+        
+        setSearchParams(newParams);
+    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, productsPerPage, currentPage]);
+
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = filteredProducts || [];
+
+    // Add this console log before the return statement to debug the state values
+    console.log('Current filter states:', {
+        brands,
+        finish,
+        colours,
+        sizes,
+        selectedBrands,
+        selectedFinish,
+        selectedColours,
+        selectedSizes
+    });
 
     return (
         <>

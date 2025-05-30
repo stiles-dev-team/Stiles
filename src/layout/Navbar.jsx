@@ -219,7 +219,7 @@ const Navbar = () => {
                   <div className="flex-grow">
                     <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
                     <p className="text-sm text-gray-500">{product.brands || ''}</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    {/* <p className="text-sm font-medium text-gray-900">
                       {product.price.sale ? (
                         <>
                           <span className="text-red-600">{formatCurrency(product.price.sale)}</span>
@@ -228,7 +228,7 @@ const Navbar = () => {
                       ) : (
                         formatCurrency(product.price.regular)
                       )}
-                    </p>
+                    </p> */}
                   </div>
                 </a>
               ))}
