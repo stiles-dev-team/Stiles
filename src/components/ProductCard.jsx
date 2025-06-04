@@ -58,7 +58,7 @@ const ProductCard = memo(({ onClick, prod }) => {
 
                 // Fetch stock info if SKU exists
                 if (productData.sku) {
-                    fetch(`https://stiles.javapple.io/api/iq.php?code=${productData.sku}`, {
+                    fetch(`https://stiles.co.za/api/iq_new.php?code=${productData.sku}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
