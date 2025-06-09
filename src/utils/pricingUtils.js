@@ -25,7 +25,11 @@ export const getPricingUnit = (product) => {
     "176-RHOMBUSB",
     "176-RHOMBUSW",
     "176-SHEX",
-    "176-ZELLIGE"
+    "176-ZELLIGE",
+    "183-FR63CO.AV",
+    "183-FR63CO.CE",
+    "183-FR63CO.FU",
+    "183-FR63CO.SB"
   ];
 
   const categories = Array.isArray(product.product_category) 
