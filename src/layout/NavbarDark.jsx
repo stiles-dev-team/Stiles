@@ -28,7 +28,7 @@ function Icon({ id, open }) {
 
 const NavbarDark = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
   const [showSanware, setShowSanware] = useState(false);
@@ -550,6 +550,7 @@ const NavbarDark = () => {
                   <div className="py-1">
                     <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                     <a href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                    {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>}
                     <button 
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

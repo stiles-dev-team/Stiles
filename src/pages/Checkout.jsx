@@ -101,6 +101,40 @@ const Checkout = () => {
     setStep(prev => prev - 1)
   }
 
+  // Validation functions for each step
+  const isStep1Valid = () => {
+    return shippingInfo.firstName.trim() !== '' &&
+           shippingInfo.lastName.trim() !== '' &&
+           shippingInfo.phone.trim() !== '' &&
+           shippingInfo.email.trim() !== '' &&
+           shippingInfo.shoppingType !== ''
+  }
+
+  const isStep2Valid = () => {
+    return shippingInfo.storeLocation !== '' &&
+           shippingInfo.streetAddress.trim() !== '' &&
+           shippingInfo.city.trim() !== '' &&
+           shippingInfo.state.trim() !== '' &&
+           shippingInfo.zipCode.trim() !== ''
+  }
+
+  const isStep3Valid = () => {
+    return shippingInfo.termsAccepted
+  }
+
+  const isCurrentStepValid = () => {
+    switch (step) {
+      case 1:
+        return isStep1Valid()
+      case 2:
+        return isStep2Valid()
+      case 3:
+        return isStep3Valid()
+      default:
+        return true
+    }
+  }
+
   const createOrder = async (orderData) => {
     if (!user?.id) {
       console.error('No user ID available');
@@ -393,7 +427,7 @@ const Checkout = () => {
                   )}
                   <button
                     onClick={step === 3 ? handlePlaceOrder : handleContinue}
-                    disabled={(step === 3 && !shippingInfo.termsAccepted) || isSubmitting}
+                    disabled={!isCurrentStepValid() || isSubmitting}
                     className='px-6 py-2 bg-dark text-white rounded-full hover:bg-dark/90 transition-all ml-auto disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     {step === 3 ? 'Place Order' : 'Continue'}

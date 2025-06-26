@@ -50,6 +50,10 @@ try {
     // Normalize search query - remove special characters and convert to lowercase
     $normalizedQuery = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $searchQuery));
     $searchTerm = "%{$normalizedQuery}%";
+    
+    // For SKU searches, also try exact match and case-insensitive match
+    $skuSearchTerm = "%{$searchQuery}%";
+    $skuExactTerm = $searchQuery;
 
     // Check if we're just getting filters
     $getFilters = isset($_GET['filters']) && $_GET['filters'] === 'true';
@@ -68,10 +72,12 @@ try {
                 LOWER(title) LIKE ? 
                 OR LOWER(description) LIKE ? 
                 OR LOWER(sku) LIKE ?
+                OR sku LIKE ?
+                OR LOWER(sku) = LOWER(?)
             )
         ');
         
-        $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
+        $stmt->execute(['%' . strtolower($searchQuery) . '%', '%' . strtolower($searchQuery) . '%', '%' . $searchTerm . '%', $skuSearchTerm, $skuExactTerm]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the results to get unique values
@@ -108,8 +114,8 @@ try {
     }
 
     // Build the base query for products
-    $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND (LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(sku) LIKE ?)';
-    $params = ['%' . $searchTerm . '%', '%' . $searchTerm . '%', '%' . $searchTerm . '%'];
+    $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND (LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(sku) LIKE ? OR sku LIKE ? OR LOWER(sku) = LOWER(?))';
+    $params = ['%' . strtolower($searchQuery) . '%', '%' . strtolower($searchQuery) . '%', '%' . $searchTerm . '%', $skuSearchTerm, $skuExactTerm];
     
     // Add filter conditions
     if (isset($_GET['finish']) && !empty($_GET['finish'])) {

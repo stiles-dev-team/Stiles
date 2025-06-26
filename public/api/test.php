@@ -1,23 +1,22 @@
 <?php
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// Set headers
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Content-Type: application/json; charset=utf-8');
+$curl = curl_init();
 
-// Simple test response
-echo json_encode([
-    'status' => 'success',
-    'message' => 'API is working',
-    'timestamp' => date('Y-m-d H:i:s'),
-    'server_info' => [
-        'php_version' => PHP_VERSION,
-        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
-        'request_method' => $_SERVER['REQUEST_METHOD'],
-        'request_uri' => $_SERVER['REQUEST_URI']
-    ]
-]);
-?> 
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://stiles.southafricanorth.cloudapp.azure.com:5006/Stock/GetAllStockWebItems',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Basic ' . base64_encode('WebUser1142:e$Ye6!g]I~X@K!D')
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;

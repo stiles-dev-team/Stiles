@@ -20,12 +20,16 @@ import Search from "./pages/Search"
 import Checkout from "./pages/Checkout"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
+import ForgotPassword from "./pages/ForgotPassword"
+import ResetPassword from "./pages/ResetPassword"
 // import TileVisualiser from "./pages/TileVisualiser"
 import Blogs from "./pages/Blogs"
 import CategoryBlogs from "./pages/CategoryBlogs"
 import BlogPost from "./pages/BlogPost"
 import Profile from "./pages/Profile"
 import Orders from "./pages/Orders"
+import Admin from "./pages/Admin"
+import Test from "./pages/Test"
 function App() {
 
   return (
@@ -41,6 +45,8 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/product-category/brands/:slug" element={<ProductBrands />} />
@@ -58,6 +64,10 @@ function App() {
           <Route path="/stiles-blog" element={<Blogs />} />
           <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
           <Route path="/stiles-blog/:slug" element={<BlogPost />} />
+          <Route path="/admin" element={<Admin />} />
+
+          {/* Testing */}
+          {/* <Route path="/test" element={<Test />} /> */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>

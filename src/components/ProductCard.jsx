@@ -11,6 +11,7 @@ const ProductCard = memo(({ onClick, prod }) => {
     const [loading, setLoading] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
+    const [badge, setBadge] = useState(null);
 
     useEffect(() => {
         const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
@@ -55,6 +56,9 @@ const ProductCard = memo(({ onClick, prod }) => {
                 }
                 
                 setProduct(productData);
+                if (productData.promo !== null && productData.promo && productData.promo.includes('Exclusive to Stiles')) {
+                    setBadge('Exclusive');
+                }
 
                 // Fetch stock info if SKU exists
                 if (productData.sku) {
@@ -154,7 +158,15 @@ const ProductCard = memo(({ onClick, prod }) => {
     }
 
     return (
-        <div className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden'>
+        <div 
+            className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden'
+            onClick={(e) => {
+                // Only navigate if the click is not on the favorite button
+                if (!e.target.closest('[data-favorite-button]')) {
+                    onClick();
+                }
+            }}
+        >
             {product.sale_price > 0 && (
                 <div className='absolute top-0 left-0 bg-primaryStiles text-dark px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>
                     Promo
@@ -188,13 +200,22 @@ const ProductCard = memo(({ onClick, prod }) => {
                 )}
             </div>
             <div 
-                className={`absolute top-3 lg:top-4 right-3 lg:right-6 rounded-full flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 drop-shadow-md ${isFavourite ? "bg-danger" : "bg-white"}`} 
+                className={`absolute top-3 lg:top-4 right-3 lg:right-6 rounded-full flex justify-center items-center z-30 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 drop-shadow-md ${isFavourite ? "bg-danger" : "bg-white"}`} 
                 onClick={handleFavoriteClick}
+                style={{ pointerEvents: 'auto' }}
+                data-favorite-button
             >
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             </div>
-            <h3 onClick={onClick} className='font-bold text-xl cursor-pointer'>{product.title}</h3>
-            <div onClick={onClick} className="flex justify-start items-center gap-3 w-full cursor-pointer">
+            {
+                badge && (
+                    <div className='absolute top-0 left-0 w-fit z-25 p-3 min-w-28 min-h-8 py-2 bg-primaryStiles rounded-br-lg lg:rounded-br-xl flex justify-center items-center'>
+                        <p className='text-dark text-xs font-black text-center uppercase'>{badge}</p>
+                    </div>
+                )
+            }
+            <h3 className='font-bold text-xl cursor-pointer'>{product.title}</h3>
+            <div className="flex justify-start items-center gap-3 w-full cursor-pointer">
                 {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (
                     <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
                 ) : (

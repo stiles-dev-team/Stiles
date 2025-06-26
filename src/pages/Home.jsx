@@ -173,8 +173,12 @@ const WhoWeAre = () => {
     <section id="whoweareHome" className='container mx-auto px-4 flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20'>
       <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>WE ARE STILES</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
-        <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country</p>
-        <p className='text-sm lg:text-base pb-6'>We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
+        <p className='text-sm lg:text-base'>
+          At Stiles, we’re all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.
+        </p>
+        <p className='text-sm lg:text-base pb-6'>
+          Along with importing products from top tile and sanitaryware factories across the globe, we pride ourselves in being a community-driven South African company. Stiles supports local industry, artisans and artists from South Africa. We believe in the tiles and sanitaryware we market, and employ creative people with an enthusiasm to keep all things stylish, making us leaders in service, technical advice, creative ability and innovative ideas.
+        </p>
         {/* <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} /> */}
       </div>
     </section>
