@@ -1,20 +1,164 @@
 <?php
 require_once 'config.php';
 
+/**
+ * Send email via SMTP using PHP sockets with STARTTLS support
+ * Optimized for Office 365 SMTP
+ */
+function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
+    $smtpHost = SMTP_HOST;
+    $smtpPort = SMTP_PORT;
+    $username = SMTP_USERNAME;
+    $password = SMTP_PASSWORD;
+    $secure = SMTP_SECURE;
+    
+    // Create socket connection (always start with TCP for STARTTLS)
+    $context = stream_context_create();
+    $socket = stream_socket_client(
+        'tcp://' . $smtpHost . ':' . $smtpPort,
+        $errno,
+        $errstr,
+        30,
+        STREAM_CLIENT_CONNECT,
+        $context
+    );
+    
+    if (!$socket) {
+        error_log("SMTP Connection failed: $errstr ($errno)");
+        return false;
+    }
+    
+    // Read server greeting
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '220') {
+        error_log("SMTP Error: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Send EHLO
+    fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
+    $response = fgets($socket, 515);
+    
+    // Handle multi-line responses for EHLO
+    while (substr($response, 3, 1) === '-') {
+        $response = fgets($socket, 515);
+    }
+    
+    // Start TLS if required (STARTTLS)
+    if ($secure === 'tls') {
+        fputs($socket, "STARTTLS\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '220') {
+            error_log("SMTP STARTTLS failed: $response");
+            fclose($socket);
+            return false;
+        }
+        
+        // Enable crypto with specific TLS options for Office 365
+        $cryptoOptions = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+        if (!stream_socket_enable_crypto($socket, true, $cryptoOptions)) {
+            error_log("SMTP TLS negotiation failed");
+            fclose($socket);
+            return false;
+        }
+        
+        // Send EHLO again after TLS (required for Office 365)
+        fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
+        $response = fgets($socket, 515);
+        
+        // Handle multi-line responses for EHLO after TLS
+        while (substr($response, 3, 1) === '-') {
+            $response = fgets($socket, 515);
+        }
+    }
+    
+    // Authenticate
+    fputs($socket, "AUTH LOGIN\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '334') {
+        error_log("SMTP AUTH failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    fputs($socket, base64_encode($username) . "\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '334') {
+        error_log("SMTP Username failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    fputs($socket, base64_encode($password) . "\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '235') {
+        error_log("SMTP Password failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Send MAIL FROM
+    fputs($socket, "MAIL FROM: <" . SMTP_FROM_EMAIL . ">\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '250') {
+        error_log("SMTP MAIL FROM failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Send RCPT TO
+    fputs($socket, "RCPT TO: <$to>\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '250') {
+        error_log("SMTP RCPT TO failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Send DATA
+    fputs($socket, "DATA\r\n");
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '354') {
+        error_log("SMTP DATA failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Prepare email content
+    $emailContent = "From: " . SMTP_FROM_NAME . " <" . SMTP_FROM_EMAIL . ">\r\n";
+    $emailContent .= "To: $to\r\n";
+    $emailContent .= "Subject: $subject\r\n";
+    $emailContent .= "Reply-To: " . SMTP_REPLY_TO . "\r\n";
+    $emailContent .= "Bcc: " . SMTP_BCC . "\r\n";
+    $emailContent .= "MIME-Version: 1.0\r\n";
+    $emailContent .= "Content-Type: text/html; charset=" . EMAIL_CHARSET . "\r\n";
+    $emailContent .= "Content-Transfer-Encoding: " . EMAIL_ENCODING . "\r\n";
+    $emailContent .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    $emailContent .= "\r\n";
+    $emailContent .= $htmlBody . "\r\n";
+    $emailContent .= ".\r\n";
+    
+    // Send email content
+    fputs($socket, $emailContent);
+    $response = fgets($socket, 515);
+    if (substr($response, 0, 3) !== '250') {
+        error_log("SMTP Send failed: $response");
+        fclose($socket);
+        return false;
+    }
+    
+    // Quit
+    fputs($socket, "QUIT\r\n");
+    fclose($socket);
+    
+    return true;
+}
+
 function sendOrderEmail($orderData, $recipientEmail) {
     // Debug log
     error_log('Attempting to send email to: ' . $recipientEmail);
     error_log('Order data: ' . print_r($orderData, true));
-
-    // Email headers
-    $headers = array(
-        'MIME-Version: 1.0',
-        'Content-type: text/html; charset=UTF-8',
-        'From: Stiles Store <noreply@stiles.co.za>',
-        'Reply-To: support@stiles.co.za',
-        'Bcc: cpadillam5@gmail.com',
-        'X-Mailer: PHP/' . phpversion()
-    );
 
     // Create HTML email body
     $htmlBody = '
@@ -40,6 +184,7 @@ function sendOrderEmail($orderData, $recipientEmail) {
             
             <div class="order-details">
                 <h2>Order #' . $orderData['id'] . '</h2>
+                <p>Your order has been requested, a style consultant will be in touch with you shortly. For queries, send us a mail at <a href="mailto:websales@stiles.co.za">websales@stiles.co.za</a></p>
                 <p><strong>Order Date:</strong> ' . date('F j, Y', strtotime($orderData['created_at'])) . '</p>
                 
                 <h3>Shipping Address</h3>
@@ -78,14 +223,13 @@ function sendOrderEmail($orderData, $recipientEmail) {
     $subject = 'Order Confirmation - Order #' . $orderData['id'];
 
     // Debug log
-    error_log('Email headers: ' . print_r($headers, true));
     error_log('Email subject: ' . $subject);
 
-    // Send email
-    $mailSent = mail($recipientEmail, $subject, $htmlBody, implode("\r\n", $headers));
+    // Send email via SMTP
+    $mailSent = sendSMTPEmail($recipientEmail, $subject, $htmlBody);
 
     // Debug log
-    error_log('Mail send result: ' . ($mailSent ? 'Success' : 'Failed'));
+    error_log('SMTP mail send result: ' . ($mailSent ? 'Success' : 'Failed'));
 
     if (!$mailSent) {
         error_log('Failed to send order confirmation email to: ' . $recipientEmail);

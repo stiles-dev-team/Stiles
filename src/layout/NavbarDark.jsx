@@ -539,6 +539,7 @@ const NavbarDark = () => {
               }
             </div>
           </div>
+          <a href="javascript: roomvo.startStandaloneVisualizer();" className='text-dark font-medium cursor-pointer'>Tile Visualizer</a>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <div className="relative group">
@@ -847,6 +848,9 @@ const NavbarDark = () => {
           ))}
         </AccordionBody>
       </Accordion>
+      <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
+        <a href="javascript: roomvo.startStandaloneVisualizer();" className="text-sm font-bold text-dark">Tile Visualizer</a>
+      </div>
       {
         isAuthenticated ?
         <>
