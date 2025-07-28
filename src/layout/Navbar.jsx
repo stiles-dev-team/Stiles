@@ -207,6 +207,7 @@ const Navbar = () => {
             throw new Error("Failed to fetch search results");
           }
           const data = await response.json();
+          console.log(data);
           if (data.status === "success" && Array.isArray(data.data)) {
             setSearchResults(data.data);
           } else {

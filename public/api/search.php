@@ -50,6 +50,7 @@ try {
     // Normalize search query - remove special characters and convert to lowercase
     $normalizedQuery = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $searchQuery));
     $searchTerm = "%{$normalizedQuery}%";
+    $startsWithTerm = $normalizedQuery . '%';
     
     // For SKU searches, also try exact match and case-insensitive match
     $skuSearchTerm = "%{$searchQuery}%";
@@ -114,8 +115,26 @@ try {
     }
 
     // Build the base query for products
-    $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND (LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(sku) LIKE ? OR sku LIKE ? OR LOWER(sku) = LOWER(?))';
-    $params = ['%' . strtolower($searchQuery) . '%', '%' . strtolower($searchQuery) . '%', '%' . $searchTerm . '%', $skuSearchTerm, $skuExactTerm];
+    $baseQuery = '
+        SELECT COUNT(*) as total 
+        FROM stiles_products 
+        WHERE status = "publish" 
+        AND (
+            LOWER(title) LIKE ? 
+            OR LOWER(title) LIKE ? 
+            OR LOWER(description) LIKE ? 
+            OR LOWER(sku) LIKE ? 
+            OR sku LIKE ? 
+            OR LOWER(sku) = LOWER(?)
+        )';
+    $params = [
+        $startsWithTerm,                      // For starts with match
+        '%' . strtolower($searchQuery) . '%', // For contains match in title
+        '%' . strtolower($searchQuery) . '%', // For contains match in description
+        '%' . $searchTerm . '%',              // For SKU like match
+        $skuSearchTerm,                       // For SKU exact match
+        $skuExactTerm                         // For SKU case-insensitive match
+    ];
     
     // Add filter conditions
     if (isset($_GET['finish']) && !empty($_GET['finish'])) {
@@ -178,16 +197,41 @@ try {
 
     // Add sorting
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-    $orderBy = 'ORDER BY post_date DESC';
+    $orderBy = 'ORDER BY 
+        CASE 
+            WHEN LOWER(title) LIKE ? THEN 0 
+            WHEN LOWER(title) LIKE ? THEN 1
+            ELSE 2 
+        END,
+        post_date DESC';
+    
     switch ($sortBy) {
         case 'desc':
-            $orderBy = 'ORDER BY post_date ASC';
+            $orderBy = 'ORDER BY 
+                CASE 
+                    WHEN LOWER(title) LIKE ? THEN 0 
+                    WHEN LOWER(title) LIKE ? THEN 1
+                    ELSE 2 
+                END,
+                post_date ASC';
             break;
         case 'nuev':
-            $orderBy = 'ORDER BY regular_price ASC';
+            $orderBy = 'ORDER BY 
+                CASE 
+                    WHEN LOWER(title) LIKE ? THEN 0 
+                    WHEN LOWER(title) LIKE ? THEN 1
+                    ELSE 2 
+                END,
+                regular_price ASC';
             break;
         case 'vend':
-            $orderBy = 'ORDER BY regular_price DESC';
+            $orderBy = 'ORDER BY 
+                CASE 
+                    WHEN LOWER(title) LIKE ? THEN 0 
+                    WHEN LOWER(title) LIKE ? THEN 1
+                    ELSE 2 
+                END,
+                regular_price DESC';
             break;
     }
 
@@ -207,6 +251,10 @@ try {
         status,
         post_date
     ', $baseQuery) . ' ' . $orderBy;
+
+    // Add the sorting parameters
+    $params[] = $startsWithTerm;                    // For exact starts with match
+    $params[] = '%' . strtolower($searchQuery) . '%'; // For contains match
 
     // Add pagination
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;

@@ -66,6 +66,10 @@ export const getPricingUnit = (product) => {
   if (categories.some(cat => cat.includes('Large Slab'))) {
     return 'per slab';
   }
+
+  if (categories.some(cat => cat.includes('Tile Accessories'))) {
+    return 'each';
+  }
   
   // Default for tiles and flooring products
   return 'm2';

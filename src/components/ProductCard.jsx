@@ -58,6 +58,8 @@ const ProductCard = memo(({ onClick, prod }) => {
                 setProduct(productData);
                 if (productData.promo !== null && productData.promo && productData.promo.includes('Exclusive to Stiles')) {
                     setBadge('Exclusive');
+                } else if (productData.promo !== null && productData.promo && productData.promo.includes('New@Stiles')) {
+                    setBadge('New @ Stiles');
                 }
 
                 // Fetch stock info if SKU exists
