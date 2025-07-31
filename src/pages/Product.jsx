@@ -476,11 +476,11 @@ const Product = () => {
             </DialogFooter>
         </Dialog>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
-            <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2'>
+            <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2 h-full max-h-[600px]'>
                 <img src={product?.images[imageSelected].url} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
-                <div className="flex flex-row lg:flex-col justify-start items-start gap-2">
+                <div className="flex flex-row lg:flex-col justify-start items-start gap-2 h-full max-h-[600px] overflow-y-auto">
                     {product?.images.map((image, index) => (
-                        <img onClick={() => setImageSelected(index)} key={index} src={image.url} alt={image.alt} title={image.title} className={`w-10 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
+                        <img onClick={() => setImageSelected(index)} key={index} src={image.url} alt={image.alt} title={image.title} className={`w-12 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
                     ))}
                 </div>
             </div>
