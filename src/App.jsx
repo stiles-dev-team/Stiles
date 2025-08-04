@@ -64,7 +64,7 @@ function App() {
           <Route path="/stiles-blog" element={<Blogs />} />
           <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
           <Route path="/stiles-blog/:slug" element={<BlogPost />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/*" element={<Admin />} />
 
           {/* Testing */}
           {/* <Route path="/test" element={<Test />} /> */}
