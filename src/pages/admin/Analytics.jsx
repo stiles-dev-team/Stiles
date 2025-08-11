@@ -14,7 +14,10 @@ const AdminAnalytics = () => {
     },
     products: {
       total: 0,
-      categories: []
+      brands: [],
+      colours: [],
+      finishes: [],
+      sizes: []
     },
     customers: {
       total: 0,
@@ -31,73 +34,38 @@ const AdminAnalytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      // Fetch orders for analytics
-      const ordersResponse = await fetch('https://stiles.co.za/api/orders_admin.php', {
-        headers: { 'Accept': 'application/json' }
-      })
-      const ordersData = await ordersResponse.json()
-      
-      // Fetch products
-      const productsResponse = await fetch('https://stiles.co.za/api/products.php', {
-        headers: { 'Accept': 'application/json' }
-      })
-      const productsData = await productsResponse.json()
-
-      // Calculate analytics from data
-      const orders = ordersData.orders || []
-      const products = productsData.products || []
-      
-      const totalRevenue = orders.reduce((sum, order) => sum + (parseFloat(order.total) || 0), 0)
-      const totalOrders = orders.length
-      const totalProducts = products.length
-
-      // Mock monthly data for demonstration
-      const monthlyRevenue = [
-        { month: 'Jan', value: 45000 },
-        { month: 'Feb', value: 52000 },
-        { month: 'Mar', value: 48000 },
-        { month: 'Apr', value: 61000 },
-        { month: 'May', value: 55000 },
-        { month: 'Jun', value: 67000 }
-      ]
-
-      const monthlyOrders = [
-        { month: 'Jan', value: 45 },
-        { month: 'Feb', value: 52 },
-        { month: 'Mar', value: 48 },
-        { month: 'Apr', value: 61 },
-        { month: 'May', value: 55 },
-        { month: 'Jun', value: 67 }
-      ]
-
-      setAnalytics({
-        revenue: {
-          total: totalRevenue,
-          monthly: monthlyRevenue,
-          growth: 12.5
-        },
-        orders: {
-          total: totalOrders,
-          monthly: monthlyOrders,
-          growth: 8.3
-        },
-        products: {
-          total: totalProducts,
-          categories: [
-            { name: 'Floor Tiles', count: 150 },
-            { name: 'Wall Tiles', count: 120 },
-            { name: 'Mosaics', count: 80 },
-            { name: 'Accessories', count: 60 }
-          ]
-        },
-        customers: {
-          total: 1250,
-          new: 45,
-          growth: 15.2
+      setLoading(true)
+      const response = await fetch(`https://stiles.co.za/api/admin-analytics.php?timeRange=${timeRange}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       })
+
+      const data = await response.json()
+
+      if (data.success && data.analytics) {
+        setAnalytics(data.analytics)
+      } else {
+        console.error('Error fetching analytics:', data.error || 'Unknown error')
+        // Set default values if API fails
+        setAnalytics({
+          revenue: { total: 0, monthly: [], growth: 0 },
+          orders: { total: 0, monthly: [], growth: 0 },
+          products: { total: 0, brands: [], colours: [], finishes: [], sizes: [] },
+          customers: { total: 0, new: 0, growth: 0 }
+        })
+      }
     } catch (error) {
       console.error('Error fetching analytics:', error)
+      // Set default values if API fails
+      setAnalytics({
+        revenue: { total: 0, monthly: [], growth: 0 },
+        orders: { total: 0, monthly: [], growth: 0 },
+        products: { total: 0, brands: [], colours: [], finishes: [], sizes: [] },
+        customers: { total: 0, new: 0, growth: 0 }
+      })
     } finally {
       setLoading(false)
     }
@@ -160,7 +128,6 @@ const AdminAnalytics = () => {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
                   <dd className="text-lg font-medium text-gray-900">{formatCurrency(analytics.revenue.total)}</dd>
-                  <dd className="text-sm text-green-600">+{analytics.revenue.growth}% from last period</dd>
                 </dl>
               </div>
             </div>
@@ -179,7 +146,6 @@ const AdminAnalytics = () => {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
                   <dd className="text-lg font-medium text-gray-900">{formatNumber(analytics.orders.total)}</dd>
-                  <dd className="text-sm text-green-600">+{analytics.orders.growth}% from last period</dd>
                 </dl>
               </div>
             </div>
@@ -198,7 +164,6 @@ const AdminAnalytics = () => {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Customers</dt>
                   <dd className="text-lg font-medium text-gray-900">{formatNumber(analytics.customers.total)}</dd>
-                  <dd className="text-sm text-green-600">+{analytics.customers.growth}% from last period</dd>
                 </dl>
               </div>
             </div>
@@ -238,12 +203,12 @@ const AdminAnalytics = () => {
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">{item.month}</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full" 
-                        style={{ width: `${(item.value / 70000) * 100}%` }}
-                      ></div>
-                    </div>
+                                         <div className="w-32 bg-gray-200 rounded-full h-2">
+                       <div 
+                         className="bg-green-500 h-2 rounded-full" 
+                         style={{ width: `${(item.value / Math.max(...analytics.revenue.monthly.map(r => r.value))) * 100}%` }}
+                       ></div>
+                     </div>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(item.value)}</span>
                   </div>
                 </div>
@@ -263,12 +228,12 @@ const AdminAnalytics = () => {
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">{item.month}</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full" 
-                        style={{ width: `${(item.value / 80) * 100}%` }}
-                      ></div>
-                    </div>
+                                         <div className="w-32 bg-gray-200 rounded-full h-2">
+                       <div 
+                         className="bg-blue-500 h-2 rounded-full" 
+                         style={{ width: `${(item.value / Math.max(...analytics.orders.monthly.map(o => o.value))) * 100}%` }}
+                       ></div>
+                     </div>
                     <span className="text-sm font-medium text-gray-900">{item.value}</span>
                   </div>
                 </div>
@@ -278,27 +243,105 @@ const AdminAnalytics = () => {
         </div>
       </div>
 
-      {/* Product Categories */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Products by Category</h3>
-        </div>
-        <div className="p-6">
-          <div className="space-y-4">
-            {analytics.products.categories.map((category, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">{category.name}</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-purple-500 h-2 rounded-full" 
-                      style={{ width: `${(category.count / 150) * 100}%` }}
-                    ></div>
+      {/* Product Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Brands */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Products by Brand</h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {analytics.products.brands.map((brand, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{brand.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{ width: `${(brand.count / Math.max(...analytics.products.brands.map(b => b.count))) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">{brand.count}</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{category.count}</span>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Colours */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Products by Colour</h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {analytics.products.colours.map((colour, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{colour.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-red-500 h-2 rounded-full" 
+                        style={{ width: `${(colour.count / Math.max(...analytics.products.colours.map(c => c.count))) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">{colour.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Finishes */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Products by Finish</h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {analytics.products.finishes.map((finish, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{finish.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-green-500 h-2 rounded-full" 
+                        style={{ width: `${(finish.count / Math.max(...analytics.products.finishes.map(f => f.count))) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">{finish.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Sizes */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Products by Size</h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {analytics.products.sizes.map((size, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{size.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-purple-500 h-2 rounded-full" 
+                        style={{ width: `${(size.count / Math.max(...analytics.products.sizes.map(s => s.count))) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">{size.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -310,26 +353,19 @@ const AdminAnalytics = () => {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">New order #1234 received</span>
-              <span className="text-xs text-gray-400">2 minutes ago</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">New customer registered</span>
-              <span className="text-xs text-gray-400">15 minutes ago</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Product "Ceramic Tile" updated</span>
-              <span className="text-xs text-gray-400">1 hour ago</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Order #1230 marked as completed</span>
-              <span className="text-xs text-gray-400">2 hours ago</span>
-            </div>
+            {analytics.recentActivity ? (
+              analytics.recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className={`w-2 h-2 ${activity.color} rounded-full`}></div>
+                  <span className="text-sm text-gray-600">{activity.message}</span>
+                  <span className="text-xs text-gray-400">{activity.time}</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500">
+                <p>No recent activity to display</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

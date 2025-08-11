@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 const Home = () => {
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
+  const [homeContent, setHomeContent] = useState(null);
+  const [contentLoading, setContentLoading] = useState(true);
 
   // useEffect(() => {
   //   // Check if geolocation is supported
@@ -98,14 +100,38 @@ const Home = () => {
   //   };
   // }, []);
 
+  // Fetch home page content
+  useEffect(() => {
+    const fetchHomeContent = async () => {
+      try {
+        const response = await fetch("https://stiles.co.za/api/admin-content.php?page=home", {
+          headers: { Accept: "application/json" },
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          setHomeContent(data.content);
+        } else {
+          console.error("Error fetching home content:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching home content:", error);
+      } finally {
+        setContentLoading(false);
+      }
+    };
+
+    fetchHomeContent();
+  }, []);
+
   return (
     <Layout>
       <main className='w-full flex flex-col justify-start items-start gap-14 lg:gap-28 pb-14 lg:pb-28 '>
-        <Hero />
-        <WhoWeAre />
+        <Hero content={homeContent} />
+        <WhoWeAre content={homeContent} />
         <OurProducts />
         <SubscribeBanner />
-        <ShopCategory />
+        <ShopCategory content={homeContent} />
         <WeWorkWithTheBest />
         <Blog />
       </main>
@@ -115,69 +141,82 @@ const Home = () => {
 
 export default Home
 
-const Hero = () => {
+const Hero = ({ content }) => {
+  const heroContent = content?.hero || {
+    slides: [
+      {
+        id: 1,
+        title: "Quality and Style Specially Handpicked for You",
+        subtitle: "",
+        background_image: "/images/Website_Banners.jpg",
+        button_text: "Know More",
+        button_link: "#whoweareHome"
+      },
+      {
+        id: 2,
+        title: "Quality and Style Specially Handpicked for You",
+        subtitle: "",
+        background_image: "/images/Website_Banners2.jpg",
+        button_text: "Know More",
+        button_link: "#whoweareHome"
+      },
+      {
+        id: 3,
+        title: "Quality and Style Specially Handpicked for You",
+        subtitle: "",
+        background_image: "/images/Website_Banners3.jpg",
+        button_text: "Know More",
+        button_link: "#whoweareHome"
+      },
+      {
+        id: 4,
+        title: "Quality and Style Specially Handpicked for You",
+        subtitle: "",
+        background_image: "/images/Website_Banners4.jpg",
+        button_text: "Know More",
+        button_link: "#whoweareHome"
+      }
+    ]
+  };
+
   return (
     <section id='heroHome' className='w-full h-lvh relative flex flex-col justify-center items-center'>
-      
-    {/* <section id='heroHome' className='w-full h-lvh bg-[url("/images/hero.png")] bg-cover bg-center relative flex flex-col justify-center items-center'>
-      <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
-      <div className='relative z-10 container mx-auto px-4'>
-        <h1 className='text-white text-5xl md:text-8xl font-bold uppercase pb-5'>SMART<br />BESPOKE<br />INTERIORS.</h1>
-        <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-      </div>
-      <a href='#whoweareHome' className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>KNOW MORE <IoIosArrowDown fill='white' /></a>
-    </section> */}
       <Splide className="w-full h-lvh" options={{
         type: 'loop'
       }}>
-        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
-          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/Website_Banners.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
-          <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
-            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-          </div>
-        </SplideSlide>
-        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
-          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/Website_Banners2.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
-          <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
-            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-          </div>
-        </SplideSlide>
-        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
-          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/Website_Banners3.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
-          <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
-            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-          </div>
-        </SplideSlide>
-        <SplideSlide className="w-full h-lvh flex flex-col justify-center items-center">
-          <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-          <img src="/images/Website_Banners4.jpg" alt="" className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
-          <div className='relative z-10 container mx-auto px-4'>
-            <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>Quality and Style Specially Handpicked for You</h1>
-            <ButtonStiles text='Know More' styleType="light" href='#whoweareHome' extraStyle="hidden lg:block" />
-          </div>
-        </SplideSlide>
+        {heroContent.slides.map((slide) => (
+          <SplideSlide key={slide.id} className="w-full h-lvh flex flex-col justify-center items-center">
+            <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
+            <img src={slide.background_image} alt={slide.title} className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+            <div className='relative z-10 container mx-auto px-4'>
+              <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>{slide.title}</h1>
+              {slide.subtitle && (
+                <p className='text-white text-lg md:text-xl mb-5 w-full max-w-2xl'>{slide.subtitle}</p>
+              )}
+              <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
+            </div>
+          </SplideSlide>
+        ))}
       </Splide>
-      <a href='#whoweareHome' className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>KNOW MORE <IoIosArrowDown fill='white' /></a>
+      {heroContent.slides.length > 0 && (
+        <a href={heroContent.slides[0].button_link} className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>
+          {heroContent.slides[0].button_text.toUpperCase()} <IoIosArrowDown fill='white' />
+        </a>
+      )}
     </section>
   )
 }
 
-const WhoWeAre = () => {
+const WhoWeAre = ({ content }) => {
   return (
     <section id="whoweareHome" className='container mx-auto px-4 flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20'>
-      <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>WE ARE STILES</h2>
+      <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>{(content?.whoWeAre?.title) || 'WE ARE STILES'}</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
         <p className='text-sm lg:text-base'>
           At Stiles, we’re all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.
         </p>
         <p className='text-sm lg:text-base pb-6'>
-          Along with importing products from top tile and sanitaryware factories across the globe, we pride ourselves in being a community-driven South African company. Stiles supports local industry, artisans and artists from South Africa. We believe in the tiles and sanitaryware we market, and employ creative people with an enthusiasm to keep all things stylish, making us leaders in service, technical advice, creative ability and innovative ideas.
+          {(content?.whoWeAre?.paragraph2) || "Along with importing products from top tile and sanitaryware factories across the globe, we pride ourselves in being a community-driven South African company. Stiles supports local industry, artisans and artists from South Africa. We believe in the tiles and sanitaryware we market, and employ creative people with an enthusiasm to keep all things stylish, making us leaders in service, technical advice, creative ability and innovative ideas."}
         </p>
         {/* <ButtonStiles text='About Us' styleType="dark" href='#' respFullWidth={true} /> */}
       </div>
@@ -458,30 +497,71 @@ const SubscribeBanner = () => {
   )
 }
 
-const ShopCategory = () => {
+const ShopCategory = ({ content }) => {
+  const shopCategoryContent = content?.shopCategory || {
+    title: "Shop by category",
+    categories: [
+      {
+        id: 1,
+        name: "Floor Tiles",
+        image: "/images/floor_tiles.webp",
+        link: "/product-category/tiles/floor-tiles",
+        position: "row-span-2"
+      },
+      {
+        id: 2,
+        name: "Bathrooms",
+        image: "/images/bathrooms.jpg",
+        link: "/product-category/sanitary-ware/bathroom-accessories",
+        position: "default"
+      },
+      {
+        id: 3,
+        name: "Kitchen Sinks",
+        image: "/images/kitchen_sinks.jpg",
+        link: "/product-category/sanitary-ware/kitchen-sinks",
+        position: "col-start-2 row-start-2"
+      },
+      {
+        id: 4,
+        name: "Mosaics",
+        image: "/images/mosaics.png",
+        link: "/product-category/tiles/mosaics",
+        position: "row-span-2 col-start-3 row-start-1"
+      }
+    ]
+  };
+
+  const getPositionClass = (position) => {
+    switch (position) {
+      case "row-span-2":
+        return "row-span-2";
+      case "col-start-2 row-start-2":
+        return "col-start-2 row-start-2";
+      case "row-span-2 col-start-3 row-start-1":
+        return "row-span-2 col-start-3 row-start-1";
+      default:
+        return "";
+    }
+  };
+
   return (
     <section className='container mx-auto px-0 lg:px-4'>
       <div className="flex flex-row justify-between items-end gap-5 w-full pb-2 lg:pb-5 px-4 lg:px-0">
-        <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Shop by category</h2>
+        <h2 className='font-bold text-3xl lg:text-5xl uppercase'>{shopCategoryContent.title}</h2>
         {/* <a href="#" className='hidden lg:block'>VIEW ALL OUR CATEGORIES</a> */}
       </div>
       <div className='lg:grid lg:grid-cols-3 lg:grid-rows-2 lg:gap-4 w-full'>
-        <a href="/product-category/tiles/floor-tiles" className="row-span-2 relative hidden lg:block cursor-pointer">
-          <img src="/images/floor_tiles.webp" alt="" className='w-full h-full object-cover object-center relative z-0 rounded-2xl' />
-          <Chip size="lg" value="Floor Tiles" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold text-dark' />
-        </a>
-        <a href="/product-category/sanitary-ware/bathroom-accessories" className=' relative hidden lg:block cursor-pointer'>
-          <img src="/images/bathrooms.jpg" alt="" className='w-full aspect-[16/12] object-cover object-center relative z-0 rounded-2xl' />
-          <Chip size="lg" value="Bathrooms" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold text-dark' />
-        </a>
-        <a href="/product-category/sanitary-ware/kitchen-sinks" className="col-start-2 row-start-2 relative hidden lg:block cursor-pointer">
-          <img src="/images/kitchen_sinks.jpg" alt="" className='w-full aspect-[16/12] object-cover object-center relative z-0 rounded-2xl' />
-          <Chip size="lg" value="Kitchen Sinks" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold text-dark' />
-        </a>
-        <a href="/product-category/tiles/mosaics" className="row-span-2 col-start-3 row-start-1 relative hidden lg:block cursor-pointer">
-          <img src="/images/mosaics.png" alt="" className='w-full h-full object-cover object-center relative z-0 rounded-2xl' />
-          <Chip size="lg" value="Mosaics" className='w-fit absolute z-10 top-5 left-5 bg-white font-bold text-dark' />
-        </a>
+        {shopCategoryContent.categories.map((category) => (
+          <a 
+            key={category.id}
+            href={category.link} 
+            className={`${getPositionClass(category.position)} relative hidden lg:block cursor-pointer`}
+          >
+            <img src={category.image} alt={category.name} className='w-full h-full object-cover object-center relative z-0 rounded-2xl' />
+            <Chip size="lg" value={category.name} className='w-fit absolute z-10 top-5 left-5 bg-white font-bold text-dark' />
+          </a>
+        ))}
         <Splide className="lg:hidden" options={{
           perPage: 1,
           type: 'loop',
@@ -497,46 +577,18 @@ const ShopCategory = () => {
             },
           },
         }}>
-          <SplideSlide>
-            <a href="/product-category/tiles/floor-tiles" className='w-full relative block'>
-              <img src="/images/floor_tiles.webp" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
-              <div className='absolute inset-0 pointer-events-none'>
-                <div className='absolute top-3 left-3 transform-gpu'>
-                  <Chip size="lg" value="Floor Tiles" className='w-fit bg-white font-bold text-dark shadow-md' />
+          {shopCategoryContent.categories.map((category) => (
+            <SplideSlide key={category.id}>
+              <a href={category.link} className='w-full relative block'>
+                <img src={category.image} alt={category.name} className='w-full aspect-video object-cover object-center rounded-lg' />
+                <div className='absolute inset-0 pointer-events-none'>
+                  <div className='absolute top-3 left-3 transform-gpu'>
+                    <Chip size="lg" value={category.name} className='w-fit bg-white font-bold text-dark shadow-md' />
+                  </div>
                 </div>
-              </div>
-            </a>
-          </SplideSlide>
-          <SplideSlide>
-            <a href="/product-category/sanitary-ware/bathroom-accessories" className='w-full relative block'>
-              <img src="/images/bathrooms.jpg" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
-              <div className='absolute inset-0 pointer-events-none'>
-                <div className='absolute top-3 left-3 transform-gpu'>
-                  <Chip size="lg" value="Bathrooms" className='w-fit bg-white font-bold text-dark shadow-md' />
-                </div>
-              </div>
-            </a>
-          </SplideSlide>
-          <SplideSlide>
-            <a href="/product-category/sanitary-ware/kitchen-sinks" className='w-full relative block'>
-              <img src="/images/kitchen_sinks.jpg" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
-              <div className='absolute inset-0 pointer-events-none'>
-                <div className='absolute top-3 left-3 transform-gpu'>
-                  <Chip size="lg" value="Kitchen Sinks" className='w-fit bg-white font-bold text-dark shadow-md' />
-                </div>
-              </div>
-            </a>
-          </SplideSlide>
-          <SplideSlide>
-            <a href="/product-category/tiles/mosaics" className='w-full relative block'>
-              <img src="/images/mosaics.png" alt="" className='w-full aspect-video object-cover object-center rounded-lg' />
-              <div className='absolute inset-0 pointer-events-none'>
-                <div className='absolute top-3 left-3 transform-gpu'>
-                  <Chip size="lg" value="Mosaics" className='w-fit bg-white font-bold text-dark shadow-md' />
-                </div>
-              </div>
-            </a>
-          </SplideSlide>
+              </a>
+            </SplideSlide>
+          ))}
         </Splide>
       </div>
     </section>

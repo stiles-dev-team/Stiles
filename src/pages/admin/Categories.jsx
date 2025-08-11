@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 
-const AdminCategories = () => {
-  const [categories, setCategories] = useState([])
+const AdminBrands = () => {
+  const [brands, setBrands] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
+  const [editingBrand, setEditingBrand] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -13,18 +13,30 @@ const AdminCategories = () => {
   })
 
   useEffect(() => {
-    fetchCategories()
+    fetchBrands()
   }, [])
 
-  const fetchCategories = async () => {
+  const fetchBrands = async () => {
     try {
-      const response = await fetch('https://stiles.co.za/api/categories.php', {
-        headers: { 'Accept': 'application/json' }
+      setLoading(true)
+      const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       })
       const data = await response.json()
-      setCategories(data.categories || [])
+      
+      if (data.success && data.brands) {
+        setBrands(data.brands)
+      } else {
+        console.error('Error fetching brands:', data.error || 'Unknown error')
+        setBrands([])
+      }
     } catch (error) {
-      console.error('Error fetching categories:', error)
+      console.error('Error fetching brands:', error)
+      setBrands([])
     } finally {
       setLoading(false)
     }
@@ -33,38 +45,106 @@ const AdminCategories = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Implement create/update API call here
-      console.log('Saving category:', formData)
-      // Refresh categories after save
-      fetchCategories()
-      setShowAddModal(false)
-      setEditingCategory(null)
-      setFormData({ name: '', description: '', slug: '', image: '' })
+      if (editingBrand) {
+        // Update existing brand
+        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            id: editingBrand.id,
+            name: formData.name,
+            old_name: editingBrand.name,
+            new_name: formData.name,
+            description: formData.description,
+            slug: formData.slug,
+            image: formData.image
+          })
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          alert('Brand updated successfully')
+          fetchBrands()
+          setShowAddModal(false)
+          setEditingBrand(null)
+          setFormData({ name: '', description: '', slug: '', image: '' })
+        } else {
+          alert('Error updating brand: ' + (result.error || 'Unknown error'))
+        }
+      } else {
+        // Create new brand
+        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description,
+            slug: formData.slug,
+            image: formData.image
+          })
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          alert('Brand created successfully')
+          fetchBrands()
+          setShowAddModal(false)
+          setFormData({ name: '', description: '', slug: '', image: '' })
+        } else {
+          alert('Error creating brand: ' + (result.error || 'Unknown error'))
+        }
+      }
     } catch (error) {
-      console.error('Error saving category:', error)
+      console.error('Error saving brand:', error)
+      alert('Error saving brand')
     }
   }
 
-  const handleEditCategory = (category) => {
-    setEditingCategory(category)
+  const handleEditBrand = (brand) => {
+    setEditingBrand(brand)
     setFormData({
-      name: category.name || '',
-      description: category.description || '',
-      slug: category.slug || '',
-      image: category.image || ''
+      name: brand.name || '',
+      description: brand.description || '',
+      slug: brand.slug || '',
+      image: brand.image || ''
     })
     setShowAddModal(true)
   }
 
-  const handleDeleteCategory = async (categoryId) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
+  const handleDeleteBrand = async (brand) => {
+    if (window.confirm(`Are you sure you want to delete the brand "${brand.name}"? This will remove the brand from all products.`)) {
       try {
-        // Implement delete API call here
-        console.log('Deleting category:', categoryId)
-        // Refresh categories after deletion
-        fetchCategories()
+        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            id: brand.id,
+            name: brand.name
+          })
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          alert('Brand deleted successfully')
+          fetchBrands()
+        } else {
+          alert('Error deleting brand: ' + (result.error || 'Unknown error'))
+        }
       } catch (error) {
-        console.error('Error deleting category:', error)
+        console.error('Error deleting brand:', error)
+        alert('Error deleting brand')
       }
     }
   }
@@ -90,28 +170,28 @@ const AdminCategories = () => {
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Brands</h1>
           <p className="mt-1 text-sm text-gray-600">
-            Manage product categories and organization.
+            Manage product brands. Editing or deleting a brand will update all products with that brand.
           </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
         >
-          Add Category
+          Add Brand
         </button>
       </div>
 
-      {/* Categories Grid */}
+      {/* Brands Grid */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Category List</h3>
+          <h3 className="text-lg font-medium text-gray-900">Brand List</h3>
         </div>
         
-        {categories.length === 0 ? (
+        {brands.length === 0 ? (
           <div className="px-6 py-8 text-center">
-            <p className="text-gray-500">No categories found.</p>
+            <p className="text-gray-500">No brands found.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -119,7 +199,7 @@ const AdminCategories = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
+                    Brand Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Description
@@ -128,7 +208,7 @@ const AdminCategories = () => {
                     Slug
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Products
+                    Products Count
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -136,16 +216,16 @@ const AdminCategories = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-gray-50">
+                {brands.map((brand) => (
+                  <tr key={brand.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        {category.image && (
+                        {brand.image && (
                           <div className="flex-shrink-0 h-10 w-10">
                             <img
                               className="h-10 w-10 rounded-full object-cover"
-                              src={category.image}
-                              alt={category.name}
+                              src={brand.image}
+                              alt={brand.name}
                               onError={(e) => {
                                 e.target.style.display = 'none'
                               }}
@@ -154,30 +234,30 @@ const AdminCategories = () => {
                         )}
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {category.name}
+                            {brand.name}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {category.description || 'No description'}
+                      {brand.description || 'No description'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {category.slug || 'No slug'}
+                      {brand.slug || 'No slug'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {category.product_count || 0} products
+                      {brand.product_count} products
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleEditCategory(category)}
+                          onClick={() => handleEditBrand(brand)}
                           className="text-blue-600 hover:text-blue-900"
                         >
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteCategory(category.id)}
+                          onClick={() => handleDeleteBrand(brand)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Delete
@@ -192,18 +272,18 @@ const AdminCategories = () => {
         )}
       </div>
 
-      {/* Add/Edit Category Modal */}
+      {/* Add/Edit Brand Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">
-                {editingCategory ? 'Edit Category' : 'Add New Category'}
+                {editingBrand ? 'Edit Brand' : 'Add New Brand'}
               </h3>
               <button
                 onClick={() => {
                   setShowAddModal(false)
-                  setEditingCategory(null)
+                  setEditingBrand(null)
                   setFormData({ name: '', description: '', slug: '', image: '' })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
@@ -216,7 +296,7 @@ const AdminCategories = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category Name *
+                    Brand Name *
                   </label>
                   <input
                     type="text"
@@ -225,6 +305,7 @@ const AdminCategories = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter brand name"
                   />
                 </div>
                 
@@ -238,6 +319,7 @@ const AdminCategories = () => {
                     onChange={handleInputChange}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter brand description"
                   />
                 </div>
                 
@@ -250,7 +332,7 @@ const AdminCategories = () => {
                     name="slug"
                     value={formData.slug}
                     onChange={handleInputChange}
-                    placeholder="category-slug"
+                    placeholder="brand-slug"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -269,12 +351,20 @@ const AdminCategories = () => {
                   />
                 </div>
                 
+                {editingBrand && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Note:</strong> Changing this brand name will update all products that currently use "{editingBrand.name}".
+                    </p>
+                  </div>
+                )}
+                
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddModal(false)
-                      setEditingCategory(null)
+                      setEditingBrand(null)
                       setFormData({ name: '', description: '', slug: '', image: '' })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -285,7 +375,7 @@ const AdminCategories = () => {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
                   >
-                    {editingCategory ? 'Update Category' : 'Add Category'}
+                    {editingBrand ? 'Update Brand' : 'Add Brand'}
                   </button>
                 </div>
               </form>
@@ -297,4 +387,4 @@ const AdminCategories = () => {
   )
 }
 
-export default AdminCategories 
+export default AdminBrands 

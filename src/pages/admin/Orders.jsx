@@ -70,12 +70,34 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      // Implement status update API call here
-      console.log('Updating order status:', orderId, newStatus)
-      // Refresh orders after update
-      fetchOrders()
+      const response = await fetch('https://stiles.co.za/api/orders_admin.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          status: newStatus
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert('Order status updated successfully')
+        // Refresh orders after update
+        fetchOrders()
+        // Close modal if it's open
+        if (showOrderModal) {
+          closeOrderModal()
+        }
+      } else {
+        alert('Error updating order status: ' + (result.error || 'Unknown error'))
+      }
     } catch (error) {
       console.error('Error updating order status:', error)
+      alert('Error updating order status. Please try again.')
     }
   }
 

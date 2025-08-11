@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom'
-import Layout from '../layout/Layout'
+import Layout from '../layout/LayoutDark'
 import { Helmet } from 'react-helmet'
 
 // Admin Components
@@ -9,8 +9,9 @@ import AdminDashboard from './admin/Dashboard'
 import AdminProducts from './admin/Products'
 import AdminOrders from './admin/Orders'
 import AdminUsers from './admin/Users'
-import AdminCategories from './admin/Categories'
+import AdminBrands from './admin/Categories'
 import AdminAnalytics from './admin/Analytics'
+import AdminContent from './admin/Content'
 import AdminSettings from './admin/Settings'
 
 const Admin = () => {
@@ -29,9 +30,10 @@ const Admin = () => {
       { name: 'Products', href: '/admin/products', icon: '📦' },
       { name: 'Orders', href: '/admin/orders', icon: '🛒' },
       { name: 'Users', href: '/admin/users', icon: '👥' },
-      { name: 'Categories', href: '/admin/categories', icon: '🏷️' },
+      { name: 'Brands', href: '/admin/brands', icon: '🏷️' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
-      { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
+      { name: 'Content', href: '/admin/content', icon: '📝' },
+      // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
     ]
 
     if (!isAuthenticated || !isAdmin) {
@@ -45,26 +47,7 @@ const Admin = () => {
           <meta name="description" content="Admin dashboard for Stiles" />
         </Helmet>
         
-        <div className="min-h-screen bg-gray-50">
-          {/* Admin Header */}
-          <div className="bg-white shadow-sm border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                <div className="flex items-center">
-                  <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">Welcome, {user?.first_name || 'Admin'}</span>
-                  <button
-                    onClick={() => navigate('/')}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Back to Site
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="min-h-screen pt-20">
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex gap-8">
@@ -98,8 +81,9 @@ const Admin = () => {
                   <Route path="/products" element={<AdminProducts />} />
                   <Route path="/orders" element={<AdminOrders />} />
                   <Route path="/users" element={<AdminUsers />} />
-                  <Route path="/categories" element={<AdminCategories />} />
+                  <Route path="/brands" element={<AdminBrands />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />
+                  <Route path="/content" element={<AdminContent />} />
                   <Route path="/settings" element={<AdminSettings />} />
                 </Routes>
               </div>

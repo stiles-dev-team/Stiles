@@ -14,33 +14,26 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      // This would need to be implemented in your API
-      // For now, we'll use mock data
-      const mockUsers = [
-        {
-          id: 1,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'john@example.com',
-          role: 'customer',
-          created_at: '2024-01-15T10:30:00Z',
-          status: 'active',
-          phone: '+27 123 456 789'
-        },
-        {
-          id: 2,
-          first_name: 'Jane',
-          last_name: 'Smith',
-          email: 'jane@example.com',
-          role: 'admin',
-          created_at: '2024-01-10T14:20:00Z',
-          status: 'active',
-          phone: '+27 987 654 321'
+      setLoading(true)
+      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      ]
-      setUsers(mockUsers)
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.users) {
+        setUsers(data.users)
+      } else {
+        console.error('Error fetching users:', data.error || 'Unknown error')
+        setUsers([])
+      }
     } catch (error) {
       console.error('Error fetching users:', error)
+      setUsers([])
     } finally {
       setLoading(false)
     }
@@ -87,23 +80,59 @@ const AdminUsers = () => {
 
   const handleRoleUpdate = async (userId, newRole) => {
     try {
-      // Implement role update API call here
-      console.log('Updating user role:', userId, newRole)
-      // Refresh users after update
-      fetchUsers()
+      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          role: newRole
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert('User role updated successfully')
+        // Refresh users after update
+        fetchUsers()
+      } else {
+        alert('Error updating user role: ' + (result.error || 'Unknown error'))
+      }
     } catch (error) {
       console.error('Error updating user role:', error)
+      alert('Error updating user role')
     }
   }
 
   const handleStatusUpdate = async (userId, newStatus) => {
     try {
-      // Implement status update API call here
-      console.log('Updating user status:', userId, newStatus)
-      // Refresh users after update
-      fetchUsers()
+      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          status: newStatus
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert('User status updated successfully')
+        // Refresh users after update
+        fetchUsers()
+      } else {
+        alert('Error updating user status: ' + (result.error || 'Unknown error'))
+      }
     } catch (error) {
       console.error('Error updating user status:', error)
+      alert('Error updating user status')
     }
   }
 
