@@ -23,7 +23,7 @@ import { RiHandbagLine } from 'react-icons/ri';
 import { useParams } from 'react-router-dom';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 
 function Icon({ id, open }) {

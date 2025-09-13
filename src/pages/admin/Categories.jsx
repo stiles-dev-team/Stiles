@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { decodeHtmlEntities } from '../../utils/pricingUtils'
 
 const AdminBrands = () => {
   const [brands, setBrands] = useState([])
@@ -111,16 +112,16 @@ const AdminBrands = () => {
   const handleEditBrand = (brand) => {
     setEditingBrand(brand)
     setFormData({
-      name: brand.name || '',
-      description: brand.description || '',
-      slug: brand.slug || '',
+      name: decodeHtmlEntities(brand.name) || '',
+      description: decodeHtmlEntities(brand.description) || '',
+      slug: decodeHtmlEntities(brand.slug) || '',
       image: brand.image || ''
     })
     setShowAddModal(true)
   }
 
   const handleDeleteBrand = async (brand) => {
-    if (window.confirm(`Are you sure you want to delete the brand "${brand.name}"? This will remove the brand from all products.`)) {
+    if (window.confirm(`Are you sure you want to delete the brand "${decodeHtmlEntities(brand.name)}"? This will remove the brand from all products.`)) {
       try {
         const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
           method: 'DELETE',
@@ -166,7 +167,7 @@ const AdminBrands = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -234,16 +235,16 @@ const AdminBrands = () => {
                         )}
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {brand.name}
+                            {decodeHtmlEntities(brand.name)}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {brand.description || 'No description'}
+                      {decodeHtmlEntities(brand.description) || 'No description'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {brand.slug || 'No slug'}
+                      {decodeHtmlEntities(brand.slug) || 'No slug'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {brand.product_count} products
@@ -354,7 +355,7 @@ const AdminBrands = () => {
                 {editingBrand && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                     <p className="text-sm text-yellow-800">
-                      <strong>Note:</strong> Changing this brand name will update all products that currently use "{editingBrand.name}".
+                      <strong>Note:</strong> Changing this brand name will update all products that currently use "{decodeHtmlEntities(editingBrand.name)}".
                     </p>
                   </div>
                 )}

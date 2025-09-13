@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -101,7 +101,7 @@ const Orders = () => {
             <p className="text-gray-600">You haven't placed any orders yet.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-0 pt-6">
             {orders.map((order) => (
               <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-6">

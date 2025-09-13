@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Layout from '../layout/LayoutDark'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 
 // Admin Components
 import AdminDashboard from './admin/Dashboard'
@@ -13,6 +13,11 @@ import AdminBrands from './admin/Categories'
 import AdminAnalytics from './admin/Analytics'
 import AdminContent from './admin/Content'
 import AdminSettings from './admin/Settings'
+import AdminUniqueCategories from './admin/UniqueCategories'
+import AdminUniqueColours from './admin/UniqueColours'
+import AdminUniqueFinishes from './admin/UniqueFinishes'
+import AdminUniqueSizes from './admin/UniqueSizes'
+import AdminUniquePromos from './admin/UniquePromos'
 
 const Admin = () => {
     const { isAuthenticated, isAdmin, user } = useAuth()
@@ -31,6 +36,11 @@ const Admin = () => {
       { name: 'Orders', href: '/admin/orders', icon: '🛒' },
       { name: 'Users', href: '/admin/users', icon: '👥' },
       { name: 'Brands', href: '/admin/brands', icon: '🏷️' },
+      { name: 'Categories', href: '/admin/unique-categories', icon: '📂' },
+      { name: 'Colours', href: '/admin/unique-colours', icon: '🎨' },
+      { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
+      { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
+      { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
       { name: 'Content', href: '/admin/content', icon: '📝' },
       // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
@@ -82,6 +92,11 @@ const Admin = () => {
                   <Route path="/orders" element={<AdminOrders />} />
                   <Route path="/users" element={<AdminUsers />} />
                   <Route path="/brands" element={<AdminBrands />} />
+                  <Route path="/unique-categories" element={<AdminUniqueCategories />} />
+                  <Route path="/unique-colours" element={<AdminUniqueColours />} />
+                  <Route path="/unique-finishes" element={<AdminUniqueFinishes />} />
+                  <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
+                  <Route path="/unique-promos" element={<AdminUniquePromos />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />
                   <Route path="/content" element={<AdminContent />} />
                   <Route path="/settings" element={<AdminSettings />} />

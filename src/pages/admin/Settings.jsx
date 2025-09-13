@@ -86,7 +86,7 @@ const AdminSettings = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
@@ -119,7 +119,7 @@ const AdminSettings = () => {
         {/* Tab Content */}
         <div className="p-6">
           {activeTab === 'store' && (
-            <div className="space-y-6">
+            <div className="space-y-0 pt-6">
               <h3 className="text-lg font-medium text-gray-900">Store Information</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -190,7 +190,7 @@ const AdminSettings = () => {
           )}
 
           {activeTab === 'shipping' && (
-            <div className="space-y-6">
+            <div className="space-y-0 pt-6">
               <h3 className="text-lg font-medium text-gray-900">Shipping Configuration</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -234,7 +234,7 @@ const AdminSettings = () => {
           )}
 
           {activeTab === 'payment' && (
-            <div className="space-y-6">
+            <div className="space-y-0 pt-6">
               <h3 className="text-lg font-medium text-gray-900">Payment Methods</h3>
               
               <div className="space-y-4">
@@ -290,7 +290,7 @@ const AdminSettings = () => {
           )}
 
           {activeTab === 'notifications' && (
-            <div className="space-y-6">
+            <div className="space-y-0 pt-6">
               <h3 className="text-lg font-medium text-gray-900">Notification Settings</h3>
               
               <div className="space-y-4">

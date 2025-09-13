@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
+import Select from 'react-select';
+import { formatCurrency } from '../../utils/pricingUtils';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedColour, setSelectedColour] = useState("all");
+  const [selectedFinish, setSelectedFinish] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [colours, setColours] = useState([]);
   const [finishes, setFinishes] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [promos, setPromos] = useState([]);
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -23,20 +30,22 @@ const AdminProducts = () => {
     regular_price: 0,
     sale_price: 0,
     metadesc: "",
-    product_category: "",
+    product_category: [],
     product_tag: "",
     "attribute:pa_brands": "",
-    "attribute:pa_colour": "",
-    "attribute:pa_finish": "",
-    "attribute:pa_size": "",
+    "attribute:pa_colour": [],
+    "attribute:pa_finish": [],
+    "attribute:pa_size": [],
     "meta:product_details": "",
     pdf_url: "",
     pdf_preview: "",
     featured_image: "",
     featured_preview: "",
+    featured_file: null,
     gallery_images: "",
     gallery_previews: [],
-    promo: "",
+    gallery_files: [],
+    promo: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [pagination, setPagination] = useState({
@@ -48,16 +57,170 @@ const AdminProducts = () => {
     has_prev_page: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [iqStatus, setIqStatus] = useState(null); // null = not checked, true = exists, false = doesn't exist
+  const [checkingIq, setCheckingIq] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [selectedBrandsForDownload, setSelectedBrandsForDownload] = useState([]);
+  const [showExcelInstructions, setShowExcelInstructions] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showQuickView, setShowQuickView] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+
+  const syncIqPrices = async () => {
+    setLoading(true);
+    const response = await fetch("https://n8n.srv925550.hstgr.cloud/webhook/75de692b-34bc-4e72-9759-dffcb33cf349", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    setTimeout(() => {
+      setLoading(false);
+    }, 30000);
+  };
+
+  // Function to toggle menu
+  const toggleMenu = (productId) => {
+    setOpenMenuId(openMenuId === productId ? null : productId);
+  };
+
+  // Function to close menu
+  const closeMenu = () => {
+    setOpenMenuId(null);
+  };
+
+  // Function to handle quick view
+  const handleQuickView = (product) => {
+    setQuickViewProduct(product);
+    setShowQuickView(true);
+    closeMenu();
+  };
+
+
+  // Function to handle bulk selection
+  const handleBulkSelect = (productId, isSelected) => {
+    if (isSelected) {
+      setSelectedProducts([...selectedProducts, productId]);
+    } else {
+      setSelectedProducts(selectedProducts.filter(id => id !== productId));
+    }
+  };
+
+  // Function to select all products
+  const handleSelectAll = () => {
+    if (selectedProducts.length === filteredProducts.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(filteredProducts.map(product => product.ID || product.id));
+    }
+  };
+
+  // Function to handle bulk delete
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) {
+      alert("Please select products to delete");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedProducts.length} product(s)?`)) {
+      try {
+        const deletePromises = selectedProducts.map(productId => 
+          fetch("https://stiles.co.za/api/admin-products.php", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ id: productId }),
+          })
+        );
+
+        const results = await Promise.all(deletePromises);
+        const jsonResults = await Promise.all(results.map(r => r.json()));
+
+        const successCount = jsonResults.filter(r => r.status === "success").length;
+        
+        if (successCount > 0) {
+          alert(`Successfully deleted ${successCount} product(s)`);
+          setSelectedProducts([]);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+        } else {
+          alert("Error deleting products");
+        }
+      } catch (error) {
+        console.error("Error bulk deleting products:", error);
+        alert("Error deleting products");
+      }
+    }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-menu') && !event.target.closest('.menu-trigger')) {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Function to clean up blob URLs
+  const cleanupBlobUrls = () => {
+    if (formData.pdf_preview && formData.pdf_preview.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.pdf_preview);
+    }
+    if (formData.featured_preview && formData.featured_preview.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.featured_preview);
+    }
+    if (formData.gallery_previews && formData.gallery_previews.length > 0) {
+      formData.gallery_previews.forEach(preview => {
+        if (preview && preview.startsWith('blob:')) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+    }
+  };
+
+  // Cleanup blob URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      cleanupBlobUrls();
+    };
+  }, []);
+
+  // Cleanup blob URLs when modal closes
+  useEffect(() => {
+    if (!showAddModal) {
+      cleanupBlobUrls();
+    }
+  }, [showAddModal]);
 
   useEffect(() => {
-    fetchProducts(1, searchTerm, selectedCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
     fetchCategories();
     fetchBrands();
     fetchColours();
     fetchFinishes();
+    fetchSizes();
+    fetchPromos();
   }, []);
 
-  const fetchProducts = async (page = 1, search = "", category = "") => {
+  // Check IQ status when SKU changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkIqStatus(formData.sku);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.sku]);
+
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "") => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -67,6 +230,20 @@ const AdminProducts = () => {
 
       if (search) params.append("search", search);
       if (category && category !== "all") params.append("brand", category);
+      if (status && status !== "all") params.append("status", status);
+      if (colour && colour !== "all") params.append("colour", colour);
+      if (finish && finish !== "all") params.append("finish", finish);
+
+      // Debug logging
+      console.log('Fetching products with params:', {
+        page,
+        search,
+        category,
+        status,
+        colour,
+        finish,
+        url: `https://stiles.co.za/api/admin-products.php?${params}`
+      });
 
       const response = await fetch(
         `https://stiles.co.za/api/admin-products.php?${params}`,
@@ -101,7 +278,7 @@ const AdminProducts = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/categories.php", {
+      const response = await fetch("https://stiles.co.za/api/unique-categories.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -136,21 +313,11 @@ const AdminProducts = () => {
 
   const fetchColours = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-products.php?limit=1000", {
+      const response = await fetch("https://stiles.co.za/api/unique-colours.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      
-      if (data.status === "success" && data.products) {
-        // Extract unique colours from products
-        const uniqueColours = [...new Set(
-          data.products
-            .map(product => product['attribute:pa_colour'])
-            .filter(colour => colour && colour !== 'N/A' && colour !== '')
-        )].sort();
-        
-        setColours(uniqueColours.map(colour => ({ name: colour, id: colour })));
-      }
+      setColours(data.colours || []);
     } catch (error) {
       console.error("Error fetching colours:", error);
     }
@@ -158,23 +325,37 @@ const AdminProducts = () => {
 
   const fetchFinishes = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-products.php?limit=1000", {
+      const response = await fetch("https://stiles.co.za/api/unique-finishes.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      
-      if (data.status === "success" && data.products) {
-        // Extract unique finishes from products
-        const uniqueFinishes = [...new Set(
-          data.products
-            .map(product => product['attribute:pa_finish'])
-            .filter(finish => finish && finish !== 'N/A' && finish !== '')
-        )].sort();
-        
-        setFinishes(uniqueFinishes.map(finish => ({ name: finish, id: finish })));
-      }
+      setFinishes(data.finishes || []);
     } catch (error) {
       console.error("Error fetching finishes:", error);
+    }
+  };
+
+  const fetchSizes = async () => {
+    try {
+      const response = await fetch("https://stiles.co.za/api/unique-sizes.php", {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      setSizes(data.sizes || []);
+    } catch (error) {
+      console.error("Error fetching sizes:", error);
+    }
+  };
+
+  const fetchPromos = async () => {
+    try {
+      const response = await fetch("https://stiles.co.za/api/unique-promos.php", {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      setPromos(data.promos || []);
+    } catch (error) {
+      console.error("Error fetching promos:", error);
     }
   };
 
@@ -195,6 +376,45 @@ const AdminProducts = () => {
     }
   };
 
+  const checkIqStatus = async (sku) => {
+    if (!sku || sku.trim() === '') {
+      setIqStatus(null);
+      return;
+    }
+
+    try {
+      setCheckingIq(true);
+      const response = await fetch(`https://stiles.co.za/api/iq_new.php?code=${encodeURIComponent(sku.trim())}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('IQ check response:', data);
+      
+      // Check if the response contains data, indicating the SKU exists
+      if (data && data.data) {
+        setIqStatus(true);
+      } else {
+        setIqStatus(false);
+      }
+    } catch (error) {
+      console.error('Error checking IQ status:', error);
+      setIqStatus(false);
+    } finally {
+      setCheckingIq(false);
+    }
+  };
+
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-ZA", {
       style: "currency",
@@ -206,8 +426,7 @@ const AdminProducts = () => {
   const filteredProducts = products;
 
   const handleEditProduct = (product) => {
-    setEditingProduct(product);
-    setShowAddModal(true);
+    openEditModal(product);
   };
 
   const handleDeleteProduct = async (productId) => {
@@ -229,7 +448,7 @@ const AdminProducts = () => {
 
         if (result.status === "success") {
           alert("Product deleted successfully");
-          fetchProducts(currentPage, searchTerm, selectedCategory);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
         } else {
           alert("Error deleting product: " + result.message);
         }
@@ -240,24 +459,141 @@ const AdminProducts = () => {
     }
   };
 
+  const handleDuplicateProduct = async (product) => {
+    try {
+      cleanupBlobUrls();
+      
+      // Get next available ID
+      const nextId = await getNextId();
+      
+      // Generate new slug based on title
+      const newSlug = generateSlug(product.title + " Copy");
+      
+      // Generate preview URLs for existing gallery images
+      let galleryPreviews = [];
+      if (product.gallery_images) {
+        galleryPreviews = product.gallery_images.split(', ').map(image => image.trim());
+      }
+      
+      // Set form data with duplicated product data
+      setFormData({
+        id: nextId.toString(),
+        title: product.title + " Copy",
+        slug: newSlug,
+        description: product.description || "",
+        status: "draft", // Set to draft by default for duplicates
+        post_date: new Date().toISOString().split('T')[0],
+        sku: product.sku ? product.sku + "-COPY" : "",
+        stock: 0, // Reset stock for duplicate
+        regular_price: product.regular_price || 0,
+        sale_price: product.sale_price || 0,
+        metadesc: product.metadesc || "",
+        product_category: product.product_category ? product.product_category.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
+        product_tag: product.product_tag || "",
+        "attribute:pa_brands": product["attribute:pa_brands"] || "",
+        "attribute:pa_colour": product["attribute:pa_colour"] ? product["attribute:pa_colour"].split(',').map(colour => colour.trim()).filter(colour => colour) : [],
+        "attribute:pa_finish": product["attribute:pa_finish"] ? product["attribute:pa_finish"].split(',').map(finish => finish.trim()).filter(finish => finish) : [],
+        "attribute:pa_size": product["attribute:pa_size"] ? product["attribute:pa_size"].split(',').map(size => size.trim()).filter(size => size) : [],
+        "meta:product_details": product["meta:product_details"] || "",
+        pdf_url: product.pdf_url || "",
+        pdf_preview: product.pdf_url || "",
+        pdf_file: null,
+        featured_image: product.featured_image || "",
+        featured_preview: product.featured_image || "",
+        featured_file: null,
+        gallery_images: product.gallery_images || "",
+        gallery_previews: galleryPreviews,
+        gallery_files: [],
+        promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
+      });
+      
+      setEditingProduct(null); // Clear editing product since this is a new product
+      setShowAddModal(true);
+      closeMenu();
+    } catch (error) {
+      console.error("Error duplicating product:", error);
+      alert("Error duplicating product");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       const url = "https://stiles.co.za/api/admin-products.php";
-      const method = editingProduct ? "PUT" : "POST";
-      const body = editingProduct
-        ? { ...formData, id: editingProduct.ID || editingProduct.id }
-        : formData;
+      // Use POST for both create and update when files are involved
+      const method = "POST";
+      
+      // Create FormData for file uploads
+      const formDataToSend = new FormData();
+      
+      // Add all form fields (excluding file objects and preview URLs)
+      Object.keys(formData).forEach(key => {
+        if (key !== 'featured_file' && key !== 'gallery_files' && key !== 'pdf_file' && key !== 'featured_preview' && key !== 'gallery_previews' && key !== 'pdf_preview') {
+          // Only add non-empty values
+          if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+            // Convert arrays to comma-separated strings
+            if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
+              formDataToSend.append(key, formData[key].join(', '));
+            } else {
+              formDataToSend.append(key, formData[key]);
+            }
+          }
+        }
+      });
+      
+      // Add files if they exist
+      if (formData.pdf_file) {
+        formDataToSend.append('pdf_url', formData.pdf_file);
+      } else if (formData.pdf_url && formData.pdf_url !== '') {
+        // If no new file but we have an existing PDF path, send it
+        formDataToSend.append('pdf_url', formData.pdf_url);
+      }
+      
+      if (formData.featured_file) {
+        formDataToSend.append('featured_image', formData.featured_file);
+      } else if (formData.featured_image && formData.featured_image !== '') {
+        // If no new file but we have an existing image path, send it
+        formDataToSend.append('featured_image', formData.featured_image);
+      }
+      
+      if (formData.gallery_files && formData.gallery_files.length > 0) {
+        formData.gallery_files.forEach((file, index) => {
+          formDataToSend.append(`gallery_images[${index}]`, file);
+        });
+      } else if (formData.gallery_images && formData.gallery_images !== '') {
+        // If no new files but we have existing gallery images, send them
+        formDataToSend.append('gallery_images', formData.gallery_images);
+      }
+      
+      // Add editing product ID if updating
+      if (editingProduct) {
+        formDataToSend.append('id', editingProduct.ID || editingProduct.id);
+      }
+      
+      // Debug: Log what's being sent
+      console.log('FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(key, value);
+      }
+      
+      // Debug: Log formData state
+      console.log('formData.pdf_url:', formData.pdf_url);
+      console.log('formData.pdf_file:', formData.pdf_file);
+      console.log('formData.featured_image:', formData.featured_image);
+      console.log('formData.featured_file:', formData.featured_file);
+      console.log('formData.gallery_images:', formData.gallery_images);
+      console.log('formData.gallery_files:', formData.gallery_files);
+      console.log('editingProduct.featured_image:', editingProduct?.featured_image);
+      console.log('formData.featured_preview:', formData.featured_preview);
 
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(body),
+        body: formDataToSend,
       });
 
       const result = await response.json();
@@ -268,6 +604,7 @@ const AdminProducts = () => {
             ? "Product updated successfully"
             : "Product created successfully"
         );
+        cleanupBlobUrls();
         setShowAddModal(false);
         setEditingProduct(null);
                  setFormData({
@@ -282,22 +619,24 @@ const AdminProducts = () => {
            regular_price: 0,
            sale_price: 0,
            metadesc: "",
-           product_category: "",
+           product_category: [],
            product_tag: "",
            "attribute:pa_brands": "",
-           "attribute:pa_colour": "",
-           "attribute:pa_finish": "",
-           "attribute:pa_size": "",
+           "attribute:pa_colour": [],
+           "attribute:pa_finish": [],
+           "attribute:pa_size": [],
            "meta:product_details": "",
            pdf_url: "",
            pdf_preview: "",
            featured_image: "",
            featured_preview: "",
+           featured_file: null,
            gallery_images: "",
            gallery_previews: [],
-           promo: "",
+           gallery_files: [],
+           promo: [],
          });
-        fetchProducts(currentPage, searchTerm, selectedCategory);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
       } else {
         alert("Error: " + result.message);
       }
@@ -317,16 +656,34 @@ const AdminProducts = () => {
     }));
   };
 
+
+  // Function to generate slug from title
   const generateSlug = (title) => {
+    if (!title) return '';
+    
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim('-');
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   };
 
+  // Function to handle auto-generate slug button click
+  const handleGenerateSlug = () => {
+    if (formData.title) {
+      const generatedSlug = generateSlug(formData.title);
+      setFormData((prev) => ({
+        ...prev,
+        slug: generatedSlug,
+      }));
+    }
+  };
+
+
+
   const openAddModal = async () => {
+    cleanupBlobUrls();
     setEditingProduct(null);
     const nextId = await getNextId();
     setFormData({
@@ -341,29 +698,41 @@ const AdminProducts = () => {
       regular_price: 0,
       sale_price: 0,
       metadesc: "",
-      product_category: "",
+      product_category: [],
       product_tag: "",
       "attribute:pa_brands": "",
-      "attribute:pa_colour": "",
-      "attribute:pa_finish": "",
-      "attribute:pa_size": "",
+      "attribute:pa_colour": [],
+      "attribute:pa_finish": [],
+      "attribute:pa_size": [],
       "meta:product_details": "",
       pdf_url: "",
       pdf_preview: "",
+      pdf_file: null,
       featured_image: "",
       featured_preview: "",
+      featured_file: null,
       gallery_images: "",
       gallery_previews: [],
-      promo: "",
+      gallery_files: [],
+      promo: [],
     });
     setShowAddModal(true);
   };
 
   const openEditModal = (product) => {
+    cleanupBlobUrls();
     console.log("Product data:", product);
     console.log("Product ID:", product.id);
     console.log("Product ID (uppercase):", product.ID);
     setEditingProduct(product);
+    closeMenu();
+    
+    // Generate preview URLs for existing gallery images
+    let galleryPreviews = [];
+    if (product.gallery_images) {
+      galleryPreviews = product.gallery_images.split(', ').map(image => image.trim());
+    }
+    
     setFormData({
       id: product.ID || product.id || "",
       title: product.title || "",
@@ -372,43 +741,210 @@ const AdminProducts = () => {
       status: product.status || "publish",
       post_date: product.post_date ? product.post_date.split(' ')[0] : new Date().toISOString().split('T')[0],
       sku: product.sku || "",
-      stock: 0,
-      regular_price: 0,
-      sale_price: 0,
+      stock: product.stock || 0,
+      regular_price: product.regular_price || 0,
+      sale_price: product.sale_price || 0,
       metadesc: product.metadesc || "",
-      product_category: product.product_category || "",
+      product_category: product.product_category ? product.product_category.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
       product_tag: product.product_tag || "",
       "attribute:pa_brands": product["attribute:pa_brands"] || "",
-      "attribute:pa_colour": product["attribute:pa_colour"] || "",
-      "attribute:pa_finish": product["attribute:pa_finish"] || "",
-      "attribute:pa_size": product["attribute:pa_size"] || "",
+      "attribute:pa_colour": product["attribute:pa_colour"] ? product["attribute:pa_colour"].split(',').map(colour => colour.trim()).filter(colour => colour) : [],
+      "attribute:pa_finish": product["attribute:pa_finish"] ? product["attribute:pa_finish"].split(',').map(finish => finish.trim()).filter(finish => finish) : [],
+      "attribute:pa_size": product["attribute:pa_size"] ? product["attribute:pa_size"].split(',').map(size => size.trim()).filter(size => size) : [],
       "meta:product_details": product["meta:product_details"] || "",
       pdf_url: product.pdf_url || "",
-      pdf_preview: "",
+      pdf_preview: product.pdf_url || "",
+      pdf_file: null,
       featured_image: product.featured_image || "",
-      featured_preview: "",
+      featured_preview: product.featured_image || "",
+      featured_file: null,
       gallery_images: product.gallery_images || "",
-      gallery_previews: [],
-      promo: product.promo || "",
+      gallery_previews: galleryPreviews,
+      gallery_files: [],
+      promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
     });
+    console.log("FormData after setting:", formData);
     setShowAddModal(true);
   };
 
   const handleSearch = (value) => {
     setSearchTerm(value);
     setCurrentPage(1);
-    fetchProducts(1, value, selectedCategory);
+    fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish);
   };
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, value);
+    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish);
+  };
+
+  const handleStatusChange = (value) => {
+    setSelectedStatus(value);
+    setCurrentPage(1);
+    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish);
+  };
+
+  const handleColourChange = (value) => {
+    setSelectedColour(value);
+    setCurrentPage(1);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish);
+  };
+
+  const handleFinishChange = (value) => {
+    setSelectedFinish(value);
+    setCurrentPage(1);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchProducts(page, searchTerm, selectedCategory);
+    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+  };
+
+  // Function to open download modal
+  const openDownloadModal = () => {
+    setShowDownloadModal(true);
+    // Initialize with all brands selected
+    setSelectedBrandsForDownload(brands.map(brand => brand.name));
+  };
+
+  // Function to download selected products as CSV
+  const downloadProductsCSV = async () => {
+    try {
+      setLoading(true);
+      
+      // Build brand filter parameter
+      let brandFilter = '';
+      if (selectedBrandsForDownload.length > 0 && selectedBrandsForDownload.length < brands.length) {
+        brandFilter = selectedBrandsForDownload.map(brand => encodeURIComponent(brand)).join(',');
+      }
+      
+      // Fetch products with brand filter
+      let url = "https://stiles.co.za/api/admin-products.php?limit=10000";
+      if (brandFilter) {
+        url += `&brands=${brandFilter}`;
+      }
+      
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+
+      if (data.status === "success" && data.products) {
+        let filteredProducts = data.products;
+        
+        // If we have brand filter, also filter on frontend to ensure accuracy
+        if (selectedBrandsForDownload.length > 0 && selectedBrandsForDownload.length < brands.length) {
+          filteredProducts = data.products.filter(product => 
+            selectedBrandsForDownload.includes(product['attribute:pa_brands'])
+          );
+        }
+        
+        // Define CSV headers based on product structure
+        const headers = [
+          'ID', 'Title', 'Slug', 'Description', 'Status', 'Post Date', 'SKU', 'Stock',
+          'Regular Price', 'Sale Price', 'Meta Description', 'Product Category', 'Product Tag',
+          'Brand', 'Colour', 'Finish', 'Size', 'Product Details', 'PDF URL', 'Featured Image',
+          'Gallery Images', 'Promo'
+        ];
+
+        // Convert products to CSV rows (using tilde as separator)
+        const csvRows = [
+          headers.join('~'),
+          ...filteredProducts.map(product => [
+            product.ID || product.id || '',
+            `"${(product.title || '').replace(/"/g, '""')}"`,
+            product.slug || '',
+            `"${(product.description || '').replace(/"/g, '""')}"`,
+            product.status || '',
+            product.post_date || '',
+            product.sku || '',
+            product.stock || '',
+            product.regular_price || '',
+            product.sale_price || '',
+            `"${(product.metadesc || '').replace(/"/g, '""')}"`,
+            Array.isArray(product.product_category) ? product.product_category.join(', ') : (product.product_category || ''),
+            product.product_tag || '',
+            product['attribute:pa_brands'] || '',
+            Array.isArray(product['attribute:pa_colour']) ? product['attribute:pa_colour'].join(', ') : (product['attribute:pa_colour'] || ''),
+            Array.isArray(product['attribute:pa_finish']) ? product['attribute:pa_finish'].join(', ') : (product['attribute:pa_finish'] || ''),
+            Array.isArray(product['attribute:pa_size']) ? product['attribute:pa_size'].join(', ') : (product['attribute:pa_size'] || ''),
+            `"${(product['meta:product_details'] || '').replace(/"/g, '""')}"`,
+            product.pdf_url || '',
+            product.featured_image || '',
+            product.gallery_images || '',
+            Array.isArray(product.promo) ? product.promo.join(', ') : (product.promo || '')
+          ].join('~'))
+        ];
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          const brandSuffix = selectedBrandsForDownload.length < brands.length ? 
+            `_${selectedBrandsForDownload.length}brands` : 'all';
+          link.setAttribute('href', url);
+          link.setAttribute('download', `products_${brandSuffix}_${new Date().toISOString().split('T')[0]}.csv`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        
+        // Close modal and show Excel instructions after successful download
+        setShowDownloadModal(false);
+        setShowExcelInstructions(true);
+      } else {
+        alert('Error fetching products for CSV download');
+      }
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV file');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle CSV file upload
+  const handleCSVUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      alert('Please select a valid CSV file');
+      return;
+    }
+
+    try {
+      setCsvUploading(true);
+      const formData = new FormData();
+      formData.append('csv_file', file);
+
+      const response = await fetch('https://stiles.co.za/api/upload-products-csv.php', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        alert(`CSV upload successful!\nUpdated: ${result.updated} products\nInserted: ${result.inserted} new products`);
+        // Refresh the products list
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+      } else {
+        alert(`Error uploading CSV: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      alert('Error uploading CSV file');
+    } finally {
+      setCsvUploading(false);
+      // Reset the file input
+      event.target.value = '';
+    }
   };
 
   if (loading) {
@@ -420,7 +956,7 @@ const AdminProducts = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -429,73 +965,242 @@ const AdminProducts = () => {
             Manage your product catalog and inventory.
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-        >
-          Add Product
-        </button>
+        <div className="flex items-center space-x-3">
+          {/* CSV Download Button */}
+          <button
+            onClick={openDownloadModal}
+            disabled={loading}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download CSV
+          </button>
+          
+          {/* CSV Upload Button */}
+          <div className="relative opacity-50 cursor-not-allowed">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCSVUpload}
+              className="hidden"
+              disabled
+              id="csv-upload"
+              // disabled={csvUploading}
+            />
+            <label
+              htmlFor="csv-upload"
+              className={`bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                csvUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              {csvUploading ? 'Uploading...' : 'Upload CSV'}
+            </label>
+          </div>
+          
+          <button
+            onClick={openAddModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search Products
-            </label>
-             <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Search by name or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-                 onBlur={() => handleSearch(searchTerm)}
-                 onKeyPress={(e) => {
-                   if (e.key === 'Enter') {
-                     handleSearch(searchTerm);
-                   }
-                 }}
-                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-               />
-               <button
-                 onClick={() => handleSearch(searchTerm)}
-                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-               >
-                 Search
-               </button>
-             </div>
+        <div className="space-y-4">
+          {/* First row - Search and Brand */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Search Products
+              </label>
+               <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Search by name or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                   onBlur={() => handleSearch(searchTerm)}
+                   onKeyPress={(e) => {
+                     if (e.key === 'Enter') {
+                       handleSearch(searchTerm);
+                     }
+                   }}
+                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 />
+                 <button
+                   onClick={() => handleSearch(searchTerm)}
+                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 >
+                   Search
+                 </button>
+               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Brand
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Brands</option>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={brand.name}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("all");
+                  setSelectedStatus("all");
+                  setSelectedColour("all");
+                  setSelectedFinish("all");
+                  setCurrentPage(1);
+                  fetchProducts(1, "", "all", "all", "all", "all");
+                }}
+                className="w-full px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
+              >
+                Reset Filters
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Brand
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Brands</option>
-              {brands.map((brand) => (
-                <option key={brand.id} value={brand.name}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
+          
+          {/* Second row - Status, Colour, and Finish */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                value={selectedStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Statuses</option>
+                <option value="publish">Published</option>
+                <option value="private">Private</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Colour
+              </label>
+              <select
+                value={selectedColour}
+                onChange={(e) => handleColourChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Colours</option>
+                {colours.map((colour) => (
+                  <option key={colour.id} value={colour.name}>
+                    {colour.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Finish
+              </label>
+              <select
+                value={selectedFinish}
+                onChange={(e) => handleFinishChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Finishes</option>
+                {finishes.map((finish) => (
+                  <option key={finish.id} value={finish.name}>
+                    {finish.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex items-end ml-auto">
-            <span className="text-sm text-gray-600">
-              Showing {products.length} of {pagination.total_products} products
-            </span>
+          
+          {/* Third row - Product count and active filters */}
+          <div className="border-t pt-4">
+            <div className="text-sm text-gray-600">
+              <div className="font-medium">Showing {products.length} of {pagination.total_products} products</div>
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all") && (
+                <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
+                  <span className="font-medium">Active Filters:</span>
+                  {searchTerm && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                      Search: "{searchTerm}"
+                    </span>
+                  )}
+                  {selectedCategory !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                      Brand: {selectedCategory}
+                    </span>
+                  )}
+                  {selectedStatus !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                      Status: {selectedStatus}
+                    </span>
+                  )}
+                  {selectedColour !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                      Colour: {selectedColour}
+                    </span>
+                  )}
+                  {selectedFinish !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-pink-100 text-pink-800">
+                      Finish: {selectedFinish}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Bulk Actions Toolbar */}
+      {selectedProducts.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-blue-900">
+                {selectedProducts.length} product{selectedProducts.length !== 1 ? 's' : ''} selected
+              </span>
+              <button
+                onClick={() => setSelectedProducts([])}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Clear selection
+              </button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleBulkDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Products Grid */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Product List</h3>
-        </div>
         
         {filteredProducts.length === 0 ? (
           <div className="px-6 py-8 text-center">
@@ -503,25 +1208,34 @@ const AdminProducts = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
+            <button className='px-6 py-3 border-b border-gray-200 bg-purple-400 text-white w-full my-3 mx-auto text-center' onClick={() => syncIqPrices()}>Sync IQ Prices</button>
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[40px]">
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                     Product
                   </th>
-                  <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
                     Brand
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Colour
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                    SKU
                   </th>
-                  <th className="hidden sm:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Finish
+                  <th className="hidden sm:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                    Price (IQ)
                   </th>
-                  <th className="hidden lg:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
                     Status
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">
                     Actions
                   </th>
                 </tr>
@@ -529,13 +1243,21 @@ const AdminProducts = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredProducts.map((product) => (
                   <tr key={product.ID || product.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-4">
-                      <div className="flex items-center">
+                    <td className="px-2 sm:px-3 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.ID || product.id)}
+                        onChange={(e) => handleBulkSelect(product.ID || product.id, e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="px-2 sm:px-3 py-4">
+                      <div className="flex items-center min-w-0">
                         <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
                           <img
                             className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover"
                             src={
-                              product.featured_image || "/images/product_ph.png"
+                              product.featured_image + "?v=" + new Date().getTime()
                             }
                             alt={product.title}
                             onError={(e) => {
@@ -544,49 +1266,133 @@ const AdminProducts = () => {
                           />
                         </div>
                         <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                          <div className="text-sm font-medium text-gray-900 truncate">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {product.title}
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-500 truncate">
+                          <div className="text-xs text-gray-500 truncate">
                             {product.slug}
+                          </div>
+                          {/* Show additional info on mobile */}
+                          <div className="md:hidden mt-1 space-y-1">
+                            <div className="text-xs text-gray-600">
+                              <span className="font-medium">Brand:</span> {product["attribute:pa_brands"] || "N/A"}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <span className="font-medium">SKU:</span> {product.sku || "N/A"}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <span className="font-medium">Price:</span> {product.iq_price ? `R${product.iq_price}` : "N/A"}
+                            </div>
+                            <div className="text-xs">
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  product.status === "publish"
+                                    ? "bg-green-100 text-green-800"
+                                    : product.status === "private"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {product.status === "publish" 
+                                  ? "Published" 
+                                  : product.status === "private"
+                                  ? "Private"
+                                  : "Draft"
+                                }
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="hidden md:table-cell px-3 py-4 text-sm text-gray-900">
-                      {product["attribute:pa_brands"] || "N/A"}
+                    <td className="hidden md:table-cell px-2 sm:px-3 py-4 text-sm text-gray-900">
+                      <div className="truncate" title={product["attribute:pa_brands"] || "N/A"}>
+                        {product["attribute:pa_brands"] || "N/A"}
+                      </div>
                     </td>
-                    <td className="px-3 py-4 text-sm text-gray-900">
-                      {product["attribute:pa_colour"] || "N/A"}
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900">
+                      <div className="truncate" title={product.sku || "N/A"}>
+                        {product.sku || "N/A"}
+                      </div>
                     </td>
-                    <td className="hidden sm:table-cell px-3 py-4 text-sm text-gray-900">
-                      {product["attribute:pa_finish"] || "N/A"}
+                    <td className="hidden sm:table-cell px-2 sm:px-3 py-4 text-sm text-gray-900">
+                      <div className="truncate" title={product.iq_price ? formatCurrency(product.iq_price) : "N/A"}>
+                        {product.iq_price ? formatCurrency(product.iq_price) : "N/A"}
+                      </div>
                     </td>
-                    <td className="hidden lg:table-cell px-3 py-4">
+                    <td className="hidden lg:table-cell px-2 sm:px-3 py-4">
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded-full ${
                           product.status === "publish"
                             ? "bg-green-100 text-green-800"
+                            : product.status === "private"
+                            ? "bg-gray-100 text-gray-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {product.status === "publish" ? "Published" : "Draft"}
+                        {product.status === "publish" 
+                          ? "Published" 
+                          : product.status === "private"
+                          ? "Private"
+                          : "Draft"
+                        }
                       </span>
                     </td>
-                    <td className="px-3 py-4 text-sm font-medium">
-                      <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
+                    <td className="px-2 sm:px-3 py-4 text-sm font-medium">
+                      <div className="relative">
                         <button
-                          onClick={() => openEditModal(product)}
-                          className="text-blue-600 hover:text-blue-900 text-xs sm:text-sm"
+                          onClick={() => toggleMenu(product.ID || product.id)}
+                          className="menu-trigger p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                          title="Actions"
                         >
-                          Edit
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                          </svg>
                         </button>
-                        <button
-                          onClick={() => handleDeleteProduct(product.ID || product.id)}
-                          className="text-red-600 hover:text-red-900 text-xs sm:text-sm"
-                        >
-                          Delete
-                        </button>
+                        
+                        {openMenuId === (product.ID || product.id) && (
+                          <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handleQuickView(product)}
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              >
+                                <svg className="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Quick View
+                              </button>
+                              <button
+                                onClick={() => handleEditProduct(product)}
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              >
+                                <svg className="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit Product
+                              </button>
+                              <button
+                                onClick={() => handleDuplicateProduct(product)}
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              >
+                                <svg className="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Duplicate Product
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(product.ID || product.id)}
+                                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                <svg className="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete Product
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -664,7 +1470,7 @@ const AdminProducts = () => {
 
       {/* Add/Edit Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ marginTop: '0px !important' }}>
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">
@@ -672,6 +1478,7 @@ const AdminProducts = () => {
               </h3>
               <button
                 onClick={() => {
+                  cleanupBlobUrls();
                   setShowAddModal(false);
                   setEditingProduct(null);
                 }}
@@ -685,19 +1492,7 @@ const AdminProducts = () => {
                <form onSubmit={handleSubmit} className="space-y-4">
                                    {/* Basic Information */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Product ID
-                      </label>
-                      <input
-                        type="text"
-                        name="id"
-                        value={formData.id}
-                        readOnly
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
-                      />
-                    </div>
-                    <div>
+                    <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Product Title *
                       </label>
@@ -705,34 +1500,41 @@ const AdminProducts = () => {
                         type="text"
                         name="title"
                         value={formData.title}
-                        onChange={(e) => {
-                          handleInputChange(e);
-                          // Auto-generate slug from title
-                          setFormData(prev => ({
-                            ...prev,
-                            slug: generateSlug(e.target.value)
-                          }));
-                        }}
+                        onChange={handleInputChange}
                         required
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Slug
                     </label>
-                    <input
-                      type="text"
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
                         name="slug"
                         value={formData.slug}
                         onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleGenerateSlug}
+                        disabled={!formData.title}
+                        className="px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-1"
+                        title="Generate slug from title"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Auto
+                      </button>
+                    </div>
                   </div>
-                  <div>
+                  <div className="col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Status
                     </label>
@@ -740,7 +1542,7 @@ const AdminProducts = () => {
                         name="status"
                         value={formData.status}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="draft">Draft</option>
                         <option value="private">Private</option>
@@ -766,6 +1568,28 @@ const AdminProducts = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       SKU
                     </label>
+                    {/* IQ Status Badge */}
+                    {formData.sku && (
+                      <div className="mb-2">
+                        {checkingIq ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Checking IQ status...
+                          </span>
+                        ) : iqStatus === true ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ✓ Found in IQ table
+                          </span>
+                        ) : iqStatus === false ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            ✗ Not found in IQ table
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
                     <input
                       type="text"
                       name="sku"
@@ -774,6 +1598,7 @@ const AdminProducts = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+
 
                                    {/* Description */}
                   <div>
@@ -885,13 +1710,34 @@ const AdminProducts = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                        Product Category
                     </label>
-                     <textarea
+                    <Select
+                      name="product_category"
+                      isMulti
+                      value={formData.product_category.map(cat => ({
+                        value: cat,
+                        label: cat
+                      }))}
+                      onChange={(selectedOptions) => {
+                        const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                        setFormData(prev => ({
+                          ...prev,
+                          product_category: values
+                        }));
+                      }}
+                      options={categories.map(category => ({
+                        value: category.name,
+                        label: category.name
+                      }))}
+                      placeholder="Select categories..."
+                      isClearable
+                    />
+                     {/* <textarea
                        rows={2}
                        name="product_category"
                        value={formData.product_category}
                        onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    /> */}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -931,13 +1777,26 @@ const AdminProducts = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Colour
                       </label>
-                      <input
-                        type="text"
+                      <Select
                         name="attribute:pa_colour"
-                        value={formData["attribute:pa_colour"]}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter colour name"
+                        isMulti
+                        value={formData["attribute:pa_colour"].map(colour => ({
+                          value: colour,
+                          label: colour
+                        }))}
+                        onChange={(selectedOptions) => {
+                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          setFormData(prev => ({
+                            ...prev,
+                            "attribute:pa_colour": values
+                          }));
+                        }}
+                        options={colours.map(colour => ({
+                          value: colour.name,
+                          label: colour.name
+                        }))}
+                        placeholder="Select colours..."
+                        isClearable
                       />
                     </div>
                   </div>
@@ -947,26 +1806,52 @@ const AdminProducts = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Finish
                       </label>
-                      <input
-                        type="text"
+                      <Select
                         name="attribute:pa_finish"
-                        value={formData["attribute:pa_finish"]}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter finish type"
+                        isMulti
+                        value={formData["attribute:pa_finish"].map(finish => ({
+                          value: finish,
+                          label: finish
+                        }))}
+                        onChange={(selectedOptions) => {
+                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          setFormData(prev => ({
+                            ...prev,
+                            "attribute:pa_finish": values
+                          }));
+                        }}
+                        options={finishes.map(finish => ({
+                          value: finish.name,
+                          label: finish.name
+                        }))}
+                        placeholder="Select finishes..."
+                        isClearable
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Size
                       </label>
-                      <input
-                        type="text"
+                      <Select
                         name="attribute:pa_size"
-                        value={formData["attribute:pa_size"]}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="e.g., 1200 x 1200"
+                        isMulti
+                        value={formData["attribute:pa_size"].map(size => ({
+                          value: size,
+                          label: size
+                        }))}
+                        onChange={(selectedOptions) => {
+                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          setFormData(prev => ({
+                            ...prev,
+                            "attribute:pa_size": values
+                          }));
+                        }}
+                        options={sizes.map(size => ({
+                          value: size.name,
+                          label: size.name
+                        }))}
+                        placeholder="Select sizes..."
+                        isClearable
                       />
                     </div>
                   </div>
@@ -1075,10 +1960,15 @@ const AdminProducts = () => {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
+                            // Clean up previous blob URL if it exists
+                            if (formData.pdf_preview && formData.pdf_preview.startsWith('blob:')) {
+                              URL.revokeObjectURL(formData.pdf_preview);
+                            }
                             setFormData(prev => ({
                               ...prev,
                               pdf_url: file.name,
-                              pdf_preview: URL.createObjectURL(file)
+                              pdf_preview: URL.createObjectURL(file),
+                              pdf_file: file
                             }));
                           }
                         }}
@@ -1133,10 +2023,15 @@ const AdminProducts = () => {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
+                            // Clean up previous blob URL if it exists
+                            if (formData.featured_preview && formData.featured_preview.startsWith('blob:')) {
+                              URL.revokeObjectURL(formData.featured_preview);
+                            }
                             setFormData(prev => ({
                               ...prev,
                               featured_image: file.name,
-                              featured_preview: URL.createObjectURL(file)
+                              featured_preview: URL.createObjectURL(file),
+                              featured_file: file
                             }));
                           }
                         }}
@@ -1178,18 +2073,27 @@ const AdminProducts = () => {
                       onChange={(e) => {
                         const files = Array.from(e.target.files);
                         if (files.length > 0) {
+                          // Clean up previous blob URLs if they exist
+                          if (formData.gallery_previews && formData.gallery_previews.length > 0) {
+                            formData.gallery_previews.forEach(preview => {
+                              if (preview && preview.startsWith('blob:')) {
+                                URL.revokeObjectURL(preview);
+                              }
+                            });
+                          }
                           const previews = files.map(file => URL.createObjectURL(file));
                           setFormData(prev => ({
                             ...prev,
                             gallery_images: files.map(f => f.name).join(', '),
-                            gallery_previews: previews
+                            gallery_previews: previews,
+                            gallery_files: files
                           }));
                         }
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {/* Gallery Images Preview */}
-                    {(formData.gallery_previews || (editingProduct && editingProduct.gallery_images)) && (
+                    {((formData.gallery_previews && formData.gallery_previews.length > 0) || (editingProduct && editingProduct.gallery_images)) && (
                       <div className="mt-2 p-3 bg-gray-50 rounded-md">
                         <div className="flex items-center space-x-2 mb-2">
                           <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -1197,32 +2101,35 @@ const AdminProducts = () => {
                           </svg>
                           <span className="text-sm text-gray-700">Gallery Images</span>
                         </div>
-                                                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1">
-                           {formData.gallery_previews ? (
-                             formData.gallery_previews.map((preview, index) => (
-                               <div key={index} className="relative">
-                                 <img
-                                   src={preview}
-                                   alt={`Gallery ${index + 1}`}
-                                   className="w-full h-12 object-cover rounded border"
-                                 />
-                               </div>
-                             ))
-                           ) : editingProduct && editingProduct.gallery_images ? (
-                             editingProduct.gallery_images.split(', ').map((image, index) => (
-                               <div key={index} className="relative">
-                                 <img
-                                   src={image.trim()}
-                                   alt={`Gallery ${index + 1}`}
-                                   className="w-full h-12 object-cover rounded border"
-                                   onError={(e) => {
-                                     e.target.src = "/images/product_ph.png";
-                                   }}
-                                 />
-                               </div>
-                             ))
-                           ) : null}
-                         </div>
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1">
+                          {formData.gallery_previews && formData.gallery_previews.length > 0 ? (
+                            formData.gallery_previews.map((preview, index) => (
+                              <div key={index} className="relative">
+                                <img
+                                  src={preview}
+                                  alt={`Gallery ${index + 1}`}
+                                  className="w-full h-12 object-cover rounded border"
+                                  onError={(e) => {
+                                    e.target.src = "/images/product_ph.png";
+                                  }}
+                                />
+                              </div>
+                            ))
+                          ) : editingProduct && editingProduct.gallery_images ? (
+                            editingProduct.gallery_images.split(', ').map((image, index) => (
+                              <div key={index} className="relative">
+                                <img
+                                  src={image.trim() + "?v=" + new Date().getTime()}
+                                  alt={`Gallery ${index + 1}`}
+                                  className="w-full h-12 object-cover rounded border"
+                                  onError={(e) => {
+                                    e.target.src = "/images/product_ph.png";
+                                  }}
+                                />
+                              </div>
+                            ))
+                          ) : null}
+                        </div>
                       </div>
                     )}
                 </div>
@@ -1231,12 +2138,26 @@ const AdminProducts = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                      Promo
                   </label>
-                  <input
-                     type="text"
-                     name="promo"
-                     value={formData.promo}
-                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <Select
+                    name="promo"
+                    isMulti
+                    value={formData.promo.map(promo => ({
+                      value: promo,
+                      label: promo
+                    }))}
+                    onChange={(selectedOptions) => {
+                      const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                      setFormData(prev => ({
+                        ...prev,
+                        promo: values
+                      }));
+                    }}
+                    options={promos.map(promo => ({
+                      value: promo.name,
+                      label: promo.name
+                    }))}
+                    placeholder="Select promos..."
+                    isClearable
                   />
                 </div>
                 
@@ -1244,6 +2165,7 @@ const AdminProducts = () => {
                   <button
                     type="button"
                     onClick={() => {
+                       cleanupBlobUrls();
                        setShowAddModal(false);
                        setEditingProduct(null);
                     }}
@@ -1251,6 +2173,21 @@ const AdminProducts = () => {
                   >
                     Cancel
                   </button>
+                  {editingProduct && formData.slug && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const productUrl = `${window.location.origin}/product/${formData.slug}`;
+                        window.open(productUrl, '_blank');
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Product
+                    </button>
+                  )}
                   <button
                     type="submit"
                      disabled={submitting}
@@ -1264,6 +2201,412 @@ const AdminProducts = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Brand Selection Modal for CSV Download */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Select Brands to Download
+              </h3>
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-4">
+                  Choose which brands you want to include in the CSV download:
+                </p>
+                
+                {/* Select All / Deselect All buttons */}
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setSelectedBrandsForDownload(brands.map(brand => brand.name))}
+                    className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={() => setSelectedBrandsForDownload([])}
+                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                  >
+                    Deselect All
+                  </button>
+                </div>
+                
+                {/* Brand checkboxes */}
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3">
+                  {brands.map((brand) => (
+                    <label key={brand.id} className="flex items-center space-x-2 py-1 hover:bg-gray-50 rounded px-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedBrandsForDownload.includes(brand.name)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedBrandsForDownload([...selectedBrandsForDownload, brand.name]);
+                          } else {
+                            setSelectedBrandsForDownload(selectedBrandsForDownload.filter(b => b !== brand.name));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{brand.name}</span>
+                    </label>
+                  ))}
+                </div>
+                
+                <div className="mt-3 text-xs text-gray-500">
+                  {selectedBrandsForDownload.length} of {brands.length} brands selected
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDownloadModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={downloadProductsCSV}
+                  disabled={selectedBrandsForDownload.length === 0 || loading}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download CSV
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Excel Instructions Modal */}
+      {showExcelInstructions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-lg w-full">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                How to Open CSV in Excel
+              </h3>
+              <button
+                onClick={() => setShowExcelInstructions(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-4">
+                  Your CSV file uses tildes (~) as separators to handle commas and semicolons in your data. 
+                  To open it correctly in Excel:
+                </p>
+                
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Open Excel</p>
+                      <p className="text-gray-600">Start Microsoft Excel</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Go to Data Tab</p>
+                      <p className="text-gray-600">Click on the "Data" tab in the ribbon</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Click "From Text/CSV"</p>
+                      <p className="text-gray-600">In the "Get Data" section, click "From Text/CSV"</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Select Your File</p>
+                      <p className="text-gray-600">Browse and select the downloaded CSV file</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">5</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Set Delimiter</p>
+                      <p className="text-gray-600">In the preview window, set the delimiter to <span className="font-mono bg-gray-100 px-1 rounded">~</span> (tilde)</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">6</span>
+                    <div>
+                      <p className="font-medium text-gray-900">Load Data</p>
+                      <p className="text-gray-600">Click "Load" to import the data into Excel</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <div className="flex">
+                    <svg className="w-5 h-5 text-yellow-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-800">
+                        <strong>Important:</strong> Don't just double-click the file to open it. Use the "From Text/CSV" method above to ensure proper formatting.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex">
+                    <svg className="w-5 h-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-blue-800">
+                        <strong>Excel Save Options:</strong> Try File → Save As → "Unicode Text" or "Text (MS-DOS)" → Change extension to .csv. If these don't work, use the text editor method below.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                  <div className="flex">
+                    <svg className="w-5 h-5 text-green-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-green-800">
+                        <strong>Recommended Method:</strong> Use a text editor like Notepad++ or VS Code to edit the CSV file directly. This preserves the tilde separators perfectly.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-md">
+                  <div className="flex">
+                    <svg className="w-5 h-5 text-purple-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-purple-800">
+                        <strong>Step-by-Step Text Editor Method:</strong><br/>
+                        1. Download the CSV file<br/>
+                        2. Open with Notepad++ or VS Code<br/>
+                        3. Make your edits directly in the text editor<br/>
+                        4. Save the file (Ctrl+S)<br/>
+                        5. Upload the modified file
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowExcelInstructions(false)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick View Modal */}
+      {showQuickView && quickViewProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Quick View - {quickViewProduct.title}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowQuickView(false);
+                  setQuickViewProduct(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Product Images */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Product Images</h4>
+                  <div className="space-y-4">
+                    {/* Featured Image */}
+                    {quickViewProduct.featured_image && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                        <img
+                          src={quickViewProduct.featured_image + "?v=" + new Date().getTime()}
+                          alt={quickViewProduct.title}
+                          className="w-full h-64 object-cover rounded-md border"
+                          onError={(e) => {
+                            e.target.src = "/images/product_ph.png";
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Gallery Images */}
+                    {quickViewProduct.gallery_images && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Gallery Images</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {quickViewProduct.gallery_images.split(', ').map((image, index) => (
+                            <img
+                              key={index}
+                              src={image.trim() + "?v=" + new Date().getTime()}
+                              alt={`Gallery ${index + 1}`}
+                              className="w-full h-20 object-cover rounded border"
+                              onError={(e) => {
+                                e.target.src = "/images/product_ph.png";
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product Details */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Product Details</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Title</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.title}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Slug</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.slug}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">SKU</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.sku || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Status</label>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          quickViewProduct.status === "publish"
+                            ? "bg-green-100 text-green-800"
+                            : quickViewProduct.status === "private"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {quickViewProduct.status === "publish" 
+                          ? "Published" 
+                          : quickViewProduct.status === "private"
+                          ? "Private"
+                          : "Draft"
+                        }
+                      </span>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Brand</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_brands"] || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Colour</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_colour"] || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Finish</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_finish"] || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Size</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_size"] || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Categories</label>
+                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.product_category || "N/A"}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <div 
+                        className="mt-1 text-sm text-gray-900 max-h-32 overflow-y-auto"
+                        dangerouslySetInnerHTML={{ __html: quickViewProduct.description || "No description" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowQuickView(false);
+                    setQuickViewProduct(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    setShowQuickView(false);
+                    setQuickViewProduct(null);
+                    handleEditProduct(quickViewProduct);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                >
+                  Edit Product
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import ButtonStiles from '../components/ButtonStiles'
 import { IoIosArrowDown } from "react-icons/io";
 import ProductCard from '../components/ProductCard';
 import { BlurFade } from "../components/ui/blur-fade" // Updated import statement
+import { Helmet } from 'react-helmet-async';
 
 import { Input, Button } from "@material-tailwind/react";
 
@@ -126,6 +127,20 @@ const Home = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Tile Retailer | Find The Best Deals On Tiles | Stiles</title>
+        <meta name="description" content="Stiles is a top tile retailer in South Africa that adheres to high industry standards in both quality & trends. We sell tiles & sanitaryware." />
+        <meta property="og:image" content="/images/favi.webp" />
+        <meta property="og:title" content="Tile Retailer | Find The Best Deals On Tiles | Stiles" />
+        <meta property="og:description" content="Stiles is a top tile retailer in South Africa that adheres to high industry standards in both quality & trends. We sell tiles & sanitaryware." />
+        <meta property="og:url" content="https://stiles.co.za/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Stiles" />
+        <meta property="og:locale" content="en_ZA" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Tile Retailer | Find The Best Deals On Tiles | Stiles" />
+      </Helmet>
       <main className='w-full flex flex-col justify-start items-start gap-14 lg:gap-28 pb-14 lg:pb-28 '>
         <Hero content={homeContent} />
         <WhoWeAre content={homeContent} />

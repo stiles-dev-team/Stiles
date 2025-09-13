@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react'
 import LayoutDark from '../layout/LayoutDark'
 import { Card, Input, Select, Option, Checkbox, Textarea } from "@material-tailwind/react"
 import { RiHandbagLine } from "react-icons/ri"
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { formatCurrency } from '../utils/pricingUtils';
 
 const Checkout = () => {
   const { isAuthenticated, token, user } = useAuth()
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState([])
   const [orderItems, setOrderItems] = useState([])
+  const [orderTotal, setOrderTotal] = useState(0)
   const [locations, setLocations] = useState([])
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -78,10 +80,14 @@ const Checkout = () => {
   }, [isAuthenticated, token, user, navigate])
 
   const calculateSubtotal = (item) => {
-    return item.regular_price * (item.quantity || 1)
+    return item.price * (item.quantity || 1)
   }
 
   const calculateTotal = () => {
+    // Use preserved order total if we're on the success step (step 4)
+    if (step === 4 && orderTotal > 0) {
+      return orderTotal
+    }
     return cartItems.reduce((total, item) => total + calculateSubtotal(item), 0)
   }
 
@@ -185,6 +191,10 @@ const Checkout = () => {
         // Save current cart items to orderItems state before clearing
         setOrderItems(cartItems);
         
+        // Preserve the order total before clearing cart
+        const currentTotal = calculateTotal();
+        setOrderTotal(currentTotal);
+        
         // Log cart items for debugging
         console.log('Raw cart items:', JSON.stringify(cartItems, null, 2));
 
@@ -198,7 +208,7 @@ const Checkout = () => {
             id: productId, // Use the extracted product ID
             title: item.title || item.name,
             images: item.images || [],
-            regular_price: item.regular_price || item.price,
+            regular_price: item.price || item.price,
             quantity: item.quantity || 1,
             sku: item.sku || ''
           };
@@ -457,7 +467,7 @@ const Checkout = () => {
                       <h3 className='font-medium'>{item.title}</h3>
                       <p className='text-sm text-gray-600'>{item.sku}</p>
                     </div>
-                    <p className='font-medium'>R{calculateSubtotal(item)}.00</p>
+                    <p className='font-medium'>{formatCurrency(calculateSubtotal(item))}</p>
                   </div>
                 ))}
                 
@@ -472,7 +482,7 @@ const Checkout = () => {
                   </div> */}
                   <div className='flex justify-between pt-0'>
                     <p className='font-bold'>Total</p>
-                    <p className='font-bold'>R{calculateTotal()}.00</p>
+                    <p className='font-bold'>{formatCurrency(calculateTotal())}</p>
                   </div>
                 </div>
               </div>

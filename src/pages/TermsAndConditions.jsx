@@ -20,7 +20,7 @@ const TermsAndConditions = () => {
         <ul className="list-disc list-inside flex flex-col gap-3">
           <li>All prices are exclusive of VAT (unless otherwise stated)</li>
           <li>
-            Prices quoted are on current stock items &amp; valid for 5 (five
+            Prices quoted are on current stock items & valid for 5 (five
             days)
           </li>
           <li>Pro-forma invoices are payable on presentation</li>
@@ -86,7 +86,7 @@ const TermsAndConditions = () => {
             it is due
           </li>
           <li>The goods remain the property of Stiles until paid in full</li>
-          <li>&amp; O.E.</li>
+          <li>& O.E.</li>
         </ul>
         <p>
           <strong>Returns</strong>

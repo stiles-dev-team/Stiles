@@ -91,4 +91,34 @@ export const formatPriceWithUnit = (price, unit) => {
   if (isNaN(numericPrice)) return '';
   
   return `R${numericPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+};
+
+/**
+ * Formats a currency value with proper comma and decimal formatting
+ * @param {number|string} amount - The amount to format
+ * @returns {string} - Formatted currency string (e.g., "R1,234.56")
+ */
+export const formatCurrency = (amount) => {
+  if (!amount && amount !== 0) return 'R0.00';
+  
+  const numericAmount = parseFloat(amount);
+  if (isNaN(numericAmount)) return 'R0.00';
+  
+  return `R${numericAmount.toLocaleString('en-ZA', { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  })}`;
+};
+
+/**
+ * Decodes HTML entities in a string
+ * @param {string} str - The string containing HTML entities
+ * @returns {string} - The decoded string
+ */
+export const decodeHtmlEntities = (str) => {
+  if (!str) return '';
+  
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = str;
+  return textarea.value;
 }; 

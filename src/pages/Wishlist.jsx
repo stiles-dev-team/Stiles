@@ -3,14 +3,25 @@ import Layout from '../layout/Layout'
 import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 const Wishlist = () => {
     return (
         <Layout>
             <Helmet>
-                <title>Wishlist | Stiles</title>
-                <meta name="description" content="Your wishlist on Stiles" />
+                <title>My Wishlist | Save Your Favorite Tiles | Stiles</title>
+                <meta name="description" content="View and manage your saved tile wishlist at Stiles. Save your favorite tiles and easily add them to your cart when ready to purchase." />
+                <meta name="keywords" content="wishlist, saved tiles, favorite tiles, Stiles, tile retailer, South Africa" />
+                <meta property="og:title" content="My Wishlist | Save Your Favorite Tiles | Stiles" />
+                <meta property="og:description" content="View and manage your saved tile wishlist at Stiles. Save your favorite tiles and easily add them to your cart when ready to purchase." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://stiles.co.za/wishlist" />
+                <meta property="og:site_name" content="Stiles" />
+                <meta property="og:locale" content="en_ZA" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="My Wishlist | Save Your Favorite Tiles | Stiles" />
+                <meta name="twitter:description" content="View and manage your saved tile wishlist at Stiles. Save your favorite tiles and easily add them to your cart when ready to purchase." />
+                <link rel="canonical" href="https://stiles.co.za/wishlist" />
             </Helmet>
           <main className='w-full flex flex-col justify-start items-start gap-10 lg:gap-20 pb-10 lg:pb-20 '>
             <Hero />

@@ -354,7 +354,7 @@ const AdminContent = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -660,7 +660,7 @@ const AdminContent = () => {
                 </div>
                 
                 {/* Categories Management */}
-                <div className="space-y-6">
+                <div className="space-y-0 pt-6">
                   <h4 className="text-md font-semibold text-gray-800">Categories</h4>
                   {homeContent.shopCategory.categories.map((category, index) => (
                     <div key={category.id} className="border border-gray-200 rounded-lg p-4 bg-white">
@@ -812,7 +812,7 @@ const AdminContent = () => {
           )}
 
           {activeTab === "blogs" && (
-            <div className="space-y-6">
+            <div className="space-y-0 pt-6">
               {/* Blog Management Header */}
               <div className="flex justify-between items-center">
                 <div>

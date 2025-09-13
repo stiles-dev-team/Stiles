@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Set headers
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // Get JSON data from request body
@@ -60,6 +60,63 @@ try {
             ]);
             break;
 
+        case 'POST':
+            // Create new user
+            if (!isset($data['first_name']) || !isset($data['last_name']) || 
+                !isset($data['email']) || !isset($data['password'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'First name, last name, email, and password are required']);
+                exit();
+            }
+
+            // Check if email already exists
+            $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+            $checkStmt->execute([$data['email']]);
+            if ($checkStmt->fetch()) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Email already exists']);
+                exit();
+            }
+
+            // Hash the password
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+
+            // Insert new user
+            $insertStmt = $pdo->prepare("
+                INSERT INTO users (
+                    first_name, 
+                    last_name, 
+                    email, 
+                    phone, 
+                    password, 
+                    is_admin, 
+                    is_active, 
+                    created_at, 
+                    updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            ");
+
+            $result = $insertStmt->execute([
+                $data['first_name'],
+                $data['last_name'],
+                $data['email'],
+                $data['phone'] ?? null,
+                $hashedPassword,
+                ($data['role'] ?? 'customer') === 'admin' ? 1 : 0,
+                ($data['status'] ?? 'active') === 'active' ? 1 : 0
+            ]);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'User created successfully'
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to create user']);
+            }
+            break;
+
         case 'PUT':
             // Update user role or status
             if (!isset($data['user_id']) || (!isset($data['role']) && !isset($data['status']))) {
@@ -104,6 +161,40 @@ try {
             } else {
                 http_response_code(500);
                 echo json_encode(['error' => 'Failed to update user']);
+            }
+            break;
+
+        case 'DELETE':
+            // Delete user
+            if (!isset($data['user_id'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'User ID is required']);
+                exit();
+            }
+
+            $userId = $data['user_id'];
+
+            // Check if user exists
+            $checkStmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+            $checkStmt->execute([$userId]);
+            if (!$checkStmt->fetch()) {
+                http_response_code(404);
+                echo json_encode(['error' => 'User not found']);
+                exit();
+            }
+
+            // Delete the user
+            $deleteStmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+            $result = $deleteStmt->execute([$userId]);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'User deleted successfully'
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to delete user']);
             }
             break;
 

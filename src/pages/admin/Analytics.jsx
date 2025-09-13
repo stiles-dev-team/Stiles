@@ -91,7 +91,7 @@ const AdminAnalytics = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>

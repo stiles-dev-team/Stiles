@@ -170,7 +170,7 @@ function sendOrderEmail($orderData, $recipientEmail) {
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
             .header { background-color: #1a1a1a; color: white; padding: 20px; text-align: center; }
             .order-details { background-color: #f9f9f9; padding: 20px; margin: 20px 0; }
-            .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+            .item { border-bottom: 1px solid #eee; padding: 4px 0; }
             .total { text-align: right; font-weight: bold; margin-top: 20px; }
             .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
         </style>
@@ -186,7 +186,12 @@ function sendOrderEmail($orderData, $recipientEmail) {
                 <h2>Order #' . $orderData['id'] . '</h2>
                 <p>Your order has been requested, a style consultant will be in touch with you shortly. For queries, send us a mail at <a href="mailto:websales@stiles.co.za">websales@stiles.co.za</a></p>
                 <p><strong>Order Date:</strong> ' . date('F j, Y', strtotime($orderData['created_at'])) . '</p>
-                
+                <p><strong>First Name:</strong> ' . $orderData['shippingAddress']['firstName'] . '</p>
+                <p><strong>Last Name:</strong> ' . $orderData['shippingAddress']['lastName'] . '</p>
+                <p><strong>Company Name:</strong> ' . $orderData['shippingAddress']['companyName'] . '</p>
+                <p><strong>Email:</strong> ' . $orderData['shippingAddress']['email'] . '</p>
+                <p><strong>Phone:</strong> ' . $orderData['shippingAddress']['phone'] . '</p>
+                <p><strong>Order Notes:</strong> ' . $orderData['shippingAddress']['orderNotes'] . '</p>
                 <h3>Shipping Address</h3>
                 <p>
                     ' . $orderData['shippingAddress']['street'] . '<br>
@@ -194,7 +199,7 @@ function sendOrderEmail($orderData, $recipientEmail) {
                     ' . $orderData['shippingAddress']['postalCode'] . '
                 </p>
 
-                <h3>Order Items</h3>';
+                <h3 style="margin-bottom: 0px;">Order Items</h3>';
 
     foreach ($orderData['items'] as $item) {
         $htmlBody .= '

@@ -120,7 +120,7 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0 pt-6">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Orders</h1>

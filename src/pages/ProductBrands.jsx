@@ -22,9 +22,10 @@ import { RiHandbagLine } from 'react-icons/ri';
 import { useParams } from 'react-router-dom';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import PropTypes from 'prop-types';
+import { decodeHtmlEntities } from '../utils/pricingUtils';
 
 function Icon({ id, open }) {
     return (
@@ -51,12 +52,52 @@ const ProductBrands = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
+    const [brandInfo, setBrandInfo] = useState(null);
+    const [brandLoading, setBrandLoading] = useState(true);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Fetch brand information when slug changes
+    useEffect(() => {
+        if (!slug) return;
+        
+        setBrandLoading(true);
+        const fetchBrandInfo = async () => {
+            try {
+                console.log('Fetching brand info for slug:', slug);
+                const response = await fetch(`https://stiles.co.za/api/products.php?brand=${slug}&info=true`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        toast.error('Brand not found');
+                        setBrandLoading(false);
+                        return;
+                    }
+                    throw new Error('Failed to fetch brand information');
+                }
+                const data = await response.json();
+                
+                console.log('Brand info API response:', data);
+                
+                if (data.status === 'success' && data.data) {
+                    console.log('Setting brand info:', data.data);
+                    setBrandInfo(data.data);
+                } else {
+                    console.log('No brand data in response');
+                }
+            } catch (error) {
+                console.error('Error fetching brand information:', error);
+                toast.error('Failed to load brand information');
+            } finally {
+                setBrandLoading(false);
+            }
+        };
+
+        fetchBrandInfo();
+    }, [slug]);
 
     // Add useEffect to clear loading state after page change
     useEffect(() => {
@@ -78,10 +119,10 @@ const ProductBrands = () => {
     return (
         <Layout>
             <Helmet>
-                <title>{slug || 'Brands'} | Stiles</title>
-                <meta name="description" content="Stiles Product Brand" />
+                <title>{brandLoading ? 'Loading...' : (brandInfo?.name || slug || 'Brands')} | Stiles</title>
+                <meta name="description" content={`Stiles ${brandInfo?.name || slug} Products`} />
             </Helmet>
-            <Hero slug={slug} />
+            <Hero slug={slug} brandInfo={brandInfo} brandLoading={brandLoading} />
             <Content 
                 slug={slug} 
                 currentPage={currentPage} 
@@ -91,6 +132,8 @@ const ProductBrands = () => {
                 loading={loading} 
                 setLoading={setLoading}
                 onProductsPerPageChange={handleProductsPerPageChange}
+                brandInfo={brandInfo}
+                brandLoading={brandLoading}
             />
         </Layout>
     )
@@ -98,20 +141,33 @@ const ProductBrands = () => {
 
 export default ProductBrands
 
-const Hero = ({slug}) => {
+const Hero = ({slug, brandInfo, brandLoading}) => {
+    const displayName = brandInfo?.name || slug;
+    
+    console.log('Hero component - slug:', slug);
+    console.log('Hero component - brandInfo:', brandInfo);
+    console.log('Hero component - brandLoading:', brandLoading);
+    console.log('Hero component - displayName:', displayName);
+    
     return (
       <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{slug} Products</h1>
-            <p className='text-white text-lg text-center'>Browse our collection of {slug} products</p>
+            <h1 className='text-white font-bold text-5xl text-center'>
+                {brandLoading ? 'Loading...' : `${decodeHtmlEntities(displayName)} Products`}
+            </h1>
+            <p className='text-white text-lg text-center'>
+                {brandLoading ? 'Please wait...' : `Browse our collection of ${decodeHtmlEntities(displayName)} products`}
+            </p>
         </div>
       </section>
     )
 }
 
 Hero.propTypes = {
-    slug: PropTypes.string.isRequired
+    slug: PropTypes.string.isRequired,
+    brandInfo: PropTypes.object,
+    brandLoading: PropTypes.bool
 };
 
 const Content = ({
@@ -122,7 +178,9 @@ const Content = ({
     onPageChange, 
     loading, 
     setLoading, 
-    onProductsPerPageChange 
+    onProductsPerPageChange,
+    brandInfo,
+    brandLoading
 }) => {
     const [searchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
@@ -492,7 +550,7 @@ const Content = ({
                                 Home
                             </a>
                             <a href={"/product-category/brands/" + slug}>
-                                {slug}
+                                {brandLoading ? 'Loading...' : (decodeHtmlEntities(brandInfo?.name) || slug)}
                             </a>
                         </Breadcrumbs>
                     </div>
@@ -622,5 +680,7 @@ Content.propTypes = {
     onPageChange: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
     setLoading: PropTypes.func.isRequired,
-    onProductsPerPageChange: PropTypes.func.isRequired
+    onProductsPerPageChange: PropTypes.func.isRequired,
+    brandInfo: PropTypes.object,
+    brandLoading: PropTypes.bool
 };

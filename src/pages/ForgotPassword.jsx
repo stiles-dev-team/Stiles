@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../layout/Layout'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 
 const ForgotPassword = () => {
   const [formData, setFormData] = useState({

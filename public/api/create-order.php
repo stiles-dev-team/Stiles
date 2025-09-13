@@ -195,7 +195,13 @@ try {
             'street' => $data['streetAddress'],
             'city' => $data['city'],
             'state' => $data['state'],
-            'postalCode' => $data['zipCode']
+            'postalCode' => $data['zipCode'],
+            'firstName' => $data['firstName'],
+            'lastName' => $data['lastName'],
+            'companyName' => $data['companyName'] ?? '',
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'orderNotes' => $data['orderNotes'] ?? ''
         ],
         'items' => array_map(function($item) {
             return [

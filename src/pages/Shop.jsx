@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 import {
     Accordion,
@@ -43,8 +43,19 @@ const Shop = () => {
   return (
     <Layout>
         <Helmet>
-            <title>Shop | Stiles</title>
-            <meta name="description" content="Shop on Stiles" />
+            <title>Shop Tiles Online | Premium Tile Collection | Stiles</title>
+            <meta name="description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
+            <meta name="keywords" content="shop tiles, buy tiles online, bathroom tiles, kitchen tiles, floor tiles, wall tiles, Stiles, South Africa" />
+            <meta property="og:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
+            <meta property="og:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://stiles.co.za/shop" />
+            <meta property="og:site_name" content="Stiles" />
+            <meta property="og:locale" content="en_ZA" />
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
+            <meta name="twitter:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
+            <link rel="canonical" href="https://stiles.co.za/shop" />
         </Helmet>
         <Hero />
         <Content />

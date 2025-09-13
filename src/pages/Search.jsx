@@ -21,7 +21,7 @@ import { FaFacebookF, FaInstagram, FaPinterestP, FaWhatsapp, FaXTwitter } from '
 import { RiHandbagLine } from 'react-icons/ri';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import PropTypes from 'prop-types';
 
@@ -78,8 +78,19 @@ const Search = () => {
     return (
         <Layout>
             <Helmet>
-                <title>Search Results for "{searchQuery}" | Stiles</title>
-                <meta name="description" content={`Search results for ${searchQuery} on Stiles`} />
+                <title>Search Results for "{searchQuery}" | Find Tiles | Stiles</title>
+                <meta name="description" content={`Search results for "${searchQuery}" on Stiles. Find the perfect tiles for your project from our extensive collection of premium tiles.`} />
+                <meta name="keywords" content={`${searchQuery}, tiles, search results, Stiles, South Africa, tile retailer`} />
+                <meta property="og:title" content={`Search Results for "${searchQuery}" | Find Tiles | Stiles`} />
+                <meta property="og:description" content={`Search results for "${searchQuery}" on Stiles. Find the perfect tiles for your project from our extensive collection of premium tiles.`} />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={`https://stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
+                <meta property="og:site_name" content="Stiles" />
+                <meta property="og:locale" content="en_ZA" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={`Search Results for "${searchQuery}" | Find Tiles | Stiles`} />
+                <meta name="twitter:description" content={`Search results for "${searchQuery}" on Stiles. Find the perfect tiles for your project from our extensive collection of premium tiles.`} />
+                <link rel="canonical" href={`https://stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
             </Helmet>
             <Hero searchQuery={searchQuery} />
             <Content 

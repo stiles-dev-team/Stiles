@@ -10,6 +10,7 @@ import {
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { decodeHtmlEntities } from "../utils/pricingUtils";
 
 function Icon({ id, open }) {
   return (
@@ -51,100 +52,7 @@ const Navbar = () => {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const [data, setData] = useState([]);
-  const [brands, setBrands] = useState([
-    "AB Tiles",
-    "Alape",
-    "Alaplana",
-    "Angelgres",
-    "Aspen Flooring",
-    "Axor",
-    "Bathroom Butler",
-    "Benkiser",
-    "Betta",
-    "Blanco",
-    "Blutide",
-    "Bomkisi",
-    "Boutique Baths",
-    "Century",
-    "Ceusa",
-    "Clear Cube",
-    "Cobra",
-    "Como",
-    "Crystallite Stone Bathrooms",
-    "Decobella",
-    "Douglas Jones",
-    "Duravit",
-    "Dutton Plastic Engineering",
-    "E-Ceramic",
-    "Eliane",
-    "Emil Group",
-    "Etienne",
-    "Etienne Tiles",
-    "Etile",
-    "Finestra",
-    "Flaviker",
-    "Florim",
-    "Franke",
-    "Funky Tiles",
-    "Geberit",
-    "Geotiles",
-    "Gio Bella",
-    "Hansgrohe",
-    "Hydrotec",
-    "Jee-O",
-    "Jeeves",
-    "Kirk Trading",
-    "Klay",
-    "Krono",
-    "Lecico",
-    "Liquid Red",
-    "Litokol",
-    "LobaCare",
-    "Lux Crete",
-    "Luximo Design",
-    "Macneil",
-    "Marley",
-    "Meir",
-    "Mirage",
-    "Monocibec",
-    "Moonbay",
-    "Mykonos",
-    "Nala Baths",
-    "Naxos",
-    "Nest Flooring by KREM",
-    "Newform",
-    "Oak",
-    "Pamesa",
-    "Paramount Mirrors",
-    "Pavit",
-    "Perlies Bathware",
-    "Perrin &amp; Rowe",
-    "Portinari",
-    "Profilitec S.P.A.",
-    "Provenza",
-    "Reflect Mirrors",
-    "Rossco",
-    "Schell",
-    "Shaws",
-    "Sibo",
-    "Simpolo",
-    "Stiebel Eltron",
-    "Stiles",
-    "Stunning",
-    "Summer Place Spas &amp; Baths",
-    "Superlume",
-    "Sure Strip",
-    "Tal",
-    "Tech Speckle",
-    "Technoswiss",
-    "Tile &amp; Floor Care",
-    "Tuscania Ceramiche",
-    "Twotone Stone",
-    "U-Tile",
-    "Victoria + Albert",
-    "Viva",
-    "Waterfall",
-  ]);
+  const [brands, setBrands] = useState([]);
   const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(0);
   const [openBrandSection, setOpenBrandSection] = useState(null);
@@ -176,6 +84,19 @@ const Navbar = () => {
       .then((response) => response.json())
       .then((data) => {
         setData(data);
+      });
+
+    // Fetch brands from API
+    fetch("https://stiles.co.za/api/admin-brands.php")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.brands)) {
+          const brandNames = data.brands.map(brand => brand.name);
+          setBrands(brandNames);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching brands:", error);
       });
 
     // Fetch locations
@@ -413,7 +334,7 @@ const Navbar = () => {
                                 href={`/product-category/brands/${brand}`}
                                 className="text-xs font-medium text-gray-400 hover:text-dark py-1"
                               >
-                                {brand}
+                                {decodeHtmlEntities(brand)}
                               </a>
                             ))}
                           </div>
@@ -890,7 +811,7 @@ const Navbar = () => {
                             href={`/product-category/brands/${brand}`}
                             className="text-sm text-dark hover:text-dark py-1"
                           >
-                            {brand}
+                            {decodeHtmlEntities(brand)}
                           </a>
                         ))}
                       </div>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import LayoutDark from '../layout/LayoutDark'
 import axios from 'axios';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 import { FaRegHeart } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
+import { decodeHtmlEntities } from '../utils/pricingUtils';
+
 
 import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
@@ -221,18 +223,17 @@ const Product = () => {
                         console.log('Stock info response:', response);
                         if (response && response.data) {
                             setStockInfo(response.data);
+                            
                         } else {
                             console.warn('Stock info response did not contain expected fields:', response);
+                            // Redirect to home page if SKU doesn't exist
+                            window.location.href = '/';
                         }
                     })
                     .catch(err => {
                         console.error('Error fetching stock info:', err);
-                        // Set a default stock info object to prevent UI issues
-                        setStockInfo({
-                            sellPInc1: 0,
-                            promoPrice: 0,
-                            packSize: 0
-                        });
+                        // Redirect to home page if there's an error fetching stock info
+                        window.location.href = '/';
                     });
                 } else {
                     console.warn('No SKU found for product');
@@ -477,10 +478,10 @@ const Product = () => {
         </Dialog>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2 h-full max-h-[600px]'>
-                <img src={product?.images[imageSelected].url} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
+                <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
             <div className="flex flex-row lg:flex-col justify-start items-start gap-2 h-full max-h-[600px] overflow-y-auto">
                     {product?.images.map((image, index) => (
-                        <img onClick={() => setImageSelected(index)} key={index} src={image.url} alt={image.alt} title={image.title} className={`w-12 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
+                        <img onClick={() => setImageSelected(index)} key={index} src={image.url + "?v=" + new Date().getTime()} alt={image.alt} title={image.title} className={`w-12 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
                     ))}
                 </div>
             </div>
@@ -512,7 +513,7 @@ const Product = () => {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
                     <div className='flex flex-row justify-start items-center gap-1 font-normal'>
                         Brand:
-                        <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{product?.["attribute:pa_brands"]}</a>
+                        <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{decodeHtmlEntities(product?.["attribute:pa_brands"])}</a>
                         {/* <img src="/images/partner.png" alt="" className='size-20 object-contain object-center' /> */}
                     </div>
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
@@ -550,14 +551,15 @@ const Product = () => {
                     </div>
                 </div>
                 <div className="productdesc flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full pb-5">
-                    <div dangerouslySetInnerHTML={{ __html: product?.excerpt?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
+                    <div dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
                     {
                         stockInfo?.model == 'PC' ?
                         <button 
-                            className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
+                            className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
                             onClick={handleOpenQuote}
+                            disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
                         >
                             CALCULATE/ADD TO QUOTE
                             <IoAddCircleOutline className='fill-whtie' size={14} />
@@ -586,8 +588,9 @@ const Product = () => {
                                 </button>
                             </div>
                             <button 
-                                className='text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1'
+                                className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
                                 onClick={addToCart}
+                                disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
                             >
                                 ADD TO QUOTE
                                 <IoAddCircleOutline className='fill-whtie' size={14} />

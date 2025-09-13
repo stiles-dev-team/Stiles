@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
 import { Link, useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../context/AuthContext'
 
 const Login = () => {

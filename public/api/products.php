@@ -107,12 +107,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
     }
 }
 
+// Get brand information by slug or name
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET['info']) && $_GET['info'] === 'true') {
+    try {
+        $brandIdentifier = $_GET['brand'];
+        
+        // First, try to find the brand in the brands table by slug or name
+        $stmt = $pdo->prepare('
+            SELECT id, name, description, slug, image, is_active 
+            FROM brands 
+            WHERE (slug = ? OR name = ?) AND is_active = 1
+            LIMIT 1
+        ');
+        
+        $stmt->execute([$brandIdentifier, $brandIdentifier]);
+        $brand = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$brand) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Brand not found'
+            ]);
+            exit();
+        }
+        
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Brand information retrieved successfully',
+            'data' => $brand
+        ]);
+        exit();
+        
+    } catch(PDOException $e) {
+        error_log('Database error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Error fetching brand information',
+            'error' => $e->getMessage(),
+            'error_code' => $e->getCode()
+        ]);
+        exit();
+    }
+}
+
 // Get unique filter values by brand
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
-        $brand = $_GET['brand'];
+        $brandIdentifier = $_GET['brand'];
         
-        // First get all products for this brand
+        // First, try to find the brand in the brands table by slug or name
+        $stmt = $pdo->prepare('
+            SELECT name FROM brands 
+            WHERE (slug = ? OR name = ?) AND is_active = 1
+            LIMIT 1
+        ');
+        
+        $stmt->execute([$brandIdentifier, $brandIdentifier]);
+        $brand = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$brand) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Brand not found'
+            ]);
+            exit();
+        }
+        
+        $brandName = $brand['name'];
+        
+        // Now get all products for this brand using the actual brand name
         $stmt = $pdo->prepare('
             SELECT 
                 `attribute:pa_colour` as colour,
@@ -124,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET
             AND `attribute:pa_brands` = ?
         ');
         
-        $stmt->execute([$brand]);
+        $stmt->execute([$brandName]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the results to get unique values
@@ -176,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET
 // Get products by brand
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_GET['filters']) || $_GET['filters'] !== 'true')) {
     try {
-        $brand = $_GET['brand'];
+        $brandIdentifier = $_GET['brand'];
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
         $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
         
@@ -185,12 +251,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $limit = 15; // Default to 15 if invalid
         }
         
-        // Debug log
-        error_log("Fetching products for brand: {$brand} with limit: {$limit} and offset: {$offset}");
+        // First, try to find the brand in the brands table by slug or name
+        $stmt = $pdo->prepare('
+            SELECT name FROM brands 
+            WHERE (slug = ? OR name = ?) AND is_active = 1
+            LIMIT 1
+        ');
         
-        // Build the base query with exact brand matching
+        $stmt->execute([$brandIdentifier, $brandIdentifier]);
+        $brand = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$brand) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Brand not found'
+            ]);
+            exit();
+        }
+        
+        $brandName = $brand['name'];
+        
+        // Debug log
+        error_log("Fetching products for brand: {$brandName} (identifier: {$brandIdentifier}) with limit: {$limit} and offset: {$offset}");
+        
+        // Build the base query with exact brand matching using the actual brand name
         $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND `attribute:pa_brands` = ?';
-        $params = [$brand];
+        $params = [$brandName];
         
         // Add filter conditions
         if (isset($_GET['finish']) && !empty($_GET['finish'])) {

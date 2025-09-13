@@ -4,6 +4,7 @@ import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
+import { getPricingUnit, formatPriceWithUnit, formatCurrency } from '../utils/pricingUtils';
 
 const Cart = () => {
     return (
@@ -185,27 +186,29 @@ const Main = () => {
                                             <a href={"/product/" + item.slug} key={item.id}>
                                                 <img src={item.images[0].url} className="size-16 object-cover" alt={item.title} />
                                             </a>
-                                            <a href={"/product/" + item.slug} key={item.id} className="flex flex-col gap-1">
-                                                <Typography
-                                                    variant="small"
-                                                    className="font-normal text-gray-600 text-left w-full max-w-[200px] lg:max-w-64 cursor-pointer hover:underline"
-                                                >
-                                                    {item.title}
-                                                </Typography>
+                                            <div className="flex flex-col gap-1">
+                                                <a href={"/product/" + item.slug} key={item.id}>
+                                                    <Typography
+                                                        variant="small"
+                                                        className="font-normal text-gray-600 text-left w-full max-w-[200px] lg:max-w-64 cursor-pointer hover:underline"
+                                                    >
+                                                        {item.title}
+                                                    </Typography>
+                                                </a>
                                                 <button 
                                                     className='text-xs text-danger hover:underline text-left'
                                                     onClick={() => removeFromCart(item.slug)}
                                                 >
                                                     Remove
                                                 </button>
-                                            </a>
+                                            </div>
                                         </td>
                                         <td>
                                             <Typography
                                                 variant="small"
                                                 className="font-normal text-gray-600 text-center"
                                             >
-                                                R{item.price}.00 m2
+                                                {formatCurrency(item.price, getPricingUnit(item))}
                                             </Typography>
                                         </td>
                                         <td>
@@ -236,7 +239,7 @@ const Main = () => {
                                                 variant="small"
                                                 className="font-normal text-gray-600 text-center"
                                             >
-                                                R{calculateSubtotal(item)}.00 m2
+                                                {formatCurrency(calculateSubtotal(item), getPricingUnit(item))}
                                             </Typography>
                                         </td>
                                     </tr>
@@ -252,7 +255,7 @@ const Main = () => {
                         <br />
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 border-b border-b-dark/10">
                             <p className='text-sm font-bold'>Subtotal</p>
-                            <p className='text-sm text-dark/70'>R{calculateTotal()}.00</p>
+                            <p className='text-sm text-dark/70'>{formatCurrency(calculateTotal())}</p>
                         </div>
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 border-b border-b-dark/10">
                             <p className='text-sm font-bold'>Shipping</p>
@@ -260,7 +263,7 @@ const Main = () => {
                         </div>
                         <div className="w-full flex flex-row justify-between items-center gap-2 py-5 mb-5">
                             <p className='text-lg font-bold'>Total</p>
-                            <p className='text-lg text-dark/70'>R{calculateTotal()}.00</p>
+                            <p className='text-lg text-dark/70'>{formatCurrency(calculateTotal())}</p>
                         </div>
                         <a href="/checkout" className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full'>
                             CONFIRM ORDER

@@ -11,7 +11,7 @@ const ProductCard = memo(({ onClick, prod }) => {
     const [loading, setLoading] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
-    const [badge, setBadge] = useState(null);
+    const [badges, setBadges] = useState([]);
 
     useEffect(() => {
         const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
@@ -56,10 +56,17 @@ const ProductCard = memo(({ onClick, prod }) => {
                 }
                 
                 setProduct(productData);
-                if (productData.promo !== null && productData.promo && productData.promo.includes('Exclusive to Stiles')) {
-                    setBadge('Exclusive');
-                } else if (productData.promo !== null && productData.promo && productData.promo.includes('New@Stiles')) {
-                    setBadge('New @ Stiles');
+                
+                // Parse promo string to extract multiple badges
+                if (productData.promo !== null && productData.promo) {
+                    const promoArray = productData.promo.split(',').map(item => item.trim());
+                    const extractedBadges = [];
+                    
+                    promoArray.forEach(promoItem => {
+                        extractedBadges.push(promoItem.trim());
+                    });
+                    
+                    setBadges(extractedBadges);
                 }
 
                 // Fetch stock info if SKU exists
@@ -180,7 +187,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                 onMouseLeave={handleMouseLeave}
             >
                 <img 
-                    src={product.images[0]?.url || '/images/placeholder-images-image_large.webp'} 
+                    src={product.images[0]?.url + "?v=" + new Date().getTime() || '/images/placeholder-images-image_large.webp'} 
                     alt={product.title}
                     loading="lazy"
                     className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product.images.length > 1 ? 'opacity-0' : 'opacity-100'}`} 
@@ -191,7 +198,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                 />
                 {product.images.length > 1 && (
                     <img 
-                        src={product.images[1]?.url || '/images/placeholder-images-image_large.webp'} 
+                        src={product.images[1]?.url + "?v=" + new Date().getTime() || '/images/placeholder-images-image_large.webp'} 
                         alt={`${product.title} - Hover`} 
                         className={`absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
                         onClick={onClick}
@@ -210,12 +217,13 @@ const ProductCard = memo(({ onClick, prod }) => {
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             </div>
             {
-                badge && (
-                    <div className='absolute top-0 left-0 w-fit z-25 p-3 min-w-28 min-h-8 py-2 bg-primaryStiles rounded-br-lg lg:rounded-br-xl flex justify-center items-center'>
-                        <p className='text-dark text-xs font-black text-center uppercase'>{badge}</p>
+                badges.length > 0 &&  badges.map((badge, index) => (
+                    <div className={`absolute left-0 w-fit z-25 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44`} style={{ top: index * 38 + 'px' }}>
+                        <div key={index} className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                        </div>
                     </div>
-                )
-            }
+                ))}
             <h3 className='font-bold text-xl cursor-pointer'>{product.title}</h3>
             <div className="flex justify-start items-center gap-3 w-full cursor-pointer">
                 {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (
