@@ -91,6 +91,7 @@
       "email": "websales@stiles.co.za",
       "google_iframe": null,
       "hours": [
+        "Mon - Thurs 08AM to 5PM",
         "Fri 8AM – 5PM",
         "Sat and Public Holidays 8AM – 2PM"
       ],
@@ -104,7 +105,9 @@
       "email": "websales@stiles.co.za",
       "google_iframe": null,
       "hours": [
-        "Mon – Fri 7:30AM – 5PM"
+        "Mon – Fri 7:30AM – 5PM",
+        "Sat 8AM – 2PM",
+        "Public Holidays 9AM – 1PM"
       ],
       "google_maps": "https://g.co/kgs/cPMuJSS"
     },
@@ -116,6 +119,7 @@
       "email": "websales@stiles.co.za",
       "google_iframe": null,
       "hours": [
+        "Mon - Thurs 08AM to 5PM",
         "Fri 8AM – 5PM",
         "Sat and Public Holidays 8AM – 1PM"
       ],

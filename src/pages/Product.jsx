@@ -101,19 +101,21 @@ const Product = () => {
 
         const quote = JSON.parse(localStorage.getItem('stiles_cart_ls') || '[]');
         const existingItemIndex = quote.findIndex(item => item.slug === product.slug);
+        const totalQuantity =  calculatedQuantity * stockInfo.packSize;
+        console.log('Total quantity:', totalQuantity);
         
         if (existingItemIndex !== -1) {
-            quote[existingItemIndex].quantity = calculatedQuantity;
+            quote[existingItemIndex].quantity = totalQuantity;
         } else {
             quote.push({
                 ...product,
-                quantity: calculatedQuantity,
+                quantity: totalQuantity,
                 price: stockInfo?.sellPInc1
             });
         }
         
         localStorage.setItem('stiles_cart_ls', JSON.stringify(quote));
-        toast.success(`${product.title} x ${calculatedQuantity} added to quote`);
+        toast.success(`${product.title} x ${totalQuantity}m² added to quote`);
         handleOpenQuote();
     };
     

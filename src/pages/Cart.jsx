@@ -59,8 +59,8 @@ const Main = () => {
 
     const handleQuantityChange = (slug, newValue) => {
         // If newValue is empty string or NaN, default to 1
-        const parsedValue = parseInt(newValue);
-        const validValue = isNaN(parsedValue) ? 1 : Math.max(1, parsedValue);
+        const parsedValue = parseFloat(newValue);
+        const validValue = isNaN(parsedValue) ? 1 : Math.max(0.1, parsedValue);
         setQuantities(prev => ({
             ...prev,
             [slug]: validValue
@@ -220,11 +220,13 @@ const Main = () => {
                                                     -
                                                 </button>
                                                 <input 
-                                                    type="text" 
-                                                    className='border-0 appearance-none text-dark text-center w-8 outline-none' 
+                                                    type="number" 
+                                                    step="0.1"
+                                                    min="0.1"
+                                                    className='border-0 text-dark text-center outline-none appearance-none' 
+                                                    style={{'WebkitAppearance': 'none', 'MozAppearance': 'textfield'}}
                                                     value={quantities[item.slug]} 
                                                     onChange={(e) => handleQuantityChange(item.slug, e.target.value)}
-                                                    min={1}
                                                 />
                                                 <button 
                                                     className='text-dark font-negro aspect-square w-5'
