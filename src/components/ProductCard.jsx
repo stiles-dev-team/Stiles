@@ -3,7 +3,7 @@ import { FaHeart } from "react-icons/fa";
 import PropTypes from 'prop-types';
 import { Skeleton } from './ui/skeleton';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
 
 const ProductCard = memo(({ onClick, prod }) => {
     const [isFavourite, setIsFavourite] = useState(false);
@@ -102,7 +102,6 @@ const ProductCard = memo(({ onClick, prod }) => {
                 }
             } else {
                 console.error('Product not found:', data.message);
-                toast.error('Failed to load product details');
             }
             setLoading(false);
         })
@@ -110,7 +109,6 @@ const ProductCard = memo(({ onClick, prod }) => {
             if (!isMounted) return;
             setLoading(false);
             console.error('Error fetching product:', err);
-            toast.error('Failed to load product details');
         });
 
         return () => {

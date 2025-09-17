@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Select from 'react-select';
 import { formatCurrency } from '../../utils/pricingUtils';
 
 const AdminProducts = () => {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -10,6 +12,7 @@ const AdminProducts = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedColour, setSelectedColour] = useState("all");
   const [selectedFinish, setSelectedFinish] = useState("all");
+  const [selectedPromo, setSelectedPromo] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -67,6 +70,8 @@ const AdminProducts = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showQuickView, setShowQuickView] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const syncIqPrices = async () => {
     setLoading(true);
@@ -96,6 +101,25 @@ const AdminProducts = () => {
     setQuickViewProduct(product);
     setShowQuickView(true);
     closeMenu();
+  };
+
+  // Function to handle column sorting
+  const handleSort = (field) => {
+    let newSortDirection = 'asc';
+    
+    if (sortField === field) {
+      // If clicking the same field, toggle direction
+      newSortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // If clicking a new field, set it and default to ascending
+      newSortDirection = 'asc';
+    }
+    
+    setSortField(field);
+    setSortDirection(newSortDirection);
+    
+    // Fetch products with new sorting
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, field, newSortDirection);
   };
 
 
@@ -145,7 +169,7 @@ const AdminProducts = () => {
         if (successCount > 0) {
           alert(`Successfully deleted ${successCount} product(s)`);
           setSelectedProducts([]);
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
         } else {
           alert("Error deleting products");
         }
@@ -202,7 +226,7 @@ const AdminProducts = () => {
   }, [showAddModal]);
 
   useEffect(() => {
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
     fetchCategories();
     fetchBrands();
     fetchColours();
@@ -210,6 +234,32 @@ const AdminProducts = () => {
     fetchSizes();
     fetchPromos();
   }, []);
+
+  // Handle slug parameter to open edit modal
+  useEffect(() => {
+    const slug = searchParams.get('slug');
+    console.log('Slug useEffect triggered:', { slug, productsLength: products.length, loading });
+    
+    if (slug && !loading) {
+      console.log('Looking for product with slug:', slug);
+      
+      // Fetch the specific product by slug
+      fetchProductBySlug(slug).then(product => {
+        console.log('Found product:', product);
+        
+        if (product) {
+          console.log('Opening edit modal for product:', product.title);
+          openEditModal(product);
+          // Remove the slug parameter from URL after opening modal
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete('slug');
+          window.history.replaceState({}, '', `${window.location.pathname}${newSearchParams.toString() ? '?' + newSearchParams.toString() : ''}`);
+        } else {
+          console.log('No product found with slug:', slug);
+        }
+      });
+    }
+  }, [searchParams, loading]);
 
   // Check IQ status when SKU changes
   useEffect(() => {
@@ -220,7 +270,7 @@ const AdminProducts = () => {
     return () => clearTimeout(timeoutId);
   }, [formData.sku]);
 
-  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "") => {
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", promo = "", sortField = null, sortDirection = "asc") => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -233,6 +283,11 @@ const AdminProducts = () => {
       if (status && status !== "all") params.append("status", status);
       if (colour && colour !== "all") params.append("colour", colour);
       if (finish && finish !== "all") params.append("finish", finish);
+      if (promo && promo !== "all") params.append("promo", promo);
+      if (sortField) {
+        params.append("sort_field", sortField);
+        params.append("sort_direction", sortDirection);
+      }
 
       // Debug logging
       console.log('Fetching products with params:', {
@@ -359,6 +414,25 @@ const AdminProducts = () => {
     }
   };
 
+  const fetchProductBySlug = async (slug) => {
+    try {
+      const response = await fetch(`https://stiles.co.za/api/admin-products.php?slug=${encodeURIComponent(slug)}`, {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.product) {
+        return data.product;
+      } else {
+        console.error('Product not found:', data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching product by slug:", error);
+      return null;
+    }
+  };
+
   const getNextId = async () => {
     try {
       const response = await fetch("https://stiles.co.za/api/admin-products.php?get_max_id=1", {
@@ -422,7 +496,7 @@ const AdminProducts = () => {
     }).format(value);
   };
 
-  // Server-side filtering is now handled by the API
+  // Server-side filtering and sorting is now handled by the API
   const filteredProducts = products;
 
   const handleEditProduct = (product) => {
@@ -448,7 +522,7 @@ const AdminProducts = () => {
 
         if (result.status === "success") {
           alert("Product deleted successfully");
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
         } else {
           alert("Error deleting product: " + result.message);
         }
@@ -636,7 +710,7 @@ const AdminProducts = () => {
            gallery_files: [],
            promo: [],
          });
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
       } else {
         alert("Error: " + result.message);
       }
@@ -770,36 +844,42 @@ const AdminProducts = () => {
   const handleSearch = (value) => {
     setSearchTerm(value);
     setCurrentPage(1);
-    fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+    fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
   };
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish);
+    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish, selectedPromo);
   };
 
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish);
+    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedPromo);
   };
 
   const handleColourChange = (value) => {
     setSelectedColour(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish, selectedPromo);
   };
 
   const handleFinishChange = (value) => {
     setSelectedFinish(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value, selectedPromo);
+  };
+
+  const handlePromoChange = (value) => {
+    setSelectedPromo(value);
+    setCurrentPage(1);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, value);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
   };
 
   // Function to open download modal
@@ -933,7 +1013,7 @@ const AdminProducts = () => {
       if (result.status === 'success') {
         alert(`CSV upload successful!\nUpdated: ${result.updated} products\nInserted: ${result.inserted} new products`);
         // Refresh the products list
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
       } else {
         alert(`Error uploading CSV: ${result.message}`);
       }
@@ -1067,8 +1147,11 @@ const AdminProducts = () => {
                   setSelectedStatus("all");
                   setSelectedColour("all");
                   setSelectedFinish("all");
+                  setSelectedPromo("all");
                   setCurrentPage(1);
-                  fetchProducts(1, "", "all", "all", "all", "all");
+                  setSortField(null);
+                  setSortDirection("asc");
+                  fetchProducts(1, "", "all", "all", "all", "all", "all", null, "asc");
                 }}
                 className="w-full px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
               >
@@ -1128,13 +1211,30 @@ const AdminProducts = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Promo
+              </label>
+              <select
+                value={selectedPromo}
+                onChange={(e) => handlePromoChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Promos</option>
+                {promos.map((promo) => (
+                  <option key={promo.id} value={promo.name}>
+                    {promo.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           
           {/* Third row - Product count and active filters */}
           <div className="border-t pt-4">
             <div className="text-sm text-gray-600">
               <div className="font-medium">Showing {products.length} of {pagination.total_products} products</div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all") && (
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -1160,6 +1260,11 @@ const AdminProducts = () => {
                   {selectedFinish !== "all" && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-pink-100 text-pink-800">
                       Finish: {selectedFinish}
+                    </span>
+                  )}
+                  {selectedPromo !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                      Promo: {selectedPromo}
                     </span>
                   )}
                 </div>
@@ -1220,20 +1325,70 @@ const AdminProducts = () => {
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </th>
-                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
-                    Product
+                  <th 
+                    className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px] cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('title')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Product</span>
+                      {sortField === 'title' && (
+                        <span className="text-blue-600">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="hidden md:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
-                    Brand
+                  <th 
+                    className="hidden md:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('brand')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Brand</span>
+                      {sortField === 'brand' && (
+                        <span className="text-blue-600">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                    SKU
+                  <th 
+                    className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('sku')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>SKU</span>
+                      {sortField === 'sku' && (
+                        <span className="text-blue-600">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="hidden sm:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                    Price (IQ)
+                  <th 
+                    className="hidden sm:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('price')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Price (IQ)</span>
+                      {sortField === 'price' && (
+                        <span className="text-blue-600">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="hidden lg:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                    Status
+                  <th 
+                    className="hidden lg:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('status')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Status</span>
+                      {sortField === 'status' && (
+                        <span className="text-blue-600">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
                   </th>
                   <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">
                     Actions
@@ -1469,7 +1624,7 @@ const AdminProducts = () => {
       </div>
 
       {/* Add/Edit Product Modal */}
-      {showAddModal && (
+      {(showAddModal || editingProduct) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ marginTop: '0px !important' }}>
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">

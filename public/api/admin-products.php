@@ -180,6 +180,40 @@ try {
                 break;
             }
             
+            // Get single product by slug (admin - any status)
+            if (isset($_GET['slug'])) {
+                try {
+                    $stmt = $pdo->prepare('SELECT sp.*, iq.sellPInc1 as iq_price, iq.baseCost as iq_base_cost, iq.promoPrice as iq_promo_price, iq.onhand as iq_stock, iq.onPromotion as iq_on_promotion 
+                                         FROM stiles_products sp 
+                                         LEFT JOIN iq_table iq ON sp.sku = iq.code 
+                                         WHERE sp.slug = ?');
+                    $stmt->execute([$_GET['slug']]);
+                    $product = $stmt->fetch();
+                    
+                    if (!$product) {
+                        http_response_code(404);
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Product not found'
+                        ]);
+                    } else {
+                        echo json_encode([
+                            'status' => 'success',
+                            'product' => $product
+                        ]);
+                    }
+                } catch(PDOException $e) {
+                    error_log('Database error in GET by slug: ' . $e->getMessage());
+                    http_response_code(500);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Database error occurred',
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                break;
+            }
+            
             // Get products with pagination
             try {
                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -191,9 +225,12 @@ try {
                 $status = isset($_GET['status']) ? $_GET['status'] : '';
                 $colour = isset($_GET['colour']) ? $_GET['colour'] : '';
                 $finish = isset($_GET['finish']) ? $_GET['finish'] : '';
+                $promo = isset($_GET['promo']) ? $_GET['promo'] : '';
+                $sortField = isset($_GET['sort_field']) ? $_GET['sort_field'] : '';
+                $sortDirection = isset($_GET['sort_direction']) ? $_GET['sort_direction'] : 'asc';
                 
                 // Debug logging for filter parameters
-                error_log('Filter parameters - page: ' . $page . ', limit: ' . $limit . ', search: ' . $search . ', category: ' . $category . ', brand: ' . $brand . ', brands: ' . $brands . ', status: ' . $status . ', colour: ' . $colour . ', finish: ' . $finish);
+                error_log('Filter parameters - page: ' . $page . ', limit: ' . $limit . ', search: ' . $search . ', category: ' . $category . ', brand: ' . $brand . ', brands: ' . $brands . ', status: ' . $status . ', colour: ' . $colour . ', finish: ' . $finish . ', promo: ' . $promo . ', sort_field: ' . $sortField . ', sort_direction: ' . $sortDirection);
                 
                 // Calculate offset
                 $offset = ($page - 1) * $limit;
@@ -249,10 +286,44 @@ try {
                     error_log('Finish filter applied: ' . $finish . ' (searching for products containing this finish)');
                 }
                 
+                if (!empty($promo) && $promo !== 'all') {
+                    $whereConditions[] = 'sp.promo LIKE ?';
+                    $params[] = '%' . $promo . '%';
+                    error_log('Promo filter applied: ' . $promo . ' (searching for products containing this promo)');
+                }
+                
                 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+                
+                // Build ORDER BY clause
+                $orderByClause = 'ORDER BY sp.post_date DESC'; // Default sorting
+                if (!empty($sortField)) {
+                    $validSortFields = ['title', 'brand', 'sku', 'price', 'status'];
+                    $validSortDirections = ['asc', 'desc'];
+                    
+                    if (in_array($sortField, $validSortFields) && in_array($sortDirection, $validSortDirections)) {
+                        switch ($sortField) {
+                            case 'title':
+                                $orderByClause = 'ORDER BY sp.title ' . strtoupper($sortDirection);
+                                break;
+                            case 'brand':
+                                $orderByClause = 'ORDER BY sp.`attribute:pa_brands` ' . strtoupper($sortDirection);
+                                break;
+                            case 'sku':
+                                $orderByClause = 'ORDER BY sp.sku ' . strtoupper($sortDirection);
+                                break;
+                            case 'price':
+                                $orderByClause = 'ORDER BY sp.regular_price ' . strtoupper($sortDirection);
+                                break;
+                            case 'status':
+                                $orderByClause = 'ORDER BY sp.status ' . strtoupper($sortDirection);
+                                break;
+                        }
+                    }
+                }
                 
                 // Debug logging for WHERE clause
                 error_log('WHERE clause: ' . $whereClause);
+                error_log('ORDER BY clause: ' . $orderByClause);
                 error_log('Parameters: ' . print_r($params, true));
                 
                 // Get total count
@@ -264,7 +335,7 @@ try {
                 // Get paginated products with price from iq_table
                 $query = 'SELECT sp.*, iq.sellPInc1 as iq_price, iq.baseCost as iq_base_cost, iq.promoPrice as iq_promo_price, iq.onhand as iq_stock, iq.onPromotion as iq_on_promotion 
                          FROM stiles_products sp 
-                         LEFT JOIN iq_table iq ON sp.sku = iq.code ' . $whereClause . ' ORDER BY sp.post_date DESC LIMIT ? OFFSET ?';
+                         LEFT JOIN iq_table iq ON sp.sku = iq.code ' . $whereClause . ' ' . $orderByClause . ' LIMIT ? OFFSET ?';
                 $params[] = $limit;
                 $params[] = $offset;
                 

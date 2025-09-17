@@ -37,10 +37,11 @@ import {
   import { Splide, SplideSlide } from '@splidejs/react-splide';
   import '@splidejs/react-splide/css';
 import ProductCard from '../components/ProductCard';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { IoAddCircleOutline } from 'react-icons/io5';
+import { useAuth } from '../context/AuthContext';
    
   function Icon({ id, open }) {
     return (
@@ -60,6 +61,8 @@ import { IoAddCircleOutline } from 'react-icons/io5';
 const Product = () => {
 
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { isAdmin } = useAuth();
     
     const [activeTab, setActiveTab] = useState("additional");
     const [loading, setLoading] = useState(true);
@@ -228,14 +231,14 @@ const Product = () => {
                             
                         } else {
                             console.warn('Stock info response did not contain expected fields:', response);
-                            // Redirect to home page if SKU doesn't exist
-                            window.location.href = '/';
+                            // Redirect to shop if SKU doesn't exist
+                            navigate('/shop');
                         }
                     })
                     .catch(err => {
                         console.error('Error fetching stock info:', err);
-                        // Redirect to home page if there's an error fetching stock info
-                        window.location.href = '/';
+                        // Redirect to shop if there's an error fetching stock info
+                        navigate('/shop');
                     });
                 } else {
                     console.warn('No SKU found for product');
@@ -267,6 +270,11 @@ const Product = () => {
         .catch(err => {
             console.error('Error fetching product:', err);
             setLoading(false);
+            
+            // Check if it's a 404 error and redirect to shop
+            if (err.message.includes('404')) {
+                navigate('/shop');
+            }
         });
     }, [id]);
 
@@ -488,7 +496,18 @@ const Product = () => {
                 </div>
             </div>
             <div className='w-full lg:w-6/12 flex flex-col justify-start items-start gap-1'>
-                <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-dark transition-all text-sm py-2 px-4 rounded bg-secondary mb-4'>Return to results</button>
+                {isAdmin && (
+                    <button 
+                        onClick={() => navigate(`/admin/products?slug=${product?.slug}`)} 
+                        className='text-white hover:text-dark hover:bg-blue-100 transition-all text-sm py-2 px-4 rounded bg-blue-600 border border-blue-600 mb-3'
+                    >
+                        Edit Product
+                    </button>
+                )}
+                <div className="flex flex-row gap-2 mb-4">
+                    <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-dark transition-all text-sm py-2 px-4 rounded bg-secondary'>Return to results</button>
+                    
+                </div>
                 <h1 className='font-bold text-xl'>{product?.title}</h1>
                 <p className='text-dark/60'><span className='text-dark font-bold'>SKU:</span> {product?.sku}</p>
                 <div className="flex flex-row justify-start items-end gap-2">

@@ -70,8 +70,8 @@ const Hero = () => {
       <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>Floor Tiles</h1>
-            <p className='text-white text-center w-full max-w-3xl'>View our Wide Range of Floor Tiles. Shop Online or visit our showroom in George. Click & Collect at Store. 24/7 Customer Service. Safe & Secure.</p>
+            <h1 className='text-white font-bold text-5xl text-center'>All Products</h1>
+            <p className='text-white text-center w-full max-w-3xl'>View our Wide Range of Products. Shop Online or visit our showroom in George. Click & Collect at Store. 24/7 Customer Service. Safe & Secure.</p>
         </div>
       </section>
     )
@@ -84,16 +84,19 @@ const Content = () => {
 
     const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState(null);
+    const [allProducts, setAllProducts] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(12);
 
     useEffect(() => {
         fetch(`/data/products2.json`)
         .then(res => res.json())
         .then(data => {
+            // Filter to only include published products to avoid 404 errors
+            const publishedProducts = data.filter(item => item.status === 'publish');
             // Shuffle the array
-            const shuffledData = data.sort(() => 0.5 - Math.random());
-            // Get the first 30 items
-            const selectedProducts = shuffledData.slice(0, 30);
-            setProduct(selectedProducts);
+            const shuffledData = publishedProducts.sort(() => 0.5 - Math.random());
+            setAllProducts(shuffledData);
             setLoading(false);
         })
         .catch(err => {
@@ -105,6 +108,21 @@ const Content = () => {
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Calculate pagination
+    const getCurrentPageProducts = () => {
+        if (!allProducts) return [];
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return allProducts.slice(startIndex, endIndex);
+    };
+
+    const currentProducts = getCurrentPageProducts();
 
     return (
         <>
@@ -231,7 +249,7 @@ const Content = () => {
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full relative">
                         {
-                            product && product.map((item, index) => (
+                            currentProducts && currentProducts.map((item, index) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
                                     <ProductCard key={item.id} prod={item.slug} />
                                 </a>
@@ -239,7 +257,12 @@ const Content = () => {
                         }
                         {/* <ProductCard onClick={handleOpenDialog}  /> */}
                     </div>
-                    <CircularPagination />
+                    <CircularPagination 
+                        totalItems={allProducts ? allProducts.length : 0}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             </div>
             <Dialog size='lg' open={openDialog} handler={handleOpenDialog}>

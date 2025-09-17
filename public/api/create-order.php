@@ -126,15 +126,39 @@ try {
         
         // If no product ID found, try to extract it from SKU
         if (!$productId && isset($item['sku'])) {
-            $skuParts = explode('-', $item['sku']);
-            if (!empty($skuParts)) {
+            $sku = $item['sku'];
+            error_log('Attempting to extract product ID from SKU: ' . $sku);
+            
+            // Try different SKU formats
+            if (strpos($sku, '-') !== false) {
+                // Format: "123-ABC" or "123-ABC-DEF"
+                $skuParts = explode('-', $sku);
                 $productId = intval($skuParts[0]);
-                error_log('Extracted product ID from SKU: ' . $productId);
+                error_log('Extracted product ID from dash-separated SKU: ' . $productId);
+            } else {
+                // For non-dash SKUs, try to find a numeric prefix
+                if (preg_match('/^(\d+)/', $sku, $matches)) {
+                    $productId = intval($matches[1]);
+                    error_log('Extracted product ID from numeric prefix in SKU: ' . $productId);
+                } else {
+                    // If no numeric prefix, use a hash of the SKU as a fallback
+                    $productId = abs(crc32($sku)) % 1000000; // Generate a consistent numeric ID
+                    error_log('Generated fallback product ID from SKU hash: ' . $productId);
+                }
+            }
+        }
+        
+        // If still no product ID, generate one from the title
+        if (!$productId) {
+            $title = $item['title'] ?? $item['name'] ?? '';
+            if ($title) {
+                $productId = abs(crc32($title)) % 1000000; // Generate a consistent numeric ID
+                error_log('Generated fallback product ID from title hash: ' . $productId);
             }
         }
         
         if (!$productId) {
-            error_log('Missing product ID in item: ' . print_r($item, true));
+            error_log('Unable to determine product ID for item: ' . print_r($item, true));
             continue;
         }
 

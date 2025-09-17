@@ -55,11 +55,58 @@ try {
     // For SKU searches, also try exact match and case-insensitive match
     $skuSearchTerm = "%{$searchQuery}%";
     $skuExactTerm = $searchQuery;
+    
+    // Create fuzzy search variations for better matching
+    $fuzzySearchTerms = [];
+    
+    // Add the original normalized query
+    $fuzzySearchTerms[] = $normalizedQuery;
+    
+    // If the query contains spaces, also try without spaces (e.g., "Kit Kat" -> "kitkat")
+    if (strpos($normalizedQuery, ' ') !== false) {
+        $fuzzySearchTerms[] = str_replace(' ', '', $normalizedQuery);
+    }
+    
+    // If the query doesn't contain spaces, try adding spaces between characters (e.g., "kitkat" -> "kit kat")
+    if (strpos($normalizedQuery, ' ') === false && strlen($normalizedQuery) > 3) {
+        // Try different space combinations for longer words
+        $word = $normalizedQuery;
+        for ($i = 1; $i < strlen($word) - 1; $i++) {
+            $fuzzySearchTerms[] = substr($word, 0, $i) . ' ' . substr($word, $i);
+        }
+    }
+    
+    // Create search patterns for all fuzzy terms
+    $searchPatterns = [];
+    foreach ($fuzzySearchTerms as $term) {
+        $searchPatterns[] = "%{$term}%";
+        $searchPatterns[] = $term . '%'; // starts with
+    }
 
     // Check if we're just getting filters
     $getFilters = isset($_GET['filters']) && $_GET['filters'] === 'true';
 
     if ($getFilters) {
+        // Build dynamic search conditions for fuzzy matching
+        $searchConditions = [];
+        $filterParams = [];
+        
+        // Add fuzzy search patterns for title and description
+        foreach ($searchPatterns as $pattern) {
+            $searchConditions[] = 'LOWER(title) LIKE ?';
+            $searchConditions[] = 'LOWER(description) LIKE ?';
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+        }
+        
+        // Add SKU search conditions
+        $searchConditions[] = 'LOWER(sku) LIKE ?';
+        $searchConditions[] = 'sku LIKE ?';
+        $searchConditions[] = 'LOWER(sku) = LOWER(?)';
+        $filterParams[] = '%' . $searchTerm . '%';
+        $filterParams[] = $skuSearchTerm;
+        $filterParams[] = $skuExactTerm;
+        
         // Get unique filter values for the search results
         $stmt = $pdo->prepare('
             SELECT DISTINCT 
@@ -69,16 +116,10 @@ try {
                 `attribute:pa_size` as size
             FROM stiles_products 
             WHERE status = "publish" 
-            AND (
-                LOWER(title) LIKE ? 
-                OR LOWER(description) LIKE ? 
-                OR LOWER(sku) LIKE ?
-                OR sku LIKE ?
-                OR LOWER(sku) = LOWER(?)
-            )
+            AND (' . implode(' OR ', $searchConditions) . ')
         ');
         
-        $stmt->execute(['%' . strtolower($searchQuery) . '%', '%' . strtolower($searchQuery) . '%', '%' . $searchTerm . '%', $skuSearchTerm, $skuExactTerm]);
+        $stmt->execute($filterParams);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the results to get unique values
@@ -114,27 +155,33 @@ try {
         exit();
     }
 
+    // Build dynamic search conditions for fuzzy matching
+    $mainSearchConditions = [];
+    $mainParams = [];
+    
+    // Add fuzzy search patterns for title and description
+    foreach ($searchPatterns as $pattern) {
+        $mainSearchConditions[] = 'LOWER(title) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(description) LIKE ?';
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+    }
+    
+    // Add SKU search conditions
+    $mainSearchConditions[] = 'LOWER(sku) LIKE ?';
+    $mainSearchConditions[] = 'sku LIKE ?';
+    $mainSearchConditions[] = 'LOWER(sku) = LOWER(?)';
+    $mainParams[] = '%' . $searchTerm . '%';
+    $mainParams[] = $skuSearchTerm;
+    $mainParams[] = $skuExactTerm;
+    
     // Build the base query for products
     $baseQuery = '
         SELECT COUNT(*) as total 
         FROM stiles_products 
         WHERE status = "publish" 
-        AND (
-            LOWER(title) LIKE ? 
-            OR LOWER(title) LIKE ? 
-            OR LOWER(description) LIKE ? 
-            OR LOWER(sku) LIKE ? 
-            OR sku LIKE ? 
-            OR LOWER(sku) = LOWER(?)
-        )';
-    $params = [
-        $startsWithTerm,                      // For starts with match
-        '%' . strtolower($searchQuery) . '%', // For contains match in title
-        '%' . strtolower($searchQuery) . '%', // For contains match in description
-        '%' . $searchTerm . '%',              // For SKU like match
-        $skuSearchTerm,                       // For SKU exact match
-        $skuExactTerm                         // For SKU case-insensitive match
-    ];
+        AND (' . implode(' OR ', $mainSearchConditions) . ')';
+    $params = $mainParams;
     
     // Add filter conditions
     if (isset($_GET['finish']) && !empty($_GET['finish'])) {
@@ -195,43 +242,67 @@ try {
     $countStmt->execute($params);
     $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Add sorting
+    // Add sorting with fuzzy search priority
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-    $orderBy = 'ORDER BY 
+    
+    // Build sorting conditions for fuzzy search
+    $sortConditions = [];
+    $sortParams = [];
+    
+    // Add exact match first (highest priority)
+    $sortConditions[] = 'LOWER(title) = LOWER(?)';
+    $sortParams[] = $searchQuery;
+    
+    // Add starts with conditions for all fuzzy terms
+    foreach ($fuzzySearchTerms as $term) {
+        $sortConditions[] = 'LOWER(title) LIKE ?';
+        $sortParams[] = $term . '%';
+    }
+    
+    // Add contains conditions for all fuzzy terms
+    foreach ($fuzzySearchTerms as $term) {
+        $sortConditions[] = 'LOWER(title) LIKE ?';
+        $sortParams[] = '%' . $term . '%';
+    }
+    
+    // Build the CASE statement for sorting
+    $caseStatements = [];
+    foreach ($sortConditions as $index => $condition) {
+        $caseStatements[] = "WHEN {$condition} THEN {$index}";
+    }
+    $caseStatement = implode(' ', $caseStatements);
+    
+    $orderBy = "ORDER BY 
         CASE 
-            WHEN LOWER(title) LIKE ? THEN 0 
-            WHEN LOWER(title) LIKE ? THEN 1
-            ELSE 2 
+            {$caseStatement}
+            ELSE " . count($sortConditions) . "
         END,
-        post_date DESC';
+        post_date DESC";
     
     switch ($sortBy) {
         case 'desc':
-            $orderBy = 'ORDER BY 
+            $orderBy = "ORDER BY 
                 CASE 
-                    WHEN LOWER(title) LIKE ? THEN 0 
-                    WHEN LOWER(title) LIKE ? THEN 1
-                    ELSE 2 
+                    {$caseStatement}
+                    ELSE " . count($sortConditions) . "
                 END,
-                post_date ASC';
+                post_date ASC";
             break;
         case 'nuev':
-            $orderBy = 'ORDER BY 
+            $orderBy = "ORDER BY 
                 CASE 
-                    WHEN LOWER(title) LIKE ? THEN 0 
-                    WHEN LOWER(title) LIKE ? THEN 1
-                    ELSE 2 
+                    {$caseStatement}
+                    ELSE " . count($sortConditions) . "
                 END,
-                regular_price ASC';
+                regular_price ASC";
             break;
         case 'vend':
-            $orderBy = 'ORDER BY 
+            $orderBy = "ORDER BY 
                 CASE 
-                    WHEN LOWER(title) LIKE ? THEN 0 
-                    WHEN LOWER(title) LIKE ? THEN 1
-                    ELSE 2 
+                    {$caseStatement}
+                    ELSE " . count($sortConditions) . "
                 END,
-                regular_price DESC';
+                regular_price DESC";
             break;
     }
 
@@ -253,8 +324,7 @@ try {
     ', $baseQuery) . ' ' . $orderBy;
 
     // Add the sorting parameters
-    $params[] = $startsWithTerm;                    // For exact starts with match
-    $params[] = '%' . strtolower($searchQuery) . '%'; // For contains match
+    $params = array_merge($params, $sortParams);
 
     // Add pagination
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
