@@ -157,7 +157,12 @@ const Product = () => {
 
     useEffect(() => {
         console.log("Starting product fetch for ID:", id);
-        fetch(`https://stiles.co.za/api/products.php?slug=${id}`)
+        // If admin, fetch product regardless of status, otherwise only published
+        const apiUrl = isAdmin 
+            ? `https://stiles.co.za/api/admin-products.php?slug=${id}`
+            : `https://stiles.co.za/api/products.php?slug=${id}`;
+        
+        fetch(apiUrl)
         .then(res => {
             console.log("Product API response status:", res.status);
             if (!res.ok) {
@@ -167,9 +172,9 @@ const Product = () => {
         })
         .then(response => {
             console.log('Product data:', response);
-            if (response.status === 'success' && response.data) {
-                console.log('Product data:', response.data);
-                const product = response.data;
+            if (response.status === 'success' && (response.data || response.product)) {
+                console.log('Product data:', response.data || response.product);
+                const product = response.data || response.product;
                 // Process images if they exist in the format we expect
                 const images = [];
                 
@@ -497,12 +502,35 @@ const Product = () => {
             </div>
             <div className='w-full lg:w-6/12 flex flex-col justify-start items-start gap-1'>
                 {isAdmin && (
-                    <button 
-                        onClick={() => navigate(`/admin/products?slug=${product?.slug}`)} 
-                        className='text-white hover:text-dark hover:bg-blue-100 transition-all text-sm py-2 px-4 rounded bg-blue-600 border border-blue-600 mb-3'
-                    >
-                        Edit Product
-                    </button>
+                    <div className="flex flex-col gap-2 mb-3">
+                        {product?.status && product.status !== 'publish' && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-gray-600">Status:</span>
+                                <span
+                                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                        product.status === "publish"
+                                            ? "bg-green-100 text-green-800"
+                                            : product.status === "private"
+                                            ? "bg-gray-100 text-gray-800"
+                                            : "bg-yellow-100 text-yellow-800"
+                                    }`}
+                                >
+                                    {product.status === "publish" 
+                                        ? "Published" 
+                                        : product.status === "private"
+                                        ? "Private"
+                                        : "Draft"
+                                    }
+                                </span>
+                            </div>
+                        )}
+                        <button 
+                            onClick={() => navigate(`/admin/products?slug=${product?.slug}`)} 
+                            className='text-white hover:text-dark hover:bg-blue-100 transition-all text-sm py-2 px-4 rounded bg-blue-600 border border-blue-600'
+                        >
+                            Edit Product
+                        </button>
+                    </div>
                 )}
                 <div className="flex flex-row gap-2 mb-4">
                     <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-dark transition-all text-sm py-2 px-4 rounded bg-secondary'>Return to results</button>

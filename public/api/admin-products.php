@@ -28,6 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Set headers
 header('Content-Type: application/json');
+
+// Log all requests for debugging
+error_log('Request received: ' . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI']);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -387,18 +390,67 @@ try {
             
             // Check if this is an update operation (has ID and ID exists in database)
             $isUpdate = false;
-            if (isset($data['id']) && !empty($data['id'])) {
-                // Check if the product with this ID actually exists in the database
+            if (isset($data['id']) && !empty($data['id']) && $data['id'] != '0') {
+                // First try exact match
                 $checkStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products sp WHERE sp.ID = ?');
                 $checkStmt->execute([$data['id']]);
                 $result = $checkStmt->fetch();
                 $isUpdate = $result['count'] > 0;
+                
+                // If exact match fails, try to find a similar ID (for precision issues)
+                if (!$isUpdate) {
+                    // Convert to integer and search for IDs in a range around it
+                    $idInt = (int)$data['id'];
+                    $rangeStart = $idInt - 1000; // Look 1000 IDs before
+                    $rangeEnd = $idInt + 1000;   // Look 1000 IDs after
+                    
+                    $rangeStmt = $pdo->prepare('SELECT ID FROM stiles_products WHERE ID BETWEEN ? AND ? ORDER BY ABS(ID - ?) LIMIT 1');
+                    $rangeStmt->execute([$rangeStart, $rangeEnd, $idInt]);
+                    $rangeResult = $rangeStmt->fetch();
+                    
+                    if ($rangeResult) {
+                        // Found a similar ID, use that instead
+                        $data['id'] = $rangeResult['ID'];
+                        $isUpdate = true;
+                        error_log('Found similar ID: ' . $rangeResult['ID'] . ' for requested ID: ' . $data['id']);
+                    }
+                }
+                
+                error_log('Product ID check: ID=' . $data['id'] . ', exists=' . ($isUpdate ? 'yes' : 'no'));
             }
             error_log('POST operation - isUpdate: ' . ($isUpdate ? 'true' : 'false') . ' (ID: ' . ($data['id'] ?? 'none') . ')');
+            
+            // If frontend sent an ID but it doesn't exist in database, treat as new product
+            if (isset($data['id']) && !empty($data['id']) && $data['id'] != '0' && !$isUpdate) {
+                error_log('Frontend sent ID ' . $data['id'] . ' but product does not exist in database. Treating as new product creation.');
+                unset($data['id']); // Remove the non-existent ID
+            }
 
-            // Generate file URLs with proper format
+            // For new products, check if SKU already exists to prevent duplicates
+            if (!$isUpdate && !empty($data['sku'])) {
+                error_log('Checking SKU for new product: ' . $data['sku']);
+                $skuCheckStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE sku = ?');
+                $skuCheckStmt->execute([$data['sku']]);
+                $skuResult = $skuCheckStmt->fetch();
+                if ($skuResult['count'] > 0) {
+                    error_log('SKU conflict detected for new product: ' . $data['sku']);
+                    http_response_code(409);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'A product with this SKU already exists',
+                        'error' => 'SKU_CONFLICT'
+                    ], JSON_UNESCAPED_SLASHES);
+                    exit();
+                }
+            } else if ($isUpdate && !empty($data['sku'])) {
+                error_log('Skipping SKU check for update operation. Product ID: ' . $data['id']);
+            }
+
+            // Generate file URLs with proper format and unique timestamps to prevent conflicts
             $currentYear = date('Y');
             $currentMonth = date('m');
+            $timestamp = time();
+            $microtime = substr(microtime(), 2, 6); // Get microseconds for uniqueness
             $baseUrl = "https://stiles.co.za/images/{$currentYear}/{$currentMonth}/";
 
             // Process PDF URL
@@ -459,6 +511,9 @@ try {
                 }
             }
 
+            // Start transaction to prevent race conditions
+            $pdo->beginTransaction();
+            
             try {
                 if ($isUpdate) {
                     // Update existing product
@@ -513,12 +568,33 @@ try {
                         $data['id']
                     ]);
 
-                    echo json_encode([
+                    $pdo->commit();
+                    $response = [
                         'status' => 'success',
                         'message' => 'Product updated successfully'
-                    ]);
+                    ];
+                    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
                 } else {
-                    // Create new product
+                    // Generate a unique ID using timestamp and random number to prevent conflicts
+                    // Using a more stable approach to avoid precision issues
+                    $timestamp = time(); // Use seconds since epoch for stability
+                    $microseconds = (int)(microtime(true) * 1000000) % 1000000; // Get microseconds part
+                    $random = mt_rand(100, 999);
+                    $newId = $timestamp . $microseconds . $random;
+                    
+                    // Ensure the ID is unique by checking if it exists
+                    $idCheckStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE ID = ?');
+                    $idCheckStmt->execute([$newId]);
+                    $idResult = $idCheckStmt->fetch();
+                    
+                    // If ID exists, generate a new one
+                    while ($idResult['count'] > 0) {
+                        $newId = $timestamp . mt_rand(1000, 9999);
+                        $idCheckStmt->execute([$newId]);
+                        $idResult = $idCheckStmt->fetch();
+                    }
+                    
+                    // Create new product with generated ID
                     $stmt = $pdo->prepare('
                         INSERT INTO stiles_products (
                             ID, title, slug, description, status, post_date, sku, stock, 
@@ -530,7 +606,7 @@ try {
                     ');
                     
                     $stmt->execute([
-                        $data['id'] ?? null,
+                        $newId,
                         $data['title'],
                         $data['slug'] ?? '',
                         $data['description'] ?? '',
@@ -554,15 +630,18 @@ try {
                         $data['promo'] ?? ''
                     ]);
 
-                    $productId = $pdo->lastInsertId();
+                    $pdo->commit();
 
-                    echo json_encode([
+                    $response = [
                         'status' => 'success',
                         'message' => 'Product created successfully',
-                        'product_id' => $productId
-                    ]);
+                        'product_id' => $newId
+                    ];
+                    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
                 }
             } catch(PDOException $e) {
+                // Rollback transaction on error
+                $pdo->rollBack();
                 error_log('Database error in POST: ' . $e->getMessage());
                 http_response_code(500);
                 echo json_encode([
@@ -577,7 +656,12 @@ try {
 
         case 'DELETE':
             // Delete product
+            error_log('DELETE request received. Data: ' . print_r($data, true));
+            error_log('DELETE request method: ' . $_SERVER['REQUEST_METHOD']);
+            error_log('DELETE request URI: ' . $_SERVER['REQUEST_URI']);
+            
             if (!isset($data['id'])) {
+                error_log('DELETE request missing ID. Available data: ' . print_r($data, true));
                 http_response_code(400);
                 echo json_encode(['error' => 'Product ID is required']);
                 exit();

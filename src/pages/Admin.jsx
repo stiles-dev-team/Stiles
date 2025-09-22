@@ -18,6 +18,7 @@ import AdminUniqueColours from './admin/UniqueColours'
 import AdminUniqueFinishes from './admin/UniqueFinishes'
 import AdminUniqueSizes from './admin/UniqueSizes'
 import AdminUniquePromos from './admin/UniquePromos'
+import AdminLocations from './admin/Locations'
 
 const Admin = () => {
     const { isAuthenticated, isAdmin, user } = useAuth()
@@ -41,6 +42,7 @@ const Admin = () => {
       { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
+      { name: 'Locations', href: '/admin/locations', icon: '📍' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
       { name: 'Content', href: '/admin/content', icon: '📝' },
       // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
@@ -97,6 +99,7 @@ const Admin = () => {
                   <Route path="/unique-finishes" element={<AdminUniqueFinishes />} />
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
+                  <Route path="/locations" element={<AdminLocations />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />
                   <Route path="/content" element={<AdminContent />} />
                   <Route path="/settings" element={<AdminSettings />} />

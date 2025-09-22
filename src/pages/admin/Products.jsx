@@ -68,8 +68,6 @@ const AdminProducts = () => {
   const [showExcelInstructions, setShowExcelInstructions] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [showQuickView, setShowQuickView] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -96,10 +94,13 @@ const AdminProducts = () => {
     setOpenMenuId(null);
   };
 
-  // Function to handle quick view
+  // Function to handle quick view - redirect to product page
   const handleQuickView = (product) => {
-    setQuickViewProduct(product);
-    setShowQuickView(true);
+    if (product.slug) {
+      window.open(`/product/${product.slug}`, '_blank');
+    } else {
+      alert('Product slug not found');
+    }
     closeMenu();
   };
 
@@ -643,7 +644,7 @@ const AdminProducts = () => {
       
       // Add editing product ID if updating
       if (editingProduct) {
-        formDataToSend.append('id', editingProduct.ID || editingProduct.id);
+        formDataToSend.append('id', String(editingProduct.ID || editingProduct.id));
       }
       
       // Debug: Log what's being sent
@@ -712,7 +713,12 @@ const AdminProducts = () => {
          });
         fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
       } else {
-        alert("Error: " + result.message);
+        // Handle specific error types
+        if (result.error === 'SKU_CONFLICT') {
+          alert("Error: A product with this SKU already exists. Please use a different SKU.");
+        } else {
+          alert("Error: " + result.message);
+        }
       }
     } catch (error) {
       console.error("Error saving product:", error);
@@ -798,6 +804,8 @@ const AdminProducts = () => {
     console.log("Product data:", product);
     console.log("Product ID:", product.id);
     console.log("Product ID (uppercase):", product.ID);
+    console.log("Product ID as string:", String(product.ID || product.id));
+    console.log("Product ID type:", typeof (product.ID || product.id));
     setEditingProduct(product);
     closeMenu();
     
@@ -808,7 +816,7 @@ const AdminProducts = () => {
     }
     
     setFormData({
-      id: product.ID || product.id || "",
+      id: String(product.ID || product.id || ""),
       title: product.title || "",
       slug: product.slug || "",
       description: product.description || "",
@@ -2604,168 +2612,6 @@ const AdminProducts = () => {
         </div>
       )}
 
-      {/* Quick View Modal */}
-      {showQuickView && quickViewProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Quick View - {quickViewProduct.title}
-              </h3>
-              <button
-                onClick={() => {
-                  setShowQuickView(false);
-                  setQuickViewProduct(null);
-                }}
-                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Product Images */}
-                <div>
-                  <h4 className="text-md font-medium text-gray-900 mb-3">Product Images</h4>
-                  <div className="space-y-4">
-                    {/* Featured Image */}
-                    {quickViewProduct.featured_image && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
-                        <img
-                          src={quickViewProduct.featured_image + "?v=" + new Date().getTime()}
-                          alt={quickViewProduct.title}
-                          className="w-full h-64 object-cover rounded-md border"
-                          onError={(e) => {
-                            e.target.src = "/images/product_ph.png";
-                          }}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Gallery Images */}
-                    {quickViewProduct.gallery_images && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Gallery Images</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {quickViewProduct.gallery_images.split(', ').map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.trim() + "?v=" + new Date().getTime()}
-                              alt={`Gallery ${index + 1}`}
-                              className="w-full h-20 object-cover rounded border"
-                              onError={(e) => {
-                                e.target.src = "/images/product_ph.png";
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Product Details */}
-                <div>
-                  <h4 className="text-md font-medium text-gray-900 mb-3">Product Details</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Title</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.title}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Slug</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.slug}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">SKU</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.sku || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Status</label>
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          quickViewProduct.status === "publish"
-                            ? "bg-green-100 text-green-800"
-                            : quickViewProduct.status === "private"
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {quickViewProduct.status === "publish" 
-                          ? "Published" 
-                          : quickViewProduct.status === "private"
-                          ? "Private"
-                          : "Draft"
-                        }
-                      </span>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Brand</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_brands"] || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Colour</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_colour"] || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Finish</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_finish"] || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Size</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct["attribute:pa_size"] || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Categories</label>
-                      <p className="mt-1 text-sm text-gray-900">{quickViewProduct.product_category || "N/A"}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
-                      <div 
-                        className="mt-1 text-sm text-gray-900 max-h-32 overflow-y-auto"
-                        dangerouslySetInnerHTML={{ __html: quickViewProduct.description || "No description" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setShowQuickView(false);
-                    setQuickViewProduct(null);
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    setShowQuickView(false);
-                    setQuickViewProduct(null);
-                    handleEditProduct(quickViewProduct);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
-                >
-                  Edit Product
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
