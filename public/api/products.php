@@ -40,6 +40,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Get unique filter values by promo
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
+    try {
+        $promo = $_GET['promo'];
+        
+        // Debug: Check what promo values exist
+        $debugStmt = $pdo->prepare('SELECT DISTINCT promo FROM stiles_products WHERE status = "publish" AND promo IS NOT NULL AND promo != ""');
+        $debugStmt->execute();
+        $existingPromos = $debugStmt->fetchAll(PDO::FETCH_COLUMN);
+        error_log("Filter values - Existing promo values: " . implode(', ', $existingPromos));
+        error_log("Filter values - Looking for promo: '{$promo}'");
+        
+        // First get all products for this promo
+        $stmt = $pdo->prepare('
+            SELECT 
+                `attribute:pa_colour` as colour,
+                `attribute:pa_finish` as finish,
+                `attribute:pa_brands` as brands,
+                `attribute:pa_size` as size
+            FROM stiles_products 
+            WHERE status = "publish" 
+            AND promo = ?
+        ');
+        
+        $stmt->execute([$promo]);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("Filter values - Found " . count($products) . " products for promo '{$promo}'");
+        
+        // Process the results to get unique values
+        $processValues = function($products, $field) {
+            $values = [];
+            foreach ($products as $product) {
+                if (!empty($product[$field])) {
+                    $fieldValues = explode(',', $product[$field]);
+                    foreach ($fieldValues as $value) {
+                        $value = trim($value);
+                        if (!empty($value)) {
+                            $values[] = $value;
+                        }
+                    }
+                }
+            }
+            $values = array_unique($values);
+            sort($values);
+            return array_values($values);
+        };
+        
+        $filters = [
+            'colours' => $processValues($products, 'colour'),
+            'finishes' => $processValues($products, 'finish'),
+            'brands' => $processValues($products, 'brands'),
+            'sizes' => $processValues($products, 'size')
+        ];
+        
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Filter values retrieved successfully',
+            'data' => $filters
+        ]);
+        exit();
+        
+    } catch(PDOException $e) {
+        error_log('Database error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Error fetching filter values',
+            'error' => $e->getMessage(),
+            'error_code' => $e->getCode()
+        ]);
+        exit();
+    }
+}
+
 // Get unique filter values by category
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
@@ -435,7 +509,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
 }
 
 // Get all products (published by default)
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET['slug']) && !isset($_GET['category']) && !isset($_GET['brand'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET['slug']) && !isset($_GET['category']) && !isset($_GET['brand']) && !isset($_GET['promo'])) {
     try {
         // First, let's try a simple query to get just one product
         $stmt = $pdo->query('SELECT * FROM stiles_products WHERE status = "publish" LIMIT 1');
@@ -521,6 +595,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['slug'])) {
             exit();
         }
         
+        // Get media information for featured image
+        $featuredImageData = null;
+        if (!empty($product['featured_image'])) {
+            $mediaStmt = $pdo->prepare('SELECT alt_text, description FROM media_files WHERE file_path = ?');
+            $mediaStmt->execute([$product['featured_image']]);
+            $featuredImageData = $mediaStmt->fetch(PDO::FETCH_ASSOC);
+        }
+        
+        // Get media information for gallery images
+        $galleryImagesData = [];
+        if (!empty($product['gallery_images'])) {
+            $galleryImages = explode(',', $product['gallery_images']);
+            foreach ($galleryImages as $imageUrl) {
+                $imageUrl = trim($imageUrl);
+                if (!empty($imageUrl)) {
+                    $mediaStmt = $pdo->prepare('SELECT alt_text, description FROM media_files WHERE file_path = ?');
+                    $mediaStmt->execute([$imageUrl]);
+                    $mediaData = $mediaStmt->fetch(PDO::FETCH_ASSOC);
+                    $galleryImagesData[] = [
+                        'url' => $imageUrl,
+                        'alt_text' => $mediaData ? $mediaData['alt_text'] : '',
+                        'description' => $mediaData ? $mediaData['description'] : ''
+                    ];
+                }
+            }
+        }
+        
+        // Add media data to product
+        $product['featured_image_data'] = $featuredImageData;
+        $product['gallery_images_data'] = $galleryImagesData;
+        
         echo json_encode([
             'status' => 'success',
             'message' => 'Product retrieved successfully',
@@ -556,6 +661,256 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['admin']) && $_GET['admi
             'error' => $e->getMessage(),
             'error_code' => $e->getCode()
         ]);
+    }
+}
+
+// Debug endpoint to check promo values
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET['debug']) && $_GET['debug'] === 'true') {
+    try {
+        // Get all distinct promo values
+        $stmt = $pdo->prepare('SELECT DISTINCT promo, COUNT(*) as count FROM stiles_products WHERE status = "publish" GROUP BY promo ORDER BY count DESC');
+        $stmt->execute();
+        $promoStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Promo statistics',
+            'data' => $promoStats
+        ]);
+        exit();
+    } catch(PDOException $e) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Error fetching promo stats',
+            'error' => $e->getMessage()
+        ]);
+        exit();
+    }
+}
+
+// Get products by promo
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_GET['filters']) || $_GET['filters'] !== 'true')) {
+    try {
+        $promo = $_GET['promo'];
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
+        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+        
+        // Validate limit
+        if ($limit <= 0 || $limit > 100) {
+            $limit = 15; // Default to 15 if invalid
+        }
+        
+        // Debug log
+        error_log("Fetching products for promo: {$promo} with limit: {$limit} and offset: {$offset}");
+        
+        // First, let's check what promo values exist in the database
+        $debugStmt = $pdo->prepare('SELECT DISTINCT promo FROM stiles_products WHERE status = "publish" AND promo IS NOT NULL AND promo != ""');
+        $debugStmt->execute();
+        $existingPromos = $debugStmt->fetchAll(PDO::FETCH_COLUMN);
+        error_log("Existing promo values in database: " . implode(', ', $existingPromos));
+        
+        // Check exact count for this promo
+        $countStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND promo = ?');
+        $countStmt->execute([$promo]);
+        $exactCount = $countStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        error_log("Exact count for promo '{$promo}': {$exactCount}");
+        
+        // Also check with strict matching
+        $strictCountStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND promo = ? AND promo IS NOT NULL AND promo != "" AND TRIM(promo) = ?');
+        $strictCountStmt->execute([$promo, $promo]);
+        $strictCount = $strictCountStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        error_log("Strict count for promo '{$promo}': {$strictCount}");
+        
+        // Also check total published products
+        $totalStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish"');
+        $totalStmt->execute();
+        $totalCount = $totalStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        error_log("Total published products: {$totalCount}");
+        
+        // Check if there are any products with promo field that's not null/empty
+        $promoStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND promo IS NOT NULL AND promo != ""');
+        $promoStmt->execute();
+        $promoCount = $promoStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        error_log("Products with any promo value: {$promoCount}");
+        
+        // Build the base query - make sure we're filtering correctly
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND promo = ?';
+        $params = [$promo];
+        
+        // Add filter conditions
+        if (isset($_GET['brands']) && !empty($_GET['brands'])) {
+            $brands = explode(',', $_GET['brands']);
+            $brandConditions = [];
+            foreach ($brands as $brand) {
+                // Clean the brand name and handle spaces
+                $cleanBrand = trim($brand);
+                // Log the raw brand value and cleaned brand value
+                error_log("Raw brand value: " . $brand);
+                error_log("Cleaned brand value: " . $cleanBrand);
+                
+                // Use LIKE with wildcards for more flexible matching
+                $brandConditions[] = '`attribute:pa_brands` LIKE ?';
+                $params[] = '%' . $cleanBrand . '%';
+            }
+            if (!empty($brandConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $brandConditions) . ')';
+            }
+            error_log("Brand filter conditions: " . implode(' OR ', $brandConditions));
+            error_log("Brand filter params: " . implode(', ', $params));
+            error_log("Raw brands from URL: " . $_GET['brands']);
+        }
+        
+        if (isset($_GET['finish']) && !empty($_GET['finish'])) {
+            $finishes = explode(',', $_GET['finish']);
+            $finishConditions = [];
+            foreach ($finishes as $finish) {
+                $cleanFinish = trim($finish);
+                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $params[] = '%' . $cleanFinish. '%';
+            }
+            if (!empty($finishConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $finishConditions) . ')';
+            }
+        }
+        
+        if (isset($_GET['colours']) && !empty($_GET['colours'])) {
+            $colours = explode(',', $_GET['colours']);
+            $colourConditions = [];
+            foreach ($colours as $colour) {
+                $cleanColour = trim($colour);
+                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $params[] = '%' . $cleanColour. '%';
+            }
+            if (!empty($colourConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
+            }
+        }
+        
+        if (isset($_GET['sizes']) && !empty($_GET['sizes'])) {
+            $sizes = explode(',', $_GET['sizes']);
+            $sizeConditions = [];
+            foreach ($sizes as $size) {
+                $cleanSize = trim($size);
+                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $params[] = '%' . $cleanSize . '%';
+            }
+            if (!empty($sizeConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
+            }
+        }
+        
+        if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+            $baseQuery .= ' AND regular_price >= ?';
+            $params[] = (float)$_GET['min_price'];
+        }
+        
+        if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+            $baseQuery .= ' AND regular_price <= ?';
+            $params[] = (float)$_GET['max_price'];
+        }
+        
+        // Log the final query and parameters
+        error_log("Final query: " . $baseQuery);
+        error_log("Final params: " . implode(', ', $params));
+        
+        // Get total count with filters
+        $countStmt = $pdo->prepare($baseQuery);
+        $countStmt->execute($params);
+        $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        
+        // Log the total count
+        error_log("Total count: " . $totalCount);
+        
+        // Add sorting
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
+        $orderBy = 'ORDER BY post_date DESC';
+        switch ($sortBy) {
+            case 'desc':
+                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
+                break;
+            case 'nuev':
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
+                break;
+            case 'vend':
+                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                break;
+            case 'ascBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                break;
+            case 'descBrand':
+                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
+                break;
+        }
+        
+        // Build the final query with pagination
+        $query = str_replace('COUNT(*) as total', '
+            ID,
+            title,
+            slug,
+            featured_image,
+            regular_price,
+            sale_price,
+            product_category,
+            `attribute:pa_colour` as colour,
+            `attribute:pa_finish` as finish,
+            `attribute:pa_brands` as brands,
+            `attribute:pa_size` as size,
+            status,
+            post_date
+        ', $baseQuery) . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
+        
+        // Add pagination parameters
+        $params[] = $limit;
+        $params[] = $offset;
+        
+        // Execute the query
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Process the data to minimize size
+        $processedProducts = array_map(function($product) {
+            return [
+                'id' => (int)$product['ID'],
+                'title' => $product['title'],
+                'slug' => $product['slug'],
+                'image' => $product['featured_image'],
+                'price' => [
+                    'regular' => (float)$product['regular_price'],
+                    'sale' => $product['sale_price'] ? (float)$product['sale_price'] : null
+                ],
+                'category' => $product['product_category'],
+                'colour' => $product['colour'],
+                'finish' => $product['finish'],
+                'brands' => $product['brands'],
+                'size' => $product['size'],
+                'status' => $product['status'],
+                'post_date' => $product['post_date']
+            ];
+        }, $products);
+        
+        $response = [
+            'status' => 'success',
+            'data' => $processedProducts,
+            'total_count' => (int)$totalCount,
+            'current_page' => floor($offset / $limit) + 1,
+            'total_pages' => ceil($totalCount / $limit),
+            'per_page' => $limit
+        ];
+        
+        echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        exit();
+        
+    } catch(PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Error fetching products',
+            'error' => $e->getMessage(),
+            'error_code' => $e->getCode()
+        ]);
+        exit();
     }
 }
 

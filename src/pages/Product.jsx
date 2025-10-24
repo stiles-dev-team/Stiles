@@ -59,6 +59,19 @@ import { useAuth } from '../context/AuthContext';
   }
 
 const Product = () => {
+    // Function to extract YouTube video ID from URL
+    const extractYouTubeId = (url) => {
+        if (!url) return '';
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : '';
+    };
+
+    // Function to get YouTube thumbnail
+    const getYouTubeThumbnail = (url) => {
+        const videoId = extractYouTubeId(url);
+        return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+    };
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -182,15 +195,26 @@ const Product = () => {
                 if (product.featured_image) {
                     images.push({
                         url: product.featured_image,
-                        alt: product.title,
+                        alt: product.featured_image_data?.alt_text || product.title,
                         title: product.title,
-                        desc: '',
-                        caption: ''
+                        desc: product.featured_image_data?.description || '',
+                        caption: product.featured_image_data?.description || ''
                     });
                 }
 
                 // Add gallery images if they exist
-                if (product.gallery_images) {
+                if (product.gallery_images_data && product.gallery_images_data.length > 0) {
+                    // Use the new gallery_images_data structure
+                    const galleryImages = product.gallery_images_data.map(imageData => ({
+                        url: imageData.url,
+                        alt: imageData.alt_text || product.title,
+                        title: product.title,
+                        desc: imageData.description || '',
+                        caption: imageData.description || ''
+                    }));
+                    images.push(...galleryImages);
+                } else if (product.gallery_images) {
+                    // Fallback to old format if new data is not available
                     const galleryImages = product.gallery_images.split(',').map(imageBlock => {
                         const [url, alt, title, desc, caption] = imageBlock.split('!').map(str => str.split(':').pop().trim());
                         return { url, alt, title, desc, caption };
@@ -198,14 +222,31 @@ const Product = () => {
                     images.push(...galleryImages);
                 }
 
+                // Add YouTube video if it exists
+                if (product.youtube_video_url) {
+                    const videoId = extractYouTubeId(product.youtube_video_url);
+                    if (videoId) {
+                        images.push({
+                            url: product.youtube_video_url,
+                            thumbnail: getYouTubeThumbnail(product.youtube_video_url),
+                            videoId: videoId,
+                            alt: `${product.title} - Video`,
+                            title: `${product.title} - Video`,
+                            desc: 'Product video',
+                            caption: 'Product video',
+                            isVideo: true
+                        });
+                    }
+                }
+
                 // If no images were added, create one with the featured image
                 if (images.length === 0 && product.featured_image) {
                     images.push({
                         url: product.featured_image,
-                        alt: product.title,
+                        alt: product.featured_image_data?.alt_text || product.title,
                         title: product.title,
-                        desc: '',
-                        caption: ''
+                        desc: product.featured_image_data?.description || '',
+                        caption: product.featured_image_data?.description || ''
                     });
                 }
 
@@ -233,17 +274,14 @@ const Product = () => {
                         console.log('Stock info response:', response);
                         if (response && response.data) {
                             setStockInfo(response.data);
-                            
                         } else {
                             console.warn('Stock info response did not contain expected fields:', response);
-                            // Redirect to shop if SKU doesn't exist
-                            navigate('/shop');
+                            // Don't redirect, just don't show the Add to Quote button
                         }
                     })
                     .catch(err => {
                         console.error('Error fetching stock info:', err);
-                        // Redirect to shop if there's an error fetching stock info
-                        navigate('/shop');
+                        // Don't redirect, just don't show the Add to Quote button
                     });
                 } else {
                     console.warn('No SKU found for product');
@@ -493,10 +531,46 @@ const Product = () => {
         </Dialog>
         <div className='container mx-auto flex flex-col lg:flex-row justify-between items-start gap-10 pt-20 lg:pt-40 pb-20 px-4'>
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2 h-full max-h-[600px]'>
-                <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
+                {product?.images[imageSelected]?.isVideo ? (
+                    <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
+                        <iframe
+                            src={`https://www.youtube.com/embed/${product.images[imageSelected].videoId}?autoplay=1`}
+                            title={product.images[imageSelected].title}
+                            className="w-full h-full"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        />
+                    </div>
+                ) : (
+                    <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
+                )}
             <div className="flex flex-row lg:flex-col justify-start items-start gap-2 h-full max-h-[600px] overflow-y-auto">
                     {product?.images.map((image, index) => (
-                        <img onClick={() => setImageSelected(index)} key={index} src={image.url + "?v=" + new Date().getTime()} alt={image.alt} title={image.title} className={`w-12 lg:w-14 aspect-square object-cover object-center rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`} />
+                        <div key={index} onClick={() => setImageSelected(index)} className={`w-12 lg:w-14 aspect-square rounded-md cursor-pointer transition-all ${imageSelected == index ? "opacity-100 border border-dark" : "opacity-60 border border-white hover:opacity-100 hover:border-dark/50"}`}>
+                            {image.isVideo ? (
+                                <div className="relative w-full h-full">
+                                    <img 
+                                        src={image.thumbnail} 
+                                        alt={image.alt} 
+                                        title={image.title} 
+                                        className="w-full h-full object-cover object-center rounded-md"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md">
+                                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            ) : (
+                                <img 
+                                    src={image.url + "?v=" + new Date().getTime()} 
+                                    alt={image.alt} 
+                                    title={image.title} 
+                                    className="w-full h-full object-cover object-center rounded-md"
+                                />
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
@@ -604,49 +678,62 @@ const Product = () => {
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
                     {
-                        stockInfo?.model == 'PC' ?
-                        <button 
-                            className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
-                            onClick={handleOpenQuote}
-                            disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
-                        >
-                            CALCULATE/ADD TO QUOTE
-                            <IoAddCircleOutline className='fill-whtie' size={14} />
-                        </button>
-                        : stockInfo?.model == 'SI' ?
-                        <>
-                            <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
-                                <button 
-                                    className='text-dark font-negro aspect-square w-7'
-                                    onClick={() => handleQuantityChange(-1)}
-                                >
-                                    -
-                                </button>
-                                <input 
-                                    type="text" 
-                                    className='border-0 appearance-none text-dark text-center w-16 outline-none' 
-                                    min={1} 
-                                    value={quantity}
-                                    onChange={handleQuantityInput}
-                                />
-                                <button 
-                                    className='text-dark font-negro aspect-square w-7'
-                                    onClick={() => handleQuantityChange(1)}
-                                >
-                                    +
-                                </button>
-                            </div>
+                        !stockInfo ? (
+                            <button 
+                                className="text-xs bg-gray-400 text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 cursor-not-allowed"
+                                disabled={true}
+                            >
+                                UNAVAILABLE RIGHT NOW
+                            </button>
+                        ) : stockInfo?.model == 'PC' ? (
                             <button 
                                 className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
-                                onClick={addToCart}
+                                onClick={handleOpenQuote}
                                 disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
                             >
-                                ADD TO QUOTE
+                                CALCULATE/ADD TO QUOTE
                                 <IoAddCircleOutline className='fill-whtie' size={14} />
                             </button>
-                        </>
-                        :
-                        <></>
+                        ) : stockInfo?.model == 'SI' ? (
+                            <>
+                                <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                                    <button 
+                                        className='text-dark font-negro aspect-square w-7'
+                                        onClick={() => handleQuantityChange(-1)}
+                                    >
+                                        -
+                                    </button>
+                                    <input 
+                                        type="text" 
+                                        className='border-0 appearance-none text-dark text-center w-16 outline-none' 
+                                        min={1} 
+                                        value={quantity}
+                                        onChange={handleQuantityInput}
+                                    />
+                                    <button 
+                                        className='text-dark font-negro aspect-square w-7'
+                                        onClick={() => handleQuantityChange(1)}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <button 
+                                    className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
+                                    onClick={addToCart}
+                                    disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
+                                >
+                                    ADD TO QUOTE
+                                    <IoAddCircleOutline className='fill-whtie' size={14} />
+                                </button>
+                            </>
+                        ) : (
+                            <button 
+                                className="text-xs bg-gray-400 text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 cursor-not-allowed"
+                                disabled={true}
+                            >
+                                UNAVAILABLE RIGHT NOW
+                            </button>
+                        )
                     }
                     <div 
                         className={`rounded-full hidden lg:flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-secondary/10"}`}

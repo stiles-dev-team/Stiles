@@ -53,6 +53,7 @@ const NavbarDark = () => {
   const [openTilesSection, setOpenTilesSection] = useState(null);
   const [openSanwareSection, setOpenSanwareSection] = useState(null);
   const [openFlooringSection, setOpenFlooringSection] = useState(null);
+  const [parentCategories, setParentCategories] = useState([]);
 
   const categorizedBrands = {
     'A-C': brands.filter(brand => /^[A-C]/i.test(brand)),
@@ -70,10 +71,13 @@ const NavbarDark = () => {
 
   useEffect(() => {
     // Fetch categories
-    fetch('/data/categories.json')
+    fetch('/data/navbar-categories.json')
       .then(response => response.json())
       .then(data => {
         setData(data);
+        // Extract parent categories (those with parent = 0)
+        const parents = data.filter(category => category.parent === 0);
+        setParentCategories(parents);
       });
 
     // Fetch brands from API
@@ -299,7 +303,10 @@ const NavbarDark = () => {
             <p onMouseEnter={() => setShowTiles(true)} onClick={() => setShowTiles(!showTiles)} className='text-dark font-medium cursor-pointer tiles-button'>Tiles</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] tiles-dropdown ${showTiles ? "flex" : "hidden"}`}>
               {
-                data?.filter(item => item.parent === 1262)
+                data?.filter(item => {
+                  const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
+                  return tilesParent ? item.parent === tilesParent.term_id : false;
+                })
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((item, index) => {
                   // Check if the item has subcategories
@@ -370,7 +377,10 @@ const NavbarDark = () => {
             <p onMouseEnter={() => setShowSanware(true)} onClick={() => setShowSanware(!showSanware)} className='text-dark font-medium cursor-pointer sanware-button'>Sanware</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] sanware-dropdown ${showSanware ? "flex" : "hidden"}`}>
               {
-                data?.filter(item => item.parent === 1091)
+                data?.filter(item => {
+                  const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
+                  return sanwareParent ? item.parent === sanwareParent.term_id : false;
+                })
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => {
                     // Check if the item has subcategories
@@ -441,7 +451,10 @@ const NavbarDark = () => {
             <p onMouseEnter={() => setShowFlooring(true)} onClick={() => setShowFlooring(!showFlooring)} className='text-dark font-medium cursor-pointer flooring-button'>Flooring</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] flooring-dropdown ${showFlooring ? "flex" : "hidden"}`}>
               {
-                data?.filter(item => item.parent === 1562)
+                data?.filter(item => {
+                  const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
+                  return flooringParent ? item.parent === flooringParent.term_id : false;
+                })
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => {
                     // Check if the item has subcategories

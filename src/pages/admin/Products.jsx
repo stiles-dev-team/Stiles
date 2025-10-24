@@ -2,8 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Select from 'react-select';
 import { formatCurrency } from '../../utils/pricingUtils';
+import MediaSelector from '../../components/MediaSelector';
 
 const AdminProducts = () => {
+  // Function to extract YouTube video ID from URL
+  const extractYouTubeId = (url) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+  };
+
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +57,7 @@ const AdminProducts = () => {
     gallery_images: "",
     gallery_previews: [],
     gallery_files: [],
+    youtube_video_url: "",
     promo: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -85,7 +95,8 @@ const AdminProducts = () => {
   };
 
   // Function to toggle menu
-  const toggleMenu = (productId) => {
+  const toggleMenu = (productId, product) => {
+    console.log("Toggling menu for product:", product);
     setOpenMenuId(openMenuId === productId ? null : productId);
   };
 
@@ -138,7 +149,7 @@ const AdminProducts = () => {
     if (selectedProducts.length === filteredProducts.length) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(filteredProducts.map(product => product.ID || product.id));
+      setSelectedProducts(filteredProducts.map(product => String(product.ID || product.id)));
     }
   };
 
@@ -507,6 +518,9 @@ const AdminProducts = () => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
+        // Ensure productId is always treated as a string to prevent precision loss
+        const stringId = String(productId);
+        console.log("Deleting product:", stringId);
         const response = await fetch(
           "https://stiles.co.za/api/admin-products.php",
           {
@@ -515,7 +529,7 @@ const AdminProducts = () => {
               "Content-Type": "application/json",
               Accept: "application/json",
             },
-            body: JSON.stringify({ id: productId }),
+            body: JSON.stringify({ id: stringId }),
           }
         );
 
@@ -579,6 +593,7 @@ const AdminProducts = () => {
         gallery_images: product.gallery_images || "",
         gallery_previews: galleryPreviews,
         gallery_files: [],
+        youtube_video_url: product.youtube_video_url || "",
         promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
       });
       
@@ -843,6 +858,7 @@ const AdminProducts = () => {
       gallery_images: product.gallery_images || "",
       gallery_previews: galleryPreviews,
       gallery_files: [],
+      youtube_video_url: product.youtube_video_url || "",
       promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
     });
     console.log("FormData after setting:", formData);
@@ -934,14 +950,14 @@ const AdminProducts = () => {
           'ID', 'Title', 'Slug', 'Description', 'Status', 'Post Date', 'SKU', 'Stock',
           'Regular Price', 'Sale Price', 'Meta Description', 'Product Category', 'Product Tag',
           'Brand', 'Colour', 'Finish', 'Size', 'Product Details', 'PDF URL', 'Featured Image',
-          'Gallery Images', 'Promo'
+          'Gallery Images', 'YouTube Video URL', 'Promo'
         ];
 
         // Convert products to CSV rows (using tilde as separator)
         const csvRows = [
           headers.join('~'),
           ...filteredProducts.map(product => [
-            product.ID || product.id || '',
+            String(product.ID || product.id || ''),
             `"${(product.title || '').replace(/"/g, '""')}"`,
             product.slug || '',
             `"${(product.description || '').replace(/"/g, '""')}"`,
@@ -962,6 +978,7 @@ const AdminProducts = () => {
             product.pdf_url || '',
             product.featured_image || '',
             product.gallery_images || '',
+            product.youtube_video_url || '',
             Array.isArray(product.promo) ? product.promo.join(', ') : (product.promo || '')
           ].join('~'))
         ];
@@ -1409,8 +1426,8 @@ const AdminProducts = () => {
                     <td className="px-2 sm:px-3 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedProducts.includes(product.ID || product.id)}
-                        onChange={(e) => handleBulkSelect(product.ID || product.id, e.target.checked)}
+                        checked={selectedProducts.includes(String(product.ID || product.id))}
+                        onChange={(e) => handleBulkSelect(String(product.ID || product.id), e.target.checked)}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
@@ -1504,7 +1521,7 @@ const AdminProducts = () => {
                     <td className="px-2 sm:px-3 py-4 text-sm font-medium">
                       <div className="relative">
                         <button
-                          onClick={() => toggleMenu(product.ID || product.id)}
+                            onClick={() => toggleMenu(String(product.ID || product.id), product)}
                           className="menu-trigger p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                           title="Actions"
                         >
@@ -1513,7 +1530,7 @@ const AdminProducts = () => {
                           </svg>
                         </button>
                         
-                        {openMenuId === (product.ID || product.id) && (
+                        {openMenuId === String(product.ID || product.id) && (
                           <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                             <div className="py-1">
                               <button
@@ -1545,7 +1562,7 @@ const AdminProducts = () => {
                                 Duplicate Product
                               </button>
                               <button
-                                onClick={() => handleDeleteProduct(product.ID || product.id)}
+                                onClick={() => handleDeleteProduct(String(product.ID || product.id))}
                                 className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                               >
                                 <svg className="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2114,64 +2131,40 @@ const AdminProducts = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        PDF URL
+                        PDF Document
                       </label>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        name="pdf_url"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            // Clean up previous blob URL if it exists
-                            if (formData.pdf_preview && formData.pdf_preview.startsWith('blob:')) {
-                              URL.revokeObjectURL(formData.pdf_preview);
-                            }
-                            setFormData(prev => ({
-                              ...prev,
-                              pdf_url: file.name,
-                              pdf_preview: URL.createObjectURL(file),
-                              pdf_file: file
-                            }));
-                          }
+                      <MediaSelector
+                        value={formData.pdf_url}
+                        onChange={(url) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            pdf_url: url,
+                            pdf_preview: url
+                          }));
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="single"
+                        accept="documents"
+                        placeholder="Select PDF document..."
+                        className="w-full"
                       />
                       {/* PDF Preview */}
-                      {(formData.pdf_preview || (editingProduct && editingProduct.pdf_url)) && (
+                      {formData.pdf_url && (
                         <div className="mt-2 p-3 bg-gray-50 rounded-md">
                           <div className="flex items-center space-x-2">
                             <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                             </svg>
-                            <span className="text-sm text-gray-700">
-                              {formData.pdf_url || editingProduct?.pdf_url}
-                            </span>
                           </div>
-                          {formData.pdf_preview && (
-                            <div className="mt-2">
-                              <a 
-                                href={formData.pdf_preview} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm"
-                              >
-                                Preview PDF
-                              </a>
-                            </div>
-                          )}
-                          {editingProduct && editingProduct.pdf_url && !formData.pdf_preview && (
-                            <div className="mt-2">
-                              <a 
-                                href={editingProduct.pdf_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm"
-                              >
-                                View Current PDF
-                              </a>
-                            </div>
-                          )}
+                          <div className="mt-2">
+                            <a 
+                              href={formData.pdf_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              View PDF
+                            </a>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -2179,29 +2172,22 @@ const AdminProducts = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Featured Image
                       </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        name="featured_image"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            // Clean up previous blob URL if it exists
-                            if (formData.featured_preview && formData.featured_preview.startsWith('blob:')) {
-                              URL.revokeObjectURL(formData.featured_preview);
-                            }
-                            setFormData(prev => ({
-                              ...prev,
-                              featured_image: file.name,
-                              featured_preview: URL.createObjectURL(file),
-                              featured_file: file
-                            }));
-                          }
+                      <MediaSelector
+                        value={formData.featured_image}
+                        onChange={(url) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            featured_image: url,
+                            featured_preview: url
+                          }));
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="single"
+                        accept="images"
+                        placeholder="Select featured image..."
+                        className="w-full"
                       />
                       {/* Featured Image Preview */}
-                      {(formData.featured_preview || (editingProduct && editingProduct.featured_image)) && (
+                      {formData.featured_image && (
                         <div className="mt-2 p-3 bg-gray-50 rounded-md">
                           <div className="flex items-center space-x-2 mb-2">
                             <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -2211,7 +2197,7 @@ const AdminProducts = () => {
                           </div>
                           <div className="relative">
                             <img
-                              src={formData.featured_preview || editingProduct?.featured_image}
+                              src={formData.featured_image}
                               alt="Featured preview"
                               className="w-full h-32 object-cover rounded-md border"
                               onError={(e) => {
@@ -2228,35 +2214,22 @@ const AdminProducts = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Gallery Images
                     </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      name="gallery_images"
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        if (files.length > 0) {
-                          // Clean up previous blob URLs if they exist
-                          if (formData.gallery_previews && formData.gallery_previews.length > 0) {
-                            formData.gallery_previews.forEach(preview => {
-                              if (preview && preview.startsWith('blob:')) {
-                                URL.revokeObjectURL(preview);
-                              }
-                            });
-                          }
-                          const previews = files.map(file => URL.createObjectURL(file));
-                          setFormData(prev => ({
-                            ...prev,
-                            gallery_images: files.map(f => f.name).join(', '),
-                            gallery_previews: previews,
-                            gallery_files: files
-                          }));
-                        }
+                    <MediaSelector
+                      value={formData.gallery_images ? formData.gallery_images.split(', ') : []}
+                      onChange={(urls) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          gallery_images: urls.join(', '),
+                          gallery_previews: urls
+                        }));
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      type="multiple"
+                      accept="images"
+                      placeholder="Select gallery images..."
+                      className="w-full"
                     />
                     {/* Gallery Images Preview */}
-                    {((formData.gallery_previews && formData.gallery_previews.length > 0) || (editingProduct && editingProduct.gallery_images)) && (
+                    {/* {formData.gallery_images && (
                       <div className="mt-2 p-3 bg-gray-50 rounded-md">
                         <div className="flex items-center space-x-2 mb-2">
                           <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -2265,36 +2238,54 @@ const AdminProducts = () => {
                           <span className="text-sm text-gray-700">Gallery Images</span>
                         </div>
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1">
-                          {formData.gallery_previews && formData.gallery_previews.length > 0 ? (
-                            formData.gallery_previews.map((preview, index) => (
-                              <div key={index} className="relative">
-                                <img
-                                  src={preview}
-                                  alt={`Gallery ${index + 1}`}
-                                  className="w-full h-12 object-cover rounded border"
-                                  onError={(e) => {
-                                    e.target.src = "/images/product_ph.png";
-                                  }}
-                                />
-                              </div>
-                            ))
-                          ) : editingProduct && editingProduct.gallery_images ? (
-                            editingProduct.gallery_images.split(', ').map((image, index) => (
-                              <div key={index} className="relative">
-                                <img
-                                  src={image.trim() + "?v=" + new Date().getTime()}
-                                  alt={`Gallery ${index + 1}`}
-                                  className="w-full h-12 object-cover rounded border"
-                                  onError={(e) => {
-                                    e.target.src = "/images/product_ph.png";
-                                  }}
-                                />
-                              </div>
-                            ))
-                          ) : null}
+                          {formData.gallery_images.split(', ').map((image, index) => (
+                            <div key={index} className="relative">
+                              <img
+                                src={image.trim()}
+                                alt={`Gallery ${index + 1}`}
+                                className="w-full h-12 object-cover rounded border"
+                                onError={(e) => {
+                                  e.target.src = "/images/product_ph.png";
+                                }}
+                              />
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    )}
+                    )} */}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    YouTube Video URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.youtube_video_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, youtube_video_url: e.target.value }))}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {formData.youtube_video_url && (
+                    <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                        <span className="text-sm text-gray-700">YouTube Video Preview</span>
+                      </div>
+                      <div className="aspect-video bg-gray-200 rounded-md overflow-hidden">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${extractYouTubeId(formData.youtube_video_url)}`}
+                          title="YouTube video preview"
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div>

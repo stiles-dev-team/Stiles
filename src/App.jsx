@@ -13,6 +13,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy"
 import ProductDisclaimer from "./pages/ProductDisclaimer"
 import ProductBrands from "./pages/ProductBrands"
 import ProductPromos from "./pages/ProductPromos"
+import Promo from "./pages/Promo"
 import Cart from "./pages/Cart"
 import ContactUs from "./pages/ContactUs"
 import ContactSingle from "./pages/ContactSingle"
@@ -30,6 +31,7 @@ import Profile from "./pages/Profile"
 import Orders from "./pages/Orders"
 import Admin from "./pages/Admin"
 import Test from "./pages/Test"
+import UnderConstruction from "./pages/UnderConstruction"
 function App() {
 
   return (
@@ -42,6 +44,8 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/promos" element={<ProductPromos />} />
+          <Route path="/black-november-promo" element={<Promo />} />
+          <Route path="/promo" element={<Promo />} />
           <Route path="/search" element={<Search />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -55,16 +59,18 @@ function App() {
           <Route path="/product-category/:category/:subcategory/:slug" element={<ProductTagCategory />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/calore-kamado-jan" element={<Fireplaces />} />
+          <Route path="/stiles-blog" element={<Blogs />} />
+          <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
+          <Route path="/stiles-blog/:slug" element={<BlogPost />} />
+          <Route path="/admin/*" element={<Admin />} />
+
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
           <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
           <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact/:slug" element={<ContactSingle />} />
-          {/* <Route path="/tile-visualiser" element={<TileVisualiser />} /> */}
-          <Route path="/stiles-blog" element={<Blogs />} />
-          <Route path="/stiles-blog/category/:slug" element={<CategoryBlogs />} />
-          <Route path="/stiles-blog/:slug" element={<BlogPost />} />
-          <Route path="/admin/*" element={<Admin />} />
+          {/* <Route path="/" element={<UnderConstruction />} />
+          <Route path="*" element={<UnderConstruction />} /> */}
 
           {/* Testing */}
           {/* <Route path="/test" element={<Test />} /> */}

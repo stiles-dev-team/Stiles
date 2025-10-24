@@ -9,6 +9,24 @@
         "thumbnail": ""
     },
     {
+        "term_id": 1262,
+        "name": "Tiles",
+        "slug": "tiles",
+        "description": "Stiles is South Africa's leading retailer of quality bathroom tiles, kitchen tiles, outdoor tiles and indoor tiles. Stiles stocks a variety of local and international brands of <a href=\"https://stiles.co.za/product-category/tiles/floor-tiles/\">floor tiles</a>, <a href=\"https://stiles.co.za/product-category/tiles/wall-tiles/\">wall tiles</a>, <a href=\"https://stiles.co.za/product-category/tiles/mosaics/\">mosaics</a>, <a href=\"https://stiles.co.za/product-category/tiles/floor-tiles/pavers-20mm/\">2cm pavers</a>, and <a href=\"https://stiles.co.za\">more</a>.\n\nBrowse our website or visit one of our <a href=\"https://stiles.co.za/contact-us/\">showrooms</a> if you're looking to Keep it Stylish!",
+        "display_type": "default",
+        "parent": 0,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1562,
+        "name": "Flooring",
+        "slug": "flooring",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Explore our diverse flooring options to find the perfect foundation for your space. From engineered wood to laminate and vinyl, we have it all.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Explore our diverse flooring options to find the perfect foundation for your space. From engineered wood to laminate and vinyl, we have it all.</span>",
+        "display_type": "default",
+        "parent": 0,
+        "thumbnail": ""
+    },
+    {
         "term_id": 1092,
         "name": "Bathroom Accessories",
         "slug": "bathroom-accessories",
@@ -45,15 +63,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1262,
-        "name": "Tiles",
-        "slug": "tiles",
-        "description": "Stiles is South Africa's leading retailer of quality bathroom tiles, kitchen tiles, outdoor tiles and indoor tiles. Stiles stocks a variety of local and international brands of <a href=\"https://stiles.co.za/product-category/tiles/floor-tiles/\">floor tiles</a>, <a href=\"https://stiles.co.za/product-category/tiles/wall-tiles/\">wall tiles</a>, <a href=\"https://stiles.co.za/product-category/tiles/mosaics/\">mosaics</a>, <a href=\"https://stiles.co.za/product-category/tiles/floor-tiles/pavers-20mm/\">2cm pavers</a>, and <a href=\"https://stiles.co.za\">more</a>.\n\nBrowse our website or visit one of our <a href=\"https://stiles.co.za/contact-us/\">showrooms</a> if you're looking to Keep it Stylish!",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1333,
         "name": "Basins",
         "slug": "basins",
@@ -78,15 +87,6 @@
         "description": "We offer a wide selection of classic and luxury Toilets to choose from. Visit our stylish showroom or look online for the best deals.",
         "display_type": "default",
         "parent": 1091,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1458,
-        "name": "Heated Towel Rails",
-        "slug": "heated-towel-rails",
-        "description": "We offer a wide selection of luxury Heated Towel Rails to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1658,
         "thumbnail": ""
     },
     {
@@ -115,6 +115,243 @@
         "display_type": "default",
         "parent": 1262,
         "thumbnail": ""
+    },
+    {
+        "term_id": 1552,
+        "name": "Tile Accessories",
+        "slug": "accessories-tools",
+        "description": "Tile Accessories | Everything you'll need to tile your Stiles tiles from Grout to Tile Adhesive, Spacers, Trims, Finishes and more.",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1563,
+        "name": "Engineered Wooden Flooring",
+        "slug": "engineered-wooden-flooring",
+        "description": "We offer a wide selection of Engineered Wooden Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
+        "display_type": "default",
+        "parent": 1562,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1564,
+        "name": "Laminate",
+        "slug": "laminate",
+        "description": "We offer a wide selection of Laminate and Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
+        "display_type": "default",
+        "parent": 1562,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1565,
+        "name": "Vinyl",
+        "slug": "vinyl",
+        "description": "We offer a wide selection of Vinyl and Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
+        "display_type": "default",
+        "parent": 1562,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1566,
+        "name": "Wall Tiles",
+        "slug": "wall-tiles",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your walls with our exquisite wall tiles. Transform your space with an array of styles, colors, and textures.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your walls with our exquisite wall tiles. Transform your space with an array of styles, colors, and textures.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1696,
+        "name": "Spouts",
+        "slug": "spouts",
+        "description": "Browse the widest variety of Spouts and select a new look to your home at an affordable price. Work with our helpful experts to select the perfect choice.",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1728,
+        "name": "Spa & Jacuzzi's",
+        "slug": "spa-jacuzzis",
+        "description": "One of Cape Town's leading suppliers of exclusive and luxury spa and jacuzzi's. We offer a wide variety of options to fit any home and budget.",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1733,
+        "name": "Cabinet and Vanity",
+        "slug": "cabinet-and-vanity",
+        "description": "Whether you are revamping your bathroom or building a new one, we have the perfect selection of bathroom cabinets and vanities for you to choose from.",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 1739,
+        "name": "Trigger Sprays",
+        "slug": "trigger-sprays",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Simplify your personal hygiene routine with trigger sprays. Discover versatile and efficient options to enhance your bathroom experience.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Simplify your personal hygiene routine with trigger sprays. Discover versatile and efficient options to enhance your bathroom experience.</span>",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 2408,
+        "name": "Mosaics",
+        "slug": "mosaics",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your interior with the artistry of mosaics. Explore creative and unique designs to create a personalized and eye-catching space.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your interior with the artistry of mosaics. Explore creative and unique designs to create a personalized and eye-catching space.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 4460,
+        "name": "Matt",
+        "slug": "matt",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Experience the beauty of matte finishes. Explore stylish and non-reflective options to add a soft and contemporary touch to your interior design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Experience the beauty of matte finishes. Explore stylish and non-reflective options to add a soft and contemporary touch to your interior design.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 4461,
+        "name": "Polished Finish",
+        "slug": "polished-finish",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your spaces with the sophistication of polished finishes. Explore sleek and reflective options to create a luxurious and timeless ambiance.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your spaces with the sophistication of polished finishes. Explore sleek and reflective options to create a luxurious and timeless ambiance.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 4462,
+        "name": "Glossy",
+        "slug": "glossy",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Capture the brilliance of glossy surfaces. Explore shiny and vibrant options to bring light and glamour to your living spaces.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Capture the brilliance of glossy surfaces. Explore shiny and vibrant options to bring light and glamour to your living spaces.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 4463,
+        "name": "Slip Resistant",
+        "slug": "slip-resistant",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Prioritize safety with slip-resistant products. Explore practical and secure options to ensure a hazard-free environment in your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Prioritize safety with slip-resistant products. Explore practical and secure options to ensure a hazard-free environment in your home.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 4464,
+        "name": "Natural Finish",
+        "slug": "natural-finish",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Embrace the beauty of natural finishes. Explore earthy and organic options to bring warmth and authenticity to your interior design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Embrace the beauty of natural finishes. Explore earthy and organic options to bring warmth and authenticity to your interior design.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 4649,
+        "name": "Waste",
+        "slug": "waste",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Dispose of waste efficiently with waste products. Explore durable and hygienic options to ensure a clean and organized living environment.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Dispose of waste efficiently with waste products. Explore durable and hygienic options to ensure a clean and organized living environment.</span>",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 5411,
+        "name": "Multiple finishes",
+        "slug": "multiple-finishes",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Add diversity to your surfaces with multiple finish options. Explore a range of versatile and stylish choices to match your specific design preferences.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Add diversity to your surfaces with multiple finish options. Explore a range of versatile and stylish choices to match your specific design preferences.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 5857,
+        "name": "Cladding",
+        "slug": "cladding",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Transform your spaces with cladding solutions. Explore creative and versatile options to enhance your interior or exterior walls with style and durability.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Transform your spaces with cladding solutions. Explore creative and versatile options to enhance your interior or exterior walls with style and durability.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 7539,
+        "name": "Satin",
+        "slug": "satin",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your interiors with satin finish tiles. Explore smooth and lustrous tile options to create a sophisticated and luxurious design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your interiors with satin finish tiles. Explore smooth and lustrous tile options to create a sophisticated and luxurious design.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 8155,
+        "name": "Heating",
+        "slug": "heating",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Create a cozy atmosphere with our heating solutions. Explore a variety of products to keep your spaces warm and comfortable throughout the year.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Create a cozy atmosphere with our heating solutions. Explore a variety of products to keep your spaces warm and comfortable throughout the year.</span>",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 8547,
+        "name": "Valve",
+        "slug": "valve",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Explore a range of valve solutions at 'Stiles.' From standard valves to shut-off valves, find the essential components for your plumbing and heating needs.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Explore a range of valve solutions at 'Stiles.' From standard valves to shut-off valves, find the essential components for your plumbing and heating needs.</span>",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": ""
+    },
+    {
+        "term_id": 8872,
+        "name": "Flooring Accessories",
+        "slug": "flooring-accessories",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your flooring projects with the right accessories. Explore a variety of essential tools and components to ensure a seamless and professional installation.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your flooring projects with the right accessories. Explore a variety of essential tools and components to ensure a seamless and professional installation.</span>",
+        "display_type": "default",
+        "parent": 1562,
+        "thumbnail": "https://stiles.co.za/images/2024/07/Artboard-1-copy-1-600x600.png"
+    },
+    {
+        "term_id": 9257,
+        "name": "Semi-Polished",
+        "slug": "semi-polished",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Achieve a semi-polished look with our versatile tiles. Explore a selection of tiles designed to bring a balance of elegance and practicality to your interiors.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Achieve a semi-polished look with our versatile tiles. Explore a selection of tiles designed to bring a balance of elegance and practicality to your interiors.</span>",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 9511,
+        "name": "Pet-Friendly",
+        "slug": "pet-friendly",
+        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Make your home pet-friendly with our products. Explore a range of solutions designed to create a safe and comfortable environment for your furry friends.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Make your home pet-friendly with our products. Explore a range of solutions designed to create a safe and comfortable environment for your furry friends.</span>",
+        "display_type": "default",
+        "parent": 1091,
+        "thumbnail": "",
+        "no_children": true
+    },
+    {
+        "term_id": 12110,
+        "name": "Large Slab",
+        "slug": "large-slab",
+        "description": "",
+        "display_type": "default",
+        "parent": 1262,
+        "thumbnail": "",
+        "no_children": true
     },
     {
         "term_id": 1540,
@@ -159,69 +396,6 @@
         "description": "Create your own timeless look with our our wide variety of Wood Floor Tiles - a practical, affordable and natural solution with a gorgeous finish.",
         "display_type": "default",
         "parent": 1539,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1552,
-        "name": "Tile Accessories",
-        "slug": "accessories-tools",
-        "description": "Tile Accessories | Everything you'll need to tile your Stiles tiles from Grout to Tile Adhesive, Spacers, Trims, Finishes and more.",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1562,
-        "name": "Flooring",
-        "slug": "flooring",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Explore our diverse flooring options to find the perfect foundation for your space. From engineered wood to laminate and vinyl, we have it all.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Explore our diverse flooring options to find the perfect foundation for your space. From engineered wood to laminate and vinyl, we have it all.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1563,
-        "name": "Engineered Wooden Flooring",
-        "slug": "engineered-wooden-flooring",
-        "description": "We offer a wide selection of Engineered Wooden Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1562,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1564,
-        "name": "Laminate",
-        "slug": "laminate",
-        "description": "We offer a wide selection of Laminate and Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1562,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1565,
-        "name": "Vinyl",
-        "slug": "vinyl",
-        "description": "We offer a wide selection of Vinyl and Flooring to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1562,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1566,
-        "name": "Wall Tiles",
-        "slug": "wall-tiles",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your walls with our exquisite wall tiles. Transform your space with an array of styles, colors, and textures.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your walls with our exquisite wall tiles. Transform your space with an array of styles, colors, and textures.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1586,
-        "name": "Assorted Products",
-        "slug": "assorted-products",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
         "thumbnail": ""
     },
     {
@@ -423,15 +597,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1639,
-        "name": "Tall Basin Mixers",
-        "slug": "tall-basin-mixers",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Discover the elegance of tall basin mixers. Explore our selection of stylish and functional tall faucets for your bathroom basin.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Discover the elegance of tall basin mixers. Explore our selection of stylish and functional tall faucets for your bathroom basin.</span>",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1640,
         "name": "Basin Mixers",
         "slug": "basin-mixers",
@@ -450,30 +615,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1642,
-        "name": "Freestanding Bath Mixers",
-        "slug": "freestanding-bath-mixers",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your freestanding bath with our mixers. Discover elegant and efficient choices to enhance your bathing luxury.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your freestanding bath with our mixers. Discover elegant and efficient choices to enhance your bathing luxury.</span>",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1648,
         "name": "Freestanding Baths",
         "slug": "freestanding-baths",
         "description": "We offer a wide selection of tasteful Freestanding Baths to choose from. Visit our stylish showroom or look online for the best deals.",
         "display_type": "default",
         "parent": 1344,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1649,
-        "name": "Skirted Baths",
-        "slug": "skirted-baths",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Maximize comfort and style with our skirted baths. Explore practical and beautiful options for a modern and inviting bathroom.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Maximize comfort and style with our skirted baths. Explore practical and beautiful options for a modern and inviting bathroom.</span>",
-        "display_type": "default",
-        "parent": 1648,
         "thumbnail": ""
     },
     {
@@ -504,57 +651,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1655,
-        "name": "Spare Paper Holder",
-        "slug": "spare-paper-holder",
-        "description": "We offer a variety of Spare Paper Holders and accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1654,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1656,
-        "name": "Robe Hooks",
-        "slug": "robe-hooks",
-        "description": "We offer a selection of strong and durable Robe Hooks and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1884,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1657,
         "name": "Shower Caddies",
         "slug": "shower-caddies",
         "description": "We offer a selection of stylish Shower Caddies and accessories. Visit our stylish showroom or look online for the best brands.",
         "display_type": "default",
         "parent": 1092,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1658,
-        "name": "Towel Rails",
-        "slug": "towel-rails",
-        "description": "We offer a selection of sturdy Towel Rails and accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1884,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1659,
-        "name": "Towel Rings",
-        "slug": "towel-rings",
-        "description": "We offer a wide variety of Towel Rings and other accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1884,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1660,
-        "name": "Soap Dishes",
-        "slug": "soap-dishes",
-        "description": "We offer a selection of sleek and modern Soap Dishes and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1934,
         "thumbnail": ""
     },
     {
@@ -675,15 +777,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1674,
-        "name": "Ceiling Arms",
-        "slug": "ceiling-arms",
-        "description": "We offer a wide selection of strong and durable Shower Ceiling Arms to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1672,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1675,
         "name": "Flush Valve",
         "slug": "flush-valve",
@@ -747,15 +840,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1696,
-        "name": "Spouts",
-        "slug": "spouts",
-        "description": "Browse the widest variety of Spouts and select a new look to your home at an affordable price. Work with our helpful experts to select the perfect choice.",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1697,
         "name": "Bath Spouts",
         "slug": "bath-spouts",
@@ -774,87 +858,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1700,
-        "name": "Standard Basin Mixers",
-        "slug": "standard-basin-mixers",
-        "description": "We offer a wide variety of modern Standard Basin Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1701,
-        "name": "Wall Type Basin Mixers",
-        "slug": "wall-type-basin-mixers",
-        "description": "We offer a wide selection of Wall Type Basin Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1702,
-        "name": "Swivel Spout Basin Mixers",
-        "slug": "swivel-spout-basin-mixers",
-        "description": "We offer a wide selection of Swivel Spout Basin Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1703,
-        "name": "Concealed Mixers",
-        "slug": "concealed-mixers",
-        "description": "We offer a wide selection of Concealed Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1704,
-        "name": "Exposed Bath Mixers",
-        "slug": "exposed-bath-mixers",
-        "description": "We offer a wide selection of Exposed Bath Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1705,
-        "name": "Floor Mounted Spouts",
-        "slug": "floor-mounted-spouts",
-        "description": "We provide gorgeous, top quality Floor Mounted Spouts and accessories. Visit our stylish showroom or look online for the best bathroom tapware brands.",
-        "display_type": "default",
-        "parent": 1697,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1706,
-        "name": "Wall Mounted Spouts",
-        "slug": "wall-mounted-spouts",
-        "description": "We provide stunning, high quality Wall Mounted Spouts and accessories. Visit our stylish showroom or look online for the best bathroom tapware brands.",
-        "display_type": "default",
-        "parent": 1697,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1707,
-        "name": "Nikki Spouts",
-        "slug": "nikki-spouts",
-        "description": "We provide professional, top quality Floor Mounted Spouts and accessories. Visit our stylish showroom or look online for the best bathroom tapware brands.",
-        "display_type": "default",
-        "parent": 1697,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1709,
-        "name": "Wall Mounted Rails",
-        "slug": "wall-mounted-rails",
-        "description": "We offer a wide selection of strong and durable Wall Mounted Rails to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1458,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1710,
         "name": "Shower Seats",
         "slug": "shower-seats",
@@ -870,141 +873,6 @@
         "description": "We offer a selection of sleek Toilet Brush Holders and accessories. Visit our stylish showroom or look online for the best deals.",
         "display_type": "default",
         "parent": 1092,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1712,
-        "name": "Corner Baths",
-        "slug": "corner-baths",
-        "description": "We offer a wide selection of elegant and modern corner baths to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1650,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1713,
-        "name": "Shower Baths",
-        "slug": "shower-baths",
-        "description": "We offer a wide selection of elegant and tasteful Shower Baths to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1650,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1714,
-        "name": "Solid Baths",
-        "slug": "solid-baths",
-        "description": "We offer a wide selection of modern and contemporary solid baths to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1648,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1716,
-        "name": "Standard Built In Baths",
-        "slug": "standard-built-in-baths",
-        "description": "We offer a wide selection of elegant Standard Built In Baths to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1650,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1719,
-        "name": "Alpha Cisterns",
-        "slug": "alpha-cisterns",
-        "description": "We offer a wide selection of Alpha Cisterns to choose from for your convenience. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1678,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1720,
-        "name": "Sigma Cisterns",
-        "slug": "sigma-cisterns",
-        "description": "We offer a wide selection of Sigma Cisterns to choose from for your convenience. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1678,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1721,
-        "name": "Omega Cisterns",
-        "slug": "omega-cisterns",
-        "description": "We offer a wide selection of Omega Cisterns to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1678,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1722,
-        "name": "Sigma Actuators",
-        "slug": "sigma-actuators",
-        "description": "We offer a wide selection of Sigma Actuators to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1679,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1723,
-        "name": "Monolith Cisterns",
-        "slug": "monolith-cisterns",
-        "description": "We offer a wide selection of Monolith Cisterns to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1678,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1724,
-        "name": "Alpha Actuators",
-        "slug": "alpha-actuators",
-        "description": "We offer a wide selection of Alpha Actuators to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1679,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1725,
-        "name": "Omega Actuators",
-        "slug": "omega-actuators",
-        "description": "We offer a wide selection of Omega Actuators to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1679,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1726,
-        "name": "Wall Type Bath Mixers",
-        "slug": "wall-type-bath-mixers",
-        "description": "We offer a wide selection of Wall Type Bath Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1704,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1727,
-        "name": "Thermostatic Bath / Shower Mixers",
-        "slug": "thermostatic-bath-shower-mixers",
-        "description": "We offer a wide selection Thermostatic Bath / Shower Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1728,
-        "name": "Spa & Jacuzzi's",
-        "slug": "spa-jacuzzis",
-        "description": "One of Cape Town's leading suppliers of exclusive and luxury spa and jacuzzi's. We offer a wide variety of options to fit any home and budget.",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1729,
-        "name": "Wall Mounted Kitchen Mixers",
-        "slug": "wall-mounted-kitchen-mixers",
-        "description": "We offer a wide selection of Wall Mounted Kitchen Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1638,
         "thumbnail": ""
     },
     {
@@ -1035,15 +903,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1733,
-        "name": "Cabinet and Vanity",
-        "slug": "cabinet-and-vanity",
-        "description": "Whether you are revamping your bathroom or building a new one, we have the perfect selection of bathroom cabinets and vanities for you to choose from.",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1736,
         "name": "Drop On Sinks",
         "slug": "drop-on-sinks",
@@ -1062,25 +921,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1739,
-        "name": "Trigger Sprays",
-        "slug": "trigger-sprays",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Simplify your personal hygiene routine with trigger sprays. Discover versatile and efficient options to enhance your bathroom experience.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Simplify your personal hygiene routine with trigger sprays. Discover versatile and efficient options to enhance your bathroom experience.</span>",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 1742,
-        "name": "Wall Mounted Arms",
-        "slug": "wall-mounted-arms",
-        "description": "We offer a wide selection of sturdy Wall Mounted Arms to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1672,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1744,
         "name": "Built In Spas",
         "slug": "built-in-spas",
@@ -1096,42 +936,6 @@
         "description": "We offer a wide selection of Actuators and accessories to choose from. Visit our stylish showroom or look online for the best deals.",
         "display_type": "default",
         "parent": 1538,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1748,
-        "name": "Jet Spray Mixers",
-        "slug": "jet-spray-mixers",
-        "description": "We offer a wide selection of Jet Spray Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1638,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1750,
-        "name": "Stop Taps",
-        "slug": "stop-taps",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Ensure efficient water control with our stop taps. Discover reliable and durable options to regulate water flow in your plumbing system.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Ensure efficient water control with our stop taps. Discover reliable and durable options to regulate water flow in your plumbing system.</span>",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1752,
-        "name": "Wall Mounted Basin Spouts",
-        "slug": "wall-mounted-basin-spouts",
-        "description": "We offer a variety of Wall Mounted Basin Spouts and accessories. Visit our stylish showroom or online for the best bathroom tapware brands.",
-        "display_type": "default",
-        "parent": 1698,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1754,
-        "name": "Deck Mounted Bath Spouts",
-        "slug": "deck-mounted-bath-spouts",
-        "description": "We provide stunning, top quality Deck Mounted Spouts and accessories. Visit our stylish showroom or look online for the best bathroom tapware brands.",
-        "display_type": "default",
-        "parent": 1697,
         "thumbnail": ""
     },
     {
@@ -1189,78 +993,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1820,
-        "name": "Back To Wall Close Coupled",
-        "slug": "back-to-wall-close-coupled",
-        "description": "We offer a wide selection of Back to Wall Close Coupled Toilets to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1668,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1822,
-        "name": "Front Flush Closed Coupled",
-        "slug": "front-flush-closed-coupled",
-        "description": "We offer a wide selection of Front Flush Closed Coupled Toilets to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1668,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1823,
-        "name": "Top Flush Closed Coupled",
-        "slug": "top-flush-closed-coupled",
-        "description": "We offer a wide selection of Top Flush Closed Coupled Toilets to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1668,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1824,
-        "name": "Wall Hung Bidets",
-        "slug": "wall-hung-bidets",
-        "description": "We offer a wide selection of luxury Wall Hung Bidets to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1670,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1825,
-        "name": "Back To Wall Floor Mounted Bidets",
-        "slug": "back-to-wall-floor-mounted-bidets",
-        "description": "We offer a wide selection of Back to Wall Floor Mounted Bidets to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1670,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1851,
-        "name": "Ladder Rails",
-        "slug": "ladder-rails",
-        "description": "We offer a selection of strong and supportive Ladder Rails and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1658,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1876,
-        "name": "Towel Hooks",
-        "slug": "towel-hooks",
-        "description": "We offer a selection of sturdy Towel Hooks and accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1884,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1879,
-        "name": "Liquid Soap Dispensers",
-        "slug": "liquid-soap-dispensers",
-        "description": "We offer a selection of modern Liquid Soap Dispensers and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1934,
-        "thumbnail": ""
-    },
-    {
         "term_id": 1881,
         "name": "Toothbrush Holder",
         "slug": "toothbrush-holder",
@@ -1276,42 +1008,6 @@
         "description": "We offer a selection of sleek and stylish Towel Holders and accessories. Visit our stylish showrooms or look online for the best deals.",
         "display_type": "default",
         "parent": 1092,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1891,
-        "name": "Grab Bar",
-        "slug": "grab-bar",
-        "description": "We offer a selection of afe and durable Grab Bars and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 5239,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1895,
-        "name": "Roll Holder Without Cover",
-        "slug": "roll-holder-without-cover",
-        "description": "We offer a selection of Roll Holders - Without Covers and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1654,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1900,
-        "name": "Towel Racks With Towel Holders",
-        "slug": "towel-racks-with-towel-holders",
-        "description": "We offer a selection of Towel Racks with Towel Holders and accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1953,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1907,
-        "name": "Shaving Mirrors",
-        "slug": "shaving-mirrors",
-        "description": "We offer a variety of modern Shaving Mirrors and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1680,
         "thumbnail": ""
     },
     {
@@ -1342,60 +1038,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 1944,
-        "name": "Safety Bar",
-        "slug": "safety-bar",
-        "description": "We offer a selection of durable Safety Bars and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 5239,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1953,
-        "name": "Towel Racks",
-        "slug": "towel-racks",
-        "description": "We offer a selection of sturdy and stylish Towel Racks and accessories. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1884,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1955,
-        "name": "Soap Baskets",
-        "slug": "soap-baskets",
-        "description": "We offer a selection of lovely Soap Baskets and accessories. Visit our stylish showroom or look online for the best brands.",
-        "display_type": "default",
-        "parent": 1934,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 1979,
-        "name": "Freestanding Shower Mixers",
-        "slug": "freestanding-shower-mixers",
-        "description": "We offer a wide selection of Freestanding Shower Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 2032,
-        "name": "Diverter Mixer",
-        "slug": "diverter-mixer",
-        "description": "We offer a wide selection of Diverter Mixers to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 2037,
-        "name": "Deck Type Sink Mixer With Over Spout",
-        "slug": "sink-mixer-deck-type-with-over-spout",
-        "description": "We offer a wide selection of Deck Type Sink Mixers With Over Spouts to choose from. Visit our stylish showroom or look online for the best deals.",
-        "display_type": "default",
-        "parent": 1638,
-        "thumbnail": ""
-    },
-    {
         "term_id": 2053,
         "name": "Toilet Seats",
         "slug": "toilet-seats",
@@ -1405,30 +1047,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 2054,
-        "name": "Soft Close Seat",
-        "slug": "soft-close-seat",
-        "description": "We provide a variety of soft closing toilet seats of superb quality and comfort. Visit our stylish showroom or look online for the best bathroom brands.",
-        "display_type": "default",
-        "parent": 2053,
-        "thumbnail": ""
-    },
-    {
         "term_id": 2076,
         "name": "Back To Wall Medical Pan",
         "slug": "back-to-wall-medical-pan",
         "description": "We offer a wide selection of quality Back to Wall Medical Pans to choose from. Visit our stylish showroom or look online for the best deals.",
         "display_type": "default",
         "parent": 1349,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 2101,
-        "name": "New @ Stiles",
-        "slug": "new-at-stiles",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Stay up-to-date with our latest arrivals at Stiles. Explore innovative and trend-setting products to keep your spaces stylish and functional.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Stay up-to-date with our latest arrivals at Stiles. Explore innovative and trend-setting products to keep your spaces stylish and functional.</span>",
-        "display_type": "default",
-        "parent": 0,
         "thumbnail": ""
     },
     {
@@ -1483,15 +1107,6 @@
         "description": "Create your very own version of the most high-end feature walls with a classic variety of beautiful Marble Wall Tiles to choose from.",
         "display_type": "default",
         "parent": 1566,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 2408,
-        "name": "Mosaics",
-        "slug": "mosaics",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your interior with the artistry of mosaics. Explore creative and unique designs to create a personalized and eye-catching space.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your interior with the artistry of mosaics. Explore creative and unique designs to create a personalized and eye-catching space.</span>",
-        "display_type": "default",
-        "parent": 1262,
         "thumbnail": ""
     },
     {
@@ -1711,56 +1326,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 4460,
-        "name": "Matt",
-        "slug": "matt",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Experience the beauty of matte finishes. Explore stylish and non-reflective options to add a soft and contemporary touch to your interior design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Experience the beauty of matte finishes. Explore stylish and non-reflective options to add a soft and contemporary touch to your interior design.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 4461,
-        "name": "Polished Finish",
-        "slug": "polished-finish",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your spaces with the sophistication of polished finishes. Explore sleek and reflective options to create a luxurious and timeless ambiance.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your spaces with the sophistication of polished finishes. Explore sleek and reflective options to create a luxurious and timeless ambiance.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 4462,
-        "name": "Glossy",
-        "slug": "glossy",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Capture the brilliance of glossy surfaces. Explore shiny and vibrant options to bring light and glamour to your living spaces.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Capture the brilliance of glossy surfaces. Explore shiny and vibrant options to bring light and glamour to your living spaces.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 4463,
-        "name": "Slip Resistant",
-        "slug": "slip-resistant",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Prioritize safety with slip-resistant products. Explore practical and secure options to ensure a hazard-free environment in your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Prioritize safety with slip-resistant products. Explore practical and secure options to ensure a hazard-free environment in your home.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 4464,
-        "name": "Natural Finish",
-        "slug": "natural-finish",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Embrace the beauty of natural finishes. Explore earthy and organic options to bring warmth and authenticity to your interior design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Embrace the beauty of natural finishes. Explore earthy and organic options to bring warmth and authenticity to your interior design.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
         "term_id": 4637,
         "name": "Tile Spacer",
         "slug": "tile-spacer",
@@ -1815,48 +1380,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 4644,
-        "name": "LED",
-        "slug": "led",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Illuminate your spaces with energy-efficient LED lighting. Explore modern and versatile options to bring brightness and style to your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Illuminate your spaces with energy-efficient LED lighting. Explore modern and versatile options to bring brightness and style to your home.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 4645,
-        "name": "Motion Sensor",
-        "slug": "motion-sensor",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance security and convenience with motion sensor technology. Explore innovative solutions to automate your lighting and protect your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance security and convenience with motion sensor technology. Explore innovative solutions to automate your lighting and protect your home.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 4646,
-        "name": "Filter Tap",
-        "slug": "filter-tap",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Experience pure and clean water with filter taps. Explore sustainable and efficient solutions to ensure the quality of your drinking water.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Experience pure and clean water with filter taps. Explore sustainable and efficient solutions to ensure the quality of your drinking water.</span>",
-        "display_type": "default",
-        "parent": 1638,
-        "thumbnail": ""
-    },
-    {
         "term_id": 4647,
         "name": "Shower Trays",
         "slug": "shower-trays",
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Create a solid and reliable base for your shower with quality shower trays. Explore a variety of options for a comfortable and durable bathing experience.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Create a solid and reliable base for your shower with quality shower trays. Explore a variety of options for a comfortable and durable bathing experience.</span>",
         "display_type": "default",
         "parent": 1211,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 4649,
-        "name": "Waste",
-        "slug": "waste",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Dispose of waste efficiently with waste products. Explore durable and hygienic options to ensure a clean and organized living environment.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Dispose of waste efficiently with waste products. Explore durable and hygienic options to ensure a clean and organized living environment.</span>",
-        "display_type": "default",
-        "parent": 1091,
         "thumbnail": ""
     },
     {
@@ -1876,15 +1405,6 @@
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Complete your plumbing systems with waste and overflow solutions. Explore a range of products for efficient water management and drainage.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Complete your plumbing systems with waste and overflow solutions. Explore a range of products for efficient water management and drainage.</span>",
         "display_type": "default",
         "parent": 4649,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 4651,
-        "name": "Bath Waste",
-        "slug": "bath-waste",
-        "description": "<span data-sheets-value=\"{\" data-sheets-userformat=\"{\">Simplify bath waste disposal with clicker waste technology. Explore convenient and hygienic options for a hassle-free and clean bath area.</span>",
-        "display_type": "default",
-        "parent": 1805,
         "thumbnail": ""
     },
     {
@@ -1912,15 +1432,6 @@
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Get creative with Kit Kat tiles. Explore unique and narrow tile designs to bring an eye-catching and dynamic look to your living spaces.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Get creative with Kit Kat tiles. Explore unique and narrow tile designs to bring an eye-catching and dynamic look to your living spaces.</span>",
         "display_type": "default",
         "parent": 1566,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 4702,
-        "name": "Soap Dispenser",
-        "slug": "soap-dispenser-kitchen-mixers",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Promote hygiene and convenience with soap dispensers. Explore a variety of stylish and efficient options for a clean and organized bathroom.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Promote hygiene and convenience with soap dispensers. Explore a variety of stylish and efficient options for a clean and organized bathroom.</span>",
-        "display_type": "default",
-        "parent": 1638,
         "thumbnail": ""
     },
     {
@@ -2002,15 +1513,6 @@
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Achieve a polished look with quality profiles and trims. Explore versatile and functional solutions to add a finished and professional touch to your projects.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Achieve a polished look with quality profiles and trims. Explore versatile and functional solutions to add a finished and professional touch to your projects.</span>",
         "display_type": "default",
         "parent": 1552,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5073,
-        "name": "Grout Finish",
-        "slug": "grout-finish",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Complete your tile installations with a flawless grout finish. Explore reliable and stylish options to ensure a clean and professional result.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Complete your tile installations with a flawless grout finish. Explore reliable and stylish options to ensure a clean and professional result.</span>",
-        "display_type": "default",
-        "parent": 4639,
         "thumbnail": ""
     },
     {
@@ -2122,15 +1624,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 5240,
-        "name": "Corner Basket",
-        "slug": "corner-basket",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Organize and enhance your shower with corner basket solutions. Explore sleek and practical accessories to ensure a tidy and convenient shower area.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Organize and enhance your shower with corner basket solutions. Explore sleek and practical accessories to ensure a tidy and convenient shower area.</span>",
-        "display_type": "default",
-        "parent": 1657,
-        "thumbnail": ""
-    },
-    {
         "term_id": 5260,
         "name": "Side cabinet",
         "slug": "side-cabinet",
@@ -2165,16 +1658,6 @@
         "display_type": "default",
         "parent": 2408,
         "thumbnail": ""
-    },
-    {
-        "term_id": 5411,
-        "name": "Multiple finishes",
-        "slug": "multiple-finishes",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Add diversity to your surfaces with multiple finish options. Explore a range of versatile and stylish choices to match your specific design preferences.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Add diversity to your surfaces with multiple finish options. Explore a range of versatile and stylish choices to match your specific design preferences.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
     },
     {
         "term_id": 5481,
@@ -2213,142 +1696,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 5687,
-        "name": "Bottle Trap",
-        "slug": "bottle-trap",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Ensure efficient and elegant drainage with a bottle trap. Explore stylish and functional options to keep your plumbing systems tidy and reliable.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Ensure efficient and elegant drainage with a bottle trap. Explore stylish and functional options to keep your plumbing systems tidy and reliable.</span>",
-        "display_type": "default",
-        "parent": 1804,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5857,
-        "name": "Cladding",
-        "slug": "cladding",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Transform your spaces with cladding solutions. Explore creative and versatile options to enhance your interior or exterior walls with style and durability.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Transform your spaces with cladding solutions. Explore creative and versatile options to enhance your interior or exterior walls with style and durability.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 5858,
-        "name": "Spring Sanware Fair",
-        "slug": "spring-sanware-fair",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Stay updated with the latest trends at the Spring Sanware Fair. Explore exclusive and innovative bathroom and kitchen products that set the standard for modern living.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Stay updated with the latest trends at the Spring Sanware Fair. Explore exclusive and innovative bathroom and kitchen products that set the standard for modern living.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5862,
-        "name": "Stiles with an \"I",
-        "slug": "stiles-with-an-i",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Welcome to 'Stiles' with an 'I' - your destination for premium home products. Explore our curated selection of tiles, furniture, and more to enhance your living spaces.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Welcome to 'Stiles' with an 'I' - your destination for premium home products. Explore our curated selection of tiles, furniture, and more to enhance your living spaces.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5867,
-        "name": "Homepage Featured",
-        "slug": "homepage-featured",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Discover our homepage featured products at 'Stiles.' Explore top-notch items, from taps and sanitary ware to tiles and baths, designed to inspire your home improvement projects.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Discover our homepage featured products at 'Stiles.' Explore top-notch items, from taps and sanitary ware to tiles and baths, designed to inspire your home improvement projects.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5868,
-        "name": "Featured Taps",
-        "slug": "featured-taps",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Upgrade your space with our featured taps. Explore stylish and functional options to add character and functionality to your bathroom and kitchen.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Upgrade your space with our featured taps. Explore stylish and functional options to add character and functionality to your bathroom and kitchen.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5869,
-        "name": "Featured Sanitary Ware",
-        "slug": "featured-sanitary-ware",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your bathroom with our featured sanitary ware. Explore high-quality and modern solutions for a clean and elegant washroom.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your bathroom with our featured sanitary ware. Explore high-quality and modern solutions for a clean and elegant washroom.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5902,
-        "name": "SensoWash",
-        "slug": "sensowash",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Experience the future of hygiene with SensoWash. Explore innovative and efficient solutions for a pristine and comfortable bathroom experience.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Experience the future of hygiene with SensoWash. Explore innovative and efficient solutions for a pristine and comfortable bathroom experience.</span>",
-        "display_type": "default",
-        "parent": 2053,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5910,
-        "name": "SensoWash",
-        "slug": "sensowash-toilets",
-        "description": "<span data-sheets-value=\"{\" data-sheets-userformat=\"{\">Experience the future of hygiene with SensoWash. Explore innovative and efficient solutions for a pristine and comfortable bathroom experience.</span>",
-        "display_type": "default",
-        "parent": 13297,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 5917,
-        "name": "Featured Tiles",
-        "slug": "featured-tiles",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Revamp your spaces with our featured tiles. Explore a variety of trendy and high-quality tile options to bring a fresh and modern look to your interiors.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Revamp your spaces with our featured tiles. Explore a variety of trendy and high-quality tile options to bring a fresh and modern look to your interiors.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6002,
-        "name": "Featured Baths",
-        "slug": "featured-baths",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Relax and rejuvenate with our featured baths. Explore a range of luxurious and efficient bathtub options to create a spa-like atmosphere in your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Relax and rejuvenate with our featured baths. Explore a range of luxurious and efficient bathtub options to create a spa-like atmosphere in your home.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6003,
-        "name": "Featured Basins",
-        "slug": "featured-basins",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Upgrade your bathroom with our featured basins. Explore a curated selection of stylish and functional washbasins to add a touch of elegance to your washroom.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Upgrade your bathroom with our featured basins. Explore a curated selection of stylish and functional washbasins to add a touch of elegance to your washroom.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6004,
-        "name": "Featured Mosiacs",
-        "slug": "featured-mosiacs",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your interiors with our featured mosaics. Explore a collection of exquisite and artistic mosaic tiles to create captivating and unique designs.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your interiors with our featured mosaics. Explore a collection of exquisite and artistic mosaic tiles to create captivating and unique designs.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6005,
-        "name": "Featured Pavers",
-        "slug": "featured-pavers",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Transform your outdoor spaces with our featured pavers. Explore durable and stylish options to craft stunning patios and pathways in your outdoor areas.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Transform your outdoor spaces with our featured pavers. Explore durable and stylish options to craft stunning patios and pathways in your outdoor areas.</span>",
-        "display_type": "default",
-        "parent": 5867,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6195,
-        "name": "Magnifying Mirrors",
-        "slug": "magnifying-mirrors",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Add convenience and precision to your grooming routine with magnifying mirrors. Explore functional and stylish solutions for a clear and accurate reflection.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Add convenience and precision to your grooming routine with magnifying mirrors. Explore functional and stylish solutions for a clear and accurate reflection.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
         "term_id": 6612,
         "name": "Fish Scale",
         "slug": "fish-scale",
@@ -2364,24 +1711,6 @@
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your shower area with efficient and modern shower channels. Explore sleek and hygienic solutions to ensure a seamless water drainage system.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your shower area with efficient and modern shower channels. Explore sleek and hygienic solutions to ensure a seamless water drainage system.</span>",
         "display_type": "default",
         "parent": 1211,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6795,
-        "name": "Electronic",
-        "slug": "electronic",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Experience the convenience of electronic solutions. Explore innovative and technology-driven products designed to make your daily routines more efficient&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Experience the convenience of electronic solutions. Explore innovative and technology-driven products designed to make your daily routines more efficient</span>",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 6796,
-        "name": "Motion Sensors",
-        "slug": "motion-sensors",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Add security and automation with motion sensors. Explore practical and energy-saving solutions to illuminate and secure your spaces when needed.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Add automation with motion sensors. Explore practical and energy-saving solutions to illuminate and secure your spaces when needed.</span>",
-        "display_type": "default",
-        "parent": 1640,
         "thumbnail": ""
     },
     {
@@ -2421,58 +1750,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 7539,
-        "name": "Satin",
-        "slug": "satin",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Elevate your interiors with satin finish tiles. Explore smooth and lustrous tile options to create a sophisticated and luxurious design.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Elevate your interiors with satin finish tiles. Explore smooth and lustrous tile options to create a sophisticated and luxurious design.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 7789,
-        "name": "Lights Out Promo",
-        "slug": "lights-out-promo",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Discover our 'Lights Out Promo' at 'Stiles.' Explore exclusive deals and offers on lighting solutions to brighten your home with style and savings.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Discover our 'Lights Out Promo' at 'Stiles.' Explore exclusive deals and offers on lighting solutions to brighten your home with style and savings.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 7944,
-        "name": "Promo Place Holder",
-        "slug": "promo-place-holder",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8153,
-        "name": "Mosaic Trim",
-        "slug": "mosaic-trim",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Complete your mosaic projects with precision using mosaic trim pieces. Explore decorative and functional solutions to give your designs a polished finish.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Complete your mosaic projects with precision using mosaic trim pieces. Explore decorative and functional solutions to give your designs a polished finish.</span>",
-        "display_type": "default",
-        "parent": 4638,
-        "thumbnail": ""
-    },
-    {
         "term_id": 8154,
         "name": "Water Heater",
         "slug": "water-heater",
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Stay comfortable with our water heaters. Explore reliable and efficient options to ensure a consistent and warm water supply for your home.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Stay comfortable with our water heaters. Explore reliable and efficient options to ensure a consistent and warm water supply for your home.</span>",
         "display_type": "default",
         "parent": 8155,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8155,
-        "name": "Heating",
-        "slug": "heating",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Create a cozy atmosphere with our heating solutions. Explore a variety of products to keep your spaces warm and comfortable throughout the year.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Create a cozy atmosphere with our heating solutions. Explore a variety of products to keep your spaces warm and comfortable throughout the year.</span>",
-        "display_type": "default",
-        "parent": 1091,
         "thumbnail": ""
     },
     {
@@ -2494,15 +1777,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 8547,
-        "name": "Valve",
-        "slug": "valve",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Explore a range of valve solutions at 'Stiles.' From standard valves to shut-off valves, find the essential components for your plumbing and heating needs.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Explore a range of valve solutions at 'Stiles.' From standard valves to shut-off valves, find the essential components for your plumbing and heating needs.</span>",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": ""
-    },
-    {
         "term_id": 8548,
         "name": "Shut-off Valve",
         "slug": "shut-off-valve",
@@ -2512,122 +1786,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 8854,
-        "name": "Leaning Mirrors",
-        "slug": "leaning-mirrors",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Create visual depth with leaning mirrors. Explore decorative and versatile options to open up your spaces and add a touch of elegance to your decor.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Create visual depth with leaning mirrors. Explore decorative and versatile options to open up your spaces and add a touch of elegance to your decor.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8855,
-        "name": "Standing Mirrors",
-        "slug": "standing-mirrors",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Add functionality and style with standing mirrors. Explore practical and fashionable solutions for dressing up and brightening your rooms.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Add functionality and style with standing mirrors. Explore practical and fashionable solutions for dressing up and brightening your rooms.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8856,
-        "name": "Decor Mirrors",
-        "slug": "decor-mirrors",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your decor with decorative mirrors. Explore a range of artistic and eye-catching mirrors to create focal points and personality in your spaces.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your decor with decorative mirrors. Explore a range of artistic and eye-catching mirrors to create focal points and personality in your spaces.</span>",
-        "display_type": "default",
-        "parent": 1680,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8872,
-        "name": "Flooring Accessories",
-        "slug": "flooring-accessories",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your flooring projects with the right accessories. Explore a variety of essential tools and components to ensure a seamless and professional installation.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your flooring projects with the right accessories. Explore a variety of essential tools and components to ensure a seamless and professional installation.</span>",
-        "display_type": "default",
-        "parent": 1562,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 8907,
-        "name": "Newform Promo",
-        "slug": "newform-promo",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Discover exclusive deals with Newform Promo at 'Stiles.' Explore limited-time offers on innovative and stylish bathroom and kitchen products.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Discover exclusive deals with Newform Promo at 'Stiles.' Explore limited-time offers on innovative and stylish bathroom and kitchen products.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9137,
-        "name": "Sold per piece",
-        "slug": "sold-per-piece",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Find individual pieces to suit your specific needs. Explore products sold per piece, from tiles to fixtures, allowing you to customize and complete your projects with precision.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Find individual pieces to suit your specific needs. Explore products sold per piece, from tiles to fixtures, allowing you to customize and complete your projects with precision.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9257,
-        "name": "Semi-Polished",
-        "slug": "semi-polished",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Achieve a semi-polished look with our versatile tiles. Explore a selection of tiles designed to bring a balance of elegance and practicality to your interiors.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Achieve a semi-polished look with our versatile tiles. Explore a selection of tiles designed to bring a balance of elegance and practicality to your interiors.</span>",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
         "term_id": 9304,
         "name": "Body Shower Head",
         "slug": "body-shower-head",
         "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Upgrade your shower experience with a body shower head. Explore innovative and efficient solutions to enjoy a refreshing and invigorating bath routine.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Upgrade your shower experience with a body shower head. Explore innovative and efficient solutions to enjoy a refreshing and invigorating bath routine.</span>",
         "display_type": "default",
         "parent": 1211,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9511,
-        "name": "Pet-Friendly",
-        "slug": "pet-friendly",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Make your home pet-friendly with our products. Explore a range of solutions designed to create a safe and comfortable environment for your furry friends.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Make your home pet-friendly with our products. Explore a range of solutions designed to create a safe and comfortable environment for your furry friends.</span>",
-        "display_type": "default",
-        "parent": 1091,
-        "thumbnail": "",
-        "no_children": true
-    },
-    {
-        "term_id": 9516,
-        "name": "Concealed body",
-        "slug": "concealed-body",
-        "description": "Discover concealed body solutions at 'Stiles.' Explore a variety of products designed to provide a clean and unobtrusive appearance in your installations.",
-        "display_type": "default",
-        "parent": 1640,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9517,
-        "name": "Concealed body",
-        "slug": "concealed-body-bath-shower-mixers",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Discover concealed body solutions at 'Stiles.' Explore a variety of products designed to provide a clean and unobtrusive appearance in your installations.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Discover concealed body solutions at 'Stiles.' Explore a variety of products designed to provide a clean and unobtrusive appearance in your installations.</span>",
-        "display_type": "default",
-        "parent": 1641,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9519,
-        "name": "Basin Waste",
-        "slug": "basin-waste-extras-needed-basins",
-        "description": "<span data-sheets-value=\"{\" data-sheets-userformat=\"{\">Optimize your bathroom fixtures with clicker waste. Explore convenient and functional solutions to control water flow and drainage in your washbasin.</span>",
-        "display_type": "default",
-        "parent": 1804,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9559,
-        "name": "Bath Filler",
-        "slug": "bath-filler",
-        "description": "<span data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;Enhance your bathtub with a bath filler. Explore stylish and efficient solutions to ensure a steady and relaxing water supply for your bathing rituals.&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:15233,&quot;3&quot;:{&quot;1&quot;:0},&quot;10&quot;:2,&quot;11&quot;:0,&quot;12&quot;:0,&quot;14&quot;:{&quot;1&quot;:2,&quot;2&quot;:0},&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:11}\">Enhance your bathtub with a bath filler. Explore stylish and efficient solutions to ensure a steady and relaxing water supply for your bathing rituals.</span>",
-        "display_type": "default",
-        "parent": 1805,
         "thumbnail": ""
     },
     {
@@ -2655,33 +1819,6 @@
         "description": "",
         "display_type": "default",
         "parent": 1211,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9899,
-        "name": "Shower Bar Slider",
-        "slug": "shower-bar-slider",
-        "description": "",
-        "display_type": "default",
-        "parent": 9898,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9942,
-        "name": "Paint Finish (Basins)",
-        "slug": "paint-finish-basins",
-        "description": "<span data-sheets-value=\"{\" data-sheets-userformat=\"{\">Achieve a perfect paint finish with our premium products. Explore a range of top-quality paint and finishing solutions to transform your spaces with precision and style.</span>",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 9943,
-        "name": "Paint Finish (Baths)",
-        "slug": "paint-finish-baths",
-        "description": "Achieve a perfect paint finish with our premium products. Explore a range of top-quality paint and finishing solutions to transform your spaces with precision and style.",
-        "display_type": "default",
-        "parent": 0,
         "thumbnail": ""
     },
     {
@@ -2721,33 +1858,6 @@
         "thumbnail": ""
     },
     {
-        "term_id": 10990,
-        "name": "Klein Paradys",
-        "slug": "klein-paradys",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 11239,
-        "name": "Shower Door Handles",
-        "slug": "shower-door-handles",
-        "description": "",
-        "display_type": "default",
-        "parent": 4864,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 11434,
-        "name": "May June Promo",
-        "slug": "may-june-promo",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
         "term_id": 12009,
         "name": "Cistern",
         "slug": "cistern",
@@ -2755,16 +1865,6 @@
         "display_type": "default",
         "parent": 1349,
         "thumbnail": ""
-    },
-    {
-        "term_id": 12110,
-        "name": "Large Slab",
-        "slug": "large-slab",
-        "description": "",
-        "display_type": "default",
-        "parent": 1262,
-        "thumbnail": "",
-        "no_children": true
     },
     {
         "term_id": 12274,
@@ -2785,66 +1885,12 @@
         "thumbnail": ""
     },
     {
-        "term_id": 12332,
-        "name": "Lifestyle Promo",
-        "slug": "lifestyle-promo",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 12550,
-        "name": "Lifestyle Promo Combo Deal",
-        "slug": "lifestyle-promo-combo-deal",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 12665,
-        "name": "Special Order",
-        "slug": "special-order",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 12851,
-        "name": "Selected Stores Only",
-        "slug": "selected-stores-only",
-        "description": "",
-        "display_type": "default",
-        "parent": 0,
-        "thumbnail": ""
-    },
-    {
         "term_id": 13297,
         "name": "Shower Toilets",
         "slug": "shower-toilets",
         "description": "",
         "display_type": "default",
         "parent": 1349,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 13298,
-        "name": "Accessories",
-        "slug": "accessories",
-        "description": "",
-        "display_type": "default",
-        "parent": 13297,
-        "thumbnail": ""
-    },
-    {
-        "term_id": 13299,
-        "name": "Shower Toilet Seat",
-        "slug": "shower-toilet-seat",
-        "description": "",
-        "display_type": "default",
-        "parent": 2053,
         "thumbnail": ""
     },
     {

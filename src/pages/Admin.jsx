@@ -19,6 +19,7 @@ import AdminUniqueFinishes from './admin/UniqueFinishes'
 import AdminUniqueSizes from './admin/UniqueSizes'
 import AdminUniquePromos from './admin/UniquePromos'
 import AdminLocations from './admin/Locations'
+import MediaManager from './admin/MediaManager'
 
 const Admin = () => {
     const { isAuthenticated, isAdmin, user } = useAuth()
@@ -43,6 +44,7 @@ const Admin = () => {
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
+      { name: 'Media', href: '/admin/media', icon: '📁' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
       { name: 'Content', href: '/admin/content', icon: '📝' },
       // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
@@ -100,6 +102,7 @@ const Admin = () => {
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
                   <Route path="/locations" element={<AdminLocations />} />
+                  <Route path="/media" element={<MediaManager />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />
                   <Route path="/content" element={<AdminContent />} />
                   <Route path="/settings" element={<AdminSettings />} />

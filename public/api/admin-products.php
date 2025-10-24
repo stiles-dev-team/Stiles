@@ -165,7 +165,7 @@ try {
                     $stmt = $pdo->prepare('SELECT MAX(ID) as max_id FROM stiles_products sp');
                     $stmt->execute();
                     $result = $stmt->fetch();
-                    $maxId = $result['max_id'] ? (int)$result['max_id'] : 0;
+                    $maxId = $result['max_id'] ? (string)$result['max_id'] : '0';
                     
                     echo json_encode([
                         'status' => 'success',
@@ -200,6 +200,42 @@ try {
                             'message' => 'Product not found'
                         ]);
                     } else {
+                        // Get media information for featured image
+                        $featuredImageData = null;
+                        if (!empty($product['featured_image'])) {
+                            $mediaStmt = $pdo->prepare('SELECT alt_text, description FROM media_files WHERE file_path = ?');
+                            $mediaStmt->execute([$product['featured_image']]);
+                            $featuredImageData = $mediaStmt->fetch(PDO::FETCH_ASSOC);
+                        }
+                        
+                        // Get media information for gallery images
+                        $galleryImagesData = [];
+                        if (!empty($product['gallery_images'])) {
+                            $galleryImages = explode(',', $product['gallery_images']);
+                            foreach ($galleryImages as $imageUrl) {
+                                $imageUrl = trim($imageUrl);
+                                if (!empty($imageUrl)) {
+                                    $mediaStmt = $pdo->prepare('SELECT alt_text, description FROM media_files WHERE file_path = ?');
+                                    $mediaStmt->execute([$imageUrl]);
+                                    $mediaData = $mediaStmt->fetch(PDO::FETCH_ASSOC);
+                                    $galleryImagesData[] = [
+                                        'url' => $imageUrl,
+                                        'alt_text' => $mediaData ? $mediaData['alt_text'] : '',
+                                        'description' => $mediaData ? $mediaData['description'] : ''
+                                    ];
+                                }
+                            }
+                        }
+                        
+                        // Add media data to product
+                        $product['featured_image_data'] = $featuredImageData;
+                        $product['gallery_images_data'] = $galleryImagesData;
+                        
+                        // Convert ID to string to prevent precision loss in JSON
+                        if (isset($product['ID'])) {
+                            $product['ID'] = (string)$product['ID'];
+                        }
+                        
                         echo json_encode([
                             'status' => 'success',
                             'product' => $product
@@ -351,6 +387,14 @@ try {
                 $stmt->execute($params);
                 $products = $stmt->fetchAll();
                 
+                // Convert ID to string to prevent precision loss in JSON
+                foreach ($products as &$product) {
+                    if (isset($product['ID'])) {
+                        $product['ID'] = (string)$product['ID'];
+                    }
+                }
+                unset($product); // Break the reference
+                
                 // Calculate pagination info
                 $totalPages = ceil($totalCount / $limit);
                 $hasNextPage = $page < $totalPages;
@@ -456,14 +500,8 @@ try {
             // Process PDF URL
             $pdfUrl = '';
             if (!empty($data['pdf_url'])) {
-                // Check if the URL already contains the base path to avoid duplication
-                $baseUrlPattern = 'https://stiles.co.za/images/' . $currentYear . '/' . $currentMonth . '/';
-                
-                if (strpos($data['pdf_url'], $baseUrlPattern) === 0) {
-                    // URL already has the correct base path, use as is
-                    $pdfUrl = $data['pdf_url'];
-                } elseif (strpos($data['pdf_url'], 'http') === 0) {
-                    // It's a full URL but with a different base, use as is
+                // If it's already a full URL (from MediaSelector), use as is
+                if (strpos($data['pdf_url'], 'http') === 0) {
                     $pdfUrl = $data['pdf_url'];
                 } else {
                     // It's just a filename, add the base URL
@@ -474,14 +512,8 @@ try {
             // Process Featured Image URL
             $featuredImageUrl = '';
             if (!empty($data['featured_image'])) {
-                // Check if the URL already contains the base path to avoid duplication
-                $baseUrlPattern = 'https://stiles.co.za/images/' . $currentYear . '/' . $currentMonth . '/';
-                
-                if (strpos($data['featured_image'], $baseUrlPattern) === 0) {
-                    // URL already has the correct base path, use as is
-                    $featuredImageUrl = $data['featured_image'];
-                } elseif (strpos($data['featured_image'], 'http') === 0) {
-                    // It's a full URL but with a different base, use as is
+                // If it's already a full URL (from MediaSelector), use as is
+                if (strpos($data['featured_image'], 'http') === 0) {
                     $featuredImageUrl = $data['featured_image'];
                 } else {
                     // It's just a filename, add the base URL
@@ -492,14 +524,8 @@ try {
             // Process Gallery Images URLs
             $galleryImagesUrl = '';
             if (!empty($data['gallery_images'])) {
-                // Check if the URLs already contain the base path to avoid duplication
-                $baseUrlPattern = 'https://stiles.co.za/images/' . $currentYear . '/' . $currentMonth . '/';
-                
-                if (str_contains($data['gallery_images'], $baseUrlPattern)) {
-                    // URLs already have the correct base path, use as is
-                    $galleryImagesUrl = $data['gallery_images'];
-                } elseif (str_contains($data['gallery_images'], 'https://')) {
-                    // It contains full URLs but with a different base, use as is
+                // If it contains full URLs (from MediaSelector), use as is
+                if (str_contains($data['gallery_images'], 'https://')) {
                     $galleryImagesUrl = $data['gallery_images'];
                 } else {
                     // If they're just filenames, add the base URL
@@ -539,6 +565,7 @@ try {
                             pdf_url = ?,
                             featured_image = ?, 
                             gallery_images = ?,
+                            youtube_video_url = ?,
                             promo = ?
                         WHERE ID = ?
                     ');
@@ -564,6 +591,7 @@ try {
                         $pdfUrl,
                         $featuredImageUrl,
                         $galleryImagesUrl,
+                        $data['youtube_video_url'] ?? '',
                         $data['promo'] ?? '',
                         $data['id']
                     ]);
@@ -601,8 +629,8 @@ try {
                             regular_price, sale_price, metadesc, product_category, product_tag,
                             `attribute:pa_brands`, `attribute:pa_colour`, `attribute:pa_finish`, 
                             `attribute:pa_size`, `meta:product_details`, pdf_url, featured_image, 
-                            gallery_images, promo
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            gallery_images, youtube_video_url, promo
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ');
                     
                     $stmt->execute([
@@ -627,6 +655,7 @@ try {
                         $pdfUrl,
                         $featuredImageUrl,
                         $galleryImagesUrl,
+                        $data['youtube_video_url'] ?? '',
                         $data['promo'] ?? ''
                     ]);
 
@@ -635,7 +664,7 @@ try {
                     $response = [
                         'status' => 'success',
                         'message' => 'Product created successfully',
-                        'product_id' => $newId
+                        'product_id' => (string)$newId
                     ];
                     echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
                 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import BlogSidebar from '../components/BlogSidebar';
+import { Helmet } from 'react-helmet-async';
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -138,6 +139,20 @@ const BlogPost = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>{currentPost.post_title} | Stiles Blog | Find The Best Deals On Tiles | Stiles</title>
+        <meta name="description" content={currentPost.post_content} />
+        <meta property="og:title" content={currentPost.post_title} />
+        <meta property="og:description" content={currentPost.post_content} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+        <meta property="og:site_name" content="Stiles" />
+        <meta property="og:locale" content="en_ZA" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={currentPost.post_title} />
+        <meta name="twitter:description" content={currentPost.post_content} />
+        <link rel="canonical" href={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+      </Helmet>
       {/* Hero Section */}
       <section className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0'>

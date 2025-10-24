@@ -157,40 +157,80 @@ const Home = () => {
 export default Home
 
 const Hero = ({ content }) => {
-  const heroContent = content?.hero || {
+  
+  // const heroContent = content?.hero || {
+  //   slides: [
+  //     {
+  //       id: 1,
+  //       title: "Stiles Black November Promo",
+  //       subtitle: "",
+  //       background_image: "/images/blacknovember.jpg",
+  //       background_image_mobile: "/images/blacknovember_resp.jpg",
+  //       button_text: "Know More",
+  //       button_link: "#whoweareHome"
+  //     },
+  //     {
+  //       id: 2,
+  //       title: "Quality and Style Specially Handpicked for You",
+  //       subtitle: "",
+  //       background_image: "/images/Website_Banners2.jpg",
+  //       button_text: "Know More",
+  //       button_link: "#whoweareHome"
+  //     },
+  //     {
+  //       id: 3,
+  //       title: "Quality and Style Specially Handpicked for You",
+  //       subtitle: "",
+  //       background_image: "/images/Website_Banners3.jpg",
+  //       button_text: "Know More",
+  //       button_link: "#whoweareHome"
+  //     },
+  //     {
+  //       id: 4,
+  //       title: "Quality and Style Specially Handpicked for You",
+  //       subtitle: "",
+  //       background_image: "/images/Website_Banners4.jpg",
+  //       button_text: "Know More",
+  //       button_link: "#whoweareHome"
+  //     }
+  //   ]
+  // };
+  const heroContent =  {
     slides: [
       {
         id: 1,
-        title: "Quality and Style Specially Handpicked for You",
+        title: "Black November Promo",
         subtitle: "",
-        background_image: "/images/Website_Banners.jpg",
-        button_text: "Know More",
-        button_link: "#whoweareHome"
+        background_image: "/images/blacknovember_homepage.jpg",
+        background_image_mobile: "/images/blacknovember_homepage_resp2.jpg",
+        button_text: "See Promo",
+        button_link: "/black-november-promo",
+        all_clickable: true
       },
-      {
-        id: 2,
-        title: "Quality and Style Specially Handpicked for You",
-        subtitle: "",
-        background_image: "/images/Website_Banners2.jpg",
-        button_text: "Know More",
-        button_link: "#whoweareHome"
-      },
-      {
-        id: 3,
-        title: "Quality and Style Specially Handpicked for You",
-        subtitle: "",
-        background_image: "/images/Website_Banners3.jpg",
-        button_text: "Know More",
-        button_link: "#whoweareHome"
-      },
-      {
-        id: 4,
-        title: "Quality and Style Specially Handpicked for You",
-        subtitle: "",
-        background_image: "/images/Website_Banners4.jpg",
-        button_text: "Know More",
-        button_link: "#whoweareHome"
-      }
+          {
+            id: 2,
+            title: "Quality and Style Specially Handpicked for You",
+            subtitle: "",
+            background_image: "/images/Website_Banners2.jpg",
+            button_text: "Know More",
+            button_link: "#whoweareHome"
+          },
+          {
+            id: 3,
+            title: "Quality and Style Specially Handpicked for You",
+            subtitle: "",
+            background_image: "/images/Website_Banners3.jpg",
+            button_text: "Know More",
+            button_link: "#whoweareHome"
+          },
+          {
+            id: 4,
+            title: "Quality and Style Specially Handpicked for You",
+            subtitle: "",
+            background_image: "/images/Website_Banners4.jpg",
+            button_text: "Know More",
+            button_link: "#whoweareHome"
+          }
     ]
   };
 
@@ -202,7 +242,14 @@ const Hero = ({ content }) => {
         {heroContent.slides.map((slide) => (
           <SplideSlide key={slide.id} className="w-full h-lvh flex flex-col justify-center items-center">
             <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/30'></div>
-            <img src={slide.background_image} alt={slide.title} className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center' />
+            <picture>
+              {
+                slide.background_image_mobile && (
+                  <source srcSet={slide.background_image_mobile} media="(max-width: 768px)" />
+                )
+              }
+              <img src={slide.background_image} alt={slide.title} className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-right-bottom lg:object-center' />
+            </picture>
             <div className='relative z-10 container mx-auto px-4'>
               <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>{slide.title}</h1>
               {slide.subtitle && (

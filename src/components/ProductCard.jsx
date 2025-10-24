@@ -215,13 +215,15 @@ const ProductCard = memo(({ onClick, prod }) => {
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             </div>
             {
-                badges.length > 0 &&  badges.map((badge, index) => (
-                    <div className={`absolute left-0 w-fit z-25 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44`} style={{ top: index * 38 + 'px' }}>
-                        <div key={index} className='bg-primaryStiles px-2 py-1 rounded text-center'>
-                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
-                        </div>
-                    </div>
-                ))}
+                badges.length > 0 &&  badges.map((badge, index) => {
+                        return (
+                            <div className={`absolute left-0 w-fit z-25 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44`} style={{ top: index * 38 + 'px' }}>
+                                <div key={index} className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                                    <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                </div>
+                            </div>
+                        )
+            })}
             <h3 className='font-bold text-xl cursor-pointer'>{product.title}</h3>
             <div className="flex justify-start items-center gap-3 w-full cursor-pointer">
                 {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (

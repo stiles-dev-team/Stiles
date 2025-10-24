@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import MediaSelector from "../../components/MediaSelector";
 
 const AdminContent = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -255,7 +256,7 @@ const AdminContent = () => {
   // Blog management functions
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('/api/admin-blogs.php');
+      const response = await fetch('https://stiles.co.za/api/admin-blogs.php');
       const data = await response.json();
       if (data.success) {
         setBlogs(data.blogs);
@@ -270,7 +271,7 @@ const AdminContent = () => {
   const handleSaveBlog = async (blogData) => {
     setSaving(true);
     try {
-      const response = await fetch('/api/admin-blogs.php', {
+      const response = await fetch('https://stiles.co.za/api/admin-blogs.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -296,7 +297,7 @@ const AdminContent = () => {
   const handleDeleteBlog = async (blogId) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
       try {
-        const response = await fetch('/api/admin-blogs.php', {
+        const response = await fetch('https://stiles.co.za/api/admin-blogs.php', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -331,6 +332,7 @@ const AdminContent = () => {
       categories: '',
       tags: '',
       featured_image: '',
+      content_images: [],
       metadescription: ''
     });
     setShowBlogForm(true);
@@ -903,6 +905,7 @@ const BlogForm = ({ blog, onSave, onCancel, saving, generateSlug }) => {
     categories: blog?.categories || '',
     tags: blog?.tags || '',
     featured_image: blog?.featured_image || '',
+    content_images: blog?.content_images || [],
     metadescription: blog?.metadescription || ''
   });
 
@@ -998,14 +1001,15 @@ const BlogForm = ({ blog, onSave, onCancel, saving, generateSlug }) => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Featured Image URL
+              Featured Image
             </label>
-            <input
-              type="url"
+            <MediaSelector
               value={formData.featured_image}
-              onChange={(e) => handleInputChange('featured_image', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://example.com/image.jpg"
+              onChange={(value) => handleInputChange('featured_image', value)}
+              type="single"
+              accept="images"
+              placeholder="Select featured image..."
+              className="w-full"
             />
           </div>
         </div>
@@ -1048,6 +1052,23 @@ const BlogForm = ({ blog, onSave, onCancel, saving, generateSlug }) => {
             placeholder="Write your blog post content here..."
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Content Images
+          </label>
+          <MediaSelector
+            value={formData.content_images || []}
+            onChange={(value) => handleInputChange('content_images', value)}
+            type="multiple"
+            accept="images"
+            placeholder="Select images for your blog content..."
+            className="w-full"
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Select images to include in your blog post. You can reference them in your content using their URLs.
+          </p>
         </div>
 
         <div className="flex justify-end space-x-3">

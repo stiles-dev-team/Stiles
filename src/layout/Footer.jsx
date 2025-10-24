@@ -1,7 +1,22 @@
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaPinterest } from "react-icons/fa";
-import locationData from '/public/data/stiles-locations.json';
+import { useEffect, useState } from 'react';
 
 const Footer = () => {
+
+  const [locationData, setLocationData] = useState(null)
+
+  useEffect(() => {
+    fetch('/data/stiles-locations.json')
+    .then(res => res.json())
+    .then(data => {
+      setLocationData(data)
+      console.log(data)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }, [])
+
   return (
     <footer className='w-full bg-dark pt-20 pb-10'>
       <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-20">
@@ -25,7 +40,7 @@ const Footer = () => {
         <div className="flex flex-col justify-start items-center lg:items-start gap-2 lg:col-span-2">
           <h3 className="text-2xl font-bold text-white">GET IN TOUCH</h3>
           <div className="pt-4 grid grid-cols-1 lg:grid-cols-2 w-full gap-2">
-            {locationData.locations.map((location) => (
+            {locationData?.locations.map((location) => (
               <a 
                 key={location.title}
                 href={`tel:${location.phone.replace(/\s/g, '')}`} 

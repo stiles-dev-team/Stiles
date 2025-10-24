@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../layout/Layout'
+
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import MultiRangeSlider from "multi-range-slider-react";
@@ -20,26 +21,10 @@ import ProductCard from '../components/ProductCard';
 import { CircularPagination } from '../components/CircularPagination';
 import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
-import { useParams } from 'react-router-dom';
 import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
-
-function Icon({ id, open }) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="currentColor"
-        className={`${id === open ? "rotate-180" : ""} h-5 w-5 transition-transform`}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-      </svg>
-    );
-  }
 
 // Function to extract plain text from HTML descriptions
 const extractTextFromHTML = (htmlString) => {
@@ -56,12 +41,27 @@ const extractTextFromHTML = (htmlString) => {
     return textContent.trim().replace(/\s+/g, ' ');
 };
 
-const ProductTagCategory = () => {
+function Icon({ id, open }) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={2}
+        stroke="currentColor"
+        className={`${id === open ? "rotate-180" : ""} h-5 w-5 transition-transform`}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
+    );
+  }
 
-    const { slug, category, subcategory } = useParams();
+const Promo = () => {
+
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
+    const [showTermsPopup, setShowTermsPopup] = useState(false);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
@@ -86,31 +86,23 @@ const ProductTagCategory = () => {
         setLoading(true);
     };
 
-    
-
-    const [data, setData] = useState(null);
-
+    // Show terms popup every time user enters the promo page
     useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
+        setShowTermsPopup(true);
     }, []);
+
+    const handleAcceptTerms = () => {
+        setShowTermsPopup(false);
+    };
 
   return (
     <Layout>
         <Helmet>
-            <title>{data?.name || 'Products'} | Stiles</title>
-            <meta name="description" content={extractTextFromHTML(data?.description)} />
+            <title>Stiles Black November Promo</title>
+            <meta name="description" content="Unlock exclusive savings with the Stiles Black November Promo. Shop premium tiles, sanitaryware & decor at unbeatable prices. Limited-time deals!" />
         </Helmet>
-        <Hero slug={slug} />
+        <Hero />
         <Content 
-            slug={slug} 
-            category={category}
-            subcategory={subcategory}
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage}
             productsPerPage={productsPerPage} 
@@ -119,43 +111,31 @@ const ProductTagCategory = () => {
             setLoading={setLoading}
             onProductsPerPageChange={handleProductsPerPageChange}
         />
+        <TermsAndConditionsPopup 
+            open={showTermsPopup} 
+            onAccept={handleAcceptTerms}
+        />
     </Layout>
   )
 }
 
-export default ProductTagCategory
+export default Promo
 
-const Hero = ({slug}) => {
-
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
-
+const Hero = () => {
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
-        <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
+        <section id='heroHome' className={`w-full h-[60vh] lg:h-[90vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center lg:bg-[url("/images/blacknovember.jpg")] bg-[url("/images/blacknovember_resp.jpg")]`}>
+        {/* <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/40'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>Black November Promo</h1>
             <div className='!text-white text-center w-full max-w-3xl'>
-                <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
+                <p className='!text-white'>Discover amazing deals with our Black November promotion. Limited time offers on premium tiles and building materials.</p>
             </div>
-        </div>
+        </div> */}
       </section>
     )
 }
 
 const Content = ({
-    slug, 
-    category,
-    subcategory,
     currentPage, 
     setCurrentPage,
     productsPerPage, 
@@ -169,7 +149,6 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const [dataSlug, setDataSlug] = useState(null);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
@@ -187,13 +166,23 @@ const Content = ({
     const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
     const [filteredProducts, setFilteredProducts] = useState(null);
 
-    // Fetch filter values when category changes
+    // Update filteredSizes whenever sizes or searchTerm changes
     useEffect(() => {
-        if (!dataSlug?.name) return;
+        if (sizeSearchTerm.trim() === '') {
+            setFilteredSizes(sizes);
+        } else {
+            const filtered = sizes.filter(size => 
+                size.toLowerCase().includes(sizeSearchTerm.toLowerCase())
+            );
+            setFilteredSizes(filtered);
+        }
+    }, [sizeSearchTerm, sizes]);
 
+    // Fetch filter values for promo products
+    useEffect(() => {
         const fetchFilterValues = async () => {
             try {
-                const response = await fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(dataSlug.name)}&filters=true`);
+                const response = await fetch(`https://stiles.co.za/api/products.php?promo=Black November&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -238,7 +227,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [dataSlug]);
+    }, []);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -256,10 +245,8 @@ const Content = ({
         setSearchParams(newParams);
     };
 
-    // Modify the initial data loading effect to be more efficient
+    // Fetch promo products
     useEffect(() => {
-        if (!dataSlug?.name) return;
-        
         setLoading(true);
         const fetchProducts = async () => {
             try {
@@ -268,7 +255,7 @@ const Content = ({
                 
                 // Build query parameters for filters
                 const queryParams = new URLSearchParams({
-                    category: dataSlug.name,
+                    promo: 'Black November',
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()
@@ -293,7 +280,7 @@ const Content = ({
 
                 // Log the request URL for debugging
                 const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
-                console.log('Fetching products with URL:', requestUrl);
+                console.log('Fetching promo products with URL:', requestUrl);
                 
                 const res = await fetch(requestUrl);
                 if (!res.ok) throw new Error('Failed to fetch products');
@@ -305,14 +292,14 @@ const Content = ({
                 setTotalCount(data.total_count || 0);
                 setLoading(false);
             } catch (err) {
-                console.error('Error fetching products:', err);
-                toast.error('Failed to load products');
+                console.error('Error fetching promo products:', err);
+                toast.error('Failed to load promo products');
                 setLoading(false);
             }
         };
 
         fetchProducts();
-    }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
+    }, [currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
     // Add a small delay to the loading state to prevent flickering
     useEffect(() => {
@@ -323,16 +310,6 @@ const Content = ({
             return () => clearTimeout(timer);
         }
     }, [loading]);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setDataSlug(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, [slug]);
 
     // New useEffect to handle sorting when sortBy changes
     useEffect(() => {
@@ -363,6 +340,22 @@ const Content = ({
                         const priceA = parseFloat(a.regular_price) || 0;
                         const priceB = parseFloat(b.regular_price) || 0;
                         return priceB - priceA;
+                    });
+                    break;
+                case 'ascBrand':
+                    // A-Z Brand
+                    sortedProducts.sort((a, b) => {
+                        const brandA = (a.brands || '').toLowerCase();
+                        const brandB = (b.brands || '').toLowerCase();
+                        return brandA.localeCompare(brandB);
+                    });
+                    break;
+                case 'descBrand':
+                    // Z-A Brand
+                    sortedProducts.sort((a, b) => {
+                        const brandA = (a.brands || '').toLowerCase();
+                        const brandB = (b.brands || '').toLowerCase();
+                        return brandB.localeCompare(brandA);
                     });
                     break;
                 default:
@@ -467,18 +460,6 @@ const Content = ({
         setSearchParams(newParams);
     }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, productsPerPage, currentPage]);
 
-    // Update filteredSizes whenever sizes or searchTerm changes
-    useEffect(() => {
-        if (sizeSearchTerm.trim() === '') {
-            setFilteredSizes(sizes);
-        } else {
-            const filtered = sizes.filter(size => 
-                size.toLowerCase().includes(sizeSearchTerm.toLowerCase())
-            );
-            setFilteredSizes(filtered);
-        }
-    }, [sizeSearchTerm, sizes]);
-
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
@@ -528,13 +509,6 @@ const Content = ({
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
 
-    // Add decodeHTML function
-    const decodeHTML = (html) => {
-        const txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return txt.value;
-    };
-
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
@@ -550,6 +524,13 @@ const Content = ({
         selectedColours,
         selectedSizes
     });
+
+    // Add decodeHTML function
+    const decodeHTML = (html) => {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    };
 
     return (
         <>
@@ -671,7 +652,7 @@ const Content = ({
                                                         }
                                                     `}
                                                 >
-                                                    {decodeHTML(item)}
+                                                    {item}
                                                 </div>
                                             ))}
                                         </div>
@@ -699,7 +680,7 @@ const Content = ({
                                                     key={index}
                                                     className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-dark text-white"
                                                 >
-                                                    {decodeHTML(size)}
+                                                    {size}
                                                     <button
                                                         onClick={() => {
                                                             setSelectedSizes(prev => prev.filter(s => s !== size));
@@ -720,19 +701,12 @@ const Content = ({
                 </aside>
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full flex flex-row justify-start items-center gap-3'>
-                        
                         <Breadcrumbs>
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href={"/product-category/" + category}>
-                                {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                            </a>
-                            <a href={"/product-category/" + category + "/" + subcategory}>
-                                {subcategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                            </a>
-                            <a href={"/product-category/" + category + "/" + subcategory + "/" + slug}>
-                                {dataSlug?.name}
+                            <a href="/promo">
+                                Black November Promo
                             </a>
                         </Breadcrumbs>
                     </div>
@@ -849,7 +823,105 @@ const Content = ({
                         </div>
                     </div>
                 </DialogBody>
-            </Dialog>
-        </>
-    )
+        </Dialog>
+    </>
+)
 }
+
+const TermsAndConditionsPopup = ({ open, onAccept }) => {
+    return (
+        <Dialog 
+            size="lg" 
+            open={open} 
+            handler={() => {}} // Prevent closing by clicking outside
+            className="bg-white"
+        >
+            <DialogBody className="p-0">
+                <div className="bg-gradient-to-r from-black to-dark text-white p-6 text-center">
+                    <h2 className="text-2xl font-bold mb-2">Black November Promo</h2>
+                    <p className="text-white">Limited Time Offer - Terms & Conditions Apply</p>
+                </div>
+                <div className="p-6 max-h-96 overflow-y-auto">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Terms and Conditions</h3>
+                    <p className="text-sm text-gray-600 mb-4">Please take note of the terms and conditions for selected items for the Black November Promo.</p>
+                    
+                    <div className="space-y-4 text-sm text-gray-700">
+                        <div>
+                            <p>• Black November Promo items only apply to selected Tiles and Sanware identified as Black November Promo items.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Black November Promo items will be sold while stocks last at respective branches or showrooms.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Discounts apply to only selected products within the Black November Promo catalogue and not all products.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Certain items identified as Black November Promo are only available at certain Stiles showrooms and may not be in stock at all Stiles showrooms.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Should you request more of the same tile from another warehouse, same batch cannot be guaranteed and purchase will be at own risk.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Merchandise as per quote and pallet pre-packed is given as is and no selection will be allowed.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Any deliveries and/or all Courier Costs must be paid by the customer upfront if not collecting straight from the warehouse where the stock is warehoused.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Orders placed and opted to pay via EFT will only be released once funds reflect in our bank account (Proof of payment can be sent to info@stiles.co.za and preferably the sales consultant to reserve your stock)</p>
+                        </div>
+                        
+                        <div>
+                            <p>• No delivery will be included for items identified as Black November Promo items.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• No storage longer than 7 (seven) working days will be allowed for items identified as Black November Promo.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Items bought on the Black November Promo should be paid for in full at the time of purchase.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• A no return policy applies to items bought from Stiles and identified as Black November Promo.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Discounted items on Black November Promo items can end at any point.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Prices are subject to a price increase at any point.</p>
+                        </div>
+                        
+                        <div>
+                            <p>• Standard Stiles terms and conditions of sale apply to items bought on the Black November Promo unless any point is otherwise stated in the Black November Promo terms and conditions.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="bg-gray-50 p-6 border-t">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                            onClick={onAccept}
+                            className="bg-black hover:bg-dark text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                        >
+                            I Accept & Continue Shopping
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3 text-center">
+                        By clicking "I Accept", you acknowledge that you have read and understood these terms and conditions.
+                    </p>
+                </div>
+            </DialogBody>
+        </Dialog>
+    );
+};

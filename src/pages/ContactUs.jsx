@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import Layout from '../layout/Layout'
 import { Breadcrumbs } from '@material-tailwind/react'
 import LocationCard from '../components/LocationCard'
-import locations from '../../public/data/stiles-locations.json'
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@ const ContactUs = () => {
     phone: '',
     message: ''
   })
+
+  const [locations, setLocations] = useState([])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -25,8 +27,30 @@ const ContactUs = () => {
     })
   }
 
+  useEffect(() => {
+    fetch('/data/stiles-locations.json')
+    .then(res => res.json())
+    .then(data => {
+      setLocations(data.locations)
+    })
+  }, [])
+
   return (
     <Layout>
+        <Helmet>
+          <title>Contact Us | Stiles</title>
+          <meta name="description" content="Contact Us | Stiles" />
+          <meta property="og:image" content="/images/favi.webp" />
+          <meta property="og:title" content="Contact Us | Stiles" />
+          <meta property="og:description" content="Contact Us | Stiles" />
+          <meta property="og:url" content="https://stiles.co.za/contact-us" />
+          <meta property="og:type" content="product" />
+          <meta property="og:site_name" content="Stiles" />
+          <meta property="og:locale" content="en_ZA" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content="Contact Us | Stiles" />
+      </Helmet>
       <section className='w-full bg-dark bg-cover bg-center relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
@@ -116,7 +140,7 @@ const ContactUs = () => {
             {/* Contact Information */}
             <div>
               <h2 className="text-3xl font-bold mb-6">Head Office</h2>
-              <LocationCard location={locations.locations.find(loc => loc.title === "George")} />
+              <LocationCard location={locations?.find(loc => loc.title === "George")} />
             </div>
           </div>
         </div>
@@ -127,7 +151,7 @@ const ContactUs = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8 text-center">Our Locations</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {locations.locations.filter(loc => loc.title !== "George").map((location, index) => (
+            {locations.filter(loc => loc.title !== "George").map((location, index) => (
               <LocationCard key={index} location={location} />
             ))}
           </div>

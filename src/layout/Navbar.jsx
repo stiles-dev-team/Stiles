@@ -59,6 +59,7 @@ const Navbar = () => {
   const [openTilesSection, setOpenTilesSection] = useState(null);
   const [openSanwareSection, setOpenSanwareSection] = useState(null);
   const [openFlooringSection, setOpenFlooringSection] = useState(null);
+  const [parentCategories, setParentCategories] = useState([]);
 
   const categorizedBrands = {
     "A-C": brands.filter((brand) => /^[A-C]/i.test(brand)),
@@ -80,10 +81,13 @@ const Navbar = () => {
 
   useEffect(() => {
     // Fetch categories
-    fetch("/data/categories.json")
+    fetch("/data/navbar-categories.json")
       .then((response) => response.json())
       .then((data) => {
         setData(data);
+        // Extract parent categories (those with parent = 0)
+        const parents = data.filter(category => category.parent === 0);
+        setParentCategories(parents);
       });
 
     // Fetch brands from API
@@ -364,7 +368,10 @@ const Navbar = () => {
                 }`}
               >
                 {data
-                  ?.filter((item) => item.parent === 1262)
+                  ?.filter((item) => {
+                    const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
+                    return tilesParent ? item.parent === tilesParent.term_id : false;
+                  })
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => {
                     // Check if the item has subcategories
@@ -454,7 +461,10 @@ const Navbar = () => {
                 }`}
               >
                 {data
-                  ?.filter((item) => item.parent === 1091)
+                  ?.filter((item) => {
+                    const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
+                    return sanwareParent ? item.parent === sanwareParent.term_id : false;
+                  })
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => {
                     // Check if the item has subcategories
@@ -546,7 +556,10 @@ const Navbar = () => {
                 }`}
               >
                 {data
-                  ?.filter((item) => item.parent === 1562)
+                  ?.filter((item) => {
+                    const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
+                    return flooringParent ? item.parent === flooringParent.term_id : false;
+                  })
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((item, index) => {
                     // Check if the item has subcategories
@@ -834,7 +847,10 @@ const Navbar = () => {
           </AccordionHeader>
           <AccordionBody className="py-0 pb-2">
             {data
-              ?.filter((item) => item.parent === 1262)
+              ?.filter((item) => {
+                const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
+                return tilesParent ? item.parent === tilesParent.term_id : false;
+              })
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((item, index) => {
                 const hasSubcategories = data?.some(
@@ -908,7 +924,10 @@ const Navbar = () => {
           </AccordionHeader>
           <AccordionBody className="py-0 pb-2">
             {data
-              ?.filter((item) => item.parent === 1091)
+              ?.filter((item) => {
+                const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
+                return sanwareParent ? item.parent === sanwareParent.term_id : false;
+              })
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((item, index) => {
                 const hasSubcategories = data?.some(
@@ -984,7 +1003,10 @@ const Navbar = () => {
           </AccordionHeader>
           <AccordionBody className="py-0 pb-2">
             {data
-              ?.filter((item) => item.parent === 1562)
+              ?.filter((item) => {
+                const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
+                return flooringParent ? item.parent === flooringParent.term_id : false;
+              })
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((item, index) => {
                 const hasSubcategories = data?.some(

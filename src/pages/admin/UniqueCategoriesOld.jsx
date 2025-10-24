@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import MediaSelector from '../../components/MediaSelector'
 
-const AdminUniqueCategories = () => {
+const AdminUniqueCategoriesOld = () => {
   const [categories, setCategories] = useState([])
   const [filteredCategories, setFilteredCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -9,62 +8,28 @@ const AdminUniqueCategories = () => {
   const [editingCategory, setEditingCategory] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState({
-    category: '',
-    parent: 0,
-    description: '',
-    thumbnail: ''
+    category: ''
   })
 
   useEffect(() => {
     fetchCategories()
   }, [])
 
-  // Function to sort categories hierarchically
-  const sortCategoriesHierarchically = (categories) => {
-    const sorted = [];
-    const categoryMap = new Map();
-    
-    // Create a map for quick lookup
-    categories.forEach(cat => categoryMap.set(cat.id, cat));
-    
-    // First add root categories (parent = 0)
-    const rootCategories = categories.filter(cat => cat.parent === 0);
-    rootCategories.sort((a, b) => a.category.localeCompare(b.category));
-    
-    // Then recursively add children
-    const addChildren = (parentId, level = 0) => {
-      const children = categories.filter(cat => cat.parent === parentId);
-      children.sort((a, b) => a.category.localeCompare(b.category));
-      
-      children.forEach(child => {
-        sorted.push({ ...child, level });
-        addChildren(child.id, level + 1);
-      });
-    };
-    
-    rootCategories.forEach(root => {
-      sorted.push({ ...root, level: 0 });
-      addChildren(root.id, 1);
-    });
-    
-    return sorted;
-  };
-
   useEffect(() => {
     if (searchTerm) {
       const filtered = categories.filter(category =>
         category.category.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      setFilteredCategories(sortCategoriesHierarchically(filtered))
+      setFilteredCategories(filtered)
     } else {
-      setFilteredCategories(sortCategoriesHierarchically(categories))
+      setFilteredCategories(categories)
     }
   }, [categories, searchTerm])
 
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+      const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +57,7 @@ const AdminUniqueCategories = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -100,10 +65,7 @@ const AdminUniqueCategories = () => {
           },
           body: JSON.stringify({
             id: editingCategory.id,
-            category: formData.category,
-            parent: formData.parent,
-            description: formData.description,
-            thumbnail: formData.thumbnail
+            category: formData.category
           })
         })
 
@@ -114,23 +76,20 @@ const AdminUniqueCategories = () => {
           fetchCategories()
           setShowAddModal(false)
           setEditingCategory(null)
-          setFormData({ category: '', parent: 0, description: '', thumbnail: '' })
+          setFormData({ category: '' })
         } else {
           alert('Error updating category: ' + (result.error || 'Unknown error'))
         }
       } else {
         // Create new category
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            category: formData.category,
-            parent: formData.parent,
-            description: formData.description,
-            thumbnail: formData.thumbnail
+            category: formData.category
           })
         })
 
@@ -140,7 +99,7 @@ const AdminUniqueCategories = () => {
           alert('Category created successfully')
           fetchCategories()
           setShowAddModal(false)
-          setFormData({ category: '', parent: 0, description: '', thumbnail: '' })
+          setFormData({ category: '' })
         } else {
           alert('Error creating category: ' + (result.error || 'Unknown error'))
         }
@@ -154,10 +113,7 @@ const AdminUniqueCategories = () => {
   const handleEditCategory = (category) => {
     setEditingCategory(category)
     setFormData({
-      category: category.category || '',
-      parent: category.parent || 0,
-      description: category.description || '',
-      thumbnail: category.thumbnail || ''
+      category: category.category || ''
     })
     setShowAddModal(true)
   }
@@ -165,7 +121,7 @@ const AdminUniqueCategories = () => {
   const handleDeleteCategory = async (category) => {
     if (window.confirm(`Are you sure you want to delete the category "${category.category}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -269,53 +225,34 @@ const AdminUniqueCategories = () => {
                     Category Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Parent Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCategories.map((category) => {
-                  const parentCategory = categories.find(cat => cat.id === category.parent);
-                  const indentLevel = category.level || 0;
-                  return (
-                    <tr key={category.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        <div className="flex items-center" style={{ paddingLeft: `${indentLevel * 20}px` }}>
-                          {indentLevel > 0 && (
-                            <span className="text-gray-400 mr-2">
-                              └─
-                            </span>
-                          )}
-                          <span>
-                            {category.category}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {parentCategory ? parentCategory.category : 'Root Category'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEditCategory(category)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCategory(category)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {filteredCategories.map((category) => (
+                  <tr key={category.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {category.category}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditCategory(category)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(category)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -334,7 +271,7 @@ const AdminUniqueCategories = () => {
                 onClick={() => {
                   setShowAddModal(false)
                   setEditingCategory(null)
-                  setFormData({ category: '', parent: 0, description: '', thumbnail: '' })
+                  setFormData({ category: '' })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
               >
@@ -359,62 +296,13 @@ const AdminUniqueCategories = () => {
                   />
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Parent Category
-                  </label>
-                  <select
-                    name="parent"
-                    value={formData.parent}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value={0}>Root Category (No Parent)</option>
-                    {categories
-                      .filter(cat => !editingCategory || cat.id !== editingCategory.id)
-                      .map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.category}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Meta Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter category description"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Thumbnail Image
-                  </label>
-                  <MediaSelector
-                    value={formData.thumbnail}
-                    onChange={(url) => setFormData(prev => ({ ...prev, thumbnail: url }))}
-                    type="single"
-                    accept="images"
-                    placeholder="Select thumbnail image..."
-                    className="w-full"
-                  />
-                </div>
-                
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddModal(false)
                       setEditingCategory(null)
-                      setFormData({ category: '', parent: 0, description: '', thumbnail: '' })
+                      setFormData({ category: '' })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
@@ -436,4 +324,4 @@ const AdminUniqueCategories = () => {
   )
 }
 
-export default AdminUniqueCategories
+export default AdminUniqueCategoriesOld

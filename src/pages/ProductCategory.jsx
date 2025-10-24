@@ -26,6 +26,21 @@ import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 
+// Function to extract plain text from HTML descriptions
+const extractTextFromHTML = (htmlString) => {
+    if (!htmlString) return '';
+    
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlString;
+    
+    // Get the text content, which will strip all HTML tags and attributes
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // Clean up any extra whitespace
+    return textContent.trim().replace(/\s+/g, ' ');
+};
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -76,7 +91,7 @@ const ProductCategory = () => {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        fetch(`/data/categories.json`)
+        fetch(`/data/navbar-categories.json`)
         .then(res => res.json())
         .then(data => {
             const selectedData = data.filter(item => item.slug === slug);
@@ -89,7 +104,7 @@ const ProductCategory = () => {
     <Layout>
         <Helmet>
             <title>{data?.name || 'Products'} | Stiles</title>
-            <meta name="description" content="Stiles Product Category" />
+            <meta name="description" content={extractTextFromHTML(data?.description)} />
         </Helmet>
         <Hero slug={slug} />
         <Content 
@@ -113,7 +128,7 @@ const Hero = ({slug}) => {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        fetch(`/data/categories.json`)
+        fetch(`/data/navbar-categories.json`)
         .then(res => res.json())
         .then(data => {
             const selectedData = data.filter(item => item.slug === slug);
@@ -123,7 +138,7 @@ const Hero = ({slug}) => {
     }, []);
 
     return (
-      <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
@@ -318,7 +333,7 @@ const Content = ({
     }, [loading]);
 
     useEffect(() => {
-        fetch(`/data/categories.json`)
+        fetch(`/data/navbar-categories.json`)
         .then(res => res.json())
         .then(data => {
             const selectedData = data.filter(item => item.slug === slug);

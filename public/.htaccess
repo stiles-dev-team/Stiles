@@ -1,0 +1,87 @@
+RewriteEngine On
+
+# === BEGIN: QR 301 redirects generated on 2025-08-25 ===
+Redirect 301 /product/funky-tiles-ava-smoke-grey-gloss- https://stiles.co.za/product/funky-tiles-ava-smoke-grey-gloss-50x300mm
+Redirect 301 /product/funky-tiles-nairobi-metro-blue-50x300mm/ https://stiles.co.za/product/funky-tiles-nairobi-blue-gloss-50x300mm
+Redirect 301 /product/funky-tiles-nairobi-offwhite-gloss-50x300mm/ https://stiles.co.za/product/funky-tiles-nairobi-off-white-gloss-50x300mm
+Redirect 301 /product/realonda-hex-white-265x510mm/ https://stiles.co.za/product/realonda-hex-snow-265x510mm
+Redirect 301 /product/monocolour-romo-botella-gloss-75x300mm https://stiles.co.za/product/monocolour-botella-liso-gloss-75x300mm
+Redirect 301 /product/funky-tiles-look-light-grey-matt-50x500mm https://stiles.co.za/product/funky-tiles-look-light-grey-gloss-50x500mm
+Redirect 301 /product/funky-tiles-puro-nero-marquina-silk-matt-125x250mm https://stiles.co.za/product/puro-nero-marquina-3d-silk-matt-125x250mm
+Redirect 301 /product/funky-tiles-puro-statuario-3d-silk-matt-125x250mm https://stiles.co.za/product/puro-statuario-3d-silk-matt-125x250mm
+Redirect 301 /product/funky-tiles-cadaques-rosso-matt-70x280mm/ https://stiles.co.za/product/cadaques-rosso-matt-70x280mm
+# === END: QR 301 redirects ===
+
+# Handle product category SSR
+# Route /product-category/{slug} to product-category.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^product-category/([^/]+)/?$ product-category.php [L,QSA]
+
+# Handle product subcategory SSR (optional - for future use)
+# Route /product-category/{category}/{slug} to product-subcategory.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^product-category/([^/]+)/([^/]+)/?$ product-subcategory.php [L,QSA]
+
+# Handle product tag category SSR (optional - for future use)
+# Route /product-category/{category}/{subcategory}/{slug} to product-tag-category.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^product-category/([^/]+)/([^/]+)/([^/]+)/?$ product-tag-category.php [L,QSA]
+
+# Handle individual product SSR (optional - for future use)
+# Route /product/{slug} to product.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^product/([^/]+)/?$ product.php [L,QSA]
+
+# Handle blog post SSR (optional - for future use)
+# Route /stiles-blog/{slug} to blog-post.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^stiles-blog/([^/]+)/?$ blog-post.php [L,QSA]
+
+# Handle blog category SSR (optional - for future use)
+# Route /stiles-blog/category/{slug} to blog-category.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^stiles-blog/category/([^/]+)/?$ blog-category.php [L,QSA]
+
+# Standard React Router fallback for all other routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(?!api/).*$ index.html [L,QSA]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache control for static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+# Gzip compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
