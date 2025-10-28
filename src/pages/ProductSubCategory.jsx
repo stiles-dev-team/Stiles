@@ -185,13 +185,20 @@ const Content = ({
     const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
     const [filteredProducts, setFilteredProducts] = useState(null);
 
+    // Ensure category names match DB's HTML-encoded values (e.g., & -> &amp; without double-encoding)
+    const encodeCategoryEntities = (name) => {
+        if (!name) return name;
+        return name.replace(/&(?!amp;)/g, '&amp;');
+    };
+
     // Fetch filter values when category changes
     useEffect(() => {
         if (!dataSlug?.name) return;
 
         const fetchFilterValues = async () => {
             try {
-                const response = await fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(dataSlug.name)}&filters=true`);
+                const encodedCategory = encodeCategoryEntities(dataSlug.name);
+                const response = await fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -266,7 +273,7 @@ const Content = ({
                 
                 // Build query parameters for filters
                 const queryParams = new URLSearchParams({
-                    category: dataSlug.name,
+                    category: encodeCategoryEntities(dataSlug.name),
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()

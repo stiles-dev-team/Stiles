@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeHtmlEntities } from "../utils/pricingUtils";
+import useIsTouchDevice from "../utils/useIsTouchDevice";
 
 function Icon({ id, open }) {
   return (
@@ -35,6 +36,7 @@ function Icon({ id, open }) {
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const isTouchDevice = useIsTouchDevice();
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
@@ -357,7 +359,7 @@ const Navbar = () => {
             >
               <p
                 onMouseEnter={() => setShowTiles(true)}
-                onClick={() => setShowTiles(!showTiles)}
+                onClick={() => isTouchDevice ? setShowTiles(!showTiles) : window.location.href = "/product-category/tiles"}
                 className="text-white font-medium cursor-pointer tiles-button"
               >
                 Tiles
@@ -450,7 +452,7 @@ const Navbar = () => {
             >
               <p
                 onMouseEnter={() => setShowSanware(true)}
-                onClick={() => setShowSanware(!showSanware)}
+                onClick={() => isTouchDevice ? setShowSanware(!showSanware) : window.location.href = "/product-category/sanitary-ware"}
                 className="text-white font-medium cursor-pointer sanware-button"
               >
                 Sanware
@@ -545,7 +547,7 @@ const Navbar = () => {
             >
               <p
                 onMouseEnter={() => setShowFlooring(true)}
-                onClick={() => setShowFlooring(!showFlooring)}
+                onClick={() => isTouchDevice ? setShowFlooring(!showFlooring) : window.location.href = "/product-category/flooring"}
                 className="text-white font-medium cursor-pointer flooring-button"
               >
                 Flooring
@@ -776,6 +778,7 @@ const Navbar = () => {
         className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
           showMenu ? "right-0" : "-right-full"
         }`}
+        id="navbar-mobile-menu"
       >
         <div className="w-full py-5 z-50 flex justify-end items-center px-4">
           <IoClose

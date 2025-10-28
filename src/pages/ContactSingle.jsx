@@ -39,23 +39,23 @@ const ContactSingle = () => {
   return (
     <Layout>
     <Helmet>
-      <title>Contact Us | {location?.title}</title>
-      <meta name="description" content={`Contact Us | ${location?.title}`} />
+      <title>Contact Us{location?.title ? ` | ${location.title}` : ''}</title>
+      <meta name="description" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
       <meta property="og:image" content="/images/favi.webp" />
-      <meta property="og:title" content={`Contact Us | ${location?.title}`} />
-      <meta property="og:description" content={`Contact Us | ${location?.title}`} />
-      <meta property="og:url" content={`https://stiles.co.za/contact-us/${location?.title}`} />
+      <meta property="og:title" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
+      <meta property="og:description" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
+      <meta property="og:url" content={`https://stiles.co.za/contact-us${location?.title ? `/${location.title}` : ''}`} />
       <meta property="og:type" content="product" />
       <meta property="og:site_name" content="Stiles" />
       <meta property="og:locale" content="en_ZA" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={`Contact Us | ${location?.title}`} />
+      <meta property="og:image:alt" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
   </Helmet>
         <section className='w-full bg-black bg-cover bg-center relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
             <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
             <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-                <h1 className='text-white font-bold text-6xl text-center drop-shadow-md'>Contact Us | {location?.title}</h1>
+                <h1 className='text-white font-bold text-6xl text-center drop-shadow-md'>Contact Us{location?.title ? ` | ${location.title}` : ''}</h1>
             </div>
         </section>
 

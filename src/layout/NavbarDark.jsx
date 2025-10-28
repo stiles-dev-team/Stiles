@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeHtmlEntities } from "../utils/pricingUtils";
+import useIsTouchDevice from "../utils/useIsTouchDevice";
 
 function Icon({ id, open }) {
   return (
@@ -29,6 +30,7 @@ function Icon({ id, open }) {
 
 const NavbarDark = () => {
   const navigate = useNavigate();
+  const isTouchDevice = useIsTouchDevice();
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showTiles, setShowTiles] = useState(false);
@@ -300,7 +302,7 @@ const NavbarDark = () => {
               setShowTiles(false);
               setOpenTilesSection(null);
             }}>
-            <p onMouseEnter={() => setShowTiles(true)} onClick={() => setShowTiles(!showTiles)} className='text-dark font-medium cursor-pointer tiles-button'>Tiles</p>
+            <p onMouseEnter={() => setShowTiles(true)} onClick={() => isTouchDevice ? setShowTiles(!showTiles) : window.location.href = "/product-category/tiles"} className='text-dark font-medium cursor-pointer tiles-button'>Tiles</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] tiles-dropdown ${showTiles ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => {
@@ -374,7 +376,7 @@ const NavbarDark = () => {
               setShowSanware(false);
               setOpenSanwareSection(null);
             }}>
-            <p onMouseEnter={() => setShowSanware(true)} onClick={() => setShowSanware(!showSanware)} className='text-dark font-medium cursor-pointer sanware-button'>Sanware</p>
+            <p onMouseEnter={() => setShowSanware(true)} onClick={() => isTouchDevice ? setShowSanware(!showSanware) : window.location.href = "/product-category/sanitary-ware"} className='text-dark font-medium cursor-pointer sanware-button'>Sanware</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] sanware-dropdown ${showSanware ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => {
@@ -448,7 +450,7 @@ const NavbarDark = () => {
               setShowFlooring(false);
               setOpenFlooringSection(null);
             }}>
-            <p onMouseEnter={() => setShowFlooring(true)} onClick={() => setShowFlooring(!showFlooring)} className='text-dark font-medium cursor-pointer flooring-button'>Flooring</p>
+            <p onMouseEnter={() => setShowFlooring(true)} onClick={() => isTouchDevice ? setShowFlooring(!showFlooring) : window.location.href = "/product-category/flooring"} className='text-dark font-medium cursor-pointer flooring-button'>Flooring</p>
             <div className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] flooring-dropdown ${showFlooring ? "flex" : "hidden"}`}>
               {
                 data?.filter(item => {
