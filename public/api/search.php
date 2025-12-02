@@ -91,18 +91,32 @@ try {
         $searchConditions = [];
         $filterParams = [];
         
-        // Add fuzzy search patterns for title and description
+        // Add fuzzy search patterns for all searchable columns
         foreach ($searchPatterns as $pattern) {
-            $searchConditions[] = 'LOWER(title) LIKE ?';
-            $searchConditions[] = 'LOWER(description) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.title) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.slug) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.description) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.product_category) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.product_tag) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.`attribute:pa_brands`) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.`attribute:pa_colour`) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.`attribute:pa_finish`) LIKE ?';
+            $searchConditions[] = 'LOWER(sp.`attribute:pa_size`) LIKE ?';
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
+            $filterParams[] = $pattern;
             $filterParams[] = $pattern;
             $filterParams[] = $pattern;
         }
         
         // Add SKU search conditions
-        $searchConditions[] = 'LOWER(sku) LIKE ?';
-        $searchConditions[] = 'sku LIKE ?';
-        $searchConditions[] = 'LOWER(sku) = LOWER(?)';
+        $searchConditions[] = 'LOWER(sp.sku) LIKE ?';
+        $searchConditions[] = 'sp.sku LIKE ?';
+        $searchConditions[] = 'LOWER(sp.sku) = LOWER(?)';
         $filterParams[] = '%' . $searchTerm . '%';
         $filterParams[] = $skuSearchTerm;
         $filterParams[] = $skuExactTerm;
@@ -110,12 +124,12 @@ try {
         // Get unique filter values for the search results
         $stmt = $pdo->prepare('
             SELECT DISTINCT 
-                `attribute:pa_colour` as colour,
-                `attribute:pa_finish` as finish,
-                `attribute:pa_brands` as brands,
-                `attribute:pa_size` as size
-            FROM stiles_products 
-            WHERE status = "publish" 
+                sp.`attribute:pa_colour` as colour,
+                sp.`attribute:pa_finish` as finish,
+                sp.`attribute:pa_brands` as brands,
+                sp.`attribute:pa_size` as size
+            FROM stiles_products sp
+            WHERE sp.status = "publish" 
             AND (' . implode(' OR ', $searchConditions) . ')
         ');
         
@@ -159,18 +173,32 @@ try {
     $mainSearchConditions = [];
     $mainParams = [];
     
-    // Add fuzzy search patterns for title and description
+    // Add fuzzy search patterns for all searchable columns
     foreach ($searchPatterns as $pattern) {
-        $mainSearchConditions[] = 'LOWER(title) LIKE ?';
-        $mainSearchConditions[] = 'LOWER(description) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.title) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.slug) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.description) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.product_category) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.product_tag) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.`attribute:pa_brands`) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.`attribute:pa_colour`) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.`attribute:pa_finish`) LIKE ?';
+        $mainSearchConditions[] = 'LOWER(sp.`attribute:pa_size`) LIKE ?';
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
+        $mainParams[] = $pattern;
         $mainParams[] = $pattern;
         $mainParams[] = $pattern;
     }
     
     // Add SKU search conditions
-    $mainSearchConditions[] = 'LOWER(sku) LIKE ?';
-    $mainSearchConditions[] = 'sku LIKE ?';
-    $mainSearchConditions[] = 'LOWER(sku) = LOWER(?)';
+    $mainSearchConditions[] = 'LOWER(sp.sku) LIKE ?';
+    $mainSearchConditions[] = 'sp.sku LIKE ?';
+    $mainSearchConditions[] = 'LOWER(sp.sku) = LOWER(?)';
     $mainParams[] = '%' . $searchTerm . '%';
     $mainParams[] = $skuSearchTerm;
     $mainParams[] = $skuExactTerm;
@@ -178,8 +206,9 @@ try {
     // Build the base query for products
     $baseQuery = '
         SELECT COUNT(*) as total 
-        FROM stiles_products 
-        WHERE status = "publish" 
+        FROM stiles_products sp
+        LEFT JOIN iq_table iq ON sp.sku = iq.code
+        WHERE sp.status = "publish" 
         AND (' . implode(' OR ', $mainSearchConditions) . ')';
     $params = $mainParams;
     
@@ -189,7 +218,7 @@ try {
         $finishConditions = [];
         foreach ($finishes as $finish) {
             $cleanFinish = trim($finish);
-            $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+            $finishConditions[] = 'sp.`attribute:pa_finish` LIKE ?';
             $params[] = '%' . $cleanFinish. '%';
         }
         if (!empty($finishConditions)) {
@@ -202,7 +231,7 @@ try {
         $colourConditions = [];
         foreach ($colours as $colour) {
             $cleanColour = trim($colour);
-            $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+            $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
             $params[] = '%' . $cleanColour. '%';
         }
         if (!empty($colourConditions)) {
@@ -215,7 +244,7 @@ try {
         $sizeConditions = [];
         foreach ($sizes as $size) {
             $cleanSize = trim($size);
-            $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+            $sizeConditions[] = 'sp.`attribute:pa_size` LIKE ?';
             $params[] = '%' . $cleanSize . '%';
         }
         if (!empty($sizeConditions)) {
@@ -229,7 +258,7 @@ try {
         $brandConditions = [];
         foreach ($brands as $brand) {
             $cleanBrand = trim($brand);
-            $brandConditions[] = '`attribute:pa_brands` LIKE ?';
+            $brandConditions[] = 'sp.`attribute:pa_brands` LIKE ?';
             $params[] = '%' . $cleanBrand . '%';
         }
         if (!empty($brandConditions)) {
@@ -250,18 +279,18 @@ try {
     $sortParams = [];
     
     // Add exact match first (highest priority)
-    $sortConditions[] = 'LOWER(title) = LOWER(?)';
+    $sortConditions[] = 'LOWER(sp.title) = LOWER(?)';
     $sortParams[] = $searchQuery;
     
     // Add starts with conditions for all fuzzy terms
     foreach ($fuzzySearchTerms as $term) {
-        $sortConditions[] = 'LOWER(title) LIKE ?';
+        $sortConditions[] = 'LOWER(sp.title) LIKE ?';
         $sortParams[] = $term . '%';
     }
     
     // Add contains conditions for all fuzzy terms
     foreach ($fuzzySearchTerms as $term) {
-        $sortConditions[] = 'LOWER(title) LIKE ?';
+        $sortConditions[] = 'LOWER(sp.title) LIKE ?';
         $sortParams[] = '%' . $term . '%';
     }
     
@@ -277,7 +306,7 @@ try {
             {$caseStatement}
             ELSE " . count($sortConditions) . "
         END,
-        post_date DESC";
+                sp.post_date DESC";
     
     switch ($sortBy) {
         case 'desc':
@@ -286,7 +315,7 @@ try {
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
                 END,
-                post_date ASC";
+                sp.post_date ASC";
             break;
         case 'nuev':
             $orderBy = "ORDER BY 
@@ -294,7 +323,7 @@ try {
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
                 END,
-                regular_price ASC";
+                COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
             break;
         case 'vend':
             $orderBy = "ORDER BY 
@@ -302,25 +331,26 @@ try {
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
                 END,
-                regular_price DESC";
+                COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
             break;
     }
 
     // Build the final query with pagination
     $query = str_replace('COUNT(*) as total', '
-        ID,
-        title,
-        slug,
-        featured_image,
-        regular_price,
-        sale_price,
-        product_category,
-        `attribute:pa_colour` as colour,
-        `attribute:pa_finish` as finish,
-        `attribute:pa_brands` as brands,
-        `attribute:pa_size` as size,
-        status,
-        post_date
+        sp.ID,
+        sp.title,
+        sp.slug,
+        sp.featured_image,
+        sp.regular_price,
+        sp.sale_price,
+        sp.product_category,
+        sp.`attribute:pa_colour` as colour,
+        sp.`attribute:pa_finish` as finish,
+        sp.`attribute:pa_brands` as brands,
+        sp.`attribute:pa_size` as size,
+        sp.status,
+        sp.post_date,
+        iq.sellPInc1
     ', $baseQuery) . ' ' . $orderBy;
 
     // Add the sorting parameters

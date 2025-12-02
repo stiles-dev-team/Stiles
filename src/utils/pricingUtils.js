@@ -5,10 +5,31 @@
 /**
  * Determines the appropriate pricing unit based on product category
  * @param {Object} product - The product object
+ * @param {Object} stockInfo - Optional stock info object containing iq_table.model
  * @returns {string} - The pricing unit (m2, each, per paver, per sheet, per slab, etc.)
  */
-export const getPricingUnit = (product) => {
+export const getPricingUnit = (product, stockInfo = null) => {
   if (!product || !product.product_category) return 'm2'; // Default to m2 if no category info
+
+  // Check iq_table.model first - if model is 'PC', always return 'per m2'
+  const model = stockInfo?.model || product.model || product.iq_model;
+  if (model === 'PC') {
+    return 'per m2';
+  }
+
+  // Check if product_tag contains "Per m2" (handle both string and array formats)
+  if (product.product_tag) {
+    let productTagString = '';
+    if (Array.isArray(product.product_tag)) {
+      productTagString = product.product_tag.join(', ');
+    } else if (typeof product.product_tag === 'string') {
+      productTagString = product.product_tag;
+    }
+    
+    if (productTagString && (productTagString.includes('Per m2') || productTagString.includes('per m2'))) {
+      return 'per m2';
+    }
+  }
 
   const skus_exception = [
     "176-BALIAN",
@@ -54,6 +75,8 @@ export const getPricingUnit = (product) => {
     return 'each';
   }
   
+  // Check for Pavers category - but only if product_tag doesn't explicitly say "Per m2"
+  // This allows products with "Pavers" in category but "Per m2" in tag to show per m2
   if (categories.some(cat => cat.includes('Pavers'))) {
     return 'per paver';
   }

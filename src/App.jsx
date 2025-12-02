@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Route, Routes, Navigate, useSearchParams } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import Home from "./pages/Home"
 import Wishlist from "./pages/Wishlist"
@@ -32,6 +32,11 @@ import Orders from "./pages/Orders"
 import Admin from "./pages/Admin"
 import Test from "./pages/Test"
 import UnderConstruction from "./pages/UnderConstruction"
+// Component to handle shop redirect
+const ShopRedirect = () => {
+  return <Navigate to="/product/zoe-slate-gloss-75x200m" replace />;
+};
+
 function App() {
 
   return (
@@ -42,7 +47,8 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/shop" element={<Shop />} />
+          <Route path="/shop" element={<ShopRedirect />} />
+          <Route path="/shopall" element={<Shop />} />
           <Route path="/promos" element={<ProductPromos />} />
           <Route path="/black-november-promo" element={<Promo />} />
           <Route path="/promo" element={<Promo />} />
@@ -69,8 +75,8 @@ function App() {
           <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact/:slug" element={<ContactSingle />} />
-          {/* <Route path="/" element={<UnderConstruction />} />
-          <Route path="*" element={<UnderConstruction />} /> */}
+          {/* <Route path="/" element={<UnderConstruction />} /> */}
+          <Route path="*" element={<Shop />} />
 
           {/* Testing */}
           {/* <Route path="/test" element={<Test />} /> */}
@@ -80,4 +86,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

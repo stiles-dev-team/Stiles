@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Get unique filter values by promo
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
-        $promo = $_GET['promo'];
+        $promo = trim($_GET['promo']);
         
         // Debug: Check what promo values exist
         $debugStmt = $pdo->prepare('SELECT DISTINCT promo FROM stiles_products WHERE status = "publish" AND promo IS NOT NULL AND promo != ""');
@@ -52,7 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
         error_log("Filter values - Existing promo values: " . implode(', ', $existingPromos));
         error_log("Filter values - Looking for promo: '{$promo}'");
         
-        // First get all products for this promo
+        // First get all products for this promo - use case-insensitive LIKE for flexible matching
+        $promoPattern = '%' . $promo . '%';
         $stmt = $pdo->prepare('
             SELECT 
                 `attribute:pa_colour` as colour,
@@ -61,10 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
                 `attribute:pa_size` as size
             FROM stiles_products 
             WHERE status = "publish" 
-            AND promo = ?
+            AND LOWER(TRIM(promo)) LIKE LOWER(?)
         ');
         
-        $stmt->execute([$promo]);
+        $stmt->execute([$promoPattern]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         error_log("Filter values - Found " . count($products) . " products for promo '{$promo}'");
         
@@ -350,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         error_log("Fetching products for brand: {$brandName} (identifier: {$brandIdentifier}) with limit: {$limit} and offset: {$offset}");
         
         // Build the base query with exact brand matching using the actual brand name
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND `attribute:pa_brands` = ?';
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND sp.`attribute:pa_brands` = ?';
         $params = [$brandName];
         
         // Add filter conditions
@@ -359,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $finishConditions = [];
             foreach ($finishes as $finish) {
                 $cleanFinish = trim($finish);
-                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $finishConditions[] = 'sp.`attribute:pa_finish` LIKE ?';
                 $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
@@ -372,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
                 $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
@@ -385,7 +386,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $sizeConditions = [];
             foreach ($sizes as $size) {
                 $cleanSize = trim($size);
-                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $sizeConditions[] = 'sp.`attribute:pa_size` LIKE ?';
                 $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
@@ -394,12 +395,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-            $baseQuery .= ' AND regular_price >= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
             $params[] = (float)$_GET['min_price'];
         }
         
         if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-            $baseQuery .= ' AND regular_price <= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) <= ?';
             $params[] = (float)$_GET['max_price'];
         }
         
@@ -417,40 +418,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-        $orderBy = 'ORDER BY post_date DESC';
+                $orderBy = 'ORDER BY sp.post_date DESC';
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
+                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
                 break;
         }
         
         // Build the final query with pagination
         $query = str_replace('COUNT(*) as total', '
-            ID,
-            title,
-            slug,
-            featured_image,
-            regular_price,
-            sale_price,
-            product_category,
-            `attribute:pa_colour` as colour,
-            `attribute:pa_finish` as finish,
-            `attribute:pa_brands` as brands,
-            `attribute:pa_size` as size,
-            status,
-            post_date
+            sp.ID,
+            sp.title,
+            sp.slug,
+            sp.featured_image,
+            sp.regular_price,
+            sp.sale_price,
+            sp.product_category,
+            sp.`attribute:pa_colour` as colour,
+            sp.`attribute:pa_finish` as finish,
+            sp.`attribute:pa_brands` as brands,
+            sp.`attribute:pa_size` as size,
+            sp.status,
+            sp.post_date,
+            iq.sellPInc1
         ', $baseQuery) . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
         
         // Add pagination parameters
@@ -489,7 +491,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
-            'per_page' => $limit
+            'per_page' => $limit,
+            'type' => 'brand'
         ];
         
         echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
@@ -709,17 +712,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         $existingPromos = $debugStmt->fetchAll(PDO::FETCH_COLUMN);
         error_log("Existing promo values in database: " . implode(', ', $existingPromos));
         
-        // Check exact count for this promo
-        $countStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND promo = ?');
+        // Trim and normalize the promo value for matching
+        $promo = trim($promo);
+        
+        // Check exact count for this promo (exact match)
+        $countStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND TRIM(promo) = ?');
         $countStmt->execute([$promo]);
         $exactCount = $countStmt->fetch(PDO::FETCH_ASSOC)['count'];
         error_log("Exact count for promo '{$promo}': {$exactCount}");
         
-        // Also check with strict matching
-        $strictCountStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND promo = ? AND promo IS NOT NULL AND promo != "" AND TRIM(promo) = ?');
-        $strictCountStmt->execute([$promo, $promo]);
-        $strictCount = $strictCountStmt->fetch(PDO::FETCH_ASSOC)['count'];
-        error_log("Strict count for promo '{$promo}': {$strictCount}");
+        // Check with case-insensitive LIKE matching (what we're actually using)
+        $promoPattern = '%' . $promo . '%';
+        $likeCountStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish" AND LOWER(TRIM(promo)) LIKE LOWER(?)');
+        $likeCountStmt->execute([$promoPattern]);
+        $likeCount = $likeCountStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        error_log("LIKE count for promo '{$promo}' (pattern: '{$promoPattern}'): {$likeCount}");
         
         // Also check total published products
         $totalStmt = $pdo->prepare('SELECT COUNT(*) as count FROM stiles_products WHERE status = "publish"');
@@ -733,9 +740,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         $promoCount = $promoStmt->fetch(PDO::FETCH_ASSOC)['count'];
         error_log("Products with any promo value: {$promoCount}");
         
-        // Build the base query - make sure we're filtering correctly
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND promo = ?';
-        $params = [$promo];
+        // Build the base query - use case-insensitive LIKE for flexible promo matching
+        $promoPattern = '%' . $promo . '%';
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND LOWER(TRIM(sp.promo)) LIKE LOWER(?)';
+        $params = [$promoPattern];
         
         // Add filter conditions
         if (isset($_GET['brands']) && !empty($_GET['brands'])) {
@@ -749,7 +757,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
                 error_log("Cleaned brand value: " . $cleanBrand);
                 
                 // Use LIKE with wildcards for more flexible matching
-                $brandConditions[] = '`attribute:pa_brands` LIKE ?';
+                $brandConditions[] = 'sp.`attribute:pa_brands` LIKE ?';
                 $params[] = '%' . $cleanBrand . '%';
             }
             if (!empty($brandConditions)) {
@@ -765,7 +773,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             $finishConditions = [];
             foreach ($finishes as $finish) {
                 $cleanFinish = trim($finish);
-                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $finishConditions[] = 'sp.`attribute:pa_finish` LIKE ?';
                 $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
@@ -778,7 +786,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
                 $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
@@ -791,7 +799,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             $sizeConditions = [];
             foreach ($sizes as $size) {
                 $cleanSize = trim($size);
-                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $sizeConditions[] = 'sp.`attribute:pa_size` LIKE ?';
                 $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
@@ -800,12 +808,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-            $baseQuery .= ' AND regular_price >= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
             $params[] = (float)$_GET['min_price'];
         }
         
         if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-            $baseQuery .= ' AND regular_price <= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) <= ?';
             $params[] = (float)$_GET['max_price'];
         }
         
@@ -823,40 +831,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-        $orderBy = 'ORDER BY post_date DESC';
+                $orderBy = 'ORDER BY sp.post_date DESC';
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
+                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
                 break;
         }
         
         // Build the final query with pagination
         $query = str_replace('COUNT(*) as total', '
-            ID,
-            title,
-            slug,
-            featured_image,
-            regular_price,
-            sale_price,
-            product_category,
-            `attribute:pa_colour` as colour,
-            `attribute:pa_finish` as finish,
-            `attribute:pa_brands` as brands,
-            `attribute:pa_size` as size,
-            status,
-            post_date
+            sp.ID,
+            sp.title,
+            sp.slug,
+            sp.featured_image,
+            sp.regular_price,
+            sp.sale_price,
+            sp.product_category,
+            sp.`attribute:pa_colour` as colour,
+            sp.`attribute:pa_finish` as finish,
+            sp.`attribute:pa_brands` as brands,
+            sp.`attribute:pa_size` as size,
+            sp.status,
+            sp.post_date,
+            iq.sellPInc1
         ', $baseQuery) . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
         
         // Add pagination parameters
@@ -895,7 +904,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
-            'per_page' => $limit
+            'per_page' => $limit,
+            'type' => 'promo'
         ];
         
         echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
@@ -930,7 +940,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         error_log("Fetching products for category: {$category} with limit: {$limit} and offset: {$offset}");
         
         // Build the base query
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products WHERE status = "publish" AND product_category LIKE ?';
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND sp.product_category LIKE ?';
         $params = ['%' . $category . '%'];
         
         // Add filter conditions
@@ -945,7 +955,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 error_log("Cleaned brand value: " . $cleanBrand);
                 
                 // Use LIKE with wildcards for more flexible matching
-                $brandConditions[] = '`attribute:pa_brands` LIKE ?';
+                $brandConditions[] = 'sp.`attribute:pa_brands` LIKE ?';
                 $params[] = '%' . $cleanBrand . '%';
             }
             if (!empty($brandConditions)) {
@@ -961,7 +971,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $finishConditions = [];
             foreach ($finishes as $finish) {
                 $cleanFinish = trim($finish);
-                $finishConditions[] = '`attribute:pa_finish` LIKE ?';
+                $finishConditions[] = 'sp.`attribute:pa_finish` LIKE ?';
                 $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
@@ -974,7 +984,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = '`attribute:pa_colour` LIKE ?';
+                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
                 $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
@@ -987,7 +997,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $sizeConditions = [];
             foreach ($sizes as $size) {
                 $cleanSize = trim($size);
-                $sizeConditions[] = '`attribute:pa_size` LIKE ?';
+                $sizeConditions[] = 'sp.`attribute:pa_size` LIKE ?';
                 $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
@@ -996,12 +1006,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-            $baseQuery .= ' AND regular_price >= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
             $params[] = (float)$_GET['min_price'];
         }
         
         if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-            $baseQuery .= ' AND regular_price <= ?';
+            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) <= ?';
             $params[] = (float)$_GET['max_price'];
         }
         
@@ -1019,40 +1029,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-        $orderBy = 'ORDER BY post_date DESC';
+                $orderBy = 'ORDER BY sp.post_date DESC';
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(total_sales AS UNSIGNED) DESC';
+                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) ASC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY CAST(regular_price AS DECIMAL(10,2)) DESC';
+                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(`attribute:pa_brands`, "") DESC';
+                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
                 break;
         }
         
         // Build the final query with pagination
         $query = str_replace('COUNT(*) as total', '
-            ID,
-            title,
-            slug,
-            featured_image,
-            regular_price,
-            sale_price,
-            product_category,
-            `attribute:pa_colour` as colour,
-            `attribute:pa_finish` as finish,
-            `attribute:pa_brands` as brands,
-            `attribute:pa_size` as size,
-            status,
-            post_date
+            sp.ID,
+            sp.title,
+            sp.slug,
+            sp.featured_image,
+            sp.regular_price,
+            sp.sale_price,
+            sp.product_category,
+            sp.`attribute:pa_colour` as colour,
+            sp.`attribute:pa_finish` as finish,
+            sp.`attribute:pa_brands` as brands,
+            sp.`attribute:pa_size` as size,
+            sp.status,
+            sp.post_date,
+            iq.sellPInc1
         ', $baseQuery) . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
         
         // Add pagination parameters
@@ -1091,7 +1102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
-            'per_page' => $limit
+            'per_page' => $limit,
+            'type' => 'random products by category with limit'
         ];
         
         echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);

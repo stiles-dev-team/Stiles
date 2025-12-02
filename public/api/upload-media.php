@@ -20,6 +20,26 @@ try {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Check PHP upload limits
+        $maxFileUploads = ini_get('max_file_uploads');
+        $postMaxSize = ini_get('post_max_size');
+        $uploadMaxFilesize = ini_get('upload_max_filesize');
+        
+        // Check if POST data was truncated (indicates post_max_size exceeded)
+        if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
+            $postMaxSizeBytes = return_bytes($postMaxSize);
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Upload failed: Total upload size exceeds PHP limit (post_max_size: ' . $postMaxSize . '). Please upload fewer files at once or contact your server administrator to increase the limit.',
+                'php_limits' => [
+                    'max_file_uploads' => $maxFileUploads,
+                    'post_max_size' => $postMaxSize,
+                    'upload_max_filesize' => $uploadMaxFilesize
+                ]
+            ]);
+            exit;
+        }
+        
         // Check if media_files table exists, if not create it
         $pdo->exec("CREATE TABLE IF NOT EXISTS media_files (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,8 +61,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_FILES['files']) && is_array($_FILES['files']['name'])) {
             $fileCount = count($_FILES['files']['name']);
             
+            // Check if number of files exceeds PHP's max_file_uploads limit
+            if ($fileCount > $maxFileUploads) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Cannot upload more than {$maxFileUploads} files at once (PHP max_file_uploads limit). You attempted to upload {$fileCount} files. Please upload in batches of {$maxFileUploads} or fewer.",
+                    'php_limits' => [
+                        'max_file_uploads' => $maxFileUploads,
+                        'post_max_size' => $postMaxSize,
+                        'upload_max_filesize' => $uploadMaxFilesize
+                    ],
+                    'attempted_count' => $fileCount,
+                    'max_allowed' => $maxFileUploads
+                ]);
+                exit;
+            }
+            
             for ($i = 0; $i < $fileCount; $i++) {
-                if ($_FILES['files']['error'][$i] === UPLOAD_ERR_OK) {
+                $uploadError = $_FILES['files']['error'][$i];
+                
+                // Handle different upload error codes
+                if ($uploadError === UPLOAD_ERR_OK) {
                     $file = [
                         'name' => $_FILES['files']['name'][$i],
                         'type' => $_FILES['files']['type'][$i],
@@ -53,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Get metadata for this file
                     $altText = isset($_POST['alt'][$i]) ? $_POST['alt'][$i] : '';
                     $description = isset($_POST['description'][$i]) ? $_POST['description'][$i] : '';
-                    $category = isset($_POST['category'][$i]) ? $_POST['category'][$i] : 'general';
+                    $category = 'general'; // Default category
                     
                     // Validate file
                     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -117,11 +156,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $errors[] = "Error uploading '{$file['name']}'";
                     }
                 } else {
-                    $errors[] = "Error uploading file: " . $_FILES['files']['name'][$i];
+                    // Handle specific upload error codes
+                    $errorMessage = getUploadErrorMessage($uploadError, $_FILES['files']['name'][$i]);
+                    $errors[] = $errorMessage;
                 }
             }
         } else {
-            echo json_encode(['success' => false, 'message' => 'No files provided']);
+            // Check if files were expected but not received (likely due to PHP limits)
+            $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int)$_SERVER['CONTENT_LENGTH'] : 0;
+            if ($contentLength > 0) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'No files were received. This may be due to PHP upload limits being exceeded. Please try uploading fewer files at once.',
+                    'php_limits' => [
+                        'max_file_uploads' => $maxFileUploads,
+                        'post_max_size' => $postMaxSize,
+                        'upload_max_filesize' => $uploadMaxFilesize
+                    ],
+                    'content_length' => $contentLength
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'No files provided']);
+            }
             exit;
         }
         
@@ -155,6 +211,42 @@ function formatFileSize($bytes) {
         return round($bytes / 1024, 1) . ' KB';
     } else {
         return $bytes . ' B';
+    }
+}
+
+function return_bytes($val) {
+    $val = trim($val);
+    $last = strtolower($val[strlen($val)-1]);
+    $val = (float)$val;
+    switch($last) {
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
+    return (int)$val;
+}
+
+function getUploadErrorMessage($errorCode, $filename) {
+    switch ($errorCode) {
+        case UPLOAD_ERR_INI_SIZE:
+            return "File '{$filename}' exceeds upload_max_filesize limit";
+        case UPLOAD_ERR_FORM_SIZE:
+            return "File '{$filename}' exceeds MAX_FILE_SIZE limit";
+        case UPLOAD_ERR_PARTIAL:
+            return "File '{$filename}' was only partially uploaded";
+        case UPLOAD_ERR_NO_FILE:
+            return "No file was uploaded for '{$filename}'";
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return "Missing temporary folder for '{$filename}'";
+        case UPLOAD_ERR_CANT_WRITE:
+            return "Failed to write file '{$filename}' to disk";
+        case UPLOAD_ERR_EXTENSION:
+            return "File upload stopped by extension for '{$filename}'";
+        default:
+            return "Unknown upload error for '{$filename}' (code: {$errorCode})";
     }
 }
 ?>

@@ -84,6 +84,7 @@ const Product = () => {
     const [quantity, setQuantity] = useState(1);
     const [isFavourite, setIsFavourite] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
+    const [badges, setBadges] = useState([]);
 
     const [related, setRelated] = useState([]);
 
@@ -252,6 +253,22 @@ const Product = () => {
 
                 product.images = images;
                 
+                // Parse promo string to extract multiple badges
+                if (product.promo !== null && product.promo !== '' && product.promo.trim() !== '') {
+                    const promoArray = product.promo.split(',').map(item => item.trim()).filter(item => item !== '');
+                    const extractedBadges = [];
+                    
+                    promoArray.forEach(promoItem => {
+                        if (promoItem.trim()) {
+                            extractedBadges.push(promoItem.trim());
+                        }
+                    });
+                    
+                    setBadges(extractedBadges);
+                } else {
+                    setBadges([]);
+                }
+                
                 // Fetch stock info
                 if (product.sku) {
                     console.log('Fetching stock info for SKU:', product.sku);
@@ -316,7 +333,9 @@ const Product = () => {
             
             // Check if it's a 404 error and redirect to shop
             if (err.message.includes('404')) {
-                navigate('/shop');
+                alert('Product not found');
+                navigate('/shopall');
+                // console.log('404 error');
             }
         });
     }, [id]);
@@ -533,6 +552,41 @@ const Product = () => {
             <div className='w-full lg:w-6/12 flex flex-col lg:flex-row justify-start items-center gap-2 h-full max-h-[600px]'>
                 {product?.images[imageSelected]?.isVideo ? (
                     <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
+                        {stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                         !badges.includes('Coming Soon') && 
+                         !badges.includes('Backorder') && 
+                         !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                         !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                         !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                         !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                            <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
+                                Sold Out
+                            </div>
+                        )}
+                        {
+                            badges.length > 0 && badges.map((badge, index) => {
+                                // Offset badges if sold out badge is present
+                                const hasTopBadge = stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                                                     !badges.includes('Coming Soon') && 
+                                                     !badges.includes('Backorder') && 
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                                     !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                                                     !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
+                                const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
+                                return (
+                                    <div 
+                                        key={index}
+                                        className='absolute left-0 w-fit z-30 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44'
+                                        style={{ top: `${topOffset}px` }}
+                                    >
+                                        <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        }
                         <iframe
                             src={`https://www.youtube.com/embed/${product.images[imageSelected].videoId}?autoplay=1`}
                             title={product.images[imageSelected].title}
@@ -543,7 +597,44 @@ const Product = () => {
                         />
                     </div>
                 ) : (
-                    <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full lg:w-10/12 aspect-square object-cover object-center rounded-md' />
+                    <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
+                        {stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                         !badges.includes('Coming Soon') && 
+                         !badges.includes('Backorder') && 
+                         !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                         !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                         !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                         !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                            <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
+                                Sold Out
+                            </div>
+                        )}
+                        {
+                            badges.length > 0 && badges.map((badge, index) => {
+                                // Offset badges if sold out badge is present
+                                const hasTopBadge = stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                                                     !badges.includes('Coming Soon') && 
+                                                     !badges.includes('Backorder') && 
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                                     !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                                                     !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
+                                const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
+                                return (
+                                    <div 
+                                        key={index}
+                                        className='absolute left-0 w-fit z-30 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44'
+                                        style={{ top: `${topOffset}px` }}
+                                    >
+                                        <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        }
+                        <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full h-full aspect-square object-cover object-center rounded-md' />
+                    </div>
                 )}
             <div className="flex flex-row lg:flex-col justify-start items-start gap-2 h-full max-h-[600px] overflow-y-auto">
                     {product?.images.map((image, index) => (
@@ -615,11 +706,11 @@ const Product = () => {
                 <div className="flex flex-row justify-start items-end gap-2">
                     {
                         stockInfo?.promoPrice  == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ?
-                        <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                        <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product, stockInfo))}</p>
                         :
                         <>
-                            <p className='text-[#B3B3B3] line-through text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
-                            <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product))}</p>
+                            <p className='text-[#B3B3B3] line-through text-2xl'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product, stockInfo))}</p>
+                            <p className='text-dark text-2xl'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product, stockInfo))}</p>
                         </>
                     }
                     {/* {

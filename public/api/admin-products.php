@@ -265,11 +265,12 @@ try {
                 $colour = isset($_GET['colour']) ? $_GET['colour'] : '';
                 $finish = isset($_GET['finish']) ? $_GET['finish'] : '';
                 $promo = isset($_GET['promo']) ? $_GET['promo'] : '';
+                $productType = isset($_GET['product_type']) ? $_GET['product_type'] : '';
                 $sortField = isset($_GET['sort_field']) ? $_GET['sort_field'] : '';
                 $sortDirection = isset($_GET['sort_direction']) ? $_GET['sort_direction'] : 'asc';
                 
                 // Debug logging for filter parameters
-                error_log('Filter parameters - page: ' . $page . ', limit: ' . $limit . ', search: ' . $search . ', category: ' . $category . ', brand: ' . $brand . ', brands: ' . $brands . ', status: ' . $status . ', colour: ' . $colour . ', finish: ' . $finish . ', promo: ' . $promo . ', sort_field: ' . $sortField . ', sort_direction: ' . $sortDirection);
+                error_log('Filter parameters - page: ' . $page . ', limit: ' . $limit . ', search: ' . $search . ', category: ' . $category . ', brand: ' . $brand . ', brands: ' . $brands . ', status: ' . $status . ', colour: ' . $colour . ', finish: ' . $finish . ', promo: ' . $promo . ', product_type: ' . $productType . ', sort_field: ' . $sortField . ', sort_direction: ' . $sortDirection);
                 
                 // Calculate offset
                 $offset = ($page - 1) * $limit;
@@ -279,14 +280,21 @@ try {
                 $params = [];
                 
                 if (!empty($search)) {
-                    $whereConditions[] = '(sp.title LIKE ? OR sp.description LIKE ?)';
+                    // Search in title, description, and SKU
+                    // For SKU searches, also try exact match and case-insensitive match
+                    $whereConditions[] = '(sp.title LIKE ? OR sp.description LIKE ? OR sp.sku = ? OR LOWER(sp.sku) = LOWER(?) OR sp.sku LIKE ? OR LOWER(sp.sku) LIKE ?)';
                     $params[] = '%' . $search . '%';
                     $params[] = '%' . $search . '%';
+                    $params[] = $search; // Exact SKU match
+                    $params[] = $search; // Case-insensitive exact SKU match
+                    $params[] = '%' . $search . '%'; // SKU contains
+                    $params[] = '%' . strtolower($search) . '%'; // Case-insensitive SKU contains
                 }
                 
                 if (!empty($category) && $category !== 'all') {
-                    $whereConditions[] = 'sp.product_category = ?';
-                    $params[] = $category;
+                    $whereConditions[] = 'sp.product_category LIKE ?';
+                    $params[] = '%' . $category . '%';
+                    error_log('Category filter applied: ' . $category . ' (searching for products containing this category in product_category field)');
                 }
                 
                 if (!empty($brand) && $brand !== 'all') {
@@ -331,12 +339,31 @@ try {
                     error_log('Promo filter applied: ' . $promo . ' (searching for products containing this promo)');
                 }
                 
+                // Handle product type filter (multiple values allowed, comma-separated)
+                if (!empty($productType)) {
+                    $productTypeArray = explode(',', $productType);
+                    $productTypeArray = array_map('trim', $productTypeArray);
+                    $productTypeArray = array_filter($productTypeArray); // Remove empty values
+                    
+                    if (!empty($productTypeArray)) {
+                        $productTypeConditions = [];
+                        foreach ($productTypeArray as $type) {
+                            $productTypeConditions[] = 'sp.product_category LIKE ?';
+                            $params[] = '%' . $type . '%';
+                        }
+                        if (!empty($productTypeConditions)) {
+                            $whereConditions[] = '(' . implode(' OR ', $productTypeConditions) . ')';
+                            error_log('Product type filter applied: ' . implode(', ', $productTypeArray) . ' (searching for products containing these types in product_category)');
+                        }
+                    }
+                }
+                
                 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
                 
                 // Build ORDER BY clause
                 $orderByClause = 'ORDER BY sp.post_date DESC'; // Default sorting
                 if (!empty($sortField)) {
-                    $validSortFields = ['title', 'brand', 'sku', 'price', 'status'];
+                    $validSortFields = ['title', 'brand', 'sku', 'price', 'iq_price', 'status'];
                     $validSortDirections = ['asc', 'desc'];
                     
                     if (in_array($sortField, $validSortFields) && in_array($sortDirection, $validSortDirections)) {
@@ -352,6 +379,14 @@ try {
                                 break;
                             case 'price':
                                 $orderByClause = 'ORDER BY sp.regular_price ' . strtoupper($sortDirection);
+                                break;
+                            case 'iq_price':
+                                // Sort by IQ price, handling NULL values
+                                if (strtoupper($sortDirection) === 'ASC') {
+                                    $orderByClause = 'ORDER BY COALESCE(iq.sellPInc1, 999999999) ASC';
+                                } else {
+                                    $orderByClause = 'ORDER BY COALESCE(iq.sellPInc1, 0) DESC';
+                                }
                                 break;
                             case 'status':
                                 $orderByClause = 'ORDER BY sp.status ' . strtoupper($sortDirection);
@@ -524,17 +559,20 @@ try {
             // Process Gallery Images URLs
             $galleryImagesUrl = '';
             if (!empty($data['gallery_images'])) {
-                // If it contains full URLs (from MediaSelector), use as is
-                if (str_contains($data['gallery_images'], 'https://')) {
-                    $galleryImagesUrl = $data['gallery_images'];
-                } else {
-                    // If they're just filenames, add the base URL
-                    $galleryFiles = explode(', ', $data['gallery_images']);
-                    $galleryUrls = array_map(function($file) use ($baseUrl) {
-                        return $baseUrl . trim($file);
-                    }, $galleryFiles);
-                    $galleryImagesUrl = implode(', ', $galleryUrls);
-                }
+                // Split into individual URLs
+                $galleryFiles = explode(', ', $data['gallery_images']);
+                $galleryUrls = array_map(function($file) use ($baseUrl) {
+                    $file = trim($file);
+                    // Check if it's already a full URL (http:// or https://)
+                    if (strpos($file, 'http://') === 0 || strpos($file, 'https://') === 0) {
+                        // Already a full URL, use as is
+                        return $file;
+                    } else {
+                        // It's just a filename, add the base URL
+                        return $baseUrl . $file;
+                    }
+                }, $galleryFiles);
+                $galleryImagesUrl = implode(', ', $galleryUrls);
             }
 
             // Start transaction to prevent race conditions

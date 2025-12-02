@@ -45,7 +45,7 @@ switch($method) {
     case 'GET':
         // Fetch all blogs
         try {
-            $stmt = $pdo->query("SELECT * FROM blogs ORDER BY post_date DESC");
+            $stmt = $pdo->query("SELECT * FROM blogs ORDER BY ID DESC");
             $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // If no blogs in database, try to fetch from JSON file as fallback
@@ -83,7 +83,7 @@ switch($method) {
                         }
                         
                         // Fetch blogs again after import
-                        $stmt = $pdo->query("SELECT * FROM blogs ORDER BY post_date DESC");
+                        $stmt = $pdo->query("SELECT * FROM blogs ORDER BY ID DESC");
                         $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 }

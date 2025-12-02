@@ -14,6 +14,8 @@ const MediaSelector = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -123,6 +125,62 @@ const MediaSelector = ({
     }
   };
 
+  // Drag and drop handlers for reordering gallery images
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index.toString());
+    // Set opacity on the draggable element
+    if (e.currentTarget) {
+      e.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    // Reset opacity on the draggable element
+    if (e.currentTarget) {
+      e.currentTarget.style.opacity = '1';
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newFiles = [...selectedFiles];
+    const draggedFile = newFiles[draggedIndex];
+    
+    // Remove the dragged item from its original position
+    newFiles.splice(draggedIndex, 1);
+    
+    // Insert it at the new position
+    newFiles.splice(dropIndex, 0, draggedFile);
+    
+    setSelectedFiles(newFiles);
+    
+    // Update the parent component with the new order
+    const urls = newFiles.map(file => file.url);
+    onChange(urls);
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
   const handleSearch = () => {
     fetchMediaFiles(1, searchTerm, filterType);
   };
@@ -175,41 +233,80 @@ const MediaSelector = ({
       {selectedFiles.length > 0 && (
         <div className="mb-2">
           {type === 'multiple' ? (
-            // Gallery images - show as small squares
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-              {selectedFiles.map((file, index) => (
-                <div key={file.id || index} className="relative group">
-                  <div className="w-16 h-16 bg-gray-100 rounded border overflow-hidden">
-                    <img
-                      src={file.url || file.file_path}
-                      alt={file.alt || file.alt_text || file.filename}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.log('Image failed to load:', file);
-                        e.target.style.display = 'none';
-                        if (e.target.nextSibling) {
-                          e.target.nextSibling.style.display = 'flex';
-                        }
-                      }}
-                      onLoad={() => {
-                        console.log('Image loaded successfully:', file.url || file.file_path);
-                      }}
-                    />
-                    <div className="w-full h-full flex items-center justify-center text-gray-400" style={{ display: 'none' }}>
-                      {getFileIcon(file.filename)}
-                    </div>
-                  </div>
-                  {/* Remove button */}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFile(file)}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                    title="Remove image"
+            // Gallery images - show as draggable small squares
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500 mb-2">Drag images to reorder</p>
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                {selectedFiles.map((file, index) => (
+                  <div
+                    key={file.id || index}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                    className={`relative group cursor-move ${
+                      draggedIndex === index ? 'opacity-50' : ''
+                    } ${
+                      dragOverIndex === index ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+                    }`}
                   >
-                    ×
-                  </button>
-                </div>
-              ))}
+                    <div className="w-16 h-16 bg-gray-100 rounded border overflow-hidden relative">
+                      <img
+                        src={file.url || file.file_path}
+                        alt={file.alt || file.alt_text || file.filename}
+                        className="w-full h-full object-cover pointer-events-none"
+                        onError={(e) => {
+                          console.log('Image failed to load:', file);
+                          e.target.style.display = 'none';
+                          if (e.target.nextSibling) {
+                            e.target.nextSibling.style.display = 'flex';
+                          }
+                        }}
+                        onLoad={() => {
+                          console.log('Image loaded successfully:', file.url || file.file_path);
+                        }}
+                      />
+                      <div className="w-full h-full flex items-center justify-center text-gray-400" style={{ display: 'none' }}>
+                        {getFileIcon(file.filename)}
+                      </div>
+                      {/* Drag handle indicator */}
+                      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                        <svg
+                          className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 8h16M4 16h16"
+                          />
+                        </svg>
+                      </div>
+                      {/* Position number */}
+                      <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1.5 py-0.5 rounded">
+                        {index + 1}
+                      </div>
+                    </div>
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFile(file);
+                      }}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             // Single file - show as list item
@@ -267,6 +364,7 @@ const MediaSelector = ({
                 Select {type === 'single' ? 'Media File' : 'Media Files'}
               </h3>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
               >
@@ -287,6 +385,7 @@ const MediaSelector = ({
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
+                    type="button"
                     onClick={handleSearch}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
@@ -373,6 +472,7 @@ const MediaSelector = ({
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
+                      type="button"
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                       disabled={!pagination.hasPrev}
                       className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
@@ -380,6 +480,7 @@ const MediaSelector = ({
                       Previous
                     </button>
                     <button
+                      type="button"
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                       disabled={!pagination.hasNext}
                       className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
@@ -395,12 +496,14 @@ const MediaSelector = ({
             {type === 'multiple' && (
               <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
                   className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleConfirmSelection}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
                 >

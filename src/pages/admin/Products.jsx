@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Select from 'react-select';
 import { formatCurrency } from '../../utils/pricingUtils';
@@ -13,18 +13,31 @@ const AdminProducts = () => {
     return (match && match[2].length === 11) ? match[2] : '';
   };
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedColour, setSelectedColour] = useState("all");
-  const [selectedFinish, setSelectedFinish] = useState("all");
-  const [selectedPromo, setSelectedPromo] = useState("all");
+  const [tableLoading, setTableLoading] = useState(false); // Separate loading state for table
+  
+  // Products cache - stores fetched products by cache key
+  const productsCache = useRef(new Map());
+  const cacheTimeout = 5 * 60 * 1000; // 5 minutes cache timeout
+  const debounceTimeoutRef = useRef(null);
+  
+  // Initialize filter states from URL params, with defaults
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('brand') || "all");
+  const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || "all");
+  const [selectedColour, setSelectedColour] = useState(searchParams.get('colour') || "all");
+  const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish') || "all");
+  const [selectedPromo, setSelectedPromo] = useState(searchParams.get('promo') || "all");
+  const [selectedProductTypes, setSelectedProductTypes] = useState(
+    searchParams.get('product_type') ? searchParams.get('product_type').split(',') : []
+  );
+  const [selectedProductCategory, setSelectedProductCategory] = useState(searchParams.get('category_id') || "all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [uniqueCategories, setUniqueCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [colours, setColours] = useState([]);
   const [finishes, setFinishes] = useState([]);
@@ -69,7 +82,7 @@ const AdminProducts = () => {
     has_next_page: false,
     has_prev_page: false,
   });
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [iqStatus, setIqStatus] = useState(null); // null = not checked, true = exists, false = doesn't exist
   const [checkingIq, setCheckingIq] = useState(false);
   const [csvUploading, setCsvUploading] = useState(false);
@@ -77,12 +90,135 @@ const AdminProducts = () => {
   const [selectedBrandsForDownload, setSelectedBrandsForDownload] = useState([]);
   const [showExcelInstructions, setShowExcelInstructions] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState(searchParams.get('sort_field') || null);
+  const [sortDirection, setSortDirection] = useState(searchParams.get('sort_direction') || 'asc');
+  
+  // Function to update URL params with current filter state
+  const updateURLParams = (updates = {}) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    // Update or remove search
+    if (updates.search !== undefined) {
+      if (updates.search) newParams.set('search', updates.search);
+      else newParams.delete('search');
+    } else if (searchTerm) {
+      newParams.set('search', searchTerm);
+    } else {
+      newParams.delete('search');
+    }
+    
+    // Update or remove brand
+    if (updates.brand !== undefined) {
+      if (updates.brand && updates.brand !== 'all') newParams.set('brand', updates.brand);
+      else newParams.delete('brand');
+    } else if (selectedCategory && selectedCategory !== 'all') {
+      newParams.set('brand', selectedCategory);
+    } else {
+      newParams.delete('brand');
+    }
+    
+    // Update or remove status
+    if (updates.status !== undefined) {
+      if (updates.status && updates.status !== 'all') newParams.set('status', updates.status);
+      else newParams.delete('status');
+    } else if (selectedStatus && selectedStatus !== 'all') {
+      newParams.set('status', selectedStatus);
+    } else {
+      newParams.delete('status');
+    }
+    
+    // Update or remove colour
+    if (updates.colour !== undefined) {
+      if (updates.colour && updates.colour !== 'all') newParams.set('colour', updates.colour);
+      else newParams.delete('colour');
+    } else if (selectedColour && selectedColour !== 'all') {
+      newParams.set('colour', selectedColour);
+    } else {
+      newParams.delete('colour');
+    }
+    
+    // Update or remove finish
+    if (updates.finish !== undefined) {
+      if (updates.finish && updates.finish !== 'all') newParams.set('finish', updates.finish);
+      else newParams.delete('finish');
+    } else if (selectedFinish && selectedFinish !== 'all') {
+      newParams.set('finish', selectedFinish);
+    } else {
+      newParams.delete('finish');
+    }
+    
+    // Update or remove promo
+    if (updates.promo !== undefined) {
+      if (updates.promo && updates.promo !== 'all') newParams.set('promo', updates.promo);
+      else newParams.delete('promo');
+    } else if (selectedPromo && selectedPromo !== 'all') {
+      newParams.set('promo', selectedPromo);
+    } else {
+      newParams.delete('promo');
+    }
+    
+    // Update or remove product_type
+    if (updates.product_type !== undefined) {
+      if (updates.product_type && updates.product_type.length > 0) {
+        newParams.set('product_type', updates.product_type.join(','));
+      } else {
+        newParams.delete('product_type');
+      }
+    } else if (selectedProductTypes && selectedProductTypes.length > 0) {
+      newParams.set('product_type', selectedProductTypes.join(','));
+    } else {
+      newParams.delete('product_type');
+    }
+    
+    // Update or remove category_id
+    if (updates.category_id !== undefined) {
+      if (updates.category_id && updates.category_id !== 'all') newParams.set('category_id', updates.category_id);
+      else newParams.delete('category_id');
+    } else if (selectedProductCategory && selectedProductCategory !== 'all') {
+      newParams.set('category_id', selectedProductCategory);
+    } else {
+      newParams.delete('category_id');
+    }
+    
+    // Update or remove page
+    if (updates.page !== undefined) {
+      if (updates.page > 1) newParams.set('page', updates.page.toString());
+      else newParams.delete('page');
+    } else if (currentPage > 1) {
+      newParams.set('page', currentPage.toString());
+    } else {
+      newParams.delete('page');
+    }
+    
+    // Update or remove sort_field
+    if (updates.sort_field !== undefined) {
+      if (updates.sort_field) {
+        newParams.set('sort_field', updates.sort_field);
+        newParams.set('sort_direction', updates.sort_direction || sortDirection);
+      } else {
+        newParams.delete('sort_field');
+        newParams.delete('sort_direction');
+      }
+    } else if (sortField) {
+      newParams.set('sort_field', sortField);
+      newParams.set('sort_direction', sortDirection);
+    } else {
+      newParams.delete('sort_field');
+      newParams.delete('sort_direction');
+    }
+    
+    // Preserve slug if it exists
+    if (searchParams.get('slug')) {
+      newParams.set('slug', searchParams.get('slug'));
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  };
 
   const syncIqPrices = async () => {
-    setLoading(true);
+    setTableLoading(true);
     const response = await fetch("https://n8n.srv925550.hstgr.cloud/webhook/75de692b-34bc-4e72-9759-dffcb33cf349", {
       method: "POST",
       headers: {
@@ -90,20 +226,61 @@ const AdminProducts = () => {
       },
     });
     setTimeout(() => {
-      setLoading(false);
+      // Invalidate cache and refetch after sync
+      invalidateCache();
+      fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+      setTableLoading(false);
     }, 30000);
   };
 
   // Function to toggle menu
-  const toggleMenu = (productId, product) => {
+  const toggleMenu = (productId, product, event) => {
     console.log("Toggling menu for product:", product);
-    setOpenMenuId(openMenuId === productId ? null : productId);
+    if (openMenuId === productId) {
+      setOpenMenuId(null);
+    } else {
+      // Calculate button position for dropdown (using fixed positioning)
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8, // 8px for mt-2 equivalent
+        right: window.innerWidth - rect.right
+      });
+      setOpenMenuId(productId);
+    }
   };
 
   // Function to close menu
   const closeMenu = () => {
     setOpenMenuId(null);
   };
+
+  // Handle clicking outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId && !event.target.closest('.menu-trigger') && !event.target.closest('.dropdown-menu')) {
+        closeMenu();
+      }
+    };
+
+    const handleScroll = () => {
+      if (openMenuId) {
+        closeMenu();
+      }
+    };
+
+    if (openMenuId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleScroll);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [openMenuId]);
 
   // Function to handle quick view - redirect to product page
   const handleQuickView = (product) => {
@@ -129,9 +306,10 @@ const AdminProducts = () => {
     
     setSortField(field);
     setSortDirection(newSortDirection);
+    updateURLParams({ sort_field: field, sort_direction: newSortDirection });
     
     // Fetch products with new sorting
-    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, field, newSortDirection);
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, field, newSortDirection);
   };
 
 
@@ -181,7 +359,9 @@ const AdminProducts = () => {
         if (successCount > 0) {
           alert(`Successfully deleted ${successCount} product(s)`);
           setSelectedProducts([]);
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
+          // Invalidate cache and refetch
+          invalidateCache();
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting products");
         }
@@ -223,10 +403,13 @@ const AdminProducts = () => {
     }
   };
 
-  // Cleanup blob URLs when component unmounts
+  // Cleanup blob URLs and debounce timeout when component unmounts
   useEffect(() => {
     return () => {
       cleanupBlobUrls();
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -238,8 +421,11 @@ const AdminProducts = () => {
   }, [showAddModal]);
 
   useEffect(() => {
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
+    // Initial fetch should bypass cache to get fresh data
+    // Use currentPage from URL params (or default to 1)
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
     fetchCategories();
+    fetchUniqueCategories();
     fetchBrands();
     fetchColours();
     fetchFinishes();
@@ -282,9 +468,72 @@ const AdminProducts = () => {
     return () => clearTimeout(timeoutId);
   }, [formData.sku]);
 
-  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", promo = "", sortField = null, sortDirection = "asc") => {
+  // Generate cache key from filter parameters
+  const getCacheKey = (page, search, category, status, colour, finish, promo, productType, productCategory, sortField, sortDirection) => {
+    // Use default sort (id, asc) when no explicit sort is set, to match API behavior
+    const effectiveSortField = sortField || 'id';
+    const effectiveSortDirection = sortField ? sortDirection : 'asc';
+    
+    return JSON.stringify({
+      page,
+      search: search || '',
+      category: category || 'all',
+      status: status || 'all',
+      colour: colour || 'all',
+      finish: finish || 'all',
+      promo: promo || 'all',
+      productType: Array.isArray(productType) ? productType.sort().join(',') : '',
+      productCategory: productCategory || 'all',
+      sortField: effectiveSortField,
+      sortDirection: effectiveSortDirection
+    });
+  };
+
+  // Check if cache entry is still valid
+  const isCacheValid = (cacheEntry) => {
+    if (!cacheEntry) return false;
+    return Date.now() - cacheEntry.timestamp < cacheTimeout;
+  };
+
+  // Invalidate cache - clear all or specific entries
+  const invalidateCache = (pattern = null) => {
+    if (pattern === null) {
+      // Clear all cache
+      productsCache.current.clear();
+    } else {
+      // Clear cache entries matching pattern
+      for (const key of productsCache.current.keys()) {
+        if (key.includes(pattern)) {
+          productsCache.current.delete(key);
+        }
+      }
+    }
+  };
+
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
+    // Generate cache key
+    const cacheKey = getCacheKey(page, search, category, status, colour, finish, promo, productType, productCategory, sortField, sortDirection);
+    
+    // Check cache first
+    if (useCache) {
+      const cached = productsCache.current.get(cacheKey);
+      if (cached && isCacheValid(cached)) {
+        console.log('Using cached products for:', cacheKey);
+        setProducts(cached.products);
+        setPagination(cached.pagination);
+        setTableLoading(false);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
-      setLoading(true);
+      // Show table loading (not full page loading) for filter changes
+      if (products.length > 0) {
+        setTableLoading(true);
+      } else {
+        setLoading(true);
+      }
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "20",
@@ -296,9 +545,34 @@ const AdminProducts = () => {
       if (colour && colour !== "all") params.append("colour", colour);
       if (finish && finish !== "all") params.append("finish", finish);
       if (promo && promo !== "all") params.append("promo", promo);
+      if (productType && productType.length > 0) params.append("product_type", productType.join(","));
+      if (productCategory && productCategory !== "all") {
+        // Find the category name from the ID
+        // If uniqueCategories is not loaded yet, try to use the ID as fallback
+        const selectedCategory = uniqueCategories.length > 0 
+          ? uniqueCategories.find(cat => String(cat.id) === String(productCategory))
+          : null;
+        
+        if (selectedCategory) {
+          params.append("category", selectedCategory.category);
+          console.log('Product Category Filter - ID:', productCategory, 'Name:', selectedCategory.category);
+        } else if (uniqueCategories.length === 0) {
+          // If categories not loaded yet, store the ID and we'll retry after categories load
+          console.warn('uniqueCategories not loaded yet, category filter will be applied after categories load');
+          // Don't add the filter yet - it will be applied when categories load
+        } else {
+          console.warn('Category not found in uniqueCategories:', productCategory, 'Available categories:', uniqueCategories.map(c => ({id: c.id, name: c.category})));
+        }
+      }
+      // Always apply a sort to ensure consistent ordering
+      // If no explicit sort is set, default to ID ascending for consistent results
       if (sortField) {
         params.append("sort_field", sortField);
         params.append("sort_direction", sortDirection);
+      } else {
+        // Default sort by ID to ensure consistent ordering when no explicit sort is applied
+        params.append("sort_field", "id");
+        params.append("sort_direction", "asc");
       }
 
       // Debug logging
@@ -322,17 +596,32 @@ const AdminProducts = () => {
       console.log(data);
 
       if (data.status === "success") {
-        setProducts(data.products || []);
-        setPagination(
-          data.pagination || {
-            current_page: 1,
-            total_pages: 1,
-            total_products: 0,
-            products_per_page: 20,
-            has_next_page: false,
-            has_prev_page: false,
-          }
-        );
+        const productsData = data.products || [];
+        const paginationData = data.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total_products: 0,
+          products_per_page: 20,
+          has_next_page: false,
+          has_prev_page: false,
+        };
+
+        // Update state
+        setProducts(productsData);
+        setPagination(paginationData);
+
+        // Cache the results
+        productsCache.current.set(cacheKey, {
+          products: productsData,
+          pagination: paginationData,
+          timestamp: Date.now()
+        });
+
+        // Limit cache size to prevent memory issues (keep last 50 entries)
+        if (productsCache.current.size > 50) {
+          const firstKey = productsCache.current.keys().next().value;
+          productsCache.current.delete(firstKey);
+        }
       } else {
         console.error("Error fetching products:", data.message);
       }
@@ -340,6 +629,7 @@ const AdminProducts = () => {
       console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -424,6 +714,73 @@ const AdminProducts = () => {
     } catch (error) {
       console.error("Error fetching promos:", error);
     }
+  };
+
+  const fetchUniqueCategories = async () => {
+    try {
+      const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success && data.categories) {
+        setUniqueCategories(data.categories);
+      } else {
+        console.error('Error fetching unique categories:', data.error || 'Unknown error');
+        setUniqueCategories([]);
+      }
+    } catch (error) {
+      console.error('Error fetching unique categories:', error);
+      setUniqueCategories([]);
+    }
+  };
+
+  // Refetch products when uniqueCategories loads if a product category is selected
+  // Use a ref to track if we've already refetched to prevent infinite loops
+  const categoriesLoadedRef = useRef(false);
+  useEffect(() => {
+    if (uniqueCategories.length > 0 && !categoriesLoadedRef.current) {
+      categoriesLoadedRef.current = true;
+      // If a category is selected, refetch products with the filter
+      if (selectedProductCategory !== "all") {
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+      }
+    }
+  }, [uniqueCategories.length]); // Only trigger when categories are loaded
+
+  // Function to sort categories hierarchically for display
+  const getSortedCategories = () => {
+    const sorted = [];
+    const categoryMap = new Map();
+    
+    // Create a map for quick lookup
+    uniqueCategories.forEach(cat => categoryMap.set(cat.id, cat));
+    
+    // First add root categories (parent = 0)
+    const rootCategories = uniqueCategories.filter(cat => cat.parent === 0);
+    rootCategories.sort((a, b) => a.category.localeCompare(b.category));
+    
+    // Then recursively add children
+    const addChildren = (parentId, level = 0) => {
+      const children = uniqueCategories.filter(cat => cat.parent === parentId);
+      children.sort((a, b) => a.category.localeCompare(b.category));
+      
+      children.forEach(child => {
+        sorted.push({ ...child, level });
+        addChildren(child.id, level + 1);
+      });
+    };
+    
+    rootCategories.forEach(root => {
+      sorted.push({ ...root, level: 0 });
+      addChildren(root.id, 1);
+    });
+    
+    return sorted;
   };
 
   const fetchProductBySlug = async (slug) => {
@@ -537,7 +894,9 @@ const AdminProducts = () => {
 
         if (result.status === "success") {
           alert("Product deleted successfully");
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
+          // Invalidate cache and refetch
+          invalidateCache();
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting product: " + result.message);
         }
@@ -726,7 +1085,9 @@ const AdminProducts = () => {
            gallery_files: [],
            promo: [],
          });
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
+        // Invalidate cache and refetch
+        invalidateCache();
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         // Handle specific error types
         if (result.error === 'SKU_CONFLICT') {
@@ -867,43 +1228,72 @@ const AdminProducts = () => {
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    setCurrentPage(1);
-    fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    // Debounce the API call
+    debounceTimeoutRef.current = setTimeout(() => {
+      setCurrentPage(1);
+      updateURLParams({ search: value, page: 1 });
+      fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+    }, 500); // 500ms debounce
   };
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish, selectedPromo);
+    updateURLParams({ brand: value, page: 1 });
+    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedPromo);
+    updateURLParams({ status: value, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleColourChange = (value) => {
     setSelectedColour(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish, selectedPromo);
+    updateURLParams({ colour: value, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleFinishChange = (value) => {
     setSelectedFinish(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value, selectedPromo);
+    updateURLParams({ finish: value, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handlePromoChange = (value) => {
     setSelectedPromo(value);
     setCurrentPage(1);
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, value);
+    updateURLParams({ promo: value, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, value, selectedProductTypes, selectedProductCategory);
+  };
+
+  const handleProductCategoryChange = (value) => {
+    setSelectedProductCategory(value);
+    setCurrentPage(1);
+    updateURLParams({ category_id: value, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
+  };
+
+  const handleProductTypeChange = (selectedOptions) => {
+    const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setSelectedProductTypes(values);
+    setCurrentPage(1);
+    updateURLParams({ product_type: values, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, values, selectedProductCategory);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, sortField, sortDirection);
+    updateURLParams({ page });
+    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
   };
 
   // Function to open download modal
@@ -1037,8 +1427,9 @@ const AdminProducts = () => {
 
       if (result.status === 'success') {
         alert(`CSV upload successful!\nUpdated: ${result.updated} products\nInserted: ${result.inserted} new products`);
-        // Refresh the products list
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo);
+        // Invalidate cache and refresh the products list
+        invalidateCache();
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         alert(`Error uploading CSV: ${result.message}`);
       }
@@ -1052,7 +1443,8 @@ const AdminProducts = () => {
     }
   };
 
-  if (loading) {
+  // Only show full page loading on initial load
+  if (loading && products.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -1130,17 +1522,30 @@ const AdminProducts = () => {
                 type="text"
                 placeholder="Search by name or description..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                   onBlur={() => handleSearch(searchTerm)}
+                onChange={(e) => handleSearch(e.target.value)}
                    onKeyPress={(e) => {
                      if (e.key === 'Enter') {
-                       handleSearch(searchTerm);
+                       // Clear debounce and search immediately
+                       if (debounceTimeoutRef.current) {
+                         clearTimeout(debounceTimeoutRef.current);
+                       }
+                       setCurrentPage(1);
+                       updateURLParams({ search: searchTerm, page: 1 });
+                       fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
                      }
                    }}
                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                  />
                  <button
-                   onClick={() => handleSearch(searchTerm)}
+                   onClick={() => {
+                     // Clear debounce and search immediately
+                     if (debounceTimeoutRef.current) {
+                       clearTimeout(debounceTimeoutRef.current);
+                     }
+                     setCurrentPage(1);
+                     updateURLParams({ search: searchTerm, page: 1 });
+                     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+                   }}
                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                  >
                    Search
@@ -1164,24 +1569,22 @@ const AdminProducts = () => {
                 ))}
               </select>
             </div>
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("all");
-                  setSelectedStatus("all");
-                  setSelectedColour("all");
-                  setSelectedFinish("all");
-                  setSelectedPromo("all");
-                  setCurrentPage(1);
-                  setSortField(null);
-                  setSortDirection("asc");
-                  fetchProducts(1, "", "all", "all", "all", "all", "all", null, "asc");
-                }}
-                className="w-full px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Category
+              </label>
+              <select
+                value={selectedProductCategory}
+                onChange={(e) => handleProductCategoryChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Reset Filters
-              </button>
+                <option value="all">All Categories</option>
+                {getSortedCategories().map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {'  '.repeat(category.level || 0)}{category.level > 0 ? '└─ ' : ''}{category.category}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           
@@ -1253,13 +1656,73 @@ const AdminProducts = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Type
+              </label>
+              <Select
+                isMulti
+                value={selectedProductTypes.map(type => ({ value: type, label: type }))}
+                onChange={handleProductTypeChange}
+                options={[
+                  { value: "Tiles", label: "Tiles" },
+                  { value: "Sanware", label: "Sanware" },
+                  { value: "Engineered Hardwood", label: "Engineered Hardwood" },
+                  { value: "Vinyl", label: "Vinyl" },
+                  { value: "Laminate", label: "Laminate" },
+                  { value: "Accessories", label: "Accessories" }
+                ]}
+                placeholder="Select product types..."
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: '42px',
+                    borderColor: '#d1d5db',
+                    '&:hover': {
+                      borderColor: '#d1d5db'
+                    }
+                  })
+                }}
+              />
+            </div>
+          </div>
+          
+          {/* Reset Filters Button */}
+          <div className="flex justify-end pt-4">
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory("all");
+                setSelectedStatus("all");
+                setSelectedColour("all");
+                setSelectedFinish("all");
+                setSelectedPromo("all");
+                setSelectedProductTypes([]);
+                setSelectedProductCategory("all");
+                setCurrentPage(1);
+                setSortField(null);
+                setSortDirection("asc");
+                // Clear all URL params except slug
+                const newParams = new URLSearchParams();
+                if (searchParams.get('slug')) {
+                  newParams.set('slug', searchParams.get('slug'));
+                }
+                setSearchParams(newParams, { replace: true });
+                fetchProducts(1, "", "all", "all", "all", "all", "all", [], "all", null, "asc");
+              }}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
+            >
+              Reset Filters
+            </button>
           </div>
           
           {/* Third row - Product count and active filters */}
           <div className="border-t pt-4">
             <div className="text-sm text-gray-600">
               <div className="font-medium">Showing {products.length} of {pagination.total_products} products</div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all") && (
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -1290,6 +1753,16 @@ const AdminProducts = () => {
                   {selectedPromo !== "all" && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
                       Promo: {selectedPromo}
+                    </span>
+                  )}
+                  {selectedProductTypes.length > 0 && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-indigo-100 text-indigo-800">
+                      Product Type: {selectedProductTypes.join(", ")}
+                    </span>
+                  )}
+                  {selectedProductCategory !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800">
+                      Product Category: {uniqueCategories.find(cat => String(cat.id) === String(selectedProductCategory))?.category || selectedProductCategory}
                     </span>
                   )}
                 </div>
@@ -1330,9 +1803,18 @@ const AdminProducts = () => {
       )}
 
       {/* Products Grid */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="bg-white shadow rounded-lg overflow-hidden relative">
+        {/* Table Loading Overlay */}
+        {tableLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-sm text-gray-600">Loading products...</p>
+            </div>
+          </div>
+        )}
         
-        {filteredProducts.length === 0 ? (
+        {filteredProducts.length === 0 && !loading ? (
           <div className="px-6 py-8 text-center">
             <p className="text-gray-500">No products found.</p>
           </div>
@@ -1391,11 +1873,11 @@ const AdminProducts = () => {
                   </th>
                   <th 
                     className="hidden sm:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('price')}
+                    onClick={() => handleSort('iq_price')}
                   >
                     <div className="flex items-center space-x-1">
                       <span>Price (IQ)</span>
-                      {sortField === 'price' && (
+                      {sortField === 'iq_price' && (
                         <span className="text-blue-600">
                           {sortDirection === 'asc' ? '↑' : '↓'}
                         </span>
@@ -1521,7 +2003,7 @@ const AdminProducts = () => {
                     <td className="px-2 sm:px-3 py-4 text-sm font-medium">
                       <div className="relative">
                         <button
-                            onClick={() => toggleMenu(String(product.ID || product.id), product)}
+                            onClick={(e) => toggleMenu(String(product.ID || product.id), product, e)}
                           className="menu-trigger p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                           title="Actions"
                         >
@@ -1531,7 +2013,13 @@ const AdminProducts = () => {
                         </button>
                         
                         {openMenuId === String(product.ID || product.id) && (
-                          <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                          <div 
+                            className="dropdown-menu fixed w-48 bg-white rounded-md shadow-lg z-[9999] border border-gray-200"
+                            style={{ 
+                              top: `${dropdownPosition.top}px`,
+                              right: `${dropdownPosition.right}px`
+                            }}
+                          >
                             <div className="py-1">
                               <button
                                 onClick={() => handleQuickView(product)}

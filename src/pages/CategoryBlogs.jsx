@@ -23,14 +23,18 @@ const CategoryBlogs = () => {
   const [currentCategory, setCurrentCategory] = useState(null);
 
   useEffect(() => {
-    fetch(`/data/blogs.json`)
-    .then(res => res.json())
+    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to fetch blogs');
+      return res.json();
+    })
     .then(data => {
-      // Sort posts by date in descending order (newest first)
-      const sortedPosts = data.sort((a, b) => {
-        const dateA = new Date(a.post_date);
-        const dateB = new Date(b.post_date);
-        return dateB - dateA;
+      // Handle both array response and object with blogs property
+      const blogs = Array.isArray(data) ? data : (data.blogs || []);
+      
+      // Sort posts by ID in descending order (newest first)
+      const sortedPosts = blogs.sort((a, b) => {
+        return b.ID - a.ID;
       });
 
       setRecentPosts(sortedPosts.slice(0, 3));
@@ -38,46 +42,63 @@ const CategoryBlogs = () => {
 
       // Calculate category counts
       const categoryCounts = {};
-      data.forEach(post => {
-        const postCategories = post.categories.split(',').map(cat => cat.trim().toUpperCase());
-        postCategories.forEach(category => {
-          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
+      blogs.forEach(post => {
+        if (post.categories) {
+          const postCategories = post.categories.split(',').map(cat => cat.trim().toUpperCase());
+          postCategories.forEach(category => {
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+          });
+        }
       });
 
+      // Define category structure for lookup
+      const categoryStructure = [
+        { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration' },
+        { name: 'UNCATEGORIZED', slug: 'uncategorized' },
+        { name: 'PRODUCT NEWS', slug: 'product-news' },
+        { name: 'STILES NEWS', slug: 'stiles-news' },
+        { name: 'STILES PROJECTS', slug: 'stiles-projects' },
+        { name: 'ABOUT STILES', slug: 'about-stiles' },
+      ];
+      
       // Update categories with counts
       setCategories(prevCategories => {
-        const updatedCategories = prevCategories.map(category => {
+        return prevCategories.map(category => {
           const count = categoryCounts[category.name] || 0;
           return {
             ...category,
             count: count
           };
         });
-        return updatedCategories;
       });
-
-      // Find the current category
-      const category = categories.find(cat => cat.slug === slug);
-      setCurrentCategory(category);
       
-      // Filter posts by category
-      const filtered = sortedPosts.filter(post => {
-        const postCategories = post.categories.split(',').map(cat => 
-          cat.trim().toUpperCase()
-        );
-        return postCategories.includes(category?.name);
-      });
-      setFilteredPosts(filtered);
-
-      console.log('Current slug:', slug);
-      console.log('Current category:', category);
-      console.log('Filtered posts:', filtered);
+      // Find the current category
+      const category = categoryStructure.find(cat => cat.slug === slug);
+      if (category) {
+        const categoryWithCount = {
+          ...category,
+          count: categoryCounts[category.name] || 0
+        };
+        setCurrentCategory(categoryWithCount);
+        
+        // Filter posts by category
+        const filtered = sortedPosts.filter(post => {
+          if (!post.categories) return false;
+          const postCategories = post.categories.split(',').map(cat => 
+            cat.trim().toUpperCase()
+          );
+          return postCategories.includes(category.name);
+        });
+        setFilteredPosts(filtered);
+      } else {
+        setCurrentCategory(null);
+        setFilteredPosts([]);
+      }
     })
     .catch(err => {
-      console.log(err);
+      console.error('Error fetching blogs:', err);
     });
-  }, [slug, categories]);
+  }, [slug]);
 
   return (
     <Layout>
@@ -105,7 +126,7 @@ const CategoryBlogs = () => {
                     title={post.post_title}
                     cat={post.categories}
                     img={post.featured_image}
-                    desc={post.desc}
+                    desc={post.metadescription}
                     slug={post.slug}
                   />
                 ))}

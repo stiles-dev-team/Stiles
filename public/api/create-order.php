@@ -230,6 +230,7 @@ try {
         'items' => array_map(function($item) {
             return [
                 'name' => $item['title'] ?? $item['name'] ?? '',
+                'sku' => $item['sku'] ?? '',
                 'quantity' => $item['quantity'] ?? 1,
                 'price' => $item['regular_price'] ?? $item['price'] ?? 0
             ];

@@ -123,7 +123,7 @@ export default Promo
 
 const Hero = () => {
     return (
-        <section id='heroHome' className={`w-full h-[60vh] lg:h-[90vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center lg:bg-[url("/images/blacknovember.jpg")] bg-[url("/images/blacknovember_resp.jpg")]`}>
+        <section id='heroHome' className={`w-full h-[60vh] lg:h-[90vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center lg:bg-[url("/images/blacknovember_homepage3.jpg")] bg-[url("/images/blacknovember_homepage_resp4.jpg")]`}>
         {/* <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/40'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>Black November Promo</h1>
@@ -288,8 +288,17 @@ const Content = ({
                 const data = await res.json();
                 if (data.status !== 'success') throw new Error('Invalid response format');
                 
+                console.log('API Response:', {
+                    productsCount: data.data?.length || 0,
+                    totalCount: data.total_count || 0,
+                    currentPage: data.current_page || 1,
+                    totalPages: data.total_pages || 0
+                });
+                
                 setProduct(data.data);
                 setTotalCount(data.total_count || 0);
+                // Since API already filters, set filteredProducts to the same data
+                setFilteredProducts(data.data);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching promo products:', err);
@@ -310,114 +319,6 @@ const Content = ({
             return () => clearTimeout(timer);
         }
     }, [loading]);
-
-    // New useEffect to handle sorting when sortBy changes
-    useEffect(() => {
-        if (product) {
-            setLoading(true);
-            let sortedProducts = [...product];
-            
-            switch (sortBy) {
-                case 'asc':
-                    // Latest (default sort by post date)
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-                    break;
-                case 'desc':
-                    // Popularity (assuming there's a popularity field, otherwise using a placeholder)
-                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                    break;
-                case 'nuev':
-                    // Price: Low to High
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceA - priceB;
-                    });
-                    break;
-                case 'vend':
-                    // Price: High to Low
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceB - priceA;
-                    });
-                    break;
-                case 'ascBrand':
-                    // A-Z Brand
-                    sortedProducts.sort((a, b) => {
-                        const brandA = (a.brands || '').toLowerCase();
-                        const brandB = (b.brands || '').toLowerCase();
-                        return brandA.localeCompare(brandB);
-                    });
-                    break;
-                case 'descBrand':
-                    // Z-A Brand
-                    sortedProducts.sort((a, b) => {
-                        const brandA = (a.brands || '').toLowerCase();
-                        const brandB = (b.brands || '').toLowerCase();
-                        return brandB.localeCompare(brandA);
-                    });
-                    break;
-                default:
-                    // Default sort by post date
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            }
-            
-            setProduct(sortedProducts);
-            // Apply filters to the sorted products
-            applyFilters(sortedProducts);
-            setLoading(false);
-        }
-    }, [sortBy]);
-
-    // Modify the filter application to be more efficient
-    const applyFilters = (productsToFilter) => {
-        if (!productsToFilter) return;
-        
-        let filtered = [...productsToFilter];
-        
-        // Apply brand filter
-        if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemBrands = item.brands?.split(',').map(b => b.trim()) || [];
-                return selectedBrands.some(brand => itemBrands.includes(brand));
-            });
-        }
-        
-        // Apply finish filter
-        if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemFinishes = item.finish?.split(',').map(f => f.trim()) || [];
-                return selectedFinish.some(finish => itemFinishes.includes(finish));
-            });
-        }
-        
-        // Apply colour filter
-        if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemColours = item.colour?.split(',').map(c => c.trim()) || [];
-                return selectedColours.some(colour => itemColours.includes(colour));
-            });
-        }
-        
-        // Apply size filter - recreated exactly like other filters
-        if (selectedSizes.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemSizes = item.size?.split(',').map(s => s.trim()) || [];
-                return selectedSizes.some(size => itemSizes.includes(size));
-            });
-        }
-        
-        console.log('Filtered products:', {
-            total: filtered.length,
-            selectedBrands,
-            selectedFinish,
-            selectedColours,
-            selectedSizes
-        });
-        
-        setFilteredProducts(filtered);
-    };
 
     // Update URL when filters change
     useEffect(() => {
@@ -509,9 +410,8 @@ const Content = ({
         return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
     };
 
-    const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    // Products are already paginated by the API, so use them directly
+    const currentProducts = product || [];
 
     // Add this console log before the return statement to debug the state values
     console.log('Current filter states:', {
@@ -742,11 +642,15 @@ const Content = ({
                     </div>
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {
-                            product && product.map((item, index) => (
-                                <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard key={item.id} prod={item.slug} />
-                                </a>
-                            ))
+                            currentProducts && currentProducts.length > 0 ? (
+                                currentProducts.map((item, index) => (
+                                    <a href={"/product/" + item.slug} key={item.id || index}>
+                                        <ProductCard key={item.id || index} prod={item.slug} />
+                                    </a>
+                                ))
+                            ) : (
+                                !loading && <p className="col-span-full text-center text-gray-500 py-8">No products found</p>
+                            )
                         }
                     </div>
                     <CircularPagination

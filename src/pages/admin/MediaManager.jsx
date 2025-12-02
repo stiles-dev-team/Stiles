@@ -126,6 +126,20 @@ const MediaManager = () => {
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files)
+    
+    // Warn if too many files selected (typical PHP default is 20)
+    if (files.length > 20) {
+      const proceed = window.confirm(
+        `You have selected ${files.length} files. PHP typically limits uploads to 20 files at once.\n\n` +
+        `If the upload fails, try uploading in smaller batches of 20 or fewer files.\n\n` +
+        `Do you want to continue?`
+      )
+      if (!proceed) {
+        event.target.value = '' // Clear the selection
+        return
+      }
+    }
+    
     setSelectedFiles(files)
     
     // Initialize metadata for each file
@@ -134,7 +148,6 @@ const MediaManager = () => {
       initialMetadata[index] = {
         alt: '',
         description: '',
-        category: 'general'
       }
     })
     setFileMetadata(initialMetadata)
@@ -155,10 +168,9 @@ const MediaManager = () => {
       
       // Add metadata for each file
       selectedFiles.forEach((file, index) => {
-        const metadata = fileMetadata[index] || { alt: '', description: '', category: 'general' }
+        const metadata = fileMetadata[index] || { alt: '', description: '' }
         formData.append('alt[]', metadata.alt)
         formData.append('description[]', metadata.description)
-        formData.append('category[]', metadata.category)
       })
 
       const response = await fetch('https://stiles.co.za/api/upload-media.php', {
@@ -177,10 +189,28 @@ const MediaManager = () => {
         // Show success message
         if (data.errors && data.errors.length > 0) {
           console.warn('Some files had errors:', data.errors)
+          alert(`Upload completed with some errors:\n\n${data.errors.join('\n')}`)
+        } else {
+          alert(`Successfully uploaded ${data.files?.length || selectedFiles.length} file(s)!`)
         }
       } else {
         console.error('Error uploading files:', data.message)
-        alert('Error uploading files: ' + data.message)
+        // Build detailed error message
+        let errorMsg = data.message || 'Unknown error occurred'
+        
+        if (data.php_limits) {
+          errorMsg += `\n\nPHP Upload Limits:\n`
+          errorMsg += `- Max files per upload: ${data.php_limits.max_file_uploads}\n`
+          errorMsg += `- Max post size: ${data.php_limits.post_max_size}\n`
+          errorMsg += `- Max file size: ${data.php_limits.upload_max_filesize}`
+        }
+        
+        if (data.attempted_count && data.max_allowed) {
+          errorMsg += `\n\nYou attempted to upload ${data.attempted_count} files, but the limit is ${data.max_allowed}.`
+          errorMsg += `\nPlease upload in batches of ${data.max_allowed} or fewer.`
+        }
+        
+        alert('Error uploading files:\n\n' + errorMsg)
       }
     } catch (error) {
       console.error('Error uploading files:', error)
@@ -621,7 +651,7 @@ const MediaManager = () => {
                   <h4 className="text-sm font-medium text-gray-700">File Metadata</h4>
                   
                   {selectedFiles.map((file, index) => {
-                    const metadata = fileMetadata[index] || { alt: '', description: '', category: 'general' }
+                    const metadata = fileMetadata[index] || { alt: '', description: '' }
                     return (
                       <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <div className="flex items-center space-x-2 mb-3">
@@ -632,7 +662,7 @@ const MediaManager = () => {
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Alt Text
@@ -644,23 +674,6 @@ const MediaManager = () => {
                               placeholder="Describe the image for accessibility"
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Category
-                            </label>
-                            <select
-                              value={metadata.category}
-                              onChange={(e) => updateFileMetadata(index, 'category', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                            >
-                              <option value="general">General</option>
-                              <option value="products">Products</option>
-                              <option value="banners">Banners</option>
-                              <option value="branding">Branding</option>
-                              <option value="documents">Documents</option>
-                            </select>
                           </div>
                         </div>
 

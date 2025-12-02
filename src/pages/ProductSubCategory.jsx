@@ -308,6 +308,8 @@ const Content = ({
                 
                 setProduct(data.data);
                 setTotalCount(data.total_count || 0);
+                // Apply filters to the fetched products
+                applyFilters(data.data);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching products:', err);
@@ -339,48 +341,6 @@ const Content = ({
         .catch(err => console.log(err));
     }, [slug]);
 
-    // New useEffect to handle sorting when sortBy changes
-    useEffect(() => {
-        if (product) {
-            setLoading(true);
-            let sortedProducts = [...product];
-            
-            switch (sortBy) {
-                case 'asc':
-                    // Latest (default sort by post date)
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-                    break;
-                case 'desc':
-                    // Popularity (assuming there's a popularity field, otherwise using a placeholder)
-                    sortedProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                    break;
-                case 'nuev':
-                    // Price: Low to High
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceA - priceB;
-                    });
-                    break;
-                case 'vend':
-                    // Price: High to Low
-                    sortedProducts.sort((a, b) => {
-                        const priceA = parseFloat(a.regular_price) || 0;
-                        const priceB = parseFloat(b.regular_price) || 0;
-                        return priceB - priceA;
-                    });
-                    break;
-                default:
-                    // Default sort by post date
-                    sortedProducts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-            }
-            
-            setProduct(sortedProducts);
-            // Apply filters to the sorted products
-            applyFilters(sortedProducts);
-            setLoading(false);
-        }
-    }, [sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
@@ -430,6 +390,13 @@ const Content = ({
         
         setFilteredProducts(filtered);
     };
+
+    // Apply filters when product data changes
+    useEffect(() => {
+        if (product) {
+            applyFilters(product);
+        }
+    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes]);
 
     // Update URL when filters change
     useEffect(() => {
@@ -739,7 +706,10 @@ const Content = ({
                     </div>
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
-                            <Select label="Sort By" value={sortBy} onChange={(e) => setSortBy(e)}>
+                            <Select label="Sort By" value={sortBy} onChange={(e) => {
+                                setSortBy(e);
+                                setCurrentPage(1); // Reset to first page when sorting changes
+                            }}>
                                 <Option value="asc">Latest</Option>
                                 <Option value="desc">Popularity</Option>
                                 <Option value="nuev">Price: Low to High</Option>

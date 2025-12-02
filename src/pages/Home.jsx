@@ -201,8 +201,8 @@ const Hero = ({ content }) => {
         id: 1,
         title: "Black November Promo",
         subtitle: "",
-        background_image: "/images/blacknovember_homepage.jpg",
-        background_image_mobile: "/images/blacknovember_homepage_resp2.jpg",
+        background_image: "/images/blacknovember_homepage4.jpg",
+        background_image_mobile: "/images/blacknovember_homepage_resp5.jpg",
         button_text: "See Promo",
         button_link: "/black-november-promo",
         all_clickable: true
@@ -294,13 +294,56 @@ const OurProducts = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper function to check if product should be shown (not sold out)
+  const shouldShowProduct = (productData, stockInfo) => {
+    // If no stock info, show the product (let ProductCard handle it)
+    if (!stockInfo || stockInfo.onhand === undefined) {
+      return true;
+    }
+    
+    // If stock is >= 5, always show
+    if (stockInfo.onhand >= 5) {
+      return true;
+    }
+    
+    // If stock < 5, check if it has Coming Soon or Backorder badges/tags
+    // Parse badges from promo
+    const badges = [];
+    if (productData.promo !== null && productData.promo !== '' && productData.promo.trim() !== '') {
+      const promoArray = productData.promo.split(',').map(item => item.trim()).filter(item => item !== '');
+      promoArray.forEach(promoItem => {
+        if (promoItem.trim()) {
+          badges.push(promoItem.trim());
+        }
+      });
+    }
+    
+    // Check if product has Coming Soon or Backorder
+    const hasComingSoon = badges.includes('Coming Soon') || 
+                         (productData.promo && typeof productData.promo === 'string' && productData.promo.includes('Coming Soon')) ||
+                         (productData.product_tag && typeof productData.product_tag === 'string' && productData.product_tag.includes('Coming Soon'));
+    
+    const hasBackorder = badges.includes('Backorder') || 
+                        (productData.promo && typeof productData.promo === 'string' && productData.promo.includes('Backorder')) ||
+                        (productData.product_tag && typeof productData.product_tag === 'string' && productData.product_tag.includes('Backorder'));
+    
+    // If it has Coming Soon or Backorder, show it (won't show Sold Out tag)
+    if (hasComingSoon || hasBackorder) {
+      return true;
+    }
+    
+    // Otherwise, it would show Sold Out tag, so don't show it
+    return false;
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
         // Add a timestamp to prevent caching
         const timestamp = new Date().getTime();
-        const res = await fetch(`https://stiles.co.za/api/products.php?category=${category}&limit=6&_=${timestamp}`, {
+        // Fetch more products to account for filtering (fetch 12, filter down to 6)
+        const res = await fetch(`https://stiles.co.za/api/products.php?category=${category}&limit=12&_=${timestamp}`, {
           headers: {
             'Accept-Encoding': 'gzip, deflate',
             'Accept': 'application/json',
@@ -359,7 +402,75 @@ const OurProducts = () => {
           throw new Error('No valid products found');
         }
         
-        setProduct(processedData);
+        // Fetch stock info for all products in parallel
+        const productsWithStock = await Promise.all(
+          processedData.map(async (productItem) => {
+            let stockInfo = null;
+            
+            // Fetch full product data to get SKU and other details
+            try {
+              const productRes = await fetch(`https://stiles.co.za/api/products.php?slug=${productItem.slug}`);
+              const productText = await productRes.text();
+              const productData = JSON.parse(productText);
+              
+              if (productData.status === 'success' && productData.data && productData.data.sku) {
+                // Fetch stock info
+                try {
+                  const stockRes = await fetch(`https://stiles.co.za/api/iq_new.php?code=${productData.data.sku}`, {
+                    method: 'GET',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json',
+                    },
+                    mode: 'cors',
+                    credentials: 'omit'
+                  });
+                  
+                  if (stockRes.ok) {
+                    const stockData = await stockRes.json();
+                    if (stockData && stockData.data) {
+                      stockInfo = stockData.data;
+                    }
+                  }
+                } catch (stockErr) {
+                  console.error('Error fetching stock info for', productItem.slug, stockErr);
+                }
+                
+                // Check if product should be shown
+                return {
+                  product: productItem,
+                  stockInfo,
+                  productData: productData.data,
+                  shouldShow: shouldShowProduct(productData.data, stockInfo)
+                };
+              }
+            } catch (err) {
+              console.error('Error fetching product details for', productItem.slug, err);
+            }
+            
+            // If we can't fetch product details, show it anyway
+            return {
+              product: productItem,
+              stockInfo: null,
+              productData: null,
+              shouldShow: true
+            };
+          })
+        );
+        
+        // Filter products that should be shown and limit to 6
+        const filteredProducts = productsWithStock
+          .filter(item => item.shouldShow)
+          .slice(0, 6)
+          .map(item => item.product);
+        
+        if (filteredProducts.length === 0) {
+          // If all products are filtered out, show the first 6 anyway
+          setProduct(processedData.slice(0, 6));
+        } else {
+          setProduct(filteredProducts);
+        }
+        
         setError(null);
         setRetryCount(0); // Reset retry count on success
         
@@ -422,7 +533,7 @@ const OurProducts = () => {
         <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
           <div className="flex flex-row justify-between items-end gap-5 w-full">
             <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
-            <a href="/shop" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
+            <a href="/shopall" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
           </div>
           <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap pb-4">
             <button className={category === "Tiles" ? 'underline text-lg font-semibold uppercase underline-offset-4' : 'text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'} onClick={() => updateCat("Tiles")}>TILES</button>
@@ -714,6 +825,9 @@ const WeWorkWithTheBest = () => {
         <SplideSlide>
           <img src="/images/florim.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Florim"} />
         </SplideSlide>
+        <SplideSlide>
+          <img src="/images/buttler_logo.jpg" alt="" className='w-full object-cover object-center cursor-pointer' />
+        </SplideSlide>
       </Splide>
     </section>
   )
@@ -723,20 +837,24 @@ const Blog = () => {
   const [blogPosts, setBlogPosts] = useState([]);
 
   useEffect(() => {
-    fetch(`/data/blogs.json`)
-    .then(res => res.json())
+    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to fetch blogs');
+      return res.json();
+    })
     .then(data => {
-      // Sort posts by date in descending order (newest first)
-      const sortedPosts = data.sort((a, b) => {
-        const dateA = new Date(a.post_date);
-        const dateB = new Date(b.post_date);
-        return dateB - dateA;
+      // Handle both array response and object with blogs property
+      const blogs = Array.isArray(data) ? data : (data.blogs || []);
+      
+      // Sort posts by ID in descending order (newest first)
+      const sortedPosts = blogs.sort((a, b) => {
+        return b.ID - a.ID;
       });
       // Take only the latest 3 posts
       setBlogPosts(sortedPosts.slice(0, 3));
     })
     .catch(err => {
-      console.log(err);
+      console.error('Error fetching blogs:', err);
     });
   }, []);
 
@@ -750,7 +868,7 @@ const Blog = () => {
         <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
           {
             blogPosts && blogPosts.map((post, index) => (
-              <BlogCard key={index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.desc} slug={post.slug} />
+              <BlogCard key={index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
             ))
           }
         </div>
@@ -772,7 +890,7 @@ const Blog = () => {
         {
           blogPosts && blogPosts.map((post, index) => (
             <SplideSlide key={index}>
-              <BlogCard title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.desc} slug={post.slug} />
+              <BlogCard title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
             </SplideSlide>
           ))
         }

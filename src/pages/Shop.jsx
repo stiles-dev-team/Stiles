@@ -3,6 +3,8 @@ import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import {
     Accordion,
@@ -49,13 +51,13 @@ const Shop = () => {
             <meta property="og:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
             <meta property="og:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://stiles.co.za/shop" />
+            <meta property="og:url" content="https://stiles.co.za/shopall" />
             <meta property="og:site_name" content="Stiles" />
             <meta property="og:locale" content="en_ZA" />
             <meta name="twitter:card" content="summary" />
             <meta name="twitter:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
             <meta name="twitter:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
-            <link rel="canonical" href="https://stiles.co.za/shop" />
+            <link rel="canonical" href="https://stiles.co.za/shopall" />
         </Helmet>
         <Hero />
         <Content />
@@ -78,51 +80,100 @@ const Hero = () => {
 }
 
 const Content = () => {
-
+    const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
 
     const [loading, setLoading] = useState(true);
-    const [product, setProduct] = useState(null);
     const [allProducts, setAllProducts] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
     const [itemsPerPage] = useState(12);
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
+    const [totalCount, setTotalCount] = useState(0);
 
+    // Fetch all products from API
     useEffect(() => {
-        fetch(`/data/products2.json`)
-        .then(res => res.json())
-        .then(data => {
-            // Filter to only include published products to avoid 404 errors
-            const publishedProducts = data.filter(item => item.status === 'publish');
-            // Shuffle the array
-            const shuffledData = publishedProducts.sort(() => 0.5 - Math.random());
-            setAllProducts(shuffledData);
-            setLoading(false);
-        })
-        .catch(err => {
-            console.log(err);
-            setLoading(false);
-        });
-    }, []);
+        setLoading(true);
+        const fetchProducts = async () => {
+            try {
+                // Calculate offset based on current page and items per page
+                const offset = (currentPage - 1) * itemsPerPage;
+                
+                // Build query parameters
+                const queryParams = new URLSearchParams({
+                    limit: itemsPerPage.toString(),
+                    offset: offset.toString(),
+                    _: new Date().getTime().toString()
+                });
+
+                // Add sorting parameter
+                if (sortBy) {
+                    queryParams.set('sort', sortBy);
+                }
+
+                // Use empty category to get all products
+                // The API uses LIKE '%category%', so empty string becomes '%%' which matches all
+                queryParams.set('category', '');
+
+                const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
+                
+                const res = await fetch(requestUrl);
+                if (!res.ok) throw new Error('Failed to fetch products');
+                
+                const data = await res.json();
+                
+                if (data.status !== 'success') {
+                    throw new Error('Invalid response format');
+                }
+
+                // Transform API response to match expected format
+                const transformedProducts = (data.data || []).map(product => ({
+                    id: product.id || product.ID,
+                    slug: product.slug,
+                    status: product.status || 'publish',
+                    post_date: product.post_date
+                }));
+
+                setAllProducts(transformedProducts);
+                setTotalCount(data.total_count || transformedProducts.length);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                toast.error('Failed to load products');
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [currentPage, itemsPerPage, sortBy]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
     const handleOpenDialog = () => setOpenDialog(!openDialog);
+
+    // Update URL when sort or page changes
+    useEffect(() => {
+        const newParams = new URLSearchParams(searchParams);
+        if (sortBy) {
+            newParams.set('sort', sortBy);
+        } else {
+            newParams.delete('sort');
+        }
+        if (currentPage > 1) {
+            newParams.set('page', currentPage.toString());
+        } else {
+            newParams.delete('page');
+        }
+        setSearchParams(newParams);
+    }, [sortBy, currentPage]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Calculate pagination
-    const getCurrentPageProducts = () => {
-        if (!allProducts) return [];
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return allProducts.slice(startIndex, endIndex);
-    };
-
-    const currentProducts = getCurrentPageProducts();
+    // Calculate pagination - products are already paginated from API
+    const currentProducts = allProducts || [];
 
     return (
         <>
@@ -239,26 +290,33 @@ const Content = () => {
                 </aside>
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full lg:max-w-80'>
-                        <Select label="Sort By">
-                            <Option value="preestablecido">Default</Option>
+                        <Select label="Sort By" value={sortBy} onChange={(e) => {
+                            setSortBy(e);
+                            setCurrentPage(1); // Reset to first page when sorting changes
+                        }}>
                             <Option value="asc">Latest</Option>
                             <Option value="desc">Popularity</Option>
                             <Option value="nuev">Price: Low to High</Option>
                             <Option value="vend">Price: High to Low</Option>
+                            <Option value="ascBrand">A-Z Brand</Option>
+                            <Option value="descBrand">Z-A Brand</Option>
                         </Select>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full relative">
                         {
-                            currentProducts && currentProducts.map((item, index) => (
-                                <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard key={item.id} prod={item.slug} />
-                                </a>
-                            ))
+                            currentProducts && currentProducts.length > 0 ? (
+                                currentProducts.map((item, index) => (
+                                    <a href={"/product/" + item.slug} key={item.id || index}>
+                                        <ProductCard key={item.id || index} prod={item.slug} />
+                                    </a>
+                                ))
+                            ) : (
+                                !loading && <p className="text-gray-500 col-span-full text-center py-8">No products found</p>
+                            )
                         }
-                        {/* <ProductCard onClick={handleOpenDialog}  /> */}
                     </div>
                     <CircularPagination 
-                        totalItems={allProducts ? allProducts.length : 0}
+                        totalItems={totalCount}
                         itemsPerPage={itemsPerPage}
                         currentPage={currentPage}
                         onPageChange={handlePageChange}

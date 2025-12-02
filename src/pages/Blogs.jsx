@@ -19,26 +19,32 @@ const Blogs = () => {
   const [recentPosts, setRecentPosts] = useState([]);
 
   useEffect(() => {
-    fetch(`/data/blogs.json`)
-    .then(res => res.json())
+    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to fetch blogs');
+      return res.json();
+    })
     .then(data => {
-      // Sort posts by date in descending order (newest first)
-      const sortedPosts = data.sort((a, b) => {
-        const dateA = new Date(a.post_date);
-        const dateB = new Date(b.post_date);
-        return dateB - dateA;
+      // Handle both array response and object with blogs property
+      const blogs = Array.isArray(data) ? data : (data.blogs || []);
+      
+      // Sort posts by ID in descending order (newest first)
+      const sortedPosts = blogs.sort((a, b) => {
+        return b.ID - a.ID;
       });
 
       setRecentPosts(sortedPosts.slice(0, 3));
 
       // Calculate category counts
       const categoryCounts = {};
-      data.forEach(post => {
+      blogs.forEach(post => {
         // Handle both single category and multiple categories
-        const postCategories = post.categories.split(',').map(cat => cat.trim().toUpperCase());
-        postCategories.forEach(category => {
-          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
+        if (post.categories) {
+          const postCategories = post.categories.split(',').map(cat => cat.trim().toUpperCase());
+          postCategories.forEach(category => {
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+          });
+        }
       });
 
       // Update categories with counts
@@ -56,7 +62,7 @@ const Blogs = () => {
       setBlogPosts(sortedPosts);
     })
     .catch(err => {
-      console.log(err);
+      console.error('Error fetching blogs:', err);
     });
   }, []);
 
@@ -140,7 +146,7 @@ const Blogs = () => {
                     title={post.post_title}
                     cat={post.categories}
                     img={post.featured_image}
-                    desc={post.desc}
+                    desc={post.metadescription}
                     slug={post.slug}
                   />
                 ))}

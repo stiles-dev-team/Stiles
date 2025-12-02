@@ -205,6 +205,7 @@ function sendOrderEmail($orderData, $recipientEmail) {
         $htmlBody .= '
                 <div class="item">
                     <p><strong>' . htmlspecialchars($item['name']) . '</strong></p>
+                    ' . (!empty($item['sku']) ? '<p>SKU: ' . htmlspecialchars($item['sku']) . '</p>' : '') . '
                     <p>Quantity: ' . $item['quantity'] . '</p>
                     <p>Price: R' . number_format($item['price'], 2) . '</p>
                 </div>';

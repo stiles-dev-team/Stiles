@@ -58,15 +58,19 @@ const ProductCard = memo(({ onClick, prod }) => {
                 setProduct(productData);
                 
                 // Parse promo string to extract multiple badges
-                if (productData.promo !== null && productData.promo) {
-                    const promoArray = productData.promo.split(',').map(item => item.trim());
+                if (productData.promo !== null && productData.promo !== '' && productData.promo.trim() !== '') {
+                    const promoArray = productData.promo.split(',').map(item => item.trim()).filter(item => item !== '');
                     const extractedBadges = [];
                     
                     promoArray.forEach(promoItem => {
-                        extractedBadges.push(promoItem.trim());
+                        if (promoItem.trim()) {
+                            extractedBadges.push(promoItem.trim());
+                        }
                     });
                     
                     setBadges(extractedBadges);
+                } else {
+                    setBadges([]);
                 }
 
                 // Fetch stock info if SKU exists
@@ -174,20 +178,33 @@ const ProductCard = memo(({ onClick, prod }) => {
                 }
             }}
         >
-            {product.sale_price > 0 && (
-                <div className='absolute top-0 left-0 bg-primaryStiles text-dark px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>
-                    Promo
-                </div>
-            )}
             <div 
                 className='relative w-full aspect-square'
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
+                {stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                 !badges.includes('Coming Soon') && 
+                 !badges.includes('Backorder') && 
+                 !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                 !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                 !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                 !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                    <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
+                        Sold Out
+                    </div>
+                )}
+                {/* {product.sale_price > 0 && !(stockInfo?.onhand !== undefined && stockInfo?.onhand < 5) && (
+                    <div className='absolute top-0 left-0 bg-primaryStiles text-dark px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase rounded-br-lg lg:rounded-br-xl min-w-32 text-center'>
+                        Promo
+                    </div>
+                )} */}
                 <img 
                     src={product.images[0]?.url + "?v=" + new Date().getTime() || '/images/placeholder-images-image_large.webp'} 
                     alt={product.title}
                     loading="lazy"
+                    width={414}
+                    height={414}
                     className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product.images.length > 1 ? 'opacity-0' : 'opacity-100'}`} 
                     onClick={onClick} 
                     onError={(e) => {
@@ -200,6 +217,8 @@ const ProductCard = memo(({ onClick, prod }) => {
                         alt={`${product.title} - Hover`} 
                         className={`absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
                         onClick={onClick}
+                        width={414}
+                        height={414}
                         onError={(e) => {
                             e.target.src = '/images/placeholder-images-image_large.webp';
                         }}
@@ -214,24 +233,39 @@ const ProductCard = memo(({ onClick, prod }) => {
             >
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
             </div>
-            {
-                badges.length > 0 &&  badges.map((badge, index) => {
+                {
+                    badges.length > 0 && badges.map((badge, index) => {
+                        // Offset badges if sold out badge is present
+                        // hasTopBadge should be true only when "Sold Out" badge is actually visible
+                        const hasTopBadge = stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
+                                             !badges.includes('Coming Soon') && 
+                                             !badges.includes('Backorder') && 
+                                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
+                        const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
                         return (
-                            <div className={`absolute left-0 w-fit z-25 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44`} style={{ top: index * 38 + 'px' }}>
-                                <div key={index} className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                            <div 
+                                key={index}
+                                className='absolute left-0 w-fit z-30 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44'
+                                style={{ top: `${topOffset}px` }}
+                            >
+                                <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
                                     <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
                                 </div>
                             </div>
-                        )
-            })}
+                        );
+                    })
+                }
             <h3 className='font-bold text-xl cursor-pointer'>{product.title}</h3>
             <div className="flex justify-start items-center gap-3 w-full cursor-pointer">
                 {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (
-                    <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
+                    <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product, stockInfo))}</p>
                 ) : (
                     <>
-                        <p className='text-[#B3B3B3] line-through text-lg'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product))}</p>
-                        <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product))}</p>
+                        <p className='text-[#B3B3B3] line-through text-lg'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product, stockInfo))}</p>
+                        <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.promoPrice, getPricingUnit(product, stockInfo))}</p>
                     </>
                 )}
                 <p className='text-sm text-opaque'>{product.sku}</p>

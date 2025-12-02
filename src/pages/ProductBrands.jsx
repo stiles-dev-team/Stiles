@@ -556,7 +556,10 @@ const Content = ({
                     </div>
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
-                            <Select label="Sort By" value={sortBy} onChange={(e) => setSortBy(e)}>
+                            <Select label="Sort By" value={sortBy} onChange={(e) => {
+                                setSortBy(e);
+                                setCurrentPage(1); // Reset to first page when sorting changes
+                            }}>
                                 <Option value="asc">Latest</Option>
                                 <Option value="desc">Popularity</Option>
                                 <Option value="nuev">Price: Low to High</Option>
