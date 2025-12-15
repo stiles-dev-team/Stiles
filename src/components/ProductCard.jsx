@@ -186,10 +186,13 @@ const ProductCard = memo(({ onClick, prod }) => {
                 {stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
                  !badges.includes('Coming Soon') && 
                  !badges.includes('Backorder') && 
+                 !badges.includes('Special Order') &&
                  !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                  !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                 !(product.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                  !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
-                 !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                 !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) &&
+                 !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Special Order')) && (
                     <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
                         Sold Out
                     </div>
@@ -200,7 +203,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                     </div>
                 )} */}
                 <img 
-                    src={product.images[0]?.url + "?v=" + new Date().getTime() || '/images/placeholder-images-image_large.webp'} 
+                    src={product.images[0]?.url ? `${product.images[0].url}?v=${new Date().getTime()}` : '/images/placeholder-images-image_large.webp'} 
                     alt={product.title}
                     loading="lazy"
                     width={414}
@@ -213,7 +216,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                 />
                 {product.images.length > 1 && (
                     <img 
-                        src={product.images[1]?.url + "?v=" + new Date().getTime() || '/images/placeholder-images-image_large.webp'} 
+                        src={product.images[1]?.url ? `${product.images[1].url}?v=${new Date().getTime()}` : '/images/placeholder-images-image_large.webp'} 
                         alt={`${product.title} - Hover`} 
                         className={`absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
                         onClick={onClick}
@@ -240,10 +243,13 @@ const ProductCard = memo(({ onClick, prod }) => {
                         const hasTopBadge = stockInfo?.onhand !== undefined && stockInfo?.onhand < 5 && 
                                              !badges.includes('Coming Soon') && 
                                              !badges.includes('Backorder') && 
+                                             !badges.includes('Special Order') &&
                                              !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                                              !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                                              !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
-                                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
+                                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) &&
+                                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Special Order'));
                         const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
                         return (
                             <div 
@@ -259,7 +265,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                     })
                 }
             <h3 className='font-bold text-xl cursor-pointer'>{product.title}</h3>
-            <div className="flex justify-start items-center gap-3 w-full cursor-pointer">
+            <div className="flex justify-start items-center gap-3 w-full cursor-pointer flex-wrap">
                 {stockInfo?.promoPrice == null || stockInfo?.promoPrice == 0 || stockInfo?.promoPrice == '' ? (
                     <p className='text-lg font-medium'>{formatPriceWithUnit(stockInfo?.sellPInc1, getPricingUnit(product, stockInfo))}</p>
                 ) : (
