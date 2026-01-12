@@ -382,10 +382,11 @@ try {
                                 break;
                             case 'iq_price':
                                 // Sort by IQ price, handling NULL values
+                                // NULL values (N/A) should appear first when ASC, last when DESC
                                 if (strtoupper($sortDirection) === 'ASC') {
-                                    $orderByClause = 'ORDER BY COALESCE(iq.sellPInc1, 999999999) ASC';
+                                    $orderByClause = 'ORDER BY ISNULL(iq.sellPInc1) ASC, iq.sellPInc1 ASC';
                                 } else {
-                                    $orderByClause = 'ORDER BY COALESCE(iq.sellPInc1, 0) DESC';
+                                    $orderByClause = 'ORDER BY ISNULL(iq.sellPInc1) DESC, iq.sellPInc1 DESC';
                                 }
                                 break;
                             case 'status':

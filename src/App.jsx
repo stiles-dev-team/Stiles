@@ -50,7 +50,7 @@ function App() {
           <Route path="/shop" element={<ShopRedirect />} />
           <Route path="/shopall" element={<Shop />} />
           <Route path="/promos" element={<ProductPromos />} />
-          <Route path="/black-november-promo" element={<Promo />} />
+          {/* <Route path="/black-november-promo" element={<Promo />} /> */}
           <Route path="/promo" element={<Promo />} />
           <Route path="/search" element={<Search />} />
           <Route path="/login" element={<Login />} />
