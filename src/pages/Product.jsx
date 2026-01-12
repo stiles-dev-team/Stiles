@@ -554,7 +554,7 @@ const Product = () => {
                     <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
                         {(() => {
                             // Check if product is sanitary-ware
-                            const isSanitaryWare = product.product_category && 
+                            const isSanitaryWare = product?.product_category && 
                                 typeof product.product_category === 'string' && 
                                 product.product_category.includes('Sanitary Ware');
                             
@@ -566,10 +566,10 @@ const Product = () => {
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
-                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
-                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
-                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
-                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                             !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                             !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
                                 <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
                                     Sold Out
                                 </div>
@@ -579,7 +579,7 @@ const Product = () => {
                             badges.length > 0 && badges.map((badge, index) => {
                                 // Offset badges if sold out badge is present
                                 // Check if product is sanitary-ware
-                                const isSanitaryWare = product.product_category && 
+                                const isSanitaryWare = product?.product_category && 
                                     typeof product.product_category === 'string' && 
                                     product.product_category.includes('Sanitary Ware');
                                 
@@ -622,7 +622,7 @@ const Product = () => {
                     <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
                         {(() => {
                             // Check if product is sanitary-ware
-                            const isSanitaryWare = product.product_category && 
+                            const isSanitaryWare = product?.product_category && 
                                 typeof product.product_category === 'string' && 
                                 product.product_category.includes('Sanitary Ware');
                             
@@ -634,10 +634,10 @@ const Product = () => {
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
-                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
-                             !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
-                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
-                             !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                             !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+                             !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
                                 <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
                                     Sold Out
                                 </div>
@@ -647,7 +647,7 @@ const Product = () => {
                             badges.length > 0 && badges.map((badge, index) => {
                                 // Offset badges if sold out badge is present
                                 // Check if product is sanitary-ware
-                                const isSanitaryWare = product.product_category && 
+                                const isSanitaryWare = product?.product_category && 
                                     typeof product.product_category === 'string' && 
                                     product.product_category.includes('Sanitary Ware');
                                 
