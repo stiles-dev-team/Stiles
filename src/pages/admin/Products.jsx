@@ -1666,7 +1666,7 @@ const AdminProducts = () => {
                 onChange={handleProductTypeChange}
                 options={[
                   { value: "Tiles", label: "Tiles" },
-                  { value: "Sanware", label: "Sanware" },
+                  { value: "Sanitary Ware", label: "Sanware" },
                   { value: "Engineered Hardwood", label: "Engineered Hardwood" },
                   { value: "Vinyl", label: "Vinyl" },
                   { value: "Laminate", label: "Laminate" },
