@@ -13,9 +13,26 @@ function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
     $secure = SMTP_SECURE;
     
     // Create socket connection (always start with TCP for STARTTLS)
-    $context = stream_context_create();
-    $socket = stream_socket_client(
-        'tcp://' . $smtpHost . ':' . $smtpPort,
+    // Force IPv4 resolution to avoid IPv6 binding issues
+    $ipv4 = gethostbyname($smtpHost);
+    if ($ipv4 === $smtpHost) {
+        // DNS resolution failed, try original hostname
+        $connectHost = $smtpHost;
+    } else {
+        // Use resolved IPv4 address
+        $connectHost = $ipv4;
+    }
+    
+    // Create context with socket options
+    $context = stream_context_create([
+        'socket' => [
+            'tcp_nodelay' => true,
+        ]
+    ]);
+    
+    // Try connection with resolved IP
+    $socket = @stream_socket_client(
+        'tcp://' . $connectHost . ':' . $smtpPort,
         $errno,
         $errstr,
         30,
@@ -23,8 +40,33 @@ function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
         $context
     );
     
+    // If connection fails with error 99, try without context (let system choose binding)
+    if (!$socket && $errno === 99) {
+        error_log("SMTP Connection failed with bind error, trying without explicit context...");
+        $socket = @stream_socket_client(
+            'tcp://' . $connectHost . ':' . $smtpPort,
+            $errno,
+            $errstr,
+            30,
+            STREAM_CLIENT_CONNECT
+        );
+    }
+    
+    // Last resort: try with hostname instead of IP
+    if (!$socket && $errno === 99) {
+        error_log("SMTP Connection failed with IP, trying with hostname...");
+        $socket = @stream_socket_client(
+            'tcp://' . $smtpHost . ':' . $smtpPort,
+            $errno,
+            $errstr,
+            30,
+            STREAM_CLIENT_CONNECT
+        );
+    }
+    
     if (!$socket) {
         error_log("SMTP Connection failed: $errstr ($errno)");
+        error_log("SMTP Host: $smtpHost, Resolved IP: $ipv4, Port: $smtpPort");
         return false;
     }
     
