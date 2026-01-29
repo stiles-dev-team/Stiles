@@ -971,79 +971,145 @@ const AdminProducts = () => {
 
     try {
       const url = "https://stiles.co.za/api/admin-products.php";
-      // Use POST for both create and update when files are involved
       const method = "POST";
       
-      // Create FormData for file uploads
-      const formDataToSend = new FormData();
+      // Check if we have actual files to upload
+      const hasFiles = formData.pdf_file || formData.featured_file || 
+                      (formData.gallery_files && formData.gallery_files.length > 0);
       
-      // Add all form fields (excluding file objects and preview URLs)
-      Object.keys(formData).forEach(key => {
-        if (key !== 'featured_file' && key !== 'gallery_files' && key !== 'pdf_file' && key !== 'featured_preview' && key !== 'gallery_previews' && key !== 'pdf_preview') {
-          // Only add non-empty values
-          if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
-            // Convert arrays to comma-separated strings
-            if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
-              formDataToSend.append(key, formData[key].join(', '));
-            } else {
-              formDataToSend.append(key, formData[key]);
+      let bodyToSend;
+      let headers = {
+        Accept: "application/json",
+      };
+      
+      if (hasFiles) {
+        // Use FormData only when files are present (multipart/form-data)
+        const formDataToSend = new FormData();
+        
+        // Add all form fields (excluding file objects and preview URLs)
+        Object.keys(formData).forEach(key => {
+          if (key !== 'featured_file' && key !== 'gallery_files' && key !== 'pdf_file' && key !== 'featured_preview' && key !== 'gallery_previews' && key !== 'pdf_preview') {
+            // Only add non-empty values
+            if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+              // Convert arrays to comma-separated strings
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
+                formDataToSend.append(key, formData[key].join(', '));
+              } else {
+                formDataToSend.append(key, formData[key]);
+              }
             }
           }
-        }
-      });
-      
-      // Add files if they exist
-      if (formData.pdf_file) {
-        formDataToSend.append('pdf_url', formData.pdf_file);
-      } else if (formData.pdf_url && formData.pdf_url !== '') {
-        // If no new file but we have an existing PDF path, send it
-        formDataToSend.append('pdf_url', formData.pdf_url);
-      }
-      
-      if (formData.featured_file) {
-        formDataToSend.append('featured_image', formData.featured_file);
-      } else if (formData.featured_image && formData.featured_image !== '') {
-        // If no new file but we have an existing image path, send it
-        formDataToSend.append('featured_image', formData.featured_image);
-      }
-      
-      if (formData.gallery_files && formData.gallery_files.length > 0) {
-        formData.gallery_files.forEach((file, index) => {
-          formDataToSend.append(`gallery_images[${index}]`, file);
         });
-      } else if (formData.gallery_images && formData.gallery_images !== '') {
-        // If no new files but we have existing gallery images, send them
-        formDataToSend.append('gallery_images', formData.gallery_images);
-      }
-      
-      // Add editing product ID if updating
-      if (editingProduct) {
-        formDataToSend.append('id', String(editingProduct.ID || editingProduct.id));
+        
+        // Add files if they exist
+        if (formData.pdf_file) {
+          formDataToSend.append('pdf_url', formData.pdf_file);
+        } else if (formData.pdf_url && formData.pdf_url !== '') {
+          formDataToSend.append('pdf_url', formData.pdf_url);
+        }
+        
+        if (formData.featured_file) {
+          formDataToSend.append('featured_image', formData.featured_file);
+        } else if (formData.featured_image && formData.featured_image !== '') {
+          formDataToSend.append('featured_image', formData.featured_image);
+        }
+        
+        if (formData.gallery_files && formData.gallery_files.length > 0) {
+          formData.gallery_files.forEach((file, index) => {
+            formDataToSend.append(`gallery_images[${index}]`, file);
+          });
+        } else if (formData.gallery_images && formData.gallery_images !== '') {
+          formDataToSend.append('gallery_images', formData.gallery_images);
+        }
+        
+        // Add editing product ID if updating
+        if (editingProduct) {
+          formDataToSend.append('id', String(editingProduct.ID || editingProduct.id));
+        }
+        
+        bodyToSend = formDataToSend;
+        // Don't set Content-Type for FormData - browser sets it automatically with boundary
+      } else {
+        // Use JSON when no files (avoids mod_security blocking multipart/form-data)
+        const jsonData = {};
+        
+        // Add all form fields (excluding file objects and preview URLs)
+        Object.keys(formData).forEach(key => {
+          if (key !== 'featured_file' && key !== 'gallery_files' && key !== 'pdf_file' && key !== 'featured_preview' && key !== 'gallery_previews' && key !== 'pdf_preview') {
+            // Only add non-empty values
+            if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+              // Convert arrays to comma-separated strings for consistency
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
+                jsonData[key] = formData[key].join(', ');
+              } else {
+                jsonData[key] = formData[key];
+              }
+            }
+          }
+        });
+        
+        // Add existing file paths (not new files)
+        if (formData.pdf_url && formData.pdf_url !== '' && !formData.pdf_file) {
+          jsonData['pdf_url'] = formData.pdf_url;
+        }
+        
+        if (formData.featured_image && formData.featured_image !== '' && !formData.featured_file) {
+          jsonData['featured_image'] = formData.featured_image;
+        }
+        
+        if (formData.gallery_images && formData.gallery_images !== '' && (!formData.gallery_files || formData.gallery_files.length === 0)) {
+          jsonData['gallery_images'] = formData.gallery_images;
+        }
+        
+        // Add editing product ID if updating
+        if (editingProduct) {
+          jsonData['id'] = String(editingProduct.ID || editingProduct.id);
+        }
+        
+        bodyToSend = JSON.stringify(jsonData);
+        headers['Content-Type'] = 'application/json';
       }
       
       // Debug: Log what's being sent
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
+      console.log('Request method:', method);
+      console.log('Has files:', hasFiles);
+      console.log('Content-Type:', headers['Content-Type'] || 'multipart/form-data (FormData)');
+      if (hasFiles) {
+        console.log('FormData contents:');
+        for (let [key, value] of bodyToSend.entries()) {
+          console.log(key, value instanceof File ? `[File: ${value.name}]` : value);
+        }
+      } else {
+        console.log('JSON data:', bodyToSend);
       }
-      
-      // Debug: Log formData state
-      console.log('formData.pdf_url:', formData.pdf_url);
-      console.log('formData.pdf_file:', formData.pdf_file);
-      console.log('formData.featured_image:', formData.featured_image);
-      console.log('formData.featured_file:', formData.featured_file);
-      console.log('formData.gallery_images:', formData.gallery_images);
-      console.log('formData.gallery_files:', formData.gallery_files);
-      console.log('editingProduct.featured_image:', editingProduct?.featured_image);
-      console.log('formData.featured_preview:', formData.featured_preview);
 
       const response = await fetch(url, {
         method,
-        headers: {
-          Accept: "application/json",
-        },
-        body: formDataToSend,
+        headers,
+        body: bodyToSend,
       });
+
+      // Check response status and content type before parsing JSON
+      const contentType = response.headers.get('content-type') || '';
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP ${response.status} Error:`, errorText);
+        
+        // If server returned HTML error page (common with 403 Forbidden)
+        if (contentType.includes('text/html') || errorText.trim().startsWith('<!DOCTYPE')) {
+          throw new Error(`HTTP ${response.status} Forbidden: The server is blocking this request. This is likely a server security configuration issue (mod_security or Apache rules). Please contact your hosting provider.`);
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200) || response.statusText}`);
+      }
+
+      // Check if response is actually JSON before parsing
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON but got:', contentType, text.substring(0, 200));
+        throw new Error(`Server returned ${contentType} instead of JSON. Response: ${text.substring(0, 200)}`);
+      }
 
       const result = await response.json();
 
@@ -1098,7 +1164,8 @@ const AdminProducts = () => {
       }
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Error saving product");
+      const errorMessage = error.message || "Error saving product";
+      alert(`Error saving product: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }
@@ -1423,6 +1490,26 @@ const AdminProducts = () => {
         body: formData,
       });
 
+      // Check response status and content type
+      const contentType = response.headers.get('content-type') || '';
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP ${response.status} Error:`, errorText);
+        
+        if (contentType.includes('text/html') || errorText.trim().startsWith('<!DOCTYPE')) {
+          throw new Error(`HTTP ${response.status} Forbidden: The server is blocking this request. This is likely a server security configuration issue.`);
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200) || response.statusText}`);
+      }
+
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON but got:', contentType, text.substring(0, 200));
+        throw new Error(`Server returned ${contentType} instead of JSON`);
+      }
+
       const result = await response.json();
 
       if (result.status === 'success') {
@@ -1435,7 +1522,7 @@ const AdminProducts = () => {
       }
     } catch (error) {
       console.error('Error uploading CSV:', error);
-      alert('Error uploading CSV file');
+      alert(`Error uploading CSV file: ${error.message || error}`);
     } finally {
       setCsvUploading(false);
       // Reset the file input

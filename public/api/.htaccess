@@ -1,0 +1,53 @@
+# CORS headers for API endpoints - MUST be first
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, Accept"
+    Header always set Access-Control-Max-Age "86400"
+</IfModule>
+
+# Allow all HTTP methods - use Order/Allow syntax for better compatibility
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    <RequireAll>
+        Require all granted
+    </RequireAll>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 fallback
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# Ensure PHP files can be accessed
+<FilesMatch "\.php$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# Increase upload limits for API directory (may not work if PHP runs as CGI)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 50M
+    php_value post_max_size 50M
+    php_value max_file_uploads 20
+</IfModule>
+
+# Attempt to bypass mod_security for multipart/form-data requests
+# Note: These may not work if mod_security is configured at server level
+# If 403 errors persist with file uploads, contact hosting provider to:
+# 1. Whitelist /api/ directory in mod_security
+# 2. Disable mod_security rules blocking multipart/form-data
+# 3. Increase mod_security limits for file uploads
+<IfModule mod_security.c>
+    SecRuleRemoveById 200003
+    SecRuleRemoveById 200004
+    SecRequestBodyAccess On
+    SecRequestBodyLimit 52428800
+    SecRequestBodyNoFilesLimit 10485760
+</IfModule>

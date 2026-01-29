@@ -2,6 +2,22 @@
 // Ensure no output before headers
 ob_start();
 
+// Set CORS headers FIRST, before any other processing
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
+header('Access-Control-Max-Age: 86400'); // Cache preflight for 24 hours
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    ob_end_flush();
+    exit();
+}
+
+// Set content type header
+header('Content-Type: application/json');
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -20,20 +36,8 @@ try {
     exit();
 }
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// Set headers
-header('Content-Type: application/json');
-
 // Log all requests for debugging
 error_log('Request received: ' . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI']);
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // Get data from request body - handle both JSON and FormData
 $data = [];

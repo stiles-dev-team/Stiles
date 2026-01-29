@@ -13,14 +13,21 @@ function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
     $secure = SMTP_SECURE;
     
     // Create socket connection (always start with TCP for STARTTLS)
-    // Force IPv4 resolution to avoid IPv6 binding issues
-    $ipv4 = gethostbyname($smtpHost);
-    if ($ipv4 === $smtpHost) {
-        // DNS resolution failed, try original hostname
+    // For TLS connections, use hostname to avoid certificate verification issues
+    // For non-TLS, try IP first to avoid IPv6 binding issues
+    if ($secure === 'tls') {
+        // Use hostname for TLS to ensure certificate verification works
         $connectHost = $smtpHost;
     } else {
-        // Use resolved IPv4 address
-        $connectHost = $ipv4;
+        // Force IPv4 resolution to avoid IPv6 binding issues for non-TLS
+        $ipv4 = gethostbyname($smtpHost);
+        if ($ipv4 === $smtpHost) {
+            // DNS resolution failed, try original hostname
+            $connectHost = $smtpHost;
+        } else {
+            // Use resolved IPv4 address
+            $connectHost = $ipv4;
+        }
     }
     
     // Create context with socket options
@@ -66,7 +73,7 @@ function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
     
     if (!$socket) {
         error_log("SMTP Connection failed: $errstr ($errno)");
-        error_log("SMTP Host: $smtpHost, Resolved IP: $ipv4, Port: $smtpPort");
+        error_log("SMTP Host: $smtpHost, Connect Host: $connectHost, Port: $smtpPort");
         return false;
     }
     
@@ -98,6 +105,7 @@ function sendSMTPEmail($to, $subject, $htmlBody, $headers = array()) {
         }
         
         // Enable crypto with specific TLS options for Office 365
+        // Certificate verification will work since we connected using hostname
         $cryptoOptions = STREAM_CRYPTO_METHOD_TLS_CLIENT;
         if (!stream_socket_enable_crypto($socket, true, $cryptoOptions)) {
             error_log("SMTP TLS negotiation failed");
@@ -225,20 +233,20 @@ function sendOrderEmail($orderData, $recipientEmail) {
             </div>
             
             <div class="order-details">
-                <h2>Order #' . $orderData['id'] . '</h2>
+                <h2>Order #' . htmlspecialchars($orderData['id'], ENT_QUOTES, 'UTF-8') . '</h2>
                 <p>Your order has been requested, a style consultant will be in touch with you shortly. For queries, send us a mail at <a href="mailto:websales@stiles.co.za">websales@stiles.co.za</a></p>
-                <p><strong>Order Date:</strong> ' . date('F j, Y', strtotime($orderData['created_at'])) . '</p>
-                <p><strong>First Name:</strong> ' . $orderData['shippingAddress']['firstName'] . '</p>
-                <p><strong>Last Name:</strong> ' . $orderData['shippingAddress']['lastName'] . '</p>
-                <p><strong>Company Name:</strong> ' . $orderData['shippingAddress']['companyName'] . '</p>
-                <p><strong>Email:</strong> ' . $orderData['shippingAddress']['email'] . '</p>
-                <p><strong>Phone:</strong> ' . $orderData['shippingAddress']['phone'] . '</p>
-                <p><strong>Order Notes:</strong> ' . $orderData['shippingAddress']['orderNotes'] . '</p>
+                <p><strong>Order Date:</strong> ' . htmlspecialchars(date('F j, Y', strtotime($orderData['created_at'])), ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>First Name:</strong> ' . htmlspecialchars($orderData['shippingAddress']['firstName'], ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>Last Name:</strong> ' . htmlspecialchars($orderData['shippingAddress']['lastName'], ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>Company Name:</strong> ' . htmlspecialchars($orderData['shippingAddress']['companyName'], ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>Email:</strong> ' . htmlspecialchars($orderData['shippingAddress']['email'], ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>Phone:</strong> ' . htmlspecialchars($orderData['shippingAddress']['phone'], ENT_QUOTES, 'UTF-8') . '</p>
+                <p><strong>Order Notes:</strong> ' . htmlspecialchars($orderData['shippingAddress']['orderNotes'], ENT_QUOTES, 'UTF-8') . '</p>
                 <h3>Shipping Address</h3>
                 <p>
-                    ' . $orderData['shippingAddress']['street'] . '<br>
-                    ' . $orderData['shippingAddress']['city'] . ', ' . $orderData['shippingAddress']['state'] . '<br>
-                    ' . $orderData['shippingAddress']['postalCode'] . '
+                    ' . htmlspecialchars($orderData['shippingAddress']['street'], ENT_QUOTES, 'UTF-8') . '<br>
+                    ' . htmlspecialchars($orderData['shippingAddress']['city'], ENT_QUOTES, 'UTF-8') . ', ' . htmlspecialchars($orderData['shippingAddress']['state'], ENT_QUOTES, 'UTF-8') . '<br>
+                    ' . htmlspecialchars($orderData['shippingAddress']['postalCode'], ENT_QUOTES, 'UTF-8') . '
                 </p>
 
                 <h3 style="margin-bottom: 0px;">Order Items</h3>';
@@ -246,10 +254,10 @@ function sendOrderEmail($orderData, $recipientEmail) {
     foreach ($orderData['items'] as $item) {
         $htmlBody .= '
                 <div class="item">
-                    <p><strong>' . htmlspecialchars($item['name']) . '</strong></p>
-                    ' . (!empty($item['sku']) ? '<p>SKU: ' . htmlspecialchars($item['sku']) . '</p>' : '') . '
-                    <p>Quantity: ' . $item['quantity'] . '</p>
-                    <p>Price: R' . number_format($item['price'], 2) . '</p>
+                    <p><strong>' . htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') . '</strong></p>
+                    ' . (!empty($item['sku']) ? '<p>SKU: ' . htmlspecialchars($item['sku'], ENT_QUOTES, 'UTF-8') . '</p>' : '') . '
+                    <p>Quantity: ' . htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8') . '</p>
+                    <p>Price: R' . htmlspecialchars(number_format($item['price'], 2), ENT_QUOTES, 'UTF-8') . '</p>
                 </div>';
     }
 
@@ -267,8 +275,8 @@ function sendOrderEmail($orderData, $recipientEmail) {
     </body>
     </html>';
 
-    // Email subject
-    $subject = 'Order Confirmation - Order #' . $orderData['id'];
+    // Email subject (escape special characters for email headers)
+    $subject = 'Order Confirmation - Order #' . htmlspecialchars($orderData['id'], ENT_QUOTES, 'UTF-8');
 
     // Debug log
     error_log('Email subject: ' . $subject);
