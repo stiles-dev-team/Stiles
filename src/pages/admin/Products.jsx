@@ -34,6 +34,7 @@ const AdminProducts = () => {
     searchParams.get('product_type') ? searchParams.get('product_type').split(',') : []
   );
   const [selectedProductCategory, setSelectedProductCategory] = useState(searchParams.get('category_id') || "all");
+  const [selectedSoldOut, setSelectedSoldOut] = useState(searchParams.get('sold_out') || "all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -180,6 +181,16 @@ const AdminProducts = () => {
       newParams.set('category_id', selectedProductCategory);
     } else {
       newParams.delete('category_id');
+    }
+    
+    // Update or remove sold_out
+    if (updates.sold_out !== undefined) {
+      if (updates.sold_out && updates.sold_out !== 'all') newParams.set('sold_out', updates.sold_out);
+      else newParams.delete('sold_out');
+    } else if (selectedSoldOut && selectedSoldOut !== 'all') {
+      newParams.set('sold_out', selectedSoldOut);
+    } else {
+      newParams.delete('sold_out');
     }
     
     // Update or remove page
@@ -865,8 +876,28 @@ const AdminProducts = () => {
     }).format(value);
   };
 
-  // Server-side filtering and sorting is now handled by the API
-  const filteredProducts = products;
+  // Helper: same sold-out logic as ProductCard.shouldShowSoldOut (uses iq_stock from API)
+  const isProductSoldOut = (product) => {
+    const onhand = product.iq_stock;
+    if (onhand === undefined || onhand === null) return false;
+    const promoStr = product.promo != null ? String(product.promo) : '';
+    const tagStr = product.product_tag != null ? String(product.product_tag) : '';
+    const badges = promoStr ? promoStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const hasExcludedBadge =
+      badges.includes('Coming Soon') || badges.includes('Backorder') || badges.includes('Special Order') ||
+      (promoStr && (promoStr.includes('Backorder') || promoStr.includes('Coming Soon') || promoStr.includes('Special Order'))) ||
+      (tagStr && (tagStr.includes('Backorder') || tagStr.includes('Coming Soon') || tagStr.includes('Special Order')));
+    if (hasExcludedBadge) return false;
+    const isSanitaryWare = product.product_category && String(product.product_category).includes('Sanitary Ware');
+    return isSanitaryWare ? Number(onhand) === 0 : Number(onhand) < 5;
+  };
+
+  // Server-side filtering and sorting is now handled by the API; sold-out filter is client-side
+  const filteredProducts = selectedSoldOut === "all"
+    ? products
+    : selectedSoldOut === "sold_out"
+      ? products.filter(isProductSoldOut)
+      : products.filter(p => !isProductSoldOut(p));
 
   const handleEditProduct = (product) => {
     openEditModal(product);
@@ -1357,6 +1388,11 @@ const AdminProducts = () => {
     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, values, selectedProductCategory);
   };
 
+  const handleSoldOutChange = (value) => {
+    setSelectedSoldOut(value);
+    updateURLParams({ sold_out: value === 'all' ? '' : value });
+  };
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
     updateURLParams({ page });
@@ -1774,6 +1810,20 @@ const AdminProducts = () => {
                 }}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sold out
+              </label>
+              <select
+                value={selectedSoldOut}
+                onChange={(e) => handleSoldOutChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All</option>
+                <option value="sold_out">Sold out only</option>
+                <option value="in_stock">In stock only</option>
+              </select>
+            </div>
           </div>
           
           {/* Reset Filters Button */}
@@ -1788,6 +1838,7 @@ const AdminProducts = () => {
                 setSelectedPromo("all");
                 setSelectedProductTypes([]);
                 setSelectedProductCategory("all");
+                setSelectedSoldOut("all");
                 setCurrentPage(1);
                 setSortField(null);
                 setSortDirection("asc");
@@ -1808,8 +1859,12 @@ const AdminProducts = () => {
           {/* Third row - Product count and active filters */}
           <div className="border-t pt-4">
             <div className="text-sm text-gray-600">
-              <div className="font-medium">Showing {products.length} of {pagination.total_products} products</div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all") && (
+              <div className="font-medium">
+                {selectedSoldOut === "all"
+                  ? `Showing ${products.length} of ${pagination.total_products} products`
+                  : `Showing ${filteredProducts.length} of ${products.length} on this page (${selectedSoldOut === "sold_out" ? "sold out" : "in stock"})`}
+              </div>
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -1850,6 +1905,11 @@ const AdminProducts = () => {
                   {selectedProductCategory !== "all" && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800">
                       Product Category: {uniqueCategories.find(cat => String(cat.id) === String(selectedProductCategory))?.category || selectedProductCategory}
+                    </span>
+                  )}
+                  {selectedSoldOut !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
+                      {selectedSoldOut === "sold_out" ? "Sold out only" : "In stock only"}
                     </span>
                   )}
                 </div>
