@@ -4,7 +4,6 @@ import { Card, Typography, Checkbox } from "@material-tailwind/react";
 import { RiHandbagLine } from "react-icons/ri";
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
-
 const Wishlist = () => {
     return (
         <Layout>
@@ -46,6 +45,7 @@ const Hero = () => {
 }
 
 const Main = () => {
+    const [loading, setLoading] = useState(true);
     const [wishlistItems, setWishlistItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [quantities, setQuantities] = useState({});
@@ -54,6 +54,7 @@ const Main = () => {
         // Load wishlist from localStorage
         const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
         setWishlistItems(wishlist);
+        setLoading(false);
         // Initialize quantities
         const initialQuantities = {};
         wishlist.forEach(item => {
@@ -170,7 +171,7 @@ const Main = () => {
     }
 
     return (
-        <section className='container mx-auto px-4'>
+        <section className='container mx-auto px-4 relative'>
             <h2 className='font-bold text-3xl'>Your Wishlist</h2>
             <section className="w-full bg-white pt-6">
                 <Card className="h-full w-full border border-gray-300 px-6 hidden lg:block">

@@ -566,8 +566,10 @@ const Product = () => {
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
+                             !badges.includes('Special Order') &&
                              !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                              !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                              !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
                              !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
                                 <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
@@ -591,8 +593,10 @@ const Product = () => {
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
                                                      !badges.includes('Backorder') && 
+                                                     !badges.includes('Special Order') &&
                                                      !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                                                      !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                                                      !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
                                                      !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
                                 const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
@@ -634,8 +638,10 @@ const Product = () => {
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
+                             !badges.includes('Special Order') &&
                              !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                              !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                             !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                              !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
                              !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) && (
                                 <div className='absolute w-full top-0 left-0 bg-black text-white px-3 py-2 lg:py-2 text-sm font-bold z-20 uppercase text-center'>
@@ -659,8 +665,10 @@ const Product = () => {
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
                                                      !badges.includes('Backorder') && 
+                                                     !badges.includes('Special Order') &&
                                                      !(product.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) && 
                                                      !(product.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+                                                     !(product.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
                                                      !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
                                                      !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
                                 const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);

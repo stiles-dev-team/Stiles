@@ -5,8 +5,6 @@ import ProductCard from '../components/ProductCard';
 import { BlurFade } from "../components/ui/blur-fade" // Updated import statement
 import { Helmet } from 'react-helmet-async';
 
-import { Input, Button } from "@material-tailwind/react";
-
 import { Chip } from "@material-tailwind/react";
 
 import { Splide, SplideSlide } from '@splidejs/react-splide';
@@ -527,7 +525,7 @@ const OurProducts = () => {
   }
 
   return (
-    <BlurFade delay={0.2} inView className='w-full'>
+    <BlurFade delay={0.2} inView className='w-full relative'>
         <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
           <div className="flex flex-row justify-between items-end gap-5 w-full">
             <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>

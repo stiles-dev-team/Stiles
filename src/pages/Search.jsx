@@ -58,17 +58,6 @@ const Search = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Add useEffect to clear loading state after page change
-    useEffect(() => {
-        if (loading) {
-            // Small delay to ensure smooth transition
-            const timer = setTimeout(() => {
-                setLoading(false);
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [currentPage, loading]);
-
     const handleProductsPerPageChange = (value) => {
         setProductsPerPage(parseInt(value));
         setCurrentPage(1); // Reset to first page when changing items per page
@@ -279,16 +268,6 @@ const Content = ({
         fetchProducts();
     }, [searchQuery, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
-    // Add a small delay to the loading state to prevent flickering
-    useEffect(() => {
-        if (loading) {
-            const timer = setTimeout(() => {
-                setLoading(false);
-            }, 300);
-            return () => clearTimeout(timer);
-        }
-    }, [loading]);
-
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
     const handleOpenDialog = () => setOpenDialog(!openDialog);
 
@@ -461,8 +440,9 @@ const Content = ({
         <>
             {
                 loading &&
-                <div className='w-full h-svh fixed top-0 left-0 bg-black/90 z-50 flex justify-center items-center'>
+                <div className='w-full min-h-svh fixed inset-0 bg-black/90 z-50 flex flex-col justify-center items-center gap-4'>
                     <Spinner color='white' className="h-12 w-12" />
+                    <p className='text-white text-lg font-medium'>Loading search results...</p>
                 </div>
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
