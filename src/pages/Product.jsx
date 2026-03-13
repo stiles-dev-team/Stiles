@@ -329,12 +329,12 @@ const Product = () => {
         })
         .catch(err => {
             console.error('Error fetching product:', err);
-            setLoading(false);
+            // setLoading(false);
             
             // Check if it's a 404 error and redirect to shop
             if (err.message.includes('404')) {
-                alert('Product not found');
-                navigate('/shopall');
+                // alert('Product not found');
+                navigate('/error');
                 // console.log('404 error');
             }
         });
@@ -429,6 +429,16 @@ const Product = () => {
 
   return (
     <LayoutDark>
+        {
+            loading ? (
+                <div className='w-full h-svh fixed top-0 left-0 bg-white z-50 flex justify-center items-center'>
+                    <Spinner />
+                </div>
+            ) : (
+                <>
+                </>
+            )
+        }
         <Helmet>
             <title>{product?.title ? `${product.title} | Stiles` : 'Stiles'}</title>
             <meta name="description" content={product?.metadesc || ''} />

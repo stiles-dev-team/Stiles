@@ -32,6 +32,7 @@ import Orders from "./pages/Orders"
 import Admin from "./pages/Admin"
 import Test from "./pages/Test"
 import UnderConstruction from "./pages/UnderConstruction"
+import Error404 from "./pages/error404"
 // Component to handle shop redirect
 const ShopRedirect = () => {
   return <Navigate to="/product/zoe-slate-gloss-75x200m" replace />;
@@ -76,7 +77,8 @@ function App() {
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact/:slug" element={<ContactSingle />} />
           {/* <Route path="/" element={<UnderConstruction />} /> */}
-          <Route path="*" element={<Shop />} />
+          <Route path="/error" element={<Error404 />} />
+          <Route path="*" element={<Error404 />} />
 
           {/* Testing */}
           {/* <Route path="/test" element={<Test />} /> */}
