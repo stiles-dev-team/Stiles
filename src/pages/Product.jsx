@@ -329,7 +329,7 @@ const Product = () => {
         })
         .catch(err => {
             console.error('Error fetching product:', err);
-            // setLoading(false);
+            setLoading(false);
             
             // Check if it's a 404 error and redirect to shop
             if (err.message.includes('404')) {
