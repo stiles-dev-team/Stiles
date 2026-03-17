@@ -71,6 +71,8 @@ function App() {
           <Route path="/stiles-blog/:slug" element={<BlogPost />} />
           <Route path="/admin/*" element={<Admin />} />
 
+          <Route path="/promo/:promo" element={<Promo />} />
+
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
           <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
           <Route path="/product-disclaimer" element={<ProductDisclaimer />} />

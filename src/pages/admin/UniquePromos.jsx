@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import MediaSelector from '../../components/MediaSelector';
 
 const AdminUniquePromos = () => {
   const [promos, setPromos] = useState([])
@@ -8,7 +9,11 @@ const AdminUniquePromos = () => {
   const [editingPromo, setEditingPromo] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState({
-    promo: ''
+    promo: '',
+    page_title: '',
+    slug: '',
+    banner_url: '',
+    has_page: false
   })
 
   useEffect(() => {
@@ -65,8 +70,12 @@ const AdminUniquePromos = () => {
           },
           body: JSON.stringify({
             id: editingPromo.id,
-            promo: formData.promo
-          })
+            promo: formData.promo,
+            page_title: formData.page_title,
+            slug: formData.slug,
+            banner_url: formData.banner_url,
+            has_page: formData.has_page ? 1 : 0
+          }),
         })
 
         const result = await response.json()
@@ -76,7 +85,13 @@ const AdminUniquePromos = () => {
           fetchPromos()
           setShowAddModal(false)
           setEditingPromo(null)
-          setFormData({ promo: '' })
+          setFormData({
+            promo: '',
+            page_title: '',
+            slug: '',
+            banner_url: '',
+            has_page: false
+          })
         } else {
           alert('Error updating promo: ' + (result.error || 'Unknown error'))
         }
@@ -89,8 +104,12 @@ const AdminUniquePromos = () => {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            promo: formData.promo
-          })
+            promo: formData.promo,
+            page_title: formData.page_title,
+            slug: formData.slug,
+            banner_url: formData.banner_url,
+            has_page: formData.has_page ? 1 : 0
+          }),
         })
 
         const result = await response.json()
@@ -99,7 +118,13 @@ const AdminUniquePromos = () => {
           alert('Promo created successfully')
           fetchPromos()
           setShowAddModal(false)
-          setFormData({ promo: '' })
+          setFormData({
+            promo: '',
+            page_title: '',
+            slug: '',
+            banner_url: '',
+            has_page: false
+          })
         } else {
           alert('Error creating promo: ' + (result.error || 'Unknown error'))
         }
@@ -113,7 +138,11 @@ const AdminUniquePromos = () => {
   const handleEditPromo = (promo) => {
     setEditingPromo(promo)
     setFormData({
-      promo: promo.promo || ''
+      promo: promo.promo || '',
+      page_title: promo.page_title || '',
+      slug: promo.slug || '',
+      banner_url: promo.banner_url || '',
+      has_page: promo.has_page === 1 || promo.has_page === '1' || promo.has_page === true
     })
     setShowAddModal(true)
   }
@@ -148,10 +177,10 @@ const AdminUniquePromos = () => {
   }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, type, checked, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }))
   }
 
@@ -225,6 +254,12 @@ const AdminUniquePromos = () => {
                     Promo Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Slug
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Page
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -234,6 +269,20 @@ const AdminUniquePromos = () => {
                   <tr key={promo.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {promo.promo}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {promo.slug || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {promo.has_page === 1 || promo.has_page === '1' || promo.has_page === true ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                          Page enabled
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                          No page
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
@@ -271,7 +320,13 @@ const AdminUniquePromos = () => {
                 onClick={() => {
                   setShowAddModal(false)
                   setEditingPromo(null)
-                  setFormData({ promo: '' })
+                  setFormData({
+                    promo: '',
+                    page_title: '',
+                    slug: '',
+                    banner_url: '',
+                    has_page: false
+                  })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
               >
@@ -292,9 +347,92 @@ const AdminUniquePromos = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter promo name"
+                    placeholder="Enter promo name (used on products)"
                   />
                 </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="has_page"
+                    type="checkbox"
+                    name="has_page"
+                    checked={formData.has_page}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  <label htmlFor="has_page" className="text-sm font-medium text-gray-700">
+                    Create promo page
+                  </label>
+                </div>
+                {formData.has_page && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Page Title *
+                      </label>
+                      <input
+                        type="text"
+                        name="page_title"
+                        value={formData.page_title}
+                        onChange={handleInputChange}
+                        required={formData.has_page}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter page title (for hero and SEO)"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Slug *
+                      </label>
+                      <input
+                        type="text"
+                        name="slug"
+                        value={formData.slug}
+                        onChange={handleInputChange}
+                        required={formData.has_page}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g. black-november-promo"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        This will be used in the URL: <span className="font-mono">/promo/&lt;slug&gt;</span>
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hero Banner Image
+                      </label>
+                      <MediaSelector
+                        value={formData.banner_url}
+                        onChange={(url) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            banner_url: url
+                          }))
+                        }}
+                        type="single"
+                        accept="images"
+                        placeholder="Select hero banner image..."
+                        className="w-full"
+                      />
+                      {formData.banner_url && (
+                        <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                          <div className="relative">
+                            <img
+                              src={formData.banner_url}
+                              alt="Promo banner preview"
+                              className="w-full h-32 object-cover rounded-md border"
+                              onError={(e) => {
+                                e.target.src = "/images/product_ph.png"
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <p className="mt-1 text-xs text-gray-500">
+                        Optional. If empty, the promo page will use the default banner.
+                      </p>
+                    </div>
+                  </>
+                )}
                 
                 <div className="flex justify-end space-x-3 pt-4">
                   <button

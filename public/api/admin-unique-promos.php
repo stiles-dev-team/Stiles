@@ -67,10 +67,25 @@ try {
                 echo json_encode(['success' => false, 'error' => 'Promo name is required']);
                 exit();
             }
-            
+
+            // Optional fields for promo page
+            $pageTitle = isset($data['page_title']) ? trim($data['page_title']) : null;
+            $slug = isset($data['slug']) ? trim($data['slug']) : null;
+            $bannerUrl = isset($data['banner_url']) ? trim($data['banner_url']) : null;
+            $hasPage = isset($data['has_page']) && ($data['has_page'] === 1 || $data['has_page'] === '1' || $data['has_page'] === true) ? 1 : 0;
+
             try {
-                $stmt = $pdo->prepare('INSERT INTO unique_promos (promo) VALUES (?)');
-                $stmt->execute([trim($data['promo'])]);
+                $stmt = $pdo->prepare('
+                    INSERT INTO unique_promos (promo, page_title, slug, banner_url, has_page)
+                    VALUES (:promo, :page_title, :slug, :banner_url, :has_page)
+                ');
+                $stmt->execute([
+                    ':promo' => trim($data['promo']),
+                    ':page_title' => $pageTitle,
+                    ':slug' => $slug,
+                    ':banner_url' => $bannerUrl,
+                    ':has_page' => $hasPage
+                ]);
                 
                 echo json_encode([
                     'success' => true,
@@ -93,10 +108,31 @@ try {
                 echo json_encode(['success' => false, 'error' => 'ID and promo name are required']);
                 exit();
             }
-            
+
+            // Optional fields for promo page
+            $pageTitle = isset($data['page_title']) ? trim($data['page_title']) : null;
+            $slug = isset($data['slug']) ? trim($data['slug']) : null;
+            $bannerUrl = isset($data['banner_url']) ? trim($data['banner_url']) : null;
+            $hasPage = isset($data['has_page']) && ($data['has_page'] === 1 || $data['has_page'] === '1' || $data['has_page'] === true) ? 1 : 0;
+
             try {
-                $stmt = $pdo->prepare('UPDATE unique_promos SET promo = ? WHERE id = ?');
-                $stmt->execute([trim($data['promo']), $data['id']]);
+                $stmt = $pdo->prepare('
+                    UPDATE unique_promos 
+                    SET promo = :promo,
+                        page_title = :page_title,
+                        slug = :slug,
+                        banner_url = :banner_url,
+                        has_page = :has_page
+                    WHERE id = :id
+                ');
+                $stmt->execute([
+                    ':promo' => trim($data['promo']),
+                    ':page_title' => $pageTitle,
+                    ':slug' => $slug,
+                    ':banner_url' => $bannerUrl,
+                    ':has_page' => $hasPage,
+                    ':id' => $data['id']
+                ]);
                 
                 if ($stmt->rowCount() > 0) {
                     echo json_encode([
