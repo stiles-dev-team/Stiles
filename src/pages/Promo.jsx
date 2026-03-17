@@ -4,7 +4,7 @@ import Layout from '../layout/Layout'
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import MultiRangeSlider from "multi-range-slider-react";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 
 import {
     Accordion,
@@ -58,6 +58,10 @@ function Icon({ id, open }) {
 
 const Promo = () => {
 
+    const { promo: promoSlug } = useParams();
+    const navigate = useNavigate();
+    const [promoConfig, setPromoConfig] = useState(null);
+    const [loadingPromo, setLoadingPromo] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
@@ -86,22 +90,86 @@ const Promo = () => {
         setLoading(true);
     };
 
-    // Show terms popup every time user enters the promo page
+    // Load promo configuration based on slug and decide if page is allowed
     useEffect(() => {
-        setShowTermsPopup(true);
-    }, []);
+        const loadPromoConfig = async () => {
+            try {
+                setLoadingPromo(true);
+                const res = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await res.json();
+
+                if (!data.success || !Array.isArray(data.promos)) {
+                    throw new Error('Invalid promo configuration response');
+                }
+
+                const promos = data.promos;
+
+                // If no slug (old /promo route), fall back to first promo with page enabled
+                let promoEntry = null;
+                if (!promoSlug) {
+                    promoEntry = promos.find(p => p.has_page === 1 || p.has_page === '1' || p.has_page === true) || null;
+                } else {
+                    promoEntry = promos.find(p =>
+                        (p.slug && p.slug.toString().toLowerCase() === promoSlug.toLowerCase())
+                    ) || null;
+                }
+
+                // If no promo or page not enabled, redirect to 404
+                if (
+                    !promoEntry ||
+                    !(promoEntry.has_page === 1 || promoEntry.has_page === '1' || promoEntry.has_page === true)
+                ) {
+                    navigate('/error', { replace: true });
+                    return;
+                }
+
+                setPromoConfig(promoEntry);
+                setShowTermsPopup(true);
+            } catch (err) {
+                console.error('Error loading promo configuration:', err);
+                navigate('/error', { replace: true });
+            } finally {
+                setLoadingPromo(false);
+            }
+        };
+
+        loadPromoConfig();
+    }, [promoSlug, navigate]);
 
     const handleAcceptTerms = () => {
         setShowTermsPopup(false);
     };
 
+    // While we are resolving which promo this is, show nothing to avoid flicker
+    if (loadingPromo || !promoConfig) {
+        return (
+            <Layout>
+                <div className="w-full h-[60vh] flex items-center justify-center">
+                    <Spinner color="gray" className="h-12 w-12" />
+                </div>
+            </Layout>
+        );
+    }
+
   return (
     <Layout>
         <Helmet>
-            <title>Stiles Black November Promo</title>
-            <meta name="description" content="Unlock exclusive savings with the Stiles Black November Promo. Shop premium tiles, sanitaryware & decor at unbeatable prices. Limited-time deals!" />
+            <title>{promoConfig.page_title || `Stiles Promo - ${promoConfig.promo}`}</title>
+            <meta
+                name="description"
+                content={`Discover exclusive deals for the ${promoConfig.promo} promotion at Stiles. Shop selected products at unbeatable prices.`}
+            />
         </Helmet>
-        <Hero />
+        <Hero 
+            title={promoConfig.page_title || promoConfig.promo}
+            bannerUrl={promoConfig.banner_url}
+        />
         <Content 
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage}
@@ -110,10 +178,12 @@ const Promo = () => {
             loading={loading} 
             setLoading={setLoading}
             onProductsPerPageChange={handleProductsPerPageChange}
+            promoName={promoConfig.promo}
         />
         <TermsAndConditionsPopup 
             open={showTermsPopup} 
             onAccept={handleAcceptTerms}
+            title={promoConfig.page_title || promoConfig.promo}
         />
     </Layout>
   )
@@ -121,16 +191,25 @@ const Promo = () => {
 
 export default Promo
 
-const Hero = () => {
+const Hero = ({ title, bannerUrl }) => {
     return (
-        <section id='heroHome' className={`w-full h-[60vh] lg:h-[90vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center lg:bg-[url("/images/blacknovember_homepage3.jpg")] bg-[url("/images/blacknovember_homepage_resp4.jpg")]`}>
-        {/* <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/40'></div>
-        <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>Black November Promo</h1>
-            <div className='!text-white text-center w-full max-w-3xl'>
-                <p className='!text-white'>Discover amazing deals with our Black November promotion. Limited time offers on premium tiles and building materials.</p>
+        <section
+            id='heroHome'
+            className="w-full h-[60vh] lg:h-[90vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center"
+            style={
+                bannerUrl
+                    ? { backgroundImage: `url(${bannerUrl})` }
+                    : {
+                        backgroundImage: `url("/images/blacknovember_homepage3.jpg")`,
+                    }
+            }
+        >
+            <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/40'></div>
+            <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
+                <h1 className='text-white font-bold text-4xl lg:text-5xl text-center'>
+                    {title}
+                </h1>
             </div>
-        </div> */}
       </section>
     )
 }
@@ -142,7 +221,8 @@ const Content = ({
     onPageChange, 
     loading, 
     setLoading, 
-    onProductsPerPageChange 
+    onProductsPerPageChange,
+    promoName
 }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [open, setOpen] = useState(0);
@@ -182,7 +262,7 @@ const Content = ({
     useEffect(() => {
         const fetchFilterValues = async () => {
             try {
-                const response = await fetch(`https://stiles.co.za/api/products.php?promo=Black November&filters=true`);
+                const response = await fetch(`https://stiles.co.za/api/products.php?promo=${encodeURIComponent(promoName)}&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -227,7 +307,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, []);
+    }, [promoName]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -255,7 +335,7 @@ const Content = ({
                 
                 // Build query parameters for filters
                 const queryParams = new URLSearchParams({
-                    promo: 'Black November',
+                    promo: promoName,
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()
@@ -308,7 +388,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
+    }, [currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, promoName]);
 
     // Add a small delay to the loading state to prevent flickering
     useEffect(() => {
@@ -605,8 +685,8 @@ const Content = ({
                             <a href="/" className="opacity-60">
                                 Home
                             </a>
-                            <a href="/promo">
-                                Black November Promo
+                            <a href={promoName ? `/promo/${encodeURIComponent(promoName.toLowerCase().replace(/\s+/g, '-'))}` : '/promo'}>
+                                {promoName || 'Promo'}
                             </a>
                         </Breadcrumbs>
                     </div>
@@ -732,7 +812,7 @@ const Content = ({
 )
 }
 
-const TermsAndConditionsPopup = ({ open, onAccept }) => {
+const TermsAndConditionsPopup = ({ open, onAccept, title }) => {
     return (
         <Dialog 
             size="lg" 
@@ -742,28 +822,30 @@ const TermsAndConditionsPopup = ({ open, onAccept }) => {
         >
             <DialogBody className="p-0">
                 <div className="bg-gradient-to-r from-black to-dark text-white p-6 text-center">
-                    <h2 className="text-2xl font-bold mb-2">Black November Promo</h2>
+                    <h2 className="text-2xl font-bold mb-2">{title || 'Promo'}</h2>
                     <p className="text-white">Limited Time Offer - Terms & Conditions Apply</p>
                 </div>
                 <div className="p-6 max-h-96 overflow-y-auto">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800">Terms and Conditions</h3>
-                    <p className="text-sm text-gray-600 mb-4">Please take note of the terms and conditions for selected items for the Black November Promo.</p>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Please take note of the terms and conditions for selected items for the {title || 'promo'}.
+                    </p>
                     
                     <div className="space-y-4 text-sm text-gray-700">
                         <div>
-                            <p>• Black November Promo items only apply to selected Tiles and Sanware identified as Black November Promo items.</p>
+                            <p>• {title || 'Promo'} items only apply to selected Tiles and Sanware identified as {title || 'promo'} items.</p>
                         </div>
                         
                         <div>
-                            <p>• Black November Promo items will be sold while stocks last at respective branches or showrooms.</p>
+                            <p>• {title || 'Promo'} items will be sold while stocks last at respective branches or showrooms.</p>
                         </div>
                         
                         <div>
-                            <p>• Discounts apply to only selected products within the Black November Promo catalogue and not all products.</p>
+                            <p>• Discounts apply to only selected products within the {title || 'promo'} catalogue and not all products.</p>
                         </div>
                         
                         <div>
-                            <p>• Certain items identified as Black November Promo are only available at certain Stiles showrooms and may not be in stock at all Stiles showrooms.</p>
+                            <p>• Certain items identified as {title || 'promo'} are only available at certain Stiles showrooms and may not be in stock at all Stiles showrooms.</p>
                         </div>
                         
                         <div>
@@ -783,23 +865,23 @@ const TermsAndConditionsPopup = ({ open, onAccept }) => {
                         </div>
                         
                         <div>
-                            <p>• No delivery will be included for items identified as Black November Promo items.</p>
+                            <p>• No delivery will be included for items identified as {title || 'promo'} items.</p>
                         </div>
                         
                         <div>
-                            <p>• No storage longer than 7 (seven) working days will be allowed for items identified as Black November Promo.</p>
+                            <p>• No storage longer than 7 (seven) working days will be allowed for items identified as {title || 'promo'}.</p>
                         </div>
                         
                         <div>
-                            <p>• Items bought on the Black November Promo should be paid for in full at the time of purchase.</p>
+                            <p>• Items bought on the {title || 'promo'} should be paid for in full at the time of purchase.</p>
                         </div>
                         
                         <div>
-                            <p>• A no return policy applies to items bought from Stiles and identified as Black November Promo.</p>
+                            <p>• A no return policy applies to items bought from Stiles and identified as {title || 'promo'}.</p>
                         </div>
                         
                         <div>
-                            <p>• Discounted items on Black November Promo items can end at any point.</p>
+                            <p>• Discounted items on {title || 'promo'} items can end at any point.</p>
                         </div>
                         
                         <div>
@@ -807,7 +889,7 @@ const TermsAndConditionsPopup = ({ open, onAccept }) => {
                         </div>
                         
                         <div>
-                            <p>• Standard Stiles terms and conditions of sale apply to items bought on the Black November Promo unless any point is otherwise stated in the Black November Promo terms and conditions.</p>
+                            <p>• Standard Stiles terms and conditions of sale apply to items bought on the {title || 'promo'} unless any point is otherwise stated in the {title || 'promo'} terms and conditions.</p>
                         </div>
                     </div>
                 </div>
