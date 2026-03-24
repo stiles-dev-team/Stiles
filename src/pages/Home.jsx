@@ -1,6 +1,5 @@
 import Layout from '../layout/Layout'
 import ButtonStiles from '../components/ButtonStiles'
-import { IoIosArrowDown } from "react-icons/io";
 import ProductCard from '../components/ProductCard';
 import { BlurFade } from "../components/ui/blur-fade" // Updated import statement
 import { Helmet } from 'react-helmet-async';
@@ -197,19 +196,19 @@ const Hero = ({ content }) => {
     slides: [
           {
             id: 1,
-            title: "Quality and Style Specially Handpicked for You",
+            title: "",
             subtitle: "",
-            background_image: "/images/Website_Banners.jpg",
-            button_text: "Know More",
-            button_link: "#whoweareHome"
+            background_image: "/images/stile-lines-promo-latest.jpg",
+            button_text: "Shop Now",
+            button_link: "/promo/styling-between-the-lines"
           },
           {
             id: 2,
-            title: "Quality and Style Specially Handpicked for You",
-            subtitle: "",
-            background_image: "/images/Website_Banners2.jpg",
-            button_text: "Know More",
-            button_link: "#whoweareHome"
+            title: "Easter Closure notice!",
+            subtitle: "Please note all Stiles brances will be closed: Friday 3 April - Monday 6 April\n\nWe reopen Tuesday.\nHappy Easter from the Stiles team.",
+            background_image: "/images/easter-background.jpg",
+            button_text: "",
+            button_link: ""
           },
           {
             id: 3,
@@ -235,7 +234,7 @@ const Hero = ({ content }) => {
       <Splide className="w-full h-lvh" options={{
         type: 'loop'
       }}>
-        {heroContent.slides.map((slide) => (
+        {heroContent.slides.map((slide, index) => (
           <SplideSlide key={slide.id} className="w-full h-lvh flex flex-col justify-center items-center">
             <div className='w-full h-lvh absolute z-10 top-0 left-0 bg-black/20'></div>
             <picture>
@@ -244,23 +243,33 @@ const Hero = ({ content }) => {
                   <source srcSet={slide.background_image_mobile} media="(max-width: 768px)" />
                 )
               }
-              <img src={slide.background_image} alt={slide.title || "Stiles Home"} className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center-bottom lg:object-center' />
+               <img src={slide.background_image} alt={slide.title || "Stiles Home"} className='w-full h-lvh absolute top-0 left-0 z-0 object-cover object-center-bottom lg:object-center' />
             </picture>
             <div className='relative z-10 container mx-auto px-4'>
               <h1 className='text-white text-4xl md:text-7xl font-bold uppercase pb-5 w-full max-w-3xl'>{slide.title}</h1>
               {slide.subtitle && (
-                <p className='text-white text-lg md:text-xl mb-5 w-full max-w-2xl'>{slide.subtitle}</p>
+                <p className='text-white text-lg md:text-xl mb-5 w-full max-w-2xl whitespace-pre-line'>{slide.subtitle}</p>
               )}
-              <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
+              {index === 0 ? (
+                <div className='w-full flex justify-center mt-12'>
+                  <ButtonStiles
+                    text={slide.button_text}
+                    styleType="light"
+                    href={slide.button_link}
+                    extraStyle="text-lg px-10 py-5 [animation:promoPulse_2.4s_ease-in-out_infinite] [@keyframes_promoPulse{0%,100%{background:#fff;border-color:#fff;box-shadow:0_8px_20px_rgba(255,255,255,.2)}50%{background:#FFF9D6;border-color:#FFF9D6;box-shadow:0_12px_28px_rgba(255,249,214,.45)}}] hover:bg-black hover:text-white hover:border-black after:content-['→'] after:ml-2"
+                  />
+                </div>
+              ) : index === 1 ? (
+                null
+              ) : (
+                <div>
+                  <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
+                </div>
+              )}
             </div>
           </SplideSlide>
         ))}
       </Splide>
-      {heroContent.slides.length > 0 && (
-        <a href={heroContent.slides[0].button_link} className='absolute bottom-5 z-10 lg:hidden text-white font-semibold flex flex-row justify-center items-center gap-2'>
-          {heroContent.slides[0].button_text.toUpperCase()} <IoIosArrowDown fill='white' />
-        </a>
-      )}
     </section>
   )
 }
