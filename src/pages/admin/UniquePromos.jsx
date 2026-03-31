@@ -13,7 +13,8 @@ const AdminUniquePromos = () => {
     page_title: '',
     slug: '',
     banner_url: '',
-    has_page: false
+    has_page: false,
+    show_badge: true
   })
 
   useEffect(() => {
@@ -74,7 +75,8 @@ const AdminUniquePromos = () => {
             page_title: formData.page_title,
             slug: formData.slug,
             banner_url: formData.banner_url,
-            has_page: formData.has_page ? 1 : 0
+            has_page: formData.has_page ? 1 : 0,
+            show_badge: formData.show_badge ? 1 : 0
           }),
         })
 
@@ -90,7 +92,8 @@ const AdminUniquePromos = () => {
             page_title: '',
             slug: '',
             banner_url: '',
-            has_page: false
+            has_page: false,
+            show_badge: true
           })
         } else {
           alert('Error updating promo: ' + (result.error || 'Unknown error'))
@@ -108,7 +111,8 @@ const AdminUniquePromos = () => {
             page_title: formData.page_title,
             slug: formData.slug,
             banner_url: formData.banner_url,
-            has_page: formData.has_page ? 1 : 0
+            has_page: formData.has_page ? 1 : 0,
+            show_badge: formData.show_badge ? 1 : 0
           }),
         })
 
@@ -123,7 +127,8 @@ const AdminUniquePromos = () => {
             page_title: '',
             slug: '',
             banner_url: '',
-            has_page: false
+            has_page: false,
+            show_badge: true
           })
         } else {
           alert('Error creating promo: ' + (result.error || 'Unknown error'))
@@ -142,7 +147,8 @@ const AdminUniquePromos = () => {
       page_title: promo.page_title || '',
       slug: promo.slug || '',
       banner_url: promo.banner_url || '',
-      has_page: promo.has_page === 1 || promo.has_page === '1' || promo.has_page === true
+      has_page: promo.has_page === 1 || promo.has_page === '1' || promo.has_page === true,
+      show_badge: promo.show_badge === 1 || promo.show_badge === '1' || promo.show_badge === true || promo.show_badge === undefined || promo.show_badge === null
     })
     setShowAddModal(true)
   }
@@ -173,6 +179,43 @@ const AdminUniquePromos = () => {
         console.error('Error deleting promo:', error)
         alert('Error deleting promo')
       }
+    }
+  }
+
+  const handleToggleShowBadge = async (promo) => {
+    const current = promo.show_badge === 1 || promo.show_badge === '1' || promo.show_badge === true || promo.show_badge === undefined || promo.show_badge === null
+    const nextShowBadge = !current
+
+    try {
+      const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          id: promo.id,
+          promo: promo.promo,
+          page_title: promo.page_title ?? '',
+          slug: promo.slug ?? '',
+          banner_url: promo.banner_url ?? '',
+          has_page: promo.has_page === 1 || promo.has_page === '1' || promo.has_page === true ? 1 : 0,
+          show_badge: nextShowBadge ? 1 : 0
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setPromos(prev =>
+          prev.map(p => (p.id === promo.id ? { ...p, show_badge: nextShowBadge ? 1 : 0 } : p))
+        )
+      } else {
+        alert('Error updating promo: ' + (result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error updating promo:', error)
+      alert('Error updating promo')
     }
   }
 
@@ -259,7 +302,7 @@ const AdminUniquePromos = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Page
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                     Actions
                   </th>
                 </tr>
@@ -285,7 +328,7 @@ const AdminUniquePromos = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex items-center space-x-3 justify-center">
                         <button
                           onClick={() => handleEditPromo(promo)}
                           className="text-blue-600 hover:text-blue-900"
@@ -298,6 +341,29 @@ const AdminUniquePromos = () => {
                         >
                           Delete
                         </button>
+
+                        <div className="flex items-center gap-2 justify-center">
+                          <span className="text-xs text-gray-500">Show</span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleShowBadge(promo)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                              promo.show_badge === 1 || promo.show_badge === '1' || promo.show_badge === true || promo.show_badge === undefined || promo.show_badge === null
+                                ? 'bg-green-600'
+                                : 'bg-gray-300'
+                            }`}
+                            aria-pressed={promo.show_badge === 1 || promo.show_badge === '1' || promo.show_badge === true || promo.show_badge === undefined || promo.show_badge === null}
+                            aria-label={`Toggle promo ${promo.promo}`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                promo.show_badge === 1 || promo.show_badge === '1' || promo.show_badge === true || promo.show_badge === undefined || promo.show_badge === null
+                                  ? 'translate-x-6'
+                                  : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -325,7 +391,8 @@ const AdminUniquePromos = () => {
                     page_title: '',
                     slug: '',
                     banner_url: '',
-                    has_page: false
+                    has_page: false,
+                    show_badge: true
                   })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
@@ -361,6 +428,19 @@ const AdminUniquePromos = () => {
                   />
                   <label htmlFor="has_page" className="text-sm font-medium text-gray-700">
                     Create promo page
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="show_badge"
+                    type="checkbox"
+                    name="show_badge"
+                    checked={formData.show_badge}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  <label htmlFor="show_badge" className="text-sm font-medium text-gray-700">
+                    Show badge on products
                   </label>
                 </div>
                 {formData.has_page && (
@@ -440,7 +520,7 @@ const AdminUniquePromos = () => {
                     onClick={() => {
                       setShowAddModal(false)
                       setEditingPromo(null)
-                      setFormData({ promo: '' })
+                      setFormData({ promo: '', page_title: '', slug: '', banner_url: '', has_page: false, show_badge: true })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >

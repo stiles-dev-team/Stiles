@@ -73,18 +73,22 @@ try {
             $slug = isset($data['slug']) ? trim($data['slug']) : null;
             $bannerUrl = isset($data['banner_url']) ? trim($data['banner_url']) : null;
             $hasPage = isset($data['has_page']) && ($data['has_page'] === 1 || $data['has_page'] === '1' || $data['has_page'] === true) ? 1 : 0;
+            // Separate flag for whether promo badge should show on products
+            // NOTE: requires DB column: unique_promos.show_badge TINYINT(1) DEFAULT 1
+            $showBadge = !isset($data['show_badge']) || ($data['show_badge'] === 1 || $data['show_badge'] === '1' || $data['show_badge'] === true) ? 1 : 0;
 
             try {
                 $stmt = $pdo->prepare('
-                    INSERT INTO unique_promos (promo, page_title, slug, banner_url, has_page)
-                    VALUES (:promo, :page_title, :slug, :banner_url, :has_page)
+                    INSERT INTO unique_promos (promo, page_title, slug, banner_url, has_page, show_badge)
+                    VALUES (:promo, :page_title, :slug, :banner_url, :has_page, :show_badge)
                 ');
                 $stmt->execute([
                     ':promo' => trim($data['promo']),
                     ':page_title' => $pageTitle,
                     ':slug' => $slug,
                     ':banner_url' => $bannerUrl,
-                    ':has_page' => $hasPage
+                    ':has_page' => $hasPage,
+                    ':show_badge' => $showBadge
                 ]);
                 
                 echo json_encode([
@@ -114,6 +118,9 @@ try {
             $slug = isset($data['slug']) ? trim($data['slug']) : null;
             $bannerUrl = isset($data['banner_url']) ? trim($data['banner_url']) : null;
             $hasPage = isset($data['has_page']) && ($data['has_page'] === 1 || $data['has_page'] === '1' || $data['has_page'] === true) ? 1 : 0;
+            // Separate flag for whether promo badge should show on products
+            // NOTE: requires DB column: unique_promos.show_badge TINYINT(1) DEFAULT 1
+            $showBadge = !isset($data['show_badge']) || ($data['show_badge'] === 1 || $data['show_badge'] === '1' || $data['show_badge'] === true) ? 1 : 0;
 
             try {
                 $stmt = $pdo->prepare('
@@ -122,7 +129,8 @@ try {
                         page_title = :page_title,
                         slug = :slug,
                         banner_url = :banner_url,
-                        has_page = :has_page
+                        has_page = :has_page,
+                        show_badge = :show_badge
                     WHERE id = :id
                 ');
                 $stmt->execute([
@@ -131,6 +139,7 @@ try {
                     ':slug' => $slug,
                     ':banner_url' => $bannerUrl,
                     ':has_page' => $hasPage,
+                    ':show_badge' => $showBadge,
                     ':id' => $data['id']
                 ]);
                 

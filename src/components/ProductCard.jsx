@@ -3,6 +3,7 @@ import { FaHeart } from "react-icons/fa";
 import PropTypes from 'prop-types';
 import { Skeleton } from './ui/skeleton';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
+import { getUniquePromoBadgeVisibilityMap, filterBadgesByUniquePromoBadgeVisibility } from '../utils/uniquePromos';
 // import { toast } from 'sonner';
 
 const ProductCard = memo(({ onClick, prod }) => {
@@ -12,11 +13,24 @@ const ProductCard = memo(({ onClick, prod }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
     const [badges, setBadges] = useState([]);
+    const [uniquePromoBadgeVisibility, setUniquePromoBadgeVisibility] = useState(null);
+    const [badgesPendingVisibility, setBadgesPendingVisibility] = useState(false);
 
     useEffect(() => {
         const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
         setIsFavourite(wishlist.some(item => item.slug === prod));
     }, [prod]);
+
+    useEffect(() => {
+        let mounted = true;
+        getUniquePromoBadgeVisibilityMap().then((map) => {
+            if (!mounted) return;
+            setUniquePromoBadgeVisibility(map);
+        });
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -68,9 +82,17 @@ const ProductCard = memo(({ onClick, prod }) => {
                         }
                     });
                     
-                    setBadges(extractedBadges);
+                    if (!uniquePromoBadgeVisibility) {
+                        // Avoid flashing all badges before visibility loads
+                        setBadges(extractedBadges);
+                        setBadgesPendingVisibility(true);
+                    } else {
+                        setBadges(filterBadgesByUniquePromoBadgeVisibility(extractedBadges, uniquePromoBadgeVisibility));
+                        setBadgesPendingVisibility(false);
+                    }
                 } else {
                     setBadges([]);
+                    setBadgesPendingVisibility(false);
                 }
 
                 // Fetch stock info if SKU exists
@@ -118,7 +140,7 @@ const ProductCard = memo(({ onClick, prod }) => {
         return () => {
             isMounted = false;
         };
-    }, [prod]);
+    }, [prod, uniquePromoBadgeVisibility]);
 
     const handleFavoriteClick = useCallback((e) => {
         e.stopPropagation();
@@ -280,7 +302,11 @@ const ProductCard = memo(({ onClick, prod }) => {
                                 style={{ top: `${topOffset}px` }}
                             >
                                 <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
-                                    <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                    {badgesPendingVisibility ? (
+                                        <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                    ) : (
+                                        <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                    )}
                                 </div>
                             </div>
                         );

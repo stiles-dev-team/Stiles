@@ -230,18 +230,52 @@ const AdminProducts = () => {
 
   const syncIqPrices = async () => {
     setTableLoading(true);
-    const response = await fetch("https://n8n.srv925550.hstgr.cloud/webhook/75de692b-34bc-4e72-9759-dffcb33cf349", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    setTimeout(() => {
-      // Invalidate cache and refetch after sync
-      invalidateCache();
-      fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+    let syncTriggered = false;
+    try {
+      try {
+        const response = await fetch("https://shopify-sync-app-ft-production.up.railway.app/sync-stiles", {
+          method: "POST",
+        });
+
+        // Treat accepted/success responses as a triggered sync.
+        if (response.ok || response.status === 202) {
+          syncTriggered = true;
+        } else {
+          throw new Error(`Sync request failed with status ${response.status}`);
+        }
+      } catch (error) {
+        // Common when backend runs long (proxy timeout) or CORS blocks response.
+        // In these cases, request may still have reached the server.
+        if (error instanceof TypeError) {
+          console.warn("Sync response not available, but sync may still be running:", error);
+          syncTriggered = true;
+        } else {
+          console.error("IQ price sync failed:", error);
+          alert("Failed to sync IQ prices. Please try again.");
+        }
+      }
+
+      if (syncTriggered) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        invalidateCache();
+        await fetchProducts(
+          currentPage,
+          searchTerm,
+          selectedCategory,
+          selectedStatus,
+          selectedColour,
+          selectedFinish,
+          selectedPromo,
+          selectedProductTypes,
+          selectedProductCategory,
+          sortField,
+          sortDirection,
+          false
+        );
+      }
+    } finally {
       setTableLoading(false);
-    }, 30000);
+    }
   };
 
   // Function to toggle menu

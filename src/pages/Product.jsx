@@ -40,6 +40,7 @@ import ProductCard from '../components/ProductCard';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
+import { getUniquePromoBadgeVisibilityMap, filterBadgesByUniquePromoBadgeVisibility } from '../utils/uniquePromos';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext';
    
@@ -85,6 +86,8 @@ const Product = () => {
     const [isFavourite, setIsFavourite] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
     const [badges, setBadges] = useState([]);
+    const [uniquePromoBadgeVisibility, setUniquePromoBadgeVisibility] = useState(null);
+    const [badgesPendingVisibility, setBadgesPendingVisibility] = useState(false);
 
     const [related, setRelated] = useState([]);
 
@@ -168,6 +171,17 @@ const Product = () => {
         const url = `https://wa.me/?text=${encodeURIComponent(`${productTitle} ${currentUrl}`)}`;
         window.open(url, '_blank', 'width=600,height=400');
     };
+
+    useEffect(() => {
+        let mounted = true;
+        getUniquePromoBadgeVisibilityMap().then((map) => {
+            if (!mounted) return;
+            setUniquePromoBadgeVisibility(map);
+        });
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     useEffect(() => {
         console.log("Starting product fetch for ID:", id);
@@ -264,9 +278,17 @@ const Product = () => {
                         }
                     });
                     
-                    setBadges(extractedBadges);
+                    if (!uniquePromoBadgeVisibility) {
+                        // Avoid flashing all badges before visibility loads
+                        setBadges(extractedBadges);
+                        setBadgesPendingVisibility(true);
+                    } else {
+                        setBadges(filterBadgesByUniquePromoBadgeVisibility(extractedBadges, uniquePromoBadgeVisibility));
+                        setBadgesPendingVisibility(false);
+                    }
                 } else {
                     setBadges([]);
+                    setBadgesPendingVisibility(false);
                 }
                 
                 // Fetch stock info
@@ -338,7 +360,7 @@ const Product = () => {
                 // console.log('404 error');
             }
         });
-    }, [id]);
+    }, [id, uniquePromoBadgeVisibility]);
 
     const handleQuantityChange = (increment) => {
         setQuantity(prev => Math.max(1, prev + increment));
@@ -617,7 +639,11 @@ const Product = () => {
                                         style={{ top: `${topOffset}px` }}
                                     >
                                         <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
-                                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                            {badgesPendingVisibility ? (
+                                                <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                            ) : (
+                                                <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -689,7 +715,11 @@ const Product = () => {
                                         style={{ top: `${topOffset}px` }}
                                     >
                                         <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
-                                            <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                            {badgesPendingVisibility ? (
+                                                <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                            ) : (
+                                                <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                            )}
                                         </div>
                                     </div>
                                 );
