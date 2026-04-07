@@ -382,7 +382,7 @@ const Checkout = () => {
                     />
                     <label className='text-sm'>
                       I have read and agree to the website{' '}
-                      <a href="/terms" className='text-dark hover:underline' target="_blank">
+                      <a href="/stiles-terms-and-conditions-of-sale" className='text-dark hover:underline' target="_blank">
                         terms and conditions
                       </a>
                     </label>
