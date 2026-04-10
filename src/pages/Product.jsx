@@ -589,11 +589,16 @@ const Product = () => {
                             const isSanitaryWare = product?.product_category && 
                                 typeof product.product_category === 'string' && 
                                 product.product_category.includes('Sanitary Ware');
+
+                            const isSlab = product?.product_category &&
+                                typeof product.product_category === 'string' &&
+                                product.product_category.includes('Slab');
                             
                             // For sanitary-ware: only show when onhand === 0
                             // For other products: show when onhand < 5 (existing behavior)
                             const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+                                (isSlab ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
                             
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
@@ -616,11 +621,16 @@ const Product = () => {
                                 const isSanitaryWare = product?.product_category && 
                                     typeof product.product_category === 'string' && 
                                     product.product_category.includes('Sanitary Ware');
+
+                                const isSlab = product?.product_category && 
+                                    typeof product.product_category === 'string' && 
+                                    product.product_category.includes('Slab');
                                 
                                 // For sanitary-ware: only show when onhand === 0
                                 // For other products: show when onhand < 5 (existing behavior)
                                 const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+                                    (isSlab ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
                                 
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
@@ -665,11 +675,16 @@ const Product = () => {
                             const isSanitaryWare = product?.product_category && 
                                 typeof product.product_category === 'string' && 
                                 product.product_category.includes('Sanitary Ware');
+
+                            const isSlab = product?.product_category &&
+                                typeof product.product_category === 'string' &&
+                                product.product_category.includes('Slab');
                             
                             // For sanitary-ware: only show when onhand === 0
                             // For other products: show when onhand < 5 (existing behavior)
                             const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+                                (isSlab ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
                             
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
@@ -692,11 +707,16 @@ const Product = () => {
                                 const isSanitaryWare = product?.product_category && 
                                     typeof product.product_category === 'string' && 
                                     product.product_category.includes('Sanitary Ware');
+
+                                const isSlab = product?.product_category &&
+                                    typeof product.product_category === 'string' &&
+                                    product.product_category.includes('Slab');
                                 
                                 // For sanitary-ware: only show when onhand === 0
                                 // For other products: show when onhand < 5 (existing behavior)
                                 const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+                                    (isSlab ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
                                 
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
