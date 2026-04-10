@@ -586,15 +586,16 @@ const Product = () => {
                     <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
                         {(() => {
                             // Check if product is sanitary-ware
-                            const isSanitaryWare = product?.product_category && 
-                                typeof product.product_category === 'string' && 
-                                product.product_category.includes('Sanitary Ware');
-                            
+                            // const isSanitaryWare = product?.product_category &&
+                            //     typeof product.product_category === 'string' &&
+                            //     product.product_category.includes('Sanitary Ware');
+                            //
                             // For sanitary-ware: only show when onhand === 0
                             // For other products: show when onhand < 5 (existing behavior)
-                            const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
-                            
+                            // const shouldShowSoldOut = stockInfo?.onhand !== undefined &&
+                            //     (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                            const shouldShowSoldOut = product?.iq_stock == 0;
+
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
@@ -613,15 +614,16 @@ const Product = () => {
                             badges.length > 0 && badges.map((badge, index) => {
                                 // Offset badges if sold out badge is present
                                 // Check if product is sanitary-ware
-                                const isSanitaryWare = product?.product_category && 
-                                    typeof product.product_category === 'string' && 
-                                    product.product_category.includes('Sanitary Ware');
-                                
+                                // const isSanitaryWare = product?.product_category &&
+                                //     typeof product.product_category === 'string' &&
+                                //     product.product_category.includes('Sanitary Ware');
+                                //
                                 // For sanitary-ware: only show when onhand === 0
                                 // For other products: show when onhand < 5 (existing behavior)
-                                const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
-                                
+                                // const shouldShowSoldOut = stockInfo?.onhand !== undefined &&
+                                //     (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                const shouldShowSoldOut = product?.iq_stock == 0;
+
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
                                                      !badges.includes('Backorder') && 
@@ -662,15 +664,16 @@ const Product = () => {
                     <div className='w-full lg:w-10/12 aspect-square relative rounded-md overflow-hidden'>
                         {(() => {
                             // Check if product is sanitary-ware
-                            const isSanitaryWare = product?.product_category && 
-                                typeof product.product_category === 'string' && 
-                                product.product_category.includes('Sanitary Ware');
-                            
+                            // const isSanitaryWare = product?.product_category &&
+                            //     typeof product.product_category === 'string' &&
+                            //     product.product_category.includes('Sanitary Ware');
+                            //
                             // For sanitary-ware: only show when onhand === 0
                             // For other products: show when onhand < 5 (existing behavior)
-                            const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
-                            
+                            // const shouldShowSoldOut = stockInfo?.onhand !== undefined &&
+                            //     (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                            const shouldShowSoldOut = product?.iq_stock == 0;
+
                             return shouldShowSoldOut && 
                              !badges.includes('Coming Soon') && 
                              !badges.includes('Backorder') && 
@@ -689,15 +692,16 @@ const Product = () => {
                             badges.length > 0 && badges.map((badge, index) => {
                                 // Offset badges if sold out badge is present
                                 // Check if product is sanitary-ware
-                                const isSanitaryWare = product?.product_category && 
-                                    typeof product.product_category === 'string' && 
-                                    product.product_category.includes('Sanitary Ware');
-                                
+                                // const isSanitaryWare = product?.product_category &&
+                                //     typeof product.product_category === 'string' &&
+                                //     product.product_category.includes('Sanitary Ware');
+                                //
                                 // For sanitary-ware: only show when onhand === 0
                                 // For other products: show when onhand < 5 (existing behavior)
-                                const shouldShowSoldOut = stockInfo?.onhand !== undefined && 
-                                    (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
-                                
+                                // const shouldShowSoldOut = stockInfo?.onhand !== undefined &&
+                                //     (isSanitaryWare ? stockInfo.onhand === 0 : stockInfo.onhand < 5);
+                                const shouldShowSoldOut = product?.iq_stock == 0;
+
                                 const hasTopBadge = shouldShowSoldOut && 
                                                      !badges.includes('Coming Soon') && 
                                                      !badges.includes('Backorder') && 
