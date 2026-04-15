@@ -8,7 +8,7 @@ const Blogs = () => {
   // Sample data for categories and recent posts
   const [categories, setCategories] = useState([
     { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration', count: 0 },
-    { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
+    // { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
     { name: 'PRODUCT NEWS', slug: 'product-news', count: 0 },
     { name: 'STILES NEWS', slug: 'stiles-news', count: 0 },
     { name: 'STILES PROJECTS', slug: 'stiles-projects', count: 0 },

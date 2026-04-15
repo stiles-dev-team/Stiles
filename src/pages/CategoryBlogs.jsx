@@ -10,7 +10,7 @@ const CategoryBlogs = () => {
   // Categories state matching Blogs.jsx
   const [categories, setCategories] = useState([
     { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration', count: 0 },
-    { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
+    // { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
     { name: 'PRODUCT NEWS', slug: 'product-news', count: 0 },
     { name: 'STILES NEWS', slug: 'stiles-news', count: 0 },
     { name: 'STILES PROJECTS', slug: 'stiles-projects', count: 0 },
@@ -54,7 +54,7 @@ const CategoryBlogs = () => {
       // Define category structure for lookup
       const categoryStructure = [
         { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration' },
-        { name: 'UNCATEGORIZED', slug: 'uncategorized' },
+        // { name: 'UNCATEGORIZED', slug: 'uncategorized' },
         { name: 'PRODUCT NEWS', slug: 'product-news' },
         { name: 'STILES NEWS', slug: 'stiles-news' },
         { name: 'STILES PROJECTS', slug: 'stiles-projects' },
