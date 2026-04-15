@@ -271,12 +271,20 @@ const AdminContent = () => {
   const handleSaveBlog = async (blogData) => {
     setSaving(true);
     try {
+      const payload = {
+        ...blogData,
+        // Ensure post_date is always serialized as a datetime string at 06:00:00.
+        post_date: blogData?.post_date
+          ? `${String(blogData.post_date).split('T')[0].split(' ')[0]} 06:00:00`
+          : ''
+      };
+
       const response = await fetch('https://stiles.co.za/api/admin-blogs.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(blogData)
+        body: JSON.stringify(payload)
       });
       
       const data = await response.json();
@@ -895,11 +903,22 @@ const AdminContent = () => {
 
 // Blog Form Component
 const BlogForm = ({ blog, onSave, onCancel, saving, generateSlug }) => {
+  const formatPostDateForInput = (value) => {
+    if (!value) return '';
+
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().split('T')[0];
+    }
+
+    return String(value).split('T')[0].split(' ')[0];
+  };
+
   const [formData, setFormData] = useState({
     ID: blog?.ID || '',
     post_title: blog?.post_title || '',
     slug: blog?.slug || '',
-    post_date: blog?.post_date,
+    post_date: formatPostDateForInput(blog?.post_date),
     post_content: blog?.post_content || '',
     post_excerpt: blog?.post_excerpt || '',
     post_status: blog?.post_status || 'publish',
