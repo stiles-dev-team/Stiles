@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { sanitizePostDates } from '../utils/dateUtils';
 
 const BlogSidebar = ({ categories, recentPosts }) => {
   return (
@@ -44,7 +45,7 @@ const BlogSidebar = ({ categories, recentPosts }) => {
                 >
                   {post.post_title}
                 </Link>
-                <p className="text-xs text-gray-500 mt-1">{post.post_date}</p>
+                <p className="text-xs text-gray-500 mt-1">{sanitizePostDates(post.post_date)}</p>
               </div>
             </li>
           ))}

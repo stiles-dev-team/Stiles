@@ -4,6 +4,7 @@ import Layout from '../layout/Layout';
 import BlogSidebar from '../components/BlogSidebar';
 import { Helmet } from 'react-helmet-async';
 import { Skeleton } from '../components/ui/skeleton';
+import { sanitizePostDates } from '../utils/dateUtils';
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -11,7 +12,7 @@ const BlogPost = () => {
   // Categories state matching Blogs.jsx
   const [categories, setCategories] = useState([
     { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration', count: 0 },
-    { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
+    // { name: 'UNCATEGORIZED', slug: 'uncategorized', count: 0 },
     { name: 'PRODUCT NEWS', slug: 'product-news', count: 0 },
     { name: 'STILES NEWS', slug: 'stiles-news', count: 0 },
     { name: 'STILES PROJECTS', slug: 'stiles-projects', count: 0 },
@@ -243,7 +244,7 @@ const BlogPost = () => {
           <div className="flex items-center gap-4 text-white">
             <span>Stiles Blogs</span>
             <span>•</span>
-            <span>{currentPost.post_date}</span>
+            <span>{sanitizePostDates(currentPost.post_date)}</span>
           </div>
         </div>
       </section>
@@ -254,7 +255,7 @@ const BlogPost = () => {
           {/* Main content */}
           <div className='lg:w-2/3'>
             <div className='prose prose-lg max-w-none'>
-              <div className='blogpost-content flex flex-col justify-start items-start gap-4' dangerouslySetInnerHTML={{ __html: currentPost.post_content }} />
+              <div className='blogpost-content flex flex-col justify-start items-start gap-4 [&_a]:text-blue-600 [&_a]:hover:text-blue-700' dangerouslySetInnerHTML={{ __html: currentPost.post_content }} />
             </div>            
             {/* Share and Navigation */}
             <div className="mt-12 pt-8 border-t border-gray-200">
@@ -375,7 +376,7 @@ const BlogPost = () => {
                       <h3 className="font-bold text-lg mb-2 group-hover:text-dark transition-colors">
                         {post.post_title}
                       </h3>
-                      <p className="text-sm text-gray-500">{post.post_date}</p>
+                      <p className="text-sm text-gray-500">{sanitizePostDates(post.post_date)}</p>
                     </Link>
                   ))}
                 </div>

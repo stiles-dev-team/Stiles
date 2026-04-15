@@ -109,7 +109,7 @@ switch($method) {
                 // Update existing blog
                 $stmt = $pdo->prepare("
                     UPDATE blogs SET 
-                    post_title = ?, slug = ?, post_content = ?, post_excerpt = ?, 
+                    post_title = ?, slug = ?, post_date = ?, post_content = ?, post_excerpt = ?, 
                     post_status = ?, categories = ?, tags = ?, featured_image = ?, 
                     metadescription = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE ID = ?
@@ -118,6 +118,7 @@ switch($method) {
                 $stmt->execute([
                     $data['post_title'],
                     $data['slug'],
+                    $data['post_date'],
                     $data['post_content'],
                     $data['post_excerpt'] ?? '',
                     $data['post_status'] ?? 'publish',
@@ -132,7 +133,7 @@ switch($method) {
             } else {
                 // Create new blog
                 $stmt = $pdo->prepare("
-                    INSERT INTO blogs (post_title, slug, post_content, post_excerpt, 
+                    INSERT INTO blogs (post_title, slug, post_date, post_content, post_excerpt, 
                     post_status, categories, tags, featured_image, metadescription)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
@@ -140,6 +141,7 @@ switch($method) {
                 $stmt->execute([
                     $data['post_title'],
                     $data['slug'],
+                    $data['post_date'],
                     $data['post_content'],
                     $data['post_excerpt'] ?? '',
                     $data['post_status'] ?? 'publish',
