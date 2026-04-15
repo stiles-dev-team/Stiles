@@ -3,8 +3,10 @@ import { useParams } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import BlogCard from '../components/BlogCard';
 import BlogSidebar from '../components/BlogSidebar';
+import { CircularPagination } from '../components/CircularPagination';
 
 const CategoryBlogs = () => {
+  const ITEMS_PER_PAGE = 6;
   const { slug } = useParams();
   
   // Categories state matching Blogs.jsx
@@ -21,6 +23,7 @@ const CategoryBlogs = () => {
   const [recentPosts, setRecentPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch(`https://stiles.co.za/api/get-blogs.php`)
@@ -100,6 +103,15 @@ const CategoryBlogs = () => {
     });
   }, [slug]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredPosts.length]);
+
+  const paginatedPosts = filteredPosts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <Layout>
       <section className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
@@ -119,8 +131,9 @@ const CategoryBlogs = () => {
           {/* Main content */}
           <div className='lg:w-2/3'>
             {filteredPosts.length > 0 ? (
+              <>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                {filteredPosts.map((post, index) => (
+                {paginatedPosts.map((post, index) => (
                   <BlogCard 
                     key={index}
                     title={post.post_title}
@@ -131,6 +144,15 @@ const CategoryBlogs = () => {
                   />
                 ))}
               </div>
+              {filteredPosts.length > ITEMS_PER_PAGE && (
+                <CircularPagination
+                  totalItems={filteredPosts.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+              </>
             ) : (
               <div className='text-center py-10'>
                 <h2 className='text-2xl font-bold mb-4'>No posts found</h2>

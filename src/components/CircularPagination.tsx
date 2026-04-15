@@ -13,7 +13,7 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
   const getItemProps = (index: number) => ({
     onClick: () => {
       onPageChange(index);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 250, behavior: 'smooth' });
     },
     className: `rounded-full px-4 py-2 transition-all ${
       currentPage === index 
@@ -25,13 +25,13 @@ export function CircularPagination({ totalItems, itemsPerPage, currentPage, onPa
   const next = () => {
     if (currentPage === totalPages) return;
     onPageChange(currentPage + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 250, behavior: 'smooth' });
   };
 
   const prev = () => {
     if (currentPage === 1) return;
     onPageChange(currentPage - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 250, behavior: 'smooth' });
   };
 
   const renderPageNumbers = () => {
