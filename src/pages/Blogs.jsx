@@ -3,8 +3,11 @@ import Layout from '../layout/Layout'
 import BlogCard from '../components/BlogCard';
 import BlogSidebar from '../components/BlogSidebar';
 import { Helmet } from 'react-helmet-async';
+import {CircularPagination} from "../components/CircularPagination";
 
 const Blogs = () => {
+  const ITEMS_PER_PAGE = 10;
+
   // Sample data for categories and recent posts
   const [categories, setCategories] = useState([
     { name: 'DÉCOR INSPIRATION', slug: 'decor-inspiration', count: 0 },
@@ -17,6 +20,7 @@ const Blogs = () => {
 
   const [blogPosts, setBlogPosts] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch(`https://stiles.co.za/api/get-blogs.php`)
@@ -66,6 +70,14 @@ const Blogs = () => {
     });
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [blogPosts.length])
+
+  const paginatedPosts = blogPosts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
   // const [recentPosts] = useState([
   //   {
   //     title: "The Rise of Green Tiles in South Africa: A Trend Reimagined",
@@ -140,7 +152,7 @@ const Blogs = () => {
           {/* Main content */}
           <div className='lg:w-2/3'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                {blogPosts.map((post, index) => (
+                {paginatedPosts.map((post, index) => (
                   <BlogCard 
                     key={index}
                     title={post.post_title}
@@ -151,6 +163,11 @@ const Blogs = () => {
                   />
                 ))}
             </div>
+            {blogPosts.length > ITEMS_PER_PAGE && (<CircularPagination 
+                 totalItems={blogPosts.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage} />)}
           </div>
           
           {/* Sidebar */}
