@@ -866,40 +866,27 @@ const Blog = () => {
   return (
     <div className='w-full'>
       <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
-        <div className="flex flex-row justify-between items-end gap-5 w-full">
+        <div className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between sm:items-end sm:gap-5">
           <h2 className='font-bold text-3xl lg:text-5xl uppercase'>THE STILES BLOG</h2>
-          <a href="/stiles-blog" className='hidden lg:block'>VIEW ALL OUR STORIES</a>
+          <a href="/stiles-blog" className='shrink-0 text-sm font-semibold uppercase underline underline-offset-4 transition-colors hover:text-dark sm:text-base'>
+            VIEW ALL OUR STORIES
+          </a>
         </div>
         <div className='pt-6 w-full hidden lg:grid grid-cols-3 gap-6'>
           {
             blogPosts && blogPosts.map((post, index) => (
-              <BlogCard key={index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
+              <BlogCard key={post.slug || post.ID || index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
+            ))
+          }
+        </div>
+        <div className='flex w-full flex-col gap-6 pt-6 lg:hidden'>
+          {
+            blogPosts && blogPosts.map((post, index) => (
+              <BlogCard key={post.slug || post.ID || index} title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
             ))
           }
         </div>
       </section>
-      <Splide className="lg:hidden w-full mt-5" options={{
-        perPage: 1,
-        perMove: 3,
-        arrows: false,
-        gap: '1rem',
-        pagination: false,
-        padding: '2rem',
-        breakpoints: {
-          1: {
-            perPage: 1,
-            type: 'loop',
-          },
-        },
-      }}>
-        {
-          blogPosts && blogPosts.map((post, index) => (
-            <SplideSlide key={index}>
-              <BlogCard title={post.post_title} cat={post.categories} img={post.featured_image} desc={post.metadescription} slug={post.slug} />
-            </SplideSlide>
-          ))
-        }
-      </Splide>
     </div>
   )
 }
