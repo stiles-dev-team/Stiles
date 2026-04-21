@@ -936,34 +936,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $limit = 15; // Default to 15 if invalid
         }
         
-        // Debug log
-        error_log("Fetching products for category: {$category} with limit: {$limit} and offset: {$offset}");
-        
-        // Build the base query
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND sp.product_category LIKE ?';
-        $params = ['%' . $category . '%'];
+        $categoryPattern = '%' . $category . '%';
+        $whereSql = 'sp.status = "publish" AND sp.product_category LIKE ?';
+        $params = [$categoryPattern];
         
         // Add filter conditions
         if (isset($_GET['brands']) && !empty($_GET['brands'])) {
             $brands = explode(',', $_GET['brands']);
             $brandConditions = [];
             foreach ($brands as $brand) {
-                // Clean the brand name and handle spaces
                 $cleanBrand = trim($brand);
-                // Log the raw brand value and cleaned brand value
-                error_log("Raw brand value: " . $brand);
-                error_log("Cleaned brand value: " . $cleanBrand);
-                
-                // Use LIKE with wildcards for more flexible matching
                 $brandConditions[] = 'sp.`attribute:pa_brands` LIKE ?';
                 $params[] = '%' . $cleanBrand . '%';
             }
             if (!empty($brandConditions)) {
-                $baseQuery .= ' AND (' . implode(' OR ', $brandConditions) . ')';
+                $whereSql .= ' AND (' . implode(' OR ', $brandConditions) . ')';
             }
-            error_log("Brand filter conditions: " . implode(' OR ', $brandConditions));
-            error_log("Brand filter params: " . implode(', ', $params));
-            error_log("Raw brands from URL: " . $_GET['brands']);
         }
         
         if (isset($_GET['finish']) && !empty($_GET['finish'])) {
@@ -975,7 +963,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 $params[] = '%' . $cleanFinish. '%';
             }
             if (!empty($finishConditions)) {
-                $baseQuery .= ' AND (' . implode(' OR ', $finishConditions) . ')';
+                $whereSql .= ' AND (' . implode(' OR ', $finishConditions) . ')';
             }
         }
         
@@ -988,7 +976,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 $params[] = '%' . $cleanColour. '%';
             }
             if (!empty($colourConditions)) {
-                $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
+                $whereSql .= ' AND (' . implode(' OR ', $colourConditions) . ')';
             }
         }
         
@@ -1001,35 +989,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 $params[] = '%' . $cleanSize . '%';
             }
             if (!empty($sizeConditions)) {
-                $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
+                $whereSql .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
             }
         }
         
+        $hasPriceFilter = false;
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
+            $whereSql .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
             $params[] = (float)$_GET['min_price'];
+            $hasPriceFilter = true;
         }
         
         if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-            $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) <= ?';
+            $whereSql .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) <= ?';
             $params[] = (float)$_GET['max_price'];
+            $hasPriceFilter = true;
         }
         
-        // Log the final query and parameters
-        error_log("Final query: " . $baseQuery);
-        error_log("Final params: " . implode(', ', $params));
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
+        $needsIqForSort = ($sortBy === 'nuev' || $sortBy === 'vend');
+        $iqJoin = 'LEFT JOIN iq_table iq ON sp.sku = iq.code ';
+        $countJoin = $hasPriceFilter ? $iqJoin : '';
+        $dataJoin = ($hasPriceFilter || $needsIqForSort) ? $iqJoin : '';
         
-        // Get total count with filters
-        $countStmt = $pdo->prepare($baseQuery);
+        $countSql = 'SELECT COUNT(*) as total FROM stiles_products sp ' . $countJoin . 'WHERE ' . $whereSql;
+        $countStmt = $pdo->prepare($countSql);
         $countStmt->execute($params);
         $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
         
-        // Log the total count
-        error_log("Total count: " . $totalCount);
-        
-        // Add sorting
-        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-                $orderBy = 'ORDER BY sp.post_date DESC';
+        $orderBy = 'ORDER BY sp.post_date DESC';
         switch ($sortBy) {
             case 'desc':
                 $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
@@ -1048,31 +1036,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 break;
         }
         
-        // Build the final query with pagination
-        $query = str_replace('COUNT(*) as total', '
-            sp.ID,
-            sp.title,
-            sp.slug,
-            sp.featured_image,
-            sp.regular_price,
-            sp.sale_price,
-            sp.product_category,
-            sp.`attribute:pa_colour` as colour,
-            sp.`attribute:pa_finish` as finish,
-            sp.`attribute:pa_brands` as brands,
-            sp.`attribute:pa_size` as size,
-            sp.status,
-            sp.post_date,
-            iq.sellPInc1
-        ', $baseQuery) . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
+        $selectCols = 'sp.ID, sp.title, sp.slug, sp.featured_image, sp.regular_price, sp.sale_price, sp.product_category, sp.`attribute:pa_colour` as colour, sp.`attribute:pa_finish` as finish, sp.`attribute:pa_brands` as brands, sp.`attribute:pa_size` as size, sp.status, sp.post_date';
+        if ($dataJoin !== '') {
+            $selectCols .= ', iq.sellPInc1';
+        }
         
-        // Add pagination parameters
-        $params[] = $limit;
-        $params[] = $offset;
+        $dataParams = $params;
+        $dataParams[] = $limit;
+        $dataParams[] = $offset;
         
-        // Execute the query
+        $query = 'SELECT ' . $selectCols . ' FROM stiles_products sp ' . $dataJoin . 'WHERE ' . $whereSql . ' ' . $orderBy . ' LIMIT ? OFFSET ?';
+        
         $stmt = $pdo->prepare($query);
-        $stmt->execute($params);
+        $stmt->execute($dataParams);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the data to minimize size
