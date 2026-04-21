@@ -538,7 +538,7 @@ const OurProducts = () => {
         <section id="ourproductsHome" className='container mx-auto px-4 flex flex-col justify-start items-start'>
           <div className="flex flex-row justify-between items-end gap-5 w-full">
             <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Products we are proud of</h2>
-            <a href="/shopall" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
+            <a href="/product-category/tiles" className='hidden lg:block'>VIEW ALL OUR PRODUCTS</a>
           </div>
           <div className="flex flex-row justify-start items-center gap-5 w-full pt-5 max-w-full overflow-x-auto scrollsnap pb-4">
             <button className={category === "Tiles" ? 'underline text-lg font-semibold uppercase underline-offset-4' : 'text-lg font-semibold text-opaque uppercase transition-all hover:text-dark hover:underline underline-offset-4'} onClick={() => updateCat("Tiles")}>TILES</button>

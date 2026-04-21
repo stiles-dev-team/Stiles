@@ -6,6 +6,16 @@ import { Helmet } from 'react-helmet-async';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizePostDates } from '../utils/dateUtils';
 
+function blogCategorySlug(label) {
+  return label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 const BlogPost = () => {
   const { slug } = useParams();
   
@@ -305,7 +315,7 @@ const BlogPost = () => {
                   </div>
                 </div>
                 <Link 
-                  to={`/stiles-blog/category/${currentPost.categories.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-')}`}
+                  to={`/stiles-blog/category/${blogCategorySlug(currentPost.categories.split(',')[0])}`}
                   className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   More in {currentPost.categories.split(',')[0].trim()}
