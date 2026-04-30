@@ -51,7 +51,7 @@ const ContactUs = () => {
           <meta property="og:image:height" content="630" />
           <meta property="og:image:alt" content="Contact Us | Stiles" />
       </Helmet>
-      <section className='w-full bg-dark bg-cover bg-center relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
+      <section className='w-full bg-black bg-cover bg-center relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
           <h1 className='text-white font-bold text-6xl text-center drop-shadow-md'>Contact Us</h1>

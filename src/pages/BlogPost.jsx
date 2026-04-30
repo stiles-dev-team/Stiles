@@ -210,7 +210,7 @@ const BlogPost = () => {
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-bold mb-4">Post Not Found</h1>
           <p className="mb-6">The blog post you're looking for doesn't exist or has been moved.</p>
-          <Link to="/stiles-blog" className="bg-dark text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+          <Link to="/stiles-blog" className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
             Return to Blog
           </Link>
         </div>
@@ -245,7 +245,7 @@ const BlogPost = () => {
           <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/50'></div>
         </div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-4'>
-          <div className="bg-dark text-white py-2 px-4 rounded-full text-sm uppercase">
+          <div className="bg-black text-white py-2 px-4 rounded-full text-sm uppercase">
             {currentPost.categories}
           </div>
           <h1 className='text-white font-bold text-4xl md:text-5xl text-center max-w-4xl'>
@@ -379,7 +379,7 @@ const BlogPost = () => {
                           alt={post.post_title} 
                           className="w-full aspect-[4/3] object-cover transform group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute top-3 left-3 bg-dark text-white text-xs py-1 px-2 rounded-full">
+                        <div className="absolute top-3 left-3 bg-black text-white text-xs py-1 px-2 rounded-full">
                           {post.categories.split(',')[0].trim()}
                         </div>
                       </div>
@@ -457,7 +457,7 @@ const BlogPost = () => {
                 <div>
                   <button
                     type="submit"
-                    className="bg-dark text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                    className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
                   >
                     Post Comment
                   </button>

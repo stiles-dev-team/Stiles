@@ -17,7 +17,7 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer className='w-full bg-dark pt-20 pb-10'>
+    <footer className='w-full bg-black pt-20 pb-10'>
       <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-20">
         <div className="flex flex-col justify-start items-center lg:items-start gap-5 lg:col-span-1">
           <img src="/images/logo_white.png" alt="logo" className="h-16" />

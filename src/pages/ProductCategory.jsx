@@ -539,7 +539,7 @@ const Content = ({
                             setSelectedSizes([]);
                             setCurrentPage(1);
                         }}
-                        className="w-full mb-4 px-4 py-2 bg-dark text-white rounded-lg hover:bg-dark/90 transition-all flex items-center justify-center gap-2"
+                        className="w-full mb-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all flex items-center justify-center gap-2"
                     >
                         Clear All Filters
                     </button>
@@ -551,7 +551,7 @@ const Content = ({
                                     brands.map((item, index) => (
                                         <p 
                                             key={index} 
-                                            className={`${selectedBrands.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            className={`${selectedBrands.includes(item) ? 'bg-black text-white' : 'bg-[#F2F2F2] text-dark hover:bg-black hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleBrandFilter(item)}
                                         >
                                             {decodeHTML(item)}
@@ -571,7 +571,7 @@ const Content = ({
                                     finish.map((item, index) => (
                                         <p 
                                             key={index} 
-                                            className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            className={`${selectedFinish.includes(item) ? 'bg-black text-white' : 'bg-[#F2F2F2] text-dark hover:bg-black hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleFinishFilter(item)}
                                         >
                                             {decodeHTML(item)}
@@ -591,7 +591,7 @@ const Content = ({
                                     colours.map((item, index) => (
                                         <p 
                                             key={index} 
-                                            className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            className={`${selectedColours.includes(item) ? 'bg-black text-white' : 'bg-[#F2F2F2] text-dark hover:bg-black hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleColourFilter(item)}
                                         >
                                             {decodeHTML(item)}
@@ -636,7 +636,7 @@ const Content = ({
                                                     className={`
                                                         px-3 py-2 rounded cursor-pointer text-xs text-center
                                                         ${selectedSizes.includes(item)
-                                                            ? 'bg-dark text-white'
+                                                            ? 'bg-black text-white'
                                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                                                         }
                                                     `}
@@ -667,7 +667,7 @@ const Content = ({
                                             {selectedSizes.map((size, index) => (
                                                 <div
                                                     key={index}
-                                                    className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-dark text-white"
+                                                    className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-black text-white"
                                                 >
                                                     {size}
                                                     <button
@@ -780,19 +780,19 @@ const Content = ({
                                 </div>
                                 <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                                     Share Item:
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaFacebookF className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaXTwitter className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaPinterestP className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaInstagram className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaWhatsapp className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
                                 </div>

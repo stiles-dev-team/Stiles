@@ -423,8 +423,8 @@ const Product = () => {
         {
             label: "Product Details",
             value: "additional",
-            desc: product?.["meta:product_details"] ? product?.["meta:product_details"].split('\r\n').map((line, index) => {
-                // Convert text inside strong/b tags to bold font weight
+            desc: product?.["meta:product_details"] ? product?.["meta:product_details"].split(/\r?\n/).map((line, index) => {
+                // Split on both Windows (\r\n) and Unix (\n) newlines so each source line always renders on its own row.
                 const formattedLine = line.replace(/<(strong|b)>(.*?)<\/\1>/g, '<span class="font-bold">$2</span>');
                 return <div key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
             }) : [],
@@ -650,7 +650,7 @@ const Product = () => {
                                     >
                                         <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
                                             {badgesPendingVisibility ? (
-                                                <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                                <div className="h-3 w-20 bg-black/20 rounded animate-pulse" />
                                             ) : (
                                                 <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
                                             )}
@@ -736,7 +736,7 @@ const Product = () => {
                                     >
                                         <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
                                             {badgesPendingVisibility ? (
-                                                <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                                <div className="h-3 w-20 bg-black/20 rounded animate-pulse" />
                                             ) : (
                                                 <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
                                             )}
@@ -810,7 +810,7 @@ const Product = () => {
                     </div>
                 )}
                 <div className="flex flex-row gap-2 mb-4">
-                    <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-dark transition-all text-sm py-2 px-4 rounded bg-secondary'>Return to results</button>
+                    <button onClick={() => window.history.back()} className='text-dark/60 hover:text-white hover:bg-black transition-all text-sm py-2 px-4 rounded bg-secondary'>Return to results</button>
                     
                 </div>
                 <h1 className='font-bold text-xl'>{product?.title}</h1>
@@ -845,31 +845,31 @@ const Product = () => {
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                         Share Item:
                         <div 
-                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'
+                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'
                             onClick={shareOnFacebook}
                         >
                             <FaFacebookF className='fill-dark group-hover:fill-white transition-all' size={18} />
                         </div>
                         <div 
-                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'
+                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'
                             onClick={shareOnTwitter}
                         >
                             <FaXTwitter className='fill-dark group-hover:fill-white transition-all' size={18} />
                         </div>
                         <div 
-                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'
+                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'
                             onClick={shareOnPinterest}
                         >
                             <FaPinterestP className='fill-dark group-hover:fill-white transition-all' size={18} />
                         </div>
                         <div 
-                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'
+                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'
                             onClick={shareOnInstagram}
                         >
                             <FaInstagram className='fill-dark group-hover:fill-white transition-all' size={18} />
                         </div>
                         <div 
-                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'
+                            className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'
                             onClick={shareOnWhatsApp}
                         >
                             <FaWhatsapp className='fill-dark group-hover:fill-white transition-all' size={18} />
@@ -954,10 +954,10 @@ const Product = () => {
                     </button>
                 )}
                 {/* <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-2">
-                    <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
+                    <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-black text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
                     View this in your room
                     </a>
-                    <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-dark text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
+                    <a href="javascript: roomvo.startStandaloneVisualizer();" className='w-full text-xs bg-black text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold uppercase'>
                     View in 3D
                     </a>
 
@@ -1079,7 +1079,7 @@ const SubscribeBanner = () => {
           <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Subscribe to our weekly newsletter to get the latest updates and amazing offers delivered in your inbox</p>
           <div className='relative w-full max-w-[460px] flex justify-center items-center'>
             <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' placeholder='Email Address' />
-            <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
+            <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-black hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
           </div>
         </div>
       </section>

@@ -4,7 +4,7 @@ import Layout from "../layout/Layout";
 const TermsAndConditions = () => {
   return (
     <Layout>
-        <section className='w-full bg-dark relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
+        <section className='w-full bg-black relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
             <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
             <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
                 <h1 className='text-white font-bold text-5xl text-center drop-shadow-md'>Stiles Terms and Conditions of Sale</h1>

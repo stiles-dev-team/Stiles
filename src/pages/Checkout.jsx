@@ -256,11 +256,11 @@ const Checkout = () => {
           <div className='w-full lg:w-7/12'>
             <div className='flex items-center justify-center mb-8'>
               <div className='flex items-center'>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-dark text-white' : 'bg-gray-200'}`}>1</div>
-                <div className={`h-1 w-16 ${step >= 2 ? 'bg-dark' : 'bg-gray-200'}`}></div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-dark text-white' : 'bg-gray-200'}`}>2</div>
-                <div className={`h-1 w-16 ${step >= 3 ? 'bg-dark' : 'bg-gray-200'}`}></div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-dark text-white' : 'bg-gray-200'}`}>3</div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-black text-white' : 'bg-gray-200'}`}>1</div>
+                <div className={`h-1 w-16 ${step >= 2 ? 'bg-black' : 'bg-gray-200'}`}></div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-black text-white' : 'bg-gray-200'}`}>2</div>
+                <div className={`h-1 w-16 ${step >= 3 ? 'bg-black' : 'bg-gray-200'}`}></div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-black text-white' : 'bg-gray-200'}`}>3</div>
               </div>
             </div>
 
@@ -399,7 +399,7 @@ const Checkout = () => {
                       <p className='text-gray-600 mb-6'>Thank you for your order. We'll send you a confirmation email shortly.</p>
                       <a 
                         href="/" 
-                        className='px-6 py-2 bg-dark text-white rounded-full hover:bg-dark/90 transition-all inline-block'
+                        className='px-6 py-2 bg-black text-white rounded-full hover:bg-black/90 transition-all inline-block'
                       >
                         Continue Shopping
                       </a>
@@ -411,7 +411,7 @@ const Checkout = () => {
                       <p className='text-gray-600 mb-6'>There was an error processing your order. Please try again or contact support.</p>
                       <button 
                         onClick={() => setStep(3)} 
-                        className='px-6 py-2 bg-dark text-white rounded-full hover:bg-dark/90 transition-all'
+                        className='px-6 py-2 bg-black text-white rounded-full hover:bg-black/90 transition-all'
                       >
                         Go Back
                       </button>
@@ -430,7 +430,7 @@ const Checkout = () => {
                   {step > 1 && (
                     <button
                       onClick={handleBack}
-                      className='px-6 py-2 border border-dark text-dark rounded-full hover:bg-dark hover:text-white transition-all'
+                      className='px-6 py-2 border border-dark text-dark rounded-full hover:bg-black hover:text-white transition-all'
                     >
                       Back
                     </button>
@@ -438,7 +438,7 @@ const Checkout = () => {
                   <button
                     onClick={step === 3 ? handlePlaceOrder : handleContinue}
                     disabled={!isCurrentStepValid() || isSubmitting}
-                    className='px-6 py-2 bg-dark text-white rounded-full hover:bg-dark/90 transition-all ml-auto disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='px-6 py-2 bg-black text-white rounded-full hover:bg-black/90 transition-all ml-auto disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     {step === 3 ? 'Place Order' : 'Continue'}
                   </button>
@@ -459,7 +459,7 @@ const Checkout = () => {
                   <div key={index} className='flex items-center gap-4 py-3 border-b'>
                     <div className='relative'>
                       <img src={item.images[0].url} alt={item.title} className='w-20 h-20 object-cover rounded' />
-                      <span className='absolute -top-2 -right-2 bg-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-xs'>
+                      <span className='absolute -top-2 -right-2 bg-black text-white w-5 h-5 rounded-full flex items-center justify-center text-xs'>
                         {item.quantity || 1}
                       </span>
                     </div>

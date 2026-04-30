@@ -31,7 +31,7 @@ export default Cart
 
 const Hero = () => {
     return (
-      <section id='heroHome' className='w-full h-[40vh] bg-dark relative flex flex-col justify-center items-center pt-20'>
+      <section id='heroHome' className='w-full h-[40vh] bg-black relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>Request Order</h1>
@@ -267,7 +267,7 @@ const Main = () => {
                             <p className='text-lg font-bold'>Total</p>
                             <p className='text-lg text-dark/70'>{formatCurrency(calculateTotal())}</p>
                         </div>
-                        <a href="/checkout" className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full'>
+                        <a href="/checkout" className='text-xs bg-black text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full'>
                             CONFIRM ORDER
                         </a>
                     </Card>

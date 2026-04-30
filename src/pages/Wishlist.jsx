@@ -34,7 +34,7 @@ export default Wishlist
 
 const Hero = () => {
     return (
-      <section id='heroHome' className='w-full h-[45vh] bg-dark relative flex flex-col justify-center items-center pt-20'>
+      <section id='heroHome' className='w-full h-[45vh] bg-black relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>Wishlist</h1>
@@ -309,7 +309,7 @@ const Main = () => {
                                 <td>
                                     <div className='flex flex-col gap-2'>
                                         <button 
-                                            className='text-xs bg-dark text-white rounded-full py-3 px-5 flex justify-center items-center gap-2'
+                                            className='text-xs bg-black text-white rounded-full py-3 px-5 flex justify-center items-center gap-2'
                                             onClick={() => addToCart(item)}
                                         >
                                             ADD TO CART
@@ -373,7 +373,7 @@ const Main = () => {
                             </div>
                             <div className='flex flex-col gap-2 w-full'>
                                 <button 
-                                    className='text-xs bg-dark text-white rounded-full py-3 px-5 flex justify-center items-center gap-2 w-full'
+                                    className='text-xs bg-black text-white rounded-full py-3 px-5 flex justify-center items-center gap-2 w-full'
                                     onClick={() => addToCart(item)}
                                 >
                                     ADD TO CART
@@ -391,7 +391,7 @@ const Main = () => {
                 </Card>
             </section>
             <div className='w-full flex flex-col lg:flex-row justify-between items-center pt-10'>
-                {/* <button className='text-xs bg-dark text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full lg:w-fit'>
+                {/* <button className='text-xs bg-black text-white rounded-full py-4 px-10 flex justify-center items-center gap-2 w-full lg:w-fit'>
                     ASK FOR AN ESTIMATE
                 </button> */}
                 <div className='flex flex-col lg:flex-row justify-end items-center gap-3 w-full lg:w-fit pt-3 lg:pt-0'>

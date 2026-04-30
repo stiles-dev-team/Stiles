@@ -322,7 +322,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                     finish.map((item, index) => (
                                         <p 
                                             key={index} 
-                                            className={`${selectedFinish.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            className={`${selectedFinish.includes(item) ? 'bg-black text-white' : 'bg-[#F2F2F2] text-dark hover:bg-black hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleFinishFilter(item)}
                                         >
                                             {item}
@@ -340,7 +340,7 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                     colours.map((item, index) => (
                                         <p 
                                             key={index} 
-                                            className={`${selectedColours.includes(item) ? 'bg-dark text-white' : 'bg-[#F2F2F2] text-dark hover:bg-dark hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
+                                            className={`${selectedColours.includes(item) ? 'bg-black text-white' : 'bg-[#F2F2F2] text-dark hover:bg-black hover:text-white'} transition-all py-1.5 px-4 rounded text-center cursor-pointer`}
                                             onClick={() => handleColourFilter(item)}
                                         >
                                             {item}
@@ -426,19 +426,19 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                                 </div>
                                 <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                                     Share Item:
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaFacebookF className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaXTwitter className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaPinterestP className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaInstagram className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaWhatsapp className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
                                 </div>

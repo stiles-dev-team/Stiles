@@ -661,7 +661,7 @@ const SubscribeBanner = () => {
           <button 
             type="submit"
             disabled={!isEmailValid || isLoading}
-            className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-dark hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]'
+            className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-black hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]'
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

@@ -60,7 +60,7 @@ const Register = () => {
         <title>Register | Stiles</title>
         <meta name="description" content="Create a new Stiles account" />
       </Helmet>
-      <section className='w-full bg-dark relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
+      <section className='w-full bg-black relative flex flex-col justify-center items-center pt-20 h-[40vh]'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
           <h1 className='text-white font-bold text-5xl text-center drop-shadow-md'>Register</h1>
@@ -165,7 +165,7 @@ const Register = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-dark hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dark transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dark transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? 'Creating Account...' : 'Create Account'}

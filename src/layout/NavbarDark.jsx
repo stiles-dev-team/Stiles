@@ -191,7 +191,7 @@ const NavbarDark = () => {
     {
       showSearch &&
       <div className="w-full fixed h-screen top-0 z-[999] flex flex-col justify-center items-center gap-5 px-4 py-3">
-        <div className="bg-dark/80 w-full h-full absolute top-0 left-0 z-0" onClick={() => setShowSearch(false)}></div>
+        <div className="bg-black/80 w-full h-full absolute top-0 left-0 z-0" onClick={() => setShowSearch(false)}></div>
         <div className="w-11/12 max-w-3xl relative z-10">
           <input 
             type="search" 

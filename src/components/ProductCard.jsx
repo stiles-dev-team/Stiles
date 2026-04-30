@@ -313,7 +313,7 @@ const ProductCard = memo(({ onClick, prod }) => {
                             >
                                 <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
                                     {badgesPendingVisibility ? (
-                                        <div className="h-3 w-20 bg-dark/20 rounded animate-pulse" />
+                                        <div className="h-3 w-20 bg-black/20 rounded animate-pulse" />
                                     ) : (
                                         <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
                                     )}

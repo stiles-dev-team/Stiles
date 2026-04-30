@@ -226,15 +226,15 @@ const Content = () => {
                         <AccordionHeader className='font-medio text-lg lg:text-xl text-dark text-left border-b border-b-[#cfcfcf] w-full pb-3 tracking-tight' onClick={() => handleOpen(3)}>Finish</AccordionHeader>
                         <AccordionBody className="py-1 px-1">
                             <div className='flex flex-row flex-wrap w-full justify-start items-center gap-2 py-2'>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>GLOSS</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>MATT</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>NATURAL</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>POLISHED</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SATIN</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SHINY</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SOFT GRIP</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>COMFORT</p>
-                                <p className='bg-[#F2F2F2] hover:bg-dark text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>GLASS</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>GLOSS</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>MATT</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>NATURAL</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>POLISHED</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SATIN</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SHINY</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>SOFT GRIP</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>COMFORT</p>
+                                <p className='bg-[#F2F2F2] hover:bg-black text-dark hover:text-white transition-all py-1.5 px-4 rounded text-center cursor-pointer'>GLASS</p>
                             </div>
                         </AccordionBody>
                     </Accordion>
@@ -352,19 +352,19 @@ const Content = () => {
                                 </div>
                                 <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                                     Share Item:
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaFacebookF className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaXTwitter className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaPinterestP className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaInstagram className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
-                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-dark group transition-all cursor-pointer'>
+                                    <div className='size-10 flex justify-center items-center rounded-full bg-white hover:bg-black group transition-all cursor-pointer'>
                                         <FaWhatsapp className='fill-dark group-hover:fill-white transition-all' size={18} />
                                     </div>
                                 </div>
