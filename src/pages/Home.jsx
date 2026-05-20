@@ -202,14 +202,14 @@ const Hero = ({ content }) => {
             button_text: "Shop Now",
             button_link: "/promo/styling-between-the-lines"
           },
-          {
-            id: 2,
-            title: "Easter Closure notice!",
-            subtitle: "Please note all Stiles brances will be closed: Friday 3 April - Monday 6 April\n\nWe reopen Tuesday.\nHappy Easter from the Stiles team.",
-            background_image: "/images/easter-background.jpg",
-            button_text: "",
-            button_link: ""
-          },
+          // {
+          //   id: 2,
+          //   title: "Easter Closure notice!",
+          //   subtitle: "Please note all Stiles brances will be closed: Friday 3 April - Monday 6 April\n\nWe reopen Tuesday.\nHappy Easter from the Stiles team.",
+          //   background_image: "/images/easter-background.jpg",
+          //   button_text: "",
+          //   button_link: ""
+          // },
           {
             id: 3,
             title: "Quality and Style Specially Handpicked for You",
@@ -250,6 +250,10 @@ const Hero = ({ content }) => {
               {slide.subtitle && (
                 <p className='text-white text-lg md:text-xl mb-5 w-full max-w-2xl whitespace-pre-line'>{slide.subtitle}</p>
               )}
+
+                {/* <div>
+                  <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
+                </div> */}
               {index === 0 ? (
                 <div className='w-full flex justify-center mt-12'>
                   <ButtonStiles
@@ -259,8 +263,6 @@ const Hero = ({ content }) => {
                     extraStyle="text-lg px-10 py-5 [animation:promoPulse_2.4s_ease-in-out_infinite] [@keyframes_promoPulse{0%,100%{background:#fff;border-color:#fff;box-shadow:0_8px_20px_rgba(255,255,255,.2)}50%{background:#FFF9D6;border-color:#FFF9D6;box-shadow:0_12px_28px_rgba(255,249,214,.45)}}] hover:bg-black hover:text-white hover:border-black after:content-['→'] after:ml-2"
                   />
                 </div>
-              ) : index === 1 ? (
-                null
               ) : (
                 <div>
                   <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />

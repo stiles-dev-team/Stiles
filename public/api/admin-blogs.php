@@ -135,7 +135,7 @@ switch($method) {
                 $stmt = $pdo->prepare("
                     INSERT INTO blogs (post_title, slug, post_date, post_content, post_excerpt, 
                     post_status, categories, tags, featured_image, metadescription)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 
                 $stmt->execute([

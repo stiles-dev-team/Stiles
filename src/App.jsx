@@ -9,6 +9,7 @@ import ProductSubCategory from "./pages/ProductSubCategory"
 import ProductTagCategory from "./pages/ProductTagCategory"
 import Fireplaces from "./pages/Fireplaces"
 import TermsAndConditions from "./pages/TermsAndConditions"
+import EndOfRange from "./pages/EndOfRange"
 import PrivacyPolicy from "./pages/PrivacyPolicy"
 import ProductDisclaimer from "./pages/ProductDisclaimer"
 import ProductBrands from "./pages/ProductBrands"
@@ -74,6 +75,7 @@ function App() {
           <Route path="/promo/:promo" element={<Promo />} />
 
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
+          <Route path="/end-of-range" element={<EndOfRange />} />
           <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
           <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
           <Route path="/contact-us" element={<ContactUs />} />

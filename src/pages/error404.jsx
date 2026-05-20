@@ -24,7 +24,7 @@ const Error404 = () => {
               Back to home
             </a>
             <a
-              href="/shopall"
+              href="/product-category/tiles"
               className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-secondary text-dark px-8 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white transition-all"
             >
               Browse all products
