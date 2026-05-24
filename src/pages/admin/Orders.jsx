@@ -14,7 +14,7 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('https://stiles.co.za/api/orders_admin.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/orders_admin.php', {
         headers: { 'Accept': 'application/json' }
       })
       const data = await response.json()
@@ -70,7 +70,7 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      const response = await fetch('https://stiles.co.za/api/orders_admin.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/orders_admin.php', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

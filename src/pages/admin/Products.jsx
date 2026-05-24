@@ -386,7 +386,7 @@ const AdminProducts = () => {
     if (window.confirm(`Are you sure you want to delete ${selectedProducts.length} product(s)?`)) {
       try {
         const deletePromises = selectedProducts.map(productId => 
-          fetch("https://stiles.co.za/api/admin-products.php", {
+          fetch("https://staging.stiles.co.za/api/admin-products.php", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -628,11 +628,11 @@ const AdminProducts = () => {
         status,
         colour,
         finish,
-        url: `https://stiles.co.za/api/admin-products.php?${params}`
+        url: `https://staging.stiles.co.za/api/admin-products.php?${params}`
       });
 
       const response = await fetch(
-        `https://stiles.co.za/api/admin-products.php?${params}`,
+        `https://staging.stiles.co.za/api/admin-products.php?${params}`,
         {
           headers: { Accept: "application/json" },
         }
@@ -680,7 +680,7 @@ const AdminProducts = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/unique-categories.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/unique-categories.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -692,7 +692,7 @@ const AdminProducts = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-brands.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/admin-brands.php", {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -715,7 +715,7 @@ const AdminProducts = () => {
 
   const fetchColours = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/unique-colours.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/unique-colours.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -727,7 +727,7 @@ const AdminProducts = () => {
 
   const fetchFinishes = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/unique-finishes.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/unique-finishes.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -739,7 +739,7 @@ const AdminProducts = () => {
 
   const fetchSizes = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/unique-sizes.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/unique-sizes.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -751,7 +751,7 @@ const AdminProducts = () => {
 
   const fetchPromos = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/unique-promos.php", {
+      const response = await fetch("https://staging.stiles.co.za/api/unique-promos.php", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -763,7 +763,7 @@ const AdminProducts = () => {
 
   const fetchUniqueCategories = async () => {
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/admin-categories-json.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -830,7 +830,7 @@ const AdminProducts = () => {
 
   const fetchProductBySlug = async (slug) => {
     try {
-      const response = await fetch(`https://stiles.co.za/api/admin-products.php?slug=${encodeURIComponent(slug)}`, {
+      const response = await fetch(`https://staging.stiles.co.za/api/admin-products.php?slug=${encodeURIComponent(slug)}`, {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -849,7 +849,7 @@ const AdminProducts = () => {
 
   const getNextId = async () => {
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-products.php?get_max_id=1", {
+      const response = await fetch("https://staging.stiles.co.za/api/admin-products.php?get_max_id=1", {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -872,7 +872,7 @@ const AdminProducts = () => {
 
     try {
       setCheckingIq(true);
-      const response = await fetch(`https://stiles.co.za/api/iq_new.php?code=${encodeURIComponent(sku.trim())}`, {
+      const response = await fetch(`https://staging.stiles.co.za/api/iq_new.php?code=${encodeURIComponent(sku.trim())}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -944,7 +944,7 @@ const AdminProducts = () => {
         const stringId = String(productId);
         console.log("Deleting product:", stringId);
         const response = await fetch(
-          "https://stiles.co.za/api/admin-products.php",
+          "https://staging.stiles.co.za/api/admin-products.php",
           {
             method: "DELETE",
             headers: {
@@ -1035,7 +1035,7 @@ const AdminProducts = () => {
     setSubmitting(true);
 
     try {
-      const url = "https://stiles.co.za/api/admin-products.php";
+      const url = "https://staging.stiles.co.za/api/admin-products.php";
       const method = "POST";
       
       // Check if we have actual files to upload
@@ -1452,7 +1452,7 @@ const AdminProducts = () => {
       }
       
       // Fetch products with brand filter
-      let url = "https://stiles.co.za/api/admin-products.php?limit=10000";
+      let url = "https://staging.stiles.co.za/api/admin-products.php?limit=10000";
       if (brandFilter) {
         url += `&brands=${brandFilter}`;
       }
@@ -1555,7 +1555,7 @@ const AdminProducts = () => {
       const formData = new FormData();
       formData.append('csv_file', file);
 
-      const response = await fetch('https://stiles.co.za/api/upload-products-csv.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/upload-products-csv.php', {
         method: 'POST',
         body: formData,
       });

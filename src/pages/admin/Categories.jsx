@@ -20,7 +20,7 @@ const AdminBrands = () => {
   const fetchBrands = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/admin-brands.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ const AdminBrands = () => {
     try {
       if (editingBrand) {
         // Update existing brand
-        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-brands.php', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const AdminBrands = () => {
         }
       } else {
         // Create new brand
-        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-brands.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ const AdminBrands = () => {
   const handleDeleteBrand = async (brand) => {
     if (window.confirm(`Are you sure you want to delete the brand "${decodeHtmlEntities(brand.name)}"? This will remove the brand from all products.`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-brands.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-brands.php', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

@@ -36,7 +36,7 @@ const MediaSelector = ({
         type: filter
       });
 
-      const response = await fetch(`https://stiles.co.za/api/admin-media.php?${params}`);
+      const response = await fetch(`https://staging.stiles.co.za/api/admin-media.php?${params}`);
       const data = await response.json();
 
       if (data.success) {

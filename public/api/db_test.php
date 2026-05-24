@@ -10,9 +10,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Database configuration
 $host = 'dedi397.cpt4.host-h.net';
-$dbname = 'stileucwjz_db_ws';
-$username = 'stileucwjz_3';
-$password = 'by8uVbZJ8y7mAcstcuC8';
+$dbname = 'stiles_staging';
+$username = 'mj698_qf66r';
+$password = 'T3122u650S2E3d';
 
 try {
     $pdo = new PDO(

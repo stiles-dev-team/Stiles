@@ -48,7 +48,7 @@ const Profile = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('https://stiles.co.za/api/update-profile.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/update-profile.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

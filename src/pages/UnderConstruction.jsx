@@ -11,7 +11,7 @@ const UnderConstruction = () => {
   useEffect(() => {
     const fetchHomeContent = async () => {
       try {
-        const response = await fetch("https://stiles.co.za/api/admin-content.php?page=home", {
+        const response = await fetch("https://staging.stiles.co.za/api/admin-content.php?page=home", {
           headers: { Accept: "application/json" },
         });
         const data = await response.json();

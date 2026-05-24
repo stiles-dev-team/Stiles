@@ -35,7 +35,7 @@ const AdminAnalytics = () => {
   const fetchAnalytics = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`https://stiles.co.za/api/admin-analytics.php?timeRange=${timeRange}`, {
+      const response = await fetch(`https://staging.stiles.co.za/api/admin-analytics.php?timeRange=${timeRange}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

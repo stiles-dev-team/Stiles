@@ -27,7 +27,7 @@ const Login = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('https://stiles.co.za/api/login.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/login.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

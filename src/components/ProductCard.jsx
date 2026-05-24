@@ -36,7 +36,7 @@ const ProductCard = memo(({ onClick, prod }) => {
         let isMounted = true;
         setLoading(true);
         
-        fetch(`https://stiles.co.za/api/products.php?slug=${prod}`)
+        fetch(`https://staging.stiles.co.za/api/products.php?slug=${prod}`)
         .then(async res => {
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
@@ -97,7 +97,7 @@ const ProductCard = memo(({ onClick, prod }) => {
 
                 // Fetch stock info if SKU exists
                 if (productData.sku) {
-                    fetch(`https://stiles.co.za/api/iq_new.php?code=${productData.sku}`, {
+                    fetch(`https://staging.stiles.co.za/api/iq_new.php?code=${productData.sku}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',

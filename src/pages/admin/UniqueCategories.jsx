@@ -64,7 +64,7 @@ const AdminUniqueCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+      const response = await fetch('https://staging.stiles.co.za/api/admin-categories-json.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const AdminUniqueCategories = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-categories-json.php', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const AdminUniqueCategories = () => {
         }
       } else {
         // Create new category
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-categories-json.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ const AdminUniqueCategories = () => {
   const handleDeleteCategory = async (category) => {
     if (window.confirm(`Are you sure you want to delete the category "${category.category}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-categories-json.php', {
+        const response = await fetch('https://staging.stiles.co.za/api/admin-categories-json.php', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

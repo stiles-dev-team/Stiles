@@ -26,7 +26,7 @@ const CategoryBlogs = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    fetch(`https://staging.stiles.co.za/api/get-blogs.php`)
     .then(res => {
       if (!res.ok) throw new Error('Failed to fetch blogs');
       return res.json();

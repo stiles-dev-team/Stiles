@@ -3,7 +3,7 @@ let cachedAt = 0;
 let inflight = null;
 
 const TTL_MS = 5 * 60 * 1000;
-const API_URL = 'https://stiles.co.za/api/admin-unique-promos.php';
+const API_URL = 'https://staging.stiles.co.za/api/admin-unique-promos.php';
 
 function normalizePromoName(name) {
   if (typeof name !== 'string') return null;

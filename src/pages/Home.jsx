@@ -102,7 +102,7 @@ const Home = () => {
   useEffect(() => {
     const fetchHomeContent = async () => {
       try {
-        const response = await fetch("https://stiles.co.za/api/admin-content.php?page=home", {
+        const response = await fetch("https://staging.stiles.co.za/api/admin-content.php?page=home", {
           headers: { Accept: "application/json" },
         });
         const data = await response.json();
@@ -350,7 +350,7 @@ const OurProducts = () => {
         // Add a timestamp to prevent caching
         const timestamp = new Date().getTime();
         // Fetch more products to account for filtering (fetch 12, filter down to 6)
-        const res = await fetch(`https://stiles.co.za/api/products.php?category=${category}&limit=12&_=${timestamp}`, {
+        const res = await fetch(`https://staging.stiles.co.za/api/products.php?category=${category}&limit=12&_=${timestamp}`, {
           headers: {
             'Accept-Encoding': 'gzip, deflate',
             'Accept': 'application/json',
@@ -416,14 +416,14 @@ const OurProducts = () => {
             
             // Fetch full product data to get SKU and other details
             try {
-              const productRes = await fetch(`https://stiles.co.za/api/products.php?slug=${productItem.slug}`);
+              const productRes = await fetch(`https://staging.stiles.co.za/api/products.php?slug=${productItem.slug}`);
               const productText = await productRes.text();
               const productData = JSON.parse(productText);
               
               if (productData.status === 'success' && productData.data && productData.data.sku) {
                 // Fetch stock info
                 try {
-                  const stockRes = await fetch(`https://stiles.co.za/api/iq_new.php?code=${productData.data.sku}`, {
+                  const stockRes = await fetch(`https://staging.stiles.co.za/api/iq_new.php?code=${productData.data.sku}`, {
                     method: 'GET',
                     headers: {
                       'Accept': 'application/json',
@@ -614,7 +614,7 @@ const SubscribeBanner = () => {
     
     setIsLoading(true);
     
-    fetch(`https://stiles.co.za/api/everlytic.php?email=${encodeURIComponent(email)}`)
+    fetch(`https://staging.stiles.co.za/api/everlytic.php?email=${encodeURIComponent(email)}`)
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -844,7 +844,7 @@ const Blog = () => {
   const [blogPosts, setBlogPosts] = useState([]);
 
   useEffect(() => {
-    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    fetch(`https://staging.stiles.co.za/api/get-blogs.php`)
     .then(res => {
       if (!res.ok) throw new Error('Failed to fetch blogs');
       return res.json();

@@ -1,7 +1,7 @@
 <?php
 /**
  * Diagnostic script to help identify 403 Forbidden issues
- * Access this file directly via browser: https://stiles.co.za/api/diagnose-403.php
+ * Access this file directly via browser: https://staging.stiles.co.za/api/diagnose-403.php
  */
 
 // Set headers first

@@ -187,8 +187,8 @@ const Product = () => {
         console.log("Starting product fetch for ID:", id);
         // If admin, fetch product regardless of status, otherwise only published
         const apiUrl = isAdmin 
-            ? `https://stiles.co.za/api/admin-products.php?slug=${id}`
-            : `https://stiles.co.za/api/products.php?slug=${id}`;
+            ? `https://staging.stiles.co.za/api/admin-products.php?slug=${id}`
+            : `https://staging.stiles.co.za/api/products.php?slug=${id}`;
         
         fetch(apiUrl)
         .then(res => {
@@ -294,7 +294,7 @@ const Product = () => {
                 // Fetch stock info
                 if (product.sku) {
                     console.log('Fetching stock info for SKU:', product.sku);
-                    fetch(`https://stiles.co.za/api/iq_new.php?code=${product.sku}`, {
+                    fetch(`https://staging.stiles.co.za/api/iq_new.php?code=${product.sku}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -333,7 +333,7 @@ const Product = () => {
                 setIsFavourite(wishlist.some(item => item.slug === id));
                 
                 // Fetch related products
-                fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(product.product_category)}&limit=10`)
+                fetch(`https://staging.stiles.co.za/api/products.php?category=${encodeURIComponent(product.product_category)}&limit=10`)
                 .then(res => res.json())
                 .then(response => {
                     if (response.status === 'success' && response.data) {
