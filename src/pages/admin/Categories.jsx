@@ -10,7 +10,8 @@ const AdminBrands = () => {
     name: '',
     description: '',
     slug: '',
-    image: ''
+    image: '',
+    pdf_url: ''
   })
 
   useEffect(() => {
@@ -61,7 +62,8 @@ const AdminBrands = () => {
             new_name: formData.name,
             description: formData.description,
             slug: formData.slug,
-            image: formData.image
+            image: formData.image,
+            pdf_url: formData.pdf_url
           })
         })
 
@@ -72,7 +74,7 @@ const AdminBrands = () => {
           fetchBrands()
           setShowAddModal(false)
           setEditingBrand(null)
-          setFormData({ name: '', description: '', slug: '', image: '' })
+          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
         } else {
           alert('Error updating brand: ' + (result.error || 'Unknown error'))
         }
@@ -88,7 +90,8 @@ const AdminBrands = () => {
             name: formData.name,
             description: formData.description,
             slug: formData.slug,
-            image: formData.image
+            image: formData.image,
+            pdf_url: formData.pdf_url
           })
         })
 
@@ -98,7 +101,7 @@ const AdminBrands = () => {
           alert('Brand created successfully')
           fetchBrands()
           setShowAddModal(false)
-          setFormData({ name: '', description: '', slug: '', image: '' })
+          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
         } else {
           alert('Error creating brand: ' + (result.error || 'Unknown error'))
         }
@@ -115,7 +118,8 @@ const AdminBrands = () => {
       name: decodeHtmlEntities(brand.name) || '',
       description: decodeHtmlEntities(brand.description) || '',
       slug: decodeHtmlEntities(brand.slug) || '',
-      image: brand.image || ''
+      image: brand.image || '',
+      pdf_url: brand.pdf_url || ''
     })
     setShowAddModal(true)
   }
@@ -285,7 +289,7 @@ const AdminBrands = () => {
                 onClick={() => {
                   setShowAddModal(false)
                   setEditingBrand(null)
-                  setFormData({ name: '', description: '', slug: '', image: '' })
+                  setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
               >
@@ -351,6 +355,32 @@ const AdminBrands = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PDF URL
+                  </label>
+                  <input
+                    type="url"
+                    name="pdf_url"
+                    value={formData.pdf_url}
+                    onChange={handleInputChange}
+                    placeholder="https://example.com/document.pdf"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {formData.pdf_url && (
+                    <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                      <a
+                        href={formData.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        View PDF
+                      </a>
+                    </div>
+                  )}
+                </div>
                 
                 {editingBrand && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
@@ -366,7 +396,7 @@ const AdminBrands = () => {
                     onClick={() => {
                       setShowAddModal(false)
                       setEditingBrand(null)
-                      setFormData({ name: '', description: '', slug: '', image: '' })
+                      setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >

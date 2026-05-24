@@ -28,13 +28,14 @@ try {
                     b.description,
                     b.slug,
                     b.image,
+                    b.pdf_url,
                     b.is_active,
                     b.created_at,
                     COUNT(p.ID) as product_count
                 FROM brands b
                 LEFT JOIN stiles_products p ON b.name = p.`attribute:pa_brands` AND p.status = 'publish'
                 WHERE b.is_active = 1
-                GROUP BY b.id, b.name, b.description, b.slug, b.image, b.is_active, b.created_at
+                GROUP BY b.id, b.name, b.description, b.slug, b.image, b.pdf_url, b.is_active, b.created_at
                 ORDER BY b.name ASC
             ");
             $stmt->execute();
@@ -49,6 +50,7 @@ try {
                     'description' => $brand['description'],
                     'slug' => $brand['slug'],
                     'image' => $brand['image'],
+                    'pdf_url' => $brand['pdf_url'],
                     'product_count' => (int)$brand['product_count'],
                     'created_at' => $brand['created_at']
                 ];
@@ -72,6 +74,7 @@ try {
             $description = isset($data['description']) ? trim($data['description']) : '';
             $slug = isset($data['slug']) ? trim($data['slug']) : '';
             $image = isset($data['image']) ? trim($data['image']) : '';
+            $pdfUrl = isset($data['pdf_url']) ? trim($data['pdf_url']) : '';
             
             // Check if brand already exists
             $checkStmt = $pdo->prepare("SELECT COUNT(*) as count FROM brands WHERE name = ?");
@@ -86,10 +89,10 @@ try {
 
             // Insert new brand
             $insertStmt = $pdo->prepare("
-                INSERT INTO brands (name, description, slug, image) 
-                VALUES (?, ?, ?, ?)
+                INSERT INTO brands (name, description, slug, image, pdf_url) 
+                VALUES (?, ?, ?, ?, ?)
             ");
-            $result = $insertStmt->execute([$brandName, $description, $slug, $image]);
+            $result = $insertStmt->execute([$brandName, $description, $slug, $image, $pdfUrl]);
 
             if ($result) {
                 echo json_encode([
@@ -116,6 +119,7 @@ try {
             $description = isset($data['description']) ? trim($data['description']) : '';
             $slug = isset($data['slug']) ? trim($data['slug']) : '';
             $image = isset($data['image']) ? trim($data['image']) : '';
+            $pdfUrl = isset($data['pdf_url']) ? trim($data['pdf_url']) : '';
 
             // Check if new brand name already exists (excluding current brand)
             $checkStmt = $pdo->prepare("SELECT COUNT(*) as count FROM brands WHERE name = ? AND id != ?");
@@ -131,10 +135,10 @@ try {
             // Update brand in brands table
             $updateStmt = $pdo->prepare("
                 UPDATE brands 
-                SET name = ?, description = ?, slug = ?, image = ?, updated_at = NOW()
+                SET name = ?, description = ?, slug = ?, image = ?, pdf_url = ?, updated_at = NOW()
                 WHERE id = ?
             ");
-            $result = $updateStmt->execute([$newName, $description, $slug, $image, $brandId]);
+            $result = $updateStmt->execute([$newName, $description, $slug, $image, $pdfUrl, $brandId]);
 
             if ($result && !empty($oldName) && $oldName !== $newName) {
                 // Update all products with the old brand name to the new brand name
