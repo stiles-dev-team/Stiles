@@ -176,7 +176,7 @@ switch ($method) {
                         $stmt = $pdo->prepare("INSERT INTO media_files (filename, file_path, file_type, file_size, alt_text, description, category) VALUES (?, ?, ?, ?, ?, ?, ?)");
                         $result = $stmt->execute([
                             $file['name'],
-                            'https://stiles.co.za/images/' . $uniqueFilename,
+                            'https://staging.stiles.co.za/images/' . $uniqueFilename,
                             $fileType,
                             $file['size'],
                             $altText,
@@ -192,7 +192,7 @@ switch ($method) {
                             'file' => [
                                 'id' => (int)$fileId,
                                 'filename' => $file['name'],
-                                'url' => 'https://stiles.co.za/images/' . $uniqueFilename,
+                                'url' => 'https://staging.stiles.co.za/images/' . $uniqueFilename,
                                 'type' => $fileType,
                                 'size' => formatFileSize($file['size']),
                                 'alt' => $altText,

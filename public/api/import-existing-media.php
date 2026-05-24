@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Check if file already exists in database (using relative path as unique identifier)
             $stmt = $pdo->prepare("SELECT id FROM media_files WHERE file_path = ?");
-            $stmt->execute(['https://stiles.co.za/images/' . $relativePath]);
+            $stmt->execute(['https://staging.stiles.co.za/images/' . $relativePath]);
             if ($stmt->fetch()) {
                 continue; // Skip if already exists
             }
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO media_files (filename, file_path, file_type, file_size, alt_text, description, category) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $result = $stmt->execute([
                 $file,
-                'https://stiles.co.za/images/' . $relativePath,
+                'https://staging.stiles.co.za/images/' . $relativePath,
                 $fileType,
                 $fileSize,
                 $altText,
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $importedFiles[] = [
                     'id' => (int)$fileId,
                     'filename' => $file,
-                    'url' => 'https://stiles.co.za/images/' . $relativePath,
+                    'url' => 'https://staging.stiles.co.za/images/' . $relativePath,
                     'type' => $fileType,
                     'size' => formatFileSize($fileSize),
                     'alt' => $altText,
