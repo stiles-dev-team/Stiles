@@ -365,6 +365,7 @@ const AdminBrands = () => {
                     name="pdf_url"
                     value={formData.pdf_url}
                     onChange={handleInputChange}
+                    placeholder="https://example.com/document.pdf"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   {formData.pdf_url && (
