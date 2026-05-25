@@ -10,8 +10,8 @@ lerna-debug.log*
 
 node_modules
 dist
-public/config.php
-public/db_test.php
+public/api/config.php
+public/api/db_test.php
 build
 dist-ssr
 *.local
