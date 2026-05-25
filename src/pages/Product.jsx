@@ -90,6 +90,7 @@ const Product = () => {
     const [badgesPendingVisibility, setBadgesPendingVisibility] = useState(false);
 
     const [related, setRelated] = useState([]);
+    const [brandPdf, setBrandPdf] = useState(null);
 
     const [openQuote, setOpenQuote] = useState(false);
     const [roomLength, setRoomLength] = useState('');
@@ -185,6 +186,7 @@ const Product = () => {
 
     useEffect(() => {
         console.log("Starting product fetch for ID:", id);
+        setBrandPdf(null);
         // If admin, fetch product regardless of status, otherwise only published
         const apiUrl = isAdmin 
             ? `https://stiles.co.za/api/admin-products.php?slug=${id}`
@@ -327,6 +329,23 @@ const Product = () => {
                 }
 
                 setProduct(product);
+
+                const brandName = product['attribute:pa_brands'];
+                if (brandName) {
+                    fetch('https://stiles.co.za/api/admin-brands.php')
+                        .then(res => res.json())
+                        .then(data => {
+                            const brand = data.brands?.find(b => b.name === brandName);
+                            if (brand?.pdf_url) {
+                                setBrandPdf({ name: brand.name, pdf_url: brand.pdf_url });
+                            } else {
+                                setBrandPdf(null);
+                            }
+                        })
+                        .catch(() => setBrandPdf(null));
+                } else {
+                    setBrandPdf(null);
+                }
                 
                 // Check if product is in wishlist
                 const wishlist = JSON.parse(localStorage.getItem('stiles_wishlist_ls') || '[]');
@@ -837,10 +856,11 @@ const Product = () => {
                 </div>
                 {/* <p className='italic text-[#B3B3B3]'>(R935.61 per box of tiles)</p> */}
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full ">
-                    <div className='flex flex-row justify-start items-center gap-1 font-normal'>
-                        Brand:
-                        <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{decodeHtmlEntities(product?.["attribute:pa_brands"])}</a>
-                        {/* <img src="/images/partner.png" alt="" className='size-20 object-contain object-center' /> */}
+                    <div className='flex flex-col justify-start items-start gap-1 font-normal'>
+                        <div className='flex flex-row justify-start items-center gap-1'>
+                            Brand:
+                            <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{decodeHtmlEntities(product?.["attribute:pa_brands"])}</a>
+                        </div>
                     </div>
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                         Share Item:
@@ -876,8 +896,15 @@ const Product = () => {
                         </div>
                     </div>
                 </div>
-                <div className="productdesc flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full pb-5">
+                <div className="productdesc flex flex-col gap-2 w-full pb-5">
                     <div dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
+                    {brandPdf && (
+                        <p className='text-sm text-dark'>
+                            <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
+                                {decodeHtmlEntities(brandPdf.name)} guarantee
+                            </a>
+                        </p>
+                    )}
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
                     {
