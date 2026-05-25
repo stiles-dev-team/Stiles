@@ -861,14 +861,6 @@ const Product = () => {
                             Brand:
                             <a href={"/product-category/brands/" + product?.["attribute:pa_brands"]} className='text-dark underline font-bold'>{decodeHtmlEntities(product?.["attribute:pa_brands"])}</a>
                         </div>
-                        {brandPdf && (
-                            <p className='text-sm text-dark'>
-                                Brand Updates:{' '}
-                                <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
-                                    {decodeHtmlEntities(brandPdf.name)} details
-                                </a>
-                            </p>
-                        )}
                     </div>
                     <div className='flex flex-row justify-start items-center gap-1 font-bold'>
                         Share Item:
@@ -904,8 +896,15 @@ const Product = () => {
                         </div>
                     </div>
                 </div>
-                <div className="productdesc flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 w-full pb-5">
+                <div className="productdesc flex flex-col gap-2 w-full pb-5">
                     <div dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
+                    {brandPdf && (
+                        <p className='text-sm text-dark'>
+                            <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
+                                {decodeHtmlEntities(brandPdf.name)} guarantee
+                            </a>
+                        </p>
+                    )}
                 </div>
                 <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
                     {
