@@ -8,6 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+public/api/config.php
+public/api/db_test.php
 dist
 build
 dist-ssr
