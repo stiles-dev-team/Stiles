@@ -901,7 +901,10 @@ const Product = () => {
                     {brandPdf && (
                         <p className='text-sm text-dark'>
                             <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
-                                {decodeHtmlEntities(brandPdf.name)} guarantee
+                                {decodeHtmlEntities(brandPdf.name)}{' '}
+                                {decodeHtmlEntities(brandPdf.name) === 'Hansgrohe'
+                                    ? 'guarantee and cleaning instructions'
+                                    : 'guarantee'}
                             </a>
                         </p>
                     )}
