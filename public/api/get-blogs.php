@@ -75,7 +75,7 @@ try {
         }
     } else {
         // Fetch all published blogs
-        $stmt = $pdo->query("SELECT * FROM new_blogs WHERE post_status = 'publish' ORDER BY ID DESC");
+        $stmt = $pdo->query("SELECT * FROM new_blogs WHERE post_status = 'publish' ORDER BY post_date DESC");
         $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Format the response to match expected structure
