@@ -48,7 +48,7 @@ INSERT INTO order_items (
     92,  -- Order ID from the log
     234567,  -- Generated product ID (using hash fallback for 'ROS SHO MH04BN')
     'Meir Round PVD Brushed Nickel Shower Head 200mm',  -- Product title from log
-    'https://stiles.co.za/images/2022/09/MH04-PVDBN_Meir_PVD_Brushed_Nickel_Round_Shower_Head_200mm_Stiles_Product_Image3.png',  -- First image URL from log
+    'https://staging.stiles.co.za/images/2022/09/MH04-PVDBN_Meir_PVD_Brushed_Nickel_Round_Shower_Head_200mm_Stiles_Product_Image3.png',  -- First image URL from log
     3800,  -- Price from log (regular_price)
     1,  -- Quantity from log
     NOW()  -- Current timestamp
@@ -67,7 +67,7 @@ INSERT INTO order_items (
     92,  -- Order ID from the log
     345678,  -- Generated product ID (using hash fallback for 'ARM SHO MA094BN')
     'Meir Round PVD Brushed Nickel Shower Arm 400mm',  -- Product title from log
-    'https://stiles.co.za/images/2022/09/MA09-400-PVDBN_Meir_Brushed_Nickel_Round_Curved_Shower_Arm_400mm_Stiles_Product_Image.jpg',  -- First image URL from log
+    'https://staging.stiles.co.za/images/2022/09/MA09-400-PVDBN_Meir_Brushed_Nickel_Round_Curved_Shower_Arm_400mm_Stiles_Product_Image.jpg',  -- First image URL from log
     3679,  -- Price from log (regular_price)
     1,  -- Quantity from log
     NOW()  -- Current timestamp

@@ -2,7 +2,35 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { sanitizePostDates } from '../utils/dateUtils';
 
-const BlogSidebar = ({ categories, recentPosts }) => {
+const SidebarPostList = ({ title, posts }) => (
+  <div>
+    <h3 className="text-xl font-bold mb-4 uppercase">{title}</h3>
+    <ul className="space-y-4">
+      {posts.map((post, index) => (
+        <li key={post.ID ?? index} className="flex gap-3">
+          <div className="w-16 h-16 flex-shrink-0">
+            <img
+              src={post.featured_image}
+              alt={post.post_title}
+              className="w-full h-full object-cover rounded"
+            />
+          </div>
+          <div>
+            <Link
+              to={`/stiles-blog/${post.slug}`}
+              className="font-medium hover:text-dark transition-colors line-clamp-2"
+            >
+              {post.post_title}
+            </Link>
+            <p className="text-xs text-gray-500 mt-1">{sanitizePostDates(post.post_date)}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const BlogSidebar = ({ categories, recentPosts, featuredPosts = [] }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       {/* Categories Section */}
@@ -25,32 +53,13 @@ const BlogSidebar = ({ categories, recentPosts }) => {
         </ul>
       </div>
 
-      {/* Recent Posts Section */}
-      <div>
-        <h3 className="text-xl font-bold mb-4 uppercase">Recent Posts</h3>
-        <ul className="space-y-4">
-          {recentPosts.map((post, index) => (
-            <li key={index} className="flex gap-3">
-              <div className="w-16 h-16 flex-shrink-0">
-                <img 
-                  src={post.featured_image} 
-                  alt={post.post_title} 
-                  className="w-full h-full object-cover rounded"
-                />
-              </div>
-              <div>
-                <Link 
-                  to={`/stiles-blog/${post.slug}`} 
-                  className="font-medium hover:text-dark transition-colors line-clamp-2"
-                >
-                  {post.post_title}
-                </Link>
-                <p className="text-xs text-gray-500 mt-1">{sanitizePostDates(post.post_date)}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <SidebarPostList title="Recent Posts" posts={recentPosts} />
+
+      {featuredPosts.length > 0 && (
+        <div className="mt-8">
+          <SidebarPostList title="Featured Posts" posts={featuredPosts} />
+        </div>
+      )}
     </div>
   );
 };

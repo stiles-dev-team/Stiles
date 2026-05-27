@@ -51,13 +51,13 @@ const Shop = () => {
             <meta property="og:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
             <meta property="og:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://stiles.co.za/shopall" />
+            <meta property="og:url" content="https://staging.stiles.co.za/shopall" />
             <meta property="og:site_name" content="Stiles" />
             <meta property="og:locale" content="en_ZA" />
             <meta name="twitter:card" content="summary" />
             <meta name="twitter:title" content="Shop Tiles Online | Premium Tile Collection | Stiles" />
             <meta name="twitter:description" content="Shop our extensive collection of premium tiles at Stiles. Browse bathroom tiles, kitchen tiles, floor tiles, and more. Quality tiles for every space in South Africa." />
-            <link rel="canonical" href="https://stiles.co.za/shopall" />
+            <link rel="canonical" href="https://staging.stiles.co.za/shopall" />
         </Helmet>
         <Hero />
         <Content />

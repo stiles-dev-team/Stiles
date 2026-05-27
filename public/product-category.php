@@ -107,7 +107,7 @@ function generateStructuredData($category, $products) {
         '@type' => 'CollectionPage',
         'name' => $category['name'],
         'description' => extractTextFromHTML($category['description']),
-        'url' => 'https://stiles.co.za/product-category/' . $category['slug'],
+        'url' => 'https://staging.stiles.co.za/product-category/' . $category['slug'],
         'mainEntity' => [
             '@type' => 'ItemList',
             'name' => $category['name'] . ' Products',
@@ -124,8 +124,8 @@ function generateStructuredData($category, $products) {
                 '@type' => 'Product',
                 'name' => $product['title'],
                 'description' => extractTextFromHTML($product['description']),
-                'url' => 'https://stiles.co.za/product/' . $product['slug'],
-                'image' => $product['featured_image'] ? 'https://stiles.co.za' . $product['featured_image'] : '',
+                'url' => 'https://staging.stiles.co.za/product/' . $product['slug'],
+                'image' => $product['featured_image'] ? 'https://staging.stiles.co.za' . $product['featured_image'] : '',
                 'offers' => [
                     '@type' => 'Offer',
                     'price' => $product['regular_price'],
@@ -208,18 +208,18 @@ $keywordsString = implode(', ', array_slice($keywords, 0, 10));
     <meta property="og:title" content="<?php echo htmlspecialchars($category['name']); ?> | Stiles">
     <meta property="og:description" content="<?php echo htmlspecialchars($metaDescription); ?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://stiles.co.za/product-category/<?php echo $category['slug']; ?>">
-    <meta property="og:image" content="https://stiles.co.za/images/logo.png">
+    <meta property="og:url" content="https://staging.stiles.co.za/product-category/<?php echo $category['slug']; ?>">
+    <meta property="og:image" content="https://staging.stiles.co.za/images/logo.png">
     <meta property="og:site_name" content="Stiles">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?php echo htmlspecialchars($category['name']); ?> | Stiles">
     <meta name="twitter:description" content="<?php echo htmlspecialchars($metaDescription); ?>">
-    <meta name="twitter:image" content="https://stiles.co.za/images/logo.png">
+    <meta name="twitter:image" content="https://staging.stiles.co.za/images/logo.png">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://stiles.co.za/product-category/<?php echo $category['slug']; ?>">
+    <link rel="canonical" href="https://staging.stiles.co.za/product-category/<?php echo $category['slug']; ?>">
     
     <!-- Structured Data -->
     <script type="application/ld+json">

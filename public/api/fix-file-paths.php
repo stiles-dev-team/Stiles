@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $lastImagesPos = strrpos($oldPath, '/images/');
             if ($lastImagesPos !== false) {
                 $relativePath = substr($oldPath, $lastImagesPos + 8); // +8 to skip '/images/'
-                $newPath = 'https://stiles.co.za/images/' . $relativePath;
+                $newPath = 'https://staging.stiles.co.za/images/' . $relativePath;
                 
                 // Update the file path
                 $updateStmt = $pdo->prepare("UPDATE media_files SET file_path = ? WHERE id = ?");

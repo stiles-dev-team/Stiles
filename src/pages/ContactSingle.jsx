@@ -44,7 +44,7 @@ const ContactSingle = () => {
       <meta property="og:image" content="/images/favi.webp" />
       <meta property="og:title" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
       <meta property="og:description" content={`Contact Us${location?.title ? ` | ${location.title}` : ''}`} />
-      <meta property="og:url" content={`https://stiles.co.za/contact-us${location?.title ? `/${location.title}` : ''}`} />
+      <meta property="og:url" content={`https://staging.stiles.co.za/contact-us${location?.title ? `/${location.title}` : ''}`} />
       <meta property="og:type" content="product" />
       <meta property="og:site_name" content="Stiles" />
       <meta property="og:locale" content="en_ZA" />

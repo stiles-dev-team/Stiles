@@ -3,15 +3,15 @@
   RewriteBase /
 
   # === BEGIN: QR 301 redirects generated on 2025-08-25 ===
-  Redirect 301 /product/funky-tiles-ava-smoke-grey-gloss- https://stiles.co.za/product/funky-tiles-ava-smoke-grey-gloss-50x300mm
-  Redirect 301 /product/funky-tiles-nairobi-metro-blue-50x300mm/ https://stiles.co.za/product/funky-tiles-nairobi-blue-gloss-50x300mm
-  Redirect 301 /product/funky-tiles-nairobi-offwhite-gloss-50x300mm/ https://stiles.co.za/product/funky-tiles-nairobi-off-white-gloss-50x300mm
-  Redirect 301 /product/realonda-hex-white-265x510mm/ https://stiles.co.za/product/realonda-hex-snow-265x510mm
-  Redirect 301 /product/monocolour-romo-botella-gloss-75x300mm https://stiles.co.za/product/monocolour-botella-liso-gloss-75x300mm
-  Redirect 301 /product/funky-tiles-look-light-grey-matt-50x500mm https://stiles.co.za/product/funky-tiles-look-light-grey-gloss-50x500mm
-  Redirect 301 /product/funky-tiles-puro-nero-marquina-silk-matt-125x250mm https://stiles.co.za/product/puro-nero-marquina-3d-silk-matt-125x250mm
-  Redirect 301 /product/funky-tiles-puro-statuario-3d-silk-matt-125x250mm https://stiles.co.za/product/puro-statuario-3d-silk-matt-125x250mm
-  Redirect 301 /product/funky-tiles-cadaques-rosso-matt-70x280mm/ https://stiles.co.za/product/cadaques-rosso-matt-70x280mm
+  Redirect 301 /product/funky-tiles-ava-smoke-grey-gloss- https://staging.stiles.co.za/product/funky-tiles-ava-smoke-grey-gloss-50x300mm
+  Redirect 301 /product/funky-tiles-nairobi-metro-blue-50x300mm/ https://staging.stiles.co.za/product/funky-tiles-nairobi-blue-gloss-50x300mm
+  Redirect 301 /product/funky-tiles-nairobi-offwhite-gloss-50x300mm/ https://staging.stiles.co.za/product/funky-tiles-nairobi-off-white-gloss-50x300mm
+  Redirect 301 /product/realonda-hex-white-265x510mm/ https://staging.stiles.co.za/product/realonda-hex-snow-265x510mm
+  Redirect 301 /product/monocolour-romo-botella-gloss-75x300mm https://staging.stiles.co.za/product/monocolour-botella-liso-gloss-75x300mm
+  Redirect 301 /product/funky-tiles-look-light-grey-matt-50x500mm https://staging.stiles.co.za/product/funky-tiles-look-light-grey-gloss-50x500mm
+  Redirect 301 /product/funky-tiles-puro-nero-marquina-silk-matt-125x250mm https://staging.stiles.co.za/product/puro-nero-marquina-3d-silk-matt-125x250mm
+  Redirect 301 /product/funky-tiles-puro-statuario-3d-silk-matt-125x250mm https://staging.stiles.co.za/product/puro-statuario-3d-silk-matt-125x250mm
+  Redirect 301 /product/funky-tiles-cadaques-rosso-matt-70x280mm/ https://staging.stiles.co.za/product/cadaques-rosso-matt-70x280mm
   # === END: QR 301 redirects ===
 
   # Existing app rules

@@ -43,7 +43,7 @@ const ContactUs = () => {
           <meta property="og:image" content="/images/favi.webp" />
           <meta property="og:title" content="Contact Us | Stiles" />
           <meta property="og:description" content="Contact Us | Stiles" />
-          <meta property="og:url" content="https://stiles.co.za/contact-us" />
+          <meta property="og:url" content="https://staging.stiles.co.za/contact-us" />
           <meta property="og:type" content="product" />
           <meta property="og:site_name" content="Stiles" />
           <meta property="og:locale" content="en_ZA" />

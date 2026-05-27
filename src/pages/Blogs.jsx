@@ -20,6 +20,7 @@ const Blogs = () => {
 
   const [blogPosts, setBlogPosts] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
+  const [featuredPosts, setFeaturedPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -31,13 +32,18 @@ const Blogs = () => {
     .then(data => {
       // Handle both array response and object with blogs property
       const blogs = Array.isArray(data) ? data : (data.blogs || []);
-      
+
       // Sort posts by ID in descending order (newest first)
       const sortedPosts = blogs.sort((a, b) => {
-        return b.ID - a.ID;
+        return b.post_date - a.post_date;
       });
 
       setRecentPosts(sortedPosts.slice(0, 3));
+      setFeaturedPosts(
+        sortedPosts
+          .filter((post) => [1, 2, 3].includes(Number(post.featured_position)))
+          .sort((a, b) => Number(a.featured_position) - Number(b.featured_position))
+      );
 
       // Calculate category counts
       const categoryCounts = {};
@@ -133,13 +139,13 @@ const Blogs = () => {
         <meta property="og:title" content="Stiles Blog | Find The Best Deals On Tiles | Stiles" />
         <meta property="og:description" content="Stiles Blog is a top tile retailer in South Africa that adheres to high industry standards in both quality & trends. We sell tiles & sanitaryware." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://stiles.co.za/stiles-blog" />
+        <meta property="og:url" content="https://staging.stiles.co.za/stiles-blog" />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="Stiles Blog | Find The Best Deals On Tiles | Stiles" />
         <meta name="twitter:description" content="Stiles Blog is a top tile retailer in South Africa that adheres to high industry standards in both quality & trends. We sell tiles & sanitaryware." />
-        <link rel="canonical" href="https://stiles.co.za/stiles-blog" />
+        <link rel="canonical" href="https://staging.stiles.co.za/stiles-blog" />
       </Helmet>
         <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
@@ -172,7 +178,7 @@ const Blogs = () => {
           
           {/* Sidebar */}
           <div className='lg:w-1/3'>
-            <BlogSidebar categories={categories} recentPosts={recentPosts} />
+            <BlogSidebar categories={categories} recentPosts={recentPosts} featuredPosts={featuredPosts} />
           </div>
         </div>
       </section>

@@ -22,7 +22,7 @@ const ProductDisclaimer = () => {
         <p>
           The information provided by Stiles on&nbsp;
           <a
-            href="https://stiles.co.za/"
+            href="https://staging.stiles.co.za/"
             target="_blank"
             rel="nofollow noopener noreferrer"
           >
@@ -33,7 +33,7 @@ const ProductDisclaimer = () => {
         <p>
           All information on the&nbsp;
           <a
-            href="https://stiles.co.za/"
+            href="https://staging.stiles.co.za/"
             target="_blank"
             rel="nofollow noopener noreferrer"
           >

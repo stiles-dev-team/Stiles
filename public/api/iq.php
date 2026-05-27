@@ -1,6 +1,6 @@
 <?php
 // Allow from any origin
-header("Access-Control-Allow-Origin: https://stiles.co.za");
+header("Access-Control-Allow-Origin: https://staging.stiles.co.za");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Max-Age: 86400"); // 24 hours

@@ -5,7 +5,6 @@ import BlogSidebar from '../components/BlogSidebar';
 import { Helmet } from 'react-helmet-async';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizePostDates } from '../utils/dateUtils';
-
 function blogCategorySlug(label) {
   return label
     .normalize('NFD')
@@ -31,6 +30,7 @@ const BlogPost = () => {
 
   const [blogPosts, setBlogPosts] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
+  const [featuredPosts, setFeaturedPosts] = useState([]);
   const [currentPost, setCurrentPost] = useState(null);
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [prevPost, setPrevPost] = useState(null);
@@ -62,6 +62,11 @@ const BlogPost = () => {
       });
 
       setRecentPosts(sortedPosts.slice(0, 3));
+      setFeaturedPosts(
+        sortedPosts
+          .filter((post) => [1, 2, 3].includes(Number(post.featured_position)))
+          .sort((a, b) => Number(a.featured_position) - Number(b.featured_position))
+      );
       setBlogPosts(sortedPosts);
 
       // Calculate category counts
@@ -150,7 +155,7 @@ const BlogPost = () => {
   };
 
   const getShareUrl = () => {
-    return `https://stiles.co.za/stiles-blog/${currentPost.slug}`;
+    return `https://staging.stiles.co.za/stiles-blog/${currentPost.slug}`;
   };
 
   const getShareTitle = () => {
@@ -226,13 +231,13 @@ const BlogPost = () => {
         <meta property="og:title" content={currentPost.post_title} />
         <meta property="og:description" content={currentPost.metadescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+        <meta property="og:url" content={`https://staging.stiles.co.za/stiles-blog/${currentPost.slug}`} />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={currentPost.post_title} />
         <meta name="twitter:description" content={currentPost.metadescription} />
-        <link rel="canonical" href={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+        <link rel="canonical" href={`https://staging.stiles.co.za/stiles-blog/${currentPost.slug}`} />
       </Helmet>
       {/* Hero Section */}
       <section className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20'>
@@ -468,7 +473,7 @@ const BlogPost = () => {
           
           {/* Sidebar */}
           <div className='lg:w-1/3'>
-            <BlogSidebar categories={categories} recentPosts={recentPosts} />
+            <BlogSidebar categories={categories} recentPosts={recentPosts} featuredPosts={featuredPosts} />
           </div>
         </div>
       </section>

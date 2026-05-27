@@ -46,7 +46,7 @@ try {
     // Check if we're fetching a single blog by slug
     if (isset($_GET['slug']) && !empty($_GET['slug'])) {
         $slug = $_GET['slug'];
-        $stmt = $pdo->prepare("SELECT * FROM blogs WHERE slug = ? AND post_status = 'publish'");
+        $stmt = $pdo->prepare("SELECT * FROM new_blogs WHERE slug = ? AND post_status = 'publish'");
         $stmt->execute([$slug]);
         $blog = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -64,7 +64,8 @@ try {
                 'categories' => $blog['categories'],
                 'tags' => $blog['tags'],
                 'featured_image' => $blog['featured_image'],
-                'metadescription' => $blog['metadescription']
+                'metadescription' => $blog['metadescription'],
+                'featured_position' => (int)($blog['featured_position'] ?? 0)
             ];
             
             echo json_encode($formattedBlog, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -74,7 +75,7 @@ try {
         }
     } else {
         // Fetch all published blogs
-        $stmt = $pdo->query("SELECT * FROM blogs WHERE post_status = 'publish' ORDER BY ID DESC");
+        $stmt = $pdo->query("SELECT * FROM new_blogs WHERE post_status = 'publish' ORDER BY ID DESC");
         $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Format the response to match expected structure
@@ -91,7 +92,8 @@ try {
                 'categories' => $blog['categories'],
                 'tags' => $blog['tags'],
                 'featured_image' => $blog['featured_image'],
-                'metadescription' => $blog['metadescription']
+                'metadescription' => $blog['metadescription'],
+                'featured_position' => (int)($blog['featured_position'] ?? 0)
             ];
         }, $blogs);
         

@@ -96,11 +96,11 @@ const PrivacyPolicy = () => {
               <strong>Website</strong>&nbsp;refers to Stiles, accessible
               from&nbsp;
               <a
-                href="https://stiles.co.za/"
+                href="https://staging.stiles.co.za/"
                 target="_blank"
                 rel="external nofollow noopener"
               >
-                https://stiles.co.za/
+                https://staging.stiles.co.za/
               </a>
             </li>
             <li>

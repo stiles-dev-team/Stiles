@@ -73,13 +73,13 @@ const Search = () => {
                 <meta property="og:title" content={`Search Results for "${searchQuery}" | Find Tiles | Stiles`} />
                 <meta property="og:description" content={`Search results for "${searchQuery}" on Stiles. Find the perfect tiles for your project from our extensive collection of premium tiles.`} />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content={`https://stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
+                <meta property="og:url" content={`https://staging.stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
                 <meta property="og:site_name" content="Stiles" />
                 <meta property="og:locale" content="en_ZA" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content={`Search Results for "${searchQuery}" | Find Tiles | Stiles`} />
                 <meta name="twitter:description" content={`Search results for "${searchQuery}" on Stiles. Find the perfect tiles for your project from our extensive collection of premium tiles.`} />
-                <link rel="canonical" href={`https://stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
+                <link rel="canonical" href={`https://staging.stiles.co.za/search?q=${encodeURIComponent(searchQuery)}`} />
             </Helmet>
             <Hero searchQuery={searchQuery} />
             <Content 

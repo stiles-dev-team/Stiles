@@ -14,13 +14,13 @@ const Wishlist = () => {
                 <meta property="og:title" content="My Wishlist | Save Your Favorite Tiles | Stiles" />
                 <meta property="og:description" content="View and manage your saved tile wishlist at Stiles. Save your favorite tiles and easily add them to your cart when ready to purchase." />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://stiles.co.za/wishlist" />
+                <meta property="og:url" content="https://staging.stiles.co.za/wishlist" />
                 <meta property="og:site_name" content="Stiles" />
                 <meta property="og:locale" content="en_ZA" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content="My Wishlist | Save Your Favorite Tiles | Stiles" />
                 <meta name="twitter:description" content="View and manage your saved tile wishlist at Stiles. Save your favorite tiles and easily add them to your cart when ready to purchase." />
-                <link rel="canonical" href="https://stiles.co.za/wishlist" />
+                <link rel="canonical" href="https://staging.stiles.co.za/wishlist" />
             </Helmet>
           <main className='w-full flex flex-col justify-start items-start gap-10 lg:gap-20 pb-10 lg:pb-20 '>
             <Hero />

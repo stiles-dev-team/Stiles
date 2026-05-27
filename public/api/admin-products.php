@@ -535,7 +535,7 @@ try {
             $currentMonth = date('m');
             $timestamp = time();
             $microtime = substr(microtime(), 2, 6); // Get microseconds for uniqueness
-            $baseUrl = "https://stiles.co.za/images/{$currentYear}/{$currentMonth}/";
+            $baseUrl = "https://staging.stiles.co.za/images/{$currentYear}/{$currentMonth}/";
 
             // Process PDF URL
             $pdfUrl = '';

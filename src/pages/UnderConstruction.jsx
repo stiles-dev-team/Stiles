@@ -39,7 +39,7 @@ const UnderConstruction = () => {
         <meta property="og:image" content="/images/favi.webp" />
         <meta property="og:title" content="Under Construction | Stiles" />
         <meta property="og:description" content="This page is currently under construction. Please check back soon for updates." />
-        <meta property="og:url" content="https://stiles.co.za/" />
+        <meta property="og:url" content="https://staging.stiles.co.za/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />

@@ -15,7 +15,7 @@ const Cart = () => {
                 <meta property="og:title" content="Your Cart | View Items In Your Cart | Stiles" />
                 <meta property="og:description" content="View and manage your shopping cart at Stiles. Browse your selected items and proceed to checkout." />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://stiles.co.za/cart" />
+                <meta property="og:url" content="https://staging.stiles.co.za/cart" />
                 <meta property="og:site_name" content="Stiles" />
                 <meta property="og:locale" content="en_ZA" />
             </Helmet>

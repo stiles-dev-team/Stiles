@@ -64,7 +64,7 @@ try {
     $stmt->execute([$reset_token, $reset_token_expires, $user['id']]);
 
     // Create reset link
-    $reset_link = 'https://stiles.co.za/reset-password?token=' . $reset_token;
+    $reset_link = 'https://staging.stiles.co.za/reset-password?token=' . $reset_token;
 
     // Send email
     $to = $user['email'];

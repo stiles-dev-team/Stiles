@@ -130,7 +130,7 @@ const Home = () => {
         <meta property="og:image" content="/images/favi.webp" />
         <meta property="og:title" content="Tile Retailer | Find The Best Deals On Tiles | Stiles" />
         <meta property="og:description" content="Stiles is a top tile retailer in South Africa that adheres to high industry standards in both quality & trends. We sell tiles & sanitaryware." />
-        <meta property="og:url" content="https://stiles.co.za/" />
+        <meta property="og:url" content="https://staging.stiles.co.za/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
