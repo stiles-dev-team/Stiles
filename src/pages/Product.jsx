@@ -337,7 +337,11 @@ const Product = () => {
                         .then(data => {
                             const brand = data.brands?.find(b => b.name === brandName);
                             if (brand?.pdf_url) {
-                                setBrandPdf({ name: brand.name, pdf_url: brand.pdf_url });
+                                setBrandPdf({
+                                    name: brand.name,
+                                    pdf_url: brand.pdf_url,
+                                    pdf_text: brand.pdf_text || brand.name
+                                });
                             } else {
                                 setBrandPdf(null);
                             }
@@ -901,7 +905,7 @@ const Product = () => {
                     {brandPdf && (
                         <p className='text-sm text-dark'>
                             <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
-                                {decodeHtmlEntities(brandPdf.name)} guarantee
+                                {decodeHtmlEntities(brandPdf.pdf_text)}
                             </a>
                         </p>
                     )}
