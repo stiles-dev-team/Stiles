@@ -11,7 +11,8 @@ const AdminBrands = () => {
     description: '',
     slug: '',
     image: '',
-    pdf_url: ''
+    pdf_url: '',
+    pdf_text: ''
   })
 
   useEffect(() => {
@@ -63,7 +64,8 @@ const AdminBrands = () => {
             description: formData.description,
             slug: formData.slug,
             image: formData.image,
-            pdf_url: formData.pdf_url
+            pdf_url: formData.pdf_url,
+            pdf_text: formData.pdf_text
           })
         })
 
@@ -74,7 +76,7 @@ const AdminBrands = () => {
           fetchBrands()
           setShowAddModal(false)
           setEditingBrand(null)
-          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
+          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '', pdf_text: '' })
         } else {
           alert('Error updating brand: ' + (result.error || 'Unknown error'))
         }
@@ -91,7 +93,8 @@ const AdminBrands = () => {
             description: formData.description,
             slug: formData.slug,
             image: formData.image,
-            pdf_url: formData.pdf_url
+            pdf_url: formData.pdf_url,
+            pdf_text: formData.pdf_text
           })
         })
 
@@ -101,7 +104,7 @@ const AdminBrands = () => {
           alert('Brand created successfully')
           fetchBrands()
           setShowAddModal(false)
-          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
+          setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '', pdf_text: '' })
         } else {
           alert('Error creating brand: ' + (result.error || 'Unknown error'))
         }
@@ -119,7 +122,8 @@ const AdminBrands = () => {
       description: decodeHtmlEntities(brand.description) || '',
       slug: decodeHtmlEntities(brand.slug) || '',
       image: brand.image || '',
-      pdf_url: brand.pdf_url || ''
+      pdf_url: brand.pdf_url || '',
+      pdf_text: decodeHtmlEntities(brand.pdf_text) || ''
     })
     setShowAddModal(true)
   }
@@ -289,7 +293,7 @@ const AdminBrands = () => {
                 onClick={() => {
                   setShowAddModal(false)
                   setEditingBrand(null)
-                  setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
+                  setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '', pdf_text: '' })
                 }}
                 className="text-gray-400 hover:text-gray-600 text-xl font-bold"
               >
@@ -381,6 +385,20 @@ const AdminBrands = () => {
                     </div>
                   )}
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PDF Text
+                  </label>
+                  <input
+                    type="text"
+                    name="pdf_text"
+                    value={formData.pdf_text}
+                    onChange={handleInputChange}
+                    placeholder="Enter PDF link text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
                 
                 {editingBrand && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
@@ -396,7 +414,7 @@ const AdminBrands = () => {
                     onClick={() => {
                       setShowAddModal(false)
                       setEditingBrand(null)
-                      setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '' })
+                      setFormData({ name: '', description: '', slug: '', image: '', pdf_url: '', pdf_text: '' })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
