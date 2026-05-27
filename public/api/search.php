@@ -271,8 +271,18 @@ try {
     $countStmt->execute($params);
     $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Add sorting with fuzzy search priority
+    // Add sorting with brand + fuzzy search priority
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
+    $priorityBrands = ['Etienne Tiles', 'Oak', 'Funky Tiles', 'Nest'];
+    $brandPriorityConditions = [];
+    $brandPriorityParams = [];
+
+    foreach ($priorityBrands as $brand) {
+        $brandPriorityConditions[] = 'LOWER(sp.`attribute:pa_brands`) LIKE ?';
+        $brandPriorityParams[] = '%' . strtolower($brand) . '%';
+    }
+
+    $brandPriorityCase = 'CASE WHEN (' . implode(' OR ', $brandPriorityConditions) . ') THEN 0 ELSE 1 END';
     
     // Build sorting conditions for fuzzy search
     $sortConditions = [];
@@ -302,15 +312,17 @@ try {
     $caseStatement = implode(' ', $caseStatements);
     
     $orderBy = "ORDER BY 
+        {$brandPriorityCase},
         CASE 
             {$caseStatement}
             ELSE " . count($sortConditions) . "
         END,
-                sp.post_date DESC";
+        sp.post_date DESC";
     
     switch ($sortBy) {
         case 'desc':
             $orderBy = "ORDER BY 
+                {$brandPriorityCase},
                 CASE 
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
@@ -319,6 +331,7 @@ try {
             break;
         case 'nuev':
             $orderBy = "ORDER BY 
+                {$brandPriorityCase},
                 CASE 
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
@@ -327,6 +340,7 @@ try {
             break;
         case 'vend':
             $orderBy = "ORDER BY 
+                {$brandPriorityCase},
                 CASE 
                     {$caseStatement}
                     ELSE " . count($sortConditions) . "
@@ -353,8 +367,8 @@ try {
         iq.sellPInc1
     ', $baseQuery) . ' ' . $orderBy;
 
-    // Add the sorting parameters
-    $params = array_merge($params, $sortParams);
+    // Add the sorting parameters (brand priority first, then fuzzy relevance)
+    $params = array_merge($params, $brandPriorityParams, $sortParams);
 
     // Add pagination
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
