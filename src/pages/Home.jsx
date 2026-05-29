@@ -194,14 +194,14 @@ const Hero = ({ content }) => {
   // };
   const heroContent =  {
     slides: [
-          {
-            id: 1,
-            title: "",
-            subtitle: "",
-            background_image: "/images/stile-lines-promo-latest.jpg",
-            button_text: "Shop Now",
-            button_link: "/promo/styling-between-the-lines"
-          },
+          // {
+          //   id: 1,
+          //   title: "",
+          //   subtitle: "",
+          //   background_image: "/images/stile-lines-promo-latest.jpg",
+          //   button_text: "Shop Now",
+          //   button_link: "/promo/styling-between-the-lines"
+          // },
           // {
           //   id: 2,
           //   title: "Easter Closure notice!",
@@ -251,10 +251,10 @@ const Hero = ({ content }) => {
                 <p className='text-white text-lg md:text-xl mb-5 w-full max-w-2xl whitespace-pre-line'>{slide.subtitle}</p>
               )}
 
-                {/* <div>
+                <div>
                   <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
-                </div> */}
-              {index === 0 ? (
+                </div>
+              {/* {index === 0 ? (
                 <div className='w-full flex justify-center mt-12'>
                   <ButtonStiles
                     text={slide.button_text}
@@ -267,7 +267,7 @@ const Hero = ({ content }) => {
                 <div>
                   <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
                 </div>
-              )}
+              )} */}
             </div>
           </SplideSlide>
         ))}
