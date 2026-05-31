@@ -20,6 +20,7 @@ const Blogs = () => {
 
   const [blogPosts, setBlogPosts] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
+  const [featuredPosts, setFeaturedPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -31,13 +32,18 @@ const Blogs = () => {
     .then(data => {
       // Handle both array response and object with blogs property
       const blogs = Array.isArray(data) ? data : (data.blogs || []);
-      
+
       // Sort posts by ID in descending order (newest first)
       const sortedPosts = blogs.sort((a, b) => {
-        return b.ID - a.ID;
+        return b.post_date - a.post_date;
       });
 
       setRecentPosts(sortedPosts.slice(0, 3));
+      setFeaturedPosts(
+        sortedPosts
+          .filter((post) => [1, 2, 3].includes(Number(post.featured_position)))
+          .sort((a, b) => Number(a.featured_position) - Number(b.featured_position))
+      );
 
       // Calculate category counts
       const categoryCounts = {};
@@ -172,7 +178,7 @@ const Blogs = () => {
           
           {/* Sidebar */}
           <div className='lg:w-1/3'>
-            <BlogSidebar categories={categories} recentPosts={recentPosts} />
+            <BlogSidebar categories={categories} recentPosts={recentPosts} featuredPosts={featuredPosts} />
           </div>
         </div>
       </section>
