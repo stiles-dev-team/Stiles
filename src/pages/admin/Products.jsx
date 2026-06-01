@@ -797,6 +797,9 @@ const AdminProducts = () => {
     }
   }, [uniqueCategories.length]); // Only trigger when categories are loaded
 
+  const formatCategoryLabel = (category) =>
+    `${'  '.repeat(category.level || 0)}${category.level > 0 ? '└─ ' : ''}${category.category}`;
+
   // Function to sort categories hierarchically for display
   const getSortedCategories = () => {
     const sorted = [];
@@ -1738,7 +1741,7 @@ const AdminProducts = () => {
                 <option value="all">All Categories</option>
                 {getSortedCategories().map((category) => (
                   <option key={category.id} value={category.id}>
-                    {'  '.repeat(category.level || 0)}{category.level > 0 ? '└─ ' : ''}{category.category}
+                    {formatCategoryLabel(category)}
                   </option>
                 ))}
               </select>
@@ -2573,9 +2576,9 @@ const AdminProducts = () => {
                           product_category: values
                         }));
                       }}
-                      options={categories.map(category => ({
-                        value: category.name,
-                        label: category.name
+                      options={getSortedCategories().map((category) => ({
+                        value: category.category,
+                        label: formatCategoryLabel(category),
                       }))}
                       placeholder="Select categories..."
                       isClearable
