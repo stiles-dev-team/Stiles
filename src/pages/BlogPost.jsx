@@ -399,7 +399,7 @@ const BlogPost = () => {
             )}
             
             {/* Comments Section */}
-            <div className="mt-12 pt-8 border-t border-gray-200">
+            {/* <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-2xl font-bold mb-6">Leave a Reply</h2>
               <form onSubmit={handleCommentSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -468,7 +468,7 @@ const BlogPost = () => {
                   </button>
                 </div>
               </form>
-            </div>
+            </div> */}
           </div>
           
           {/* Sidebar */}
