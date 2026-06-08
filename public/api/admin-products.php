@@ -365,67 +365,128 @@ try {
                 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
                 
                 // Build ORDER BY clause
-                $orderByClause = 'ORDER BY sp.post_date DESC'; // Default sorting
+                $orderByClause = 'ORDER BY sp.ID ASC'; // Default: indexed primary key sort
+                $sortByIqPrice = false;
                 if (!empty($sortField)) {
-                    $validSortFields = ['title', 'brand', 'sku', 'price', 'iq_price', 'status'];
+                    $validSortFields = ['id', 'title', 'brand', 'sku', 'price', 'iq_price', 'status'];
                     $validSortDirections = ['asc', 'desc'];
                     
                     if (in_array($sortField, $validSortFields) && in_array($sortDirection, $validSortDirections)) {
+                        $direction = strtoupper($sortDirection);
                         switch ($sortField) {
+                            case 'id':
+                                $orderByClause = 'ORDER BY sp.ID ' . $direction;
+                                break;
                             case 'title':
-                                $orderByClause = 'ORDER BY sp.title ' . strtoupper($sortDirection);
+                                $orderByClause = 'ORDER BY sp.title ' . $direction;
                                 break;
                             case 'brand':
-                                $orderByClause = 'ORDER BY sp.`attribute:pa_brands` ' . strtoupper($sortDirection);
+                                $orderByClause = 'ORDER BY sp.`attribute:pa_brands` ' . $direction;
                                 break;
                             case 'sku':
-                                $orderByClause = 'ORDER BY sp.sku ' . strtoupper($sortDirection);
+                                $orderByClause = 'ORDER BY sp.sku ' . $direction;
                                 break;
                             case 'price':
-                                $orderByClause = 'ORDER BY sp.regular_price ' . strtoupper($sortDirection);
+                                $orderByClause = 'ORDER BY sp.regular_price ' . $direction;
                                 break;
                             case 'iq_price':
-                                // Sort by IQ price, handling NULL values
+                                $sortByIqPrice = true;
                                 // NULL values (N/A) should appear first when ASC, last when DESC
-                                if (strtoupper($sortDirection) === 'ASC') {
+                                if ($direction === 'ASC') {
                                     $orderByClause = 'ORDER BY ISNULL(iq.sellPInc1) ASC, iq.sellPInc1 ASC';
                                 } else {
                                     $orderByClause = 'ORDER BY ISNULL(iq.sellPInc1) DESC, iq.sellPInc1 DESC';
                                 }
                                 break;
                             case 'status':
-                                $orderByClause = 'ORDER BY sp.status ' . strtoupper($sortDirection);
+                                $orderByClause = 'ORDER BY sp.status ' . $direction;
                                 break;
                         }
                     }
                 }
                 
-                // Debug logging for WHERE clause
-                error_log('WHERE clause: ' . $whereClause);
-                error_log('ORDER BY clause: ' . $orderByClause);
-                error_log('Parameters: ' . print_r($params, true));
+                $whereParams = $params;
+                $safeLimit = max(1, min((int)$limit, 10000));
+                $safeOffset = max(0, (int)$offset);
                 
-                // Get total count
-                $countQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code ' . $whereClause;
+                // Count without iq_table join — filters only touch stiles_products
+                $countQuery = 'SELECT COUNT(*) as total FROM stiles_products sp ' . $whereClause;
                 $countStmt = $pdo->prepare($countQuery);
-                $countStmt->execute($params);
+                $countStmt->execute($whereParams);
                 $totalCount = $countStmt->fetch()['total'];
                 
-                // Get paginated products with price from iq_table
-                $query = 'SELECT sp.*, iq.sellPInc1 as iq_price, iq.baseCost as iq_base_cost, iq.promoPrice as iq_promo_price, iq.onhand as iq_stock, iq.onPromotion as iq_on_promotion 
-                         FROM stiles_products sp 
-                         LEFT JOIN iq_table iq ON sp.sku = iq.code ' . $whereClause . ' ' . $orderByClause . ' LIMIT ? OFFSET ?';
-                $params[] = $limit;
-                $params[] = $offset;
+                $iqSelect = 'iq.sellPInc1 as iq_price, iq.baseCost as iq_base_cost, iq.promoPrice as iq_promo_price, iq.onhand as iq_stock, iq.onPromotion as iq_on_promotion';
                 
-                // Debug logging for final query
-                error_log('Final query: ' . $query);
-                error_log('Final parameters: ' . print_r($params, true));
-                error_log('Joining stiles_products with iq_table on sku=code to get price information');
-                
-                $stmt = $pdo->prepare($query);
-                $stmt->execute($params);
-                $products = $stmt->fetchAll();
+                if ($sortByIqPrice) {
+                    // IQ price sort requires joining before ORDER BY / LIMIT
+                    $query = 'SELECT sp.*, ' . $iqSelect . '
+                             FROM stiles_products sp
+                             LEFT JOIN iq_table iq ON sp.sku = iq.code '
+                             . $whereClause . ' ' . $orderByClause
+                             . ' LIMIT ' . $safeLimit . ' OFFSET ' . $safeOffset;
+                    $stmt = $pdo->prepare($query);
+                    $stmt->execute($whereParams);
+                    $products = $stmt->fetchAll();
+                } else {
+                    // Paginate products first, then join IQ data only for the page (avoids full-table join)
+                    $productQuery = 'SELECT sp.* FROM stiles_products sp '
+                                    . $whereClause . ' ' . $orderByClause
+                                    . ' LIMIT ' . $safeLimit . ' OFFSET ' . $safeOffset;
+                    $stmt = $pdo->prepare($productQuery);
+                    $stmt->execute($whereParams);
+                    $products = $stmt->fetchAll();
+                    
+                    if (!empty($products)) {
+                        $skus = [];
+                        foreach ($products as $product) {
+                            if (!empty($product['sku'])) {
+                                $skus[$product['sku']] = true;
+                            }
+                        }
+                        
+                        if (!empty($skus)) {
+                            $skuList = array_keys($skus);
+                            $placeholders = implode(',', array_fill(0, count($skuList), '?'));
+                            $iqStmt = $pdo->prepare(
+                                'SELECT code, sellPInc1, baseCost, promoPrice, onhand, onPromotion
+                                 FROM iq_table WHERE code IN (' . $placeholders . ')'
+                            );
+                            $iqStmt->execute($skuList);
+                            $iqBySku = [];
+                            while ($iqRow = $iqStmt->fetch(PDO::FETCH_ASSOC)) {
+                                $iqBySku[$iqRow['code']] = $iqRow;
+                            }
+                            
+                            foreach ($products as &$product) {
+                                $sku = $product['sku'] ?? '';
+                                if ($sku !== '' && isset($iqBySku[$sku])) {
+                                    $iq = $iqBySku[$sku];
+                                    $product['iq_price'] = $iq['sellPInc1'];
+                                    $product['iq_base_cost'] = $iq['baseCost'];
+                                    $product['iq_promo_price'] = $iq['promoPrice'];
+                                    $product['iq_stock'] = $iq['onhand'];
+                                    $product['iq_on_promotion'] = $iq['onPromotion'];
+                                } else {
+                                    $product['iq_price'] = null;
+                                    $product['iq_base_cost'] = null;
+                                    $product['iq_promo_price'] = null;
+                                    $product['iq_stock'] = null;
+                                    $product['iq_on_promotion'] = null;
+                                }
+                            }
+                            unset($product);
+                        } else {
+                            foreach ($products as &$product) {
+                                $product['iq_price'] = null;
+                                $product['iq_base_cost'] = null;
+                                $product['iq_promo_price'] = null;
+                                $product['iq_stock'] = null;
+                                $product['iq_on_promotion'] = null;
+                            }
+                            unset($product);
+                        }
+                    }
+                }
                 
                 // Convert ID to string to prevent precision loss in JSON
                 foreach ($products as &$product) {
