@@ -1910,5 +1910,14 @@
         "display_type": "default",
         "parent": 1092,
         "thumbnail": ""
+    },
+    {
+        "term_id": 13428,
+        "name": "newest",
+        "slug": "newest",
+        "description": "",
+        "display_type": "default",
+        "parent": 8872,
+        "thumbnail": ""
     }
 ]
