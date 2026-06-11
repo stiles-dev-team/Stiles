@@ -69,17 +69,6 @@ const ProductSubCategory = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Add useEffect to clear loading state after page change
-    useEffect(() => {
-        if (loading) {
-            // Small delay to ensure smooth transition
-            const timer = setTimeout(() => {
-                setLoading(false);
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [currentPage, loading]);
-
     const handleProductsPerPageChange = (value) => {
         setProductsPerPage(parseInt(value));
         setCurrentPage(1); // Reset to first page when changing items per page
@@ -321,16 +310,6 @@ const Content = ({
         fetchProducts();
     }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
-    // Add a small delay to the loading state to prevent flickering
-    useEffect(() => {
-        if (loading) {
-            const timer = setTimeout(() => {
-                setLoading(false);
-            }, 300);
-            return () => clearTimeout(timer);
-        }
-    }, [loading]);
-
     useEffect(() => {
         fetch(`/data/navbar-categories.json`)
         .then(res => res.json())
@@ -507,6 +486,8 @@ const Content = ({
         return txt.value;
     };
 
+    const hasProducts = totalCount > 0;
+
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct) : [];
@@ -532,6 +513,7 @@ const Content = ({
                 </div>
             }
             <div className="flex flex-col lg:flex-row container mx-auto justify-between items-start gap-10 pt-8 relative px-4">
+                {hasProducts && (
                 <aside className='w-full lg:w-4/12 xl:w-3/12 flex flex-col justify-start items-start relative top-3'>
                     <button
                         onClick={() => {
@@ -690,6 +672,7 @@ const Content = ({
                         </AccordionBody>
                     </Accordion>
                 </aside>
+                )}
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full flex flex-row justify-start items-center gap-3'>
                         <Breadcrumbs>
@@ -704,6 +687,7 @@ const Content = ({
                             </a>
                         </Breadcrumbs>
                     </div>
+                    {hasProducts && (
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
                             <Select label="Sort By" value={sortBy} onChange={(e) => {
@@ -737,21 +721,28 @@ const Content = ({
                             </div>
                         </div>
                     </div>
+                    )}
                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
-                        {
-                            product && product.map((item, index) => (
+                        {loading ? null : hasProducts ? (
+                            product.map((item) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard key={item.id} prod={item.slug} />
+                                    <ProductCard prod={item.slug} />
                                 </a>
                             ))
-                        }
+                        ) : (
+                            <p className="text-gray-500 col-span-full text-center py-8">
+                                No products available
+                            </p>
+                        )}
                     </div>
-                    <CircularPagination
-                        totalItems={totalCount}
-                        itemsPerPage={productsPerPage}
-                        currentPage={currentPage}
-                        onPageChange={onPageChange}
-                    />
+                    {hasProducts && (
+                        <CircularPagination
+                            totalItems={totalCount}
+                            itemsPerPage={productsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={onPageChange}
+                        />
+                    )}
                     <br />
                     <br />
                 </div>
