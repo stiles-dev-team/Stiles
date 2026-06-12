@@ -143,6 +143,8 @@ const ProductCard = memo(({ onClick, prod }) => {
     }, [prod, uniquePromoBadgeVisibility]);
 
     const handleFavoriteClick = useCallback((e) => {
+        // ProductCard is wrapped in <a> tags on listing pages — block that navigation
+        e.preventDefault();
         e.stopPropagation();
         const newIsFavourite = !isFavourite;
         setIsFavourite(newIsFavourite);
@@ -194,9 +196,9 @@ const ProductCard = memo(({ onClick, prod }) => {
         <div 
             className='w-full flex flex-col justify-start items-start gap-3 relative rounded-lg lg:rounded-xl overflow-hidden'
             onClick={(e) => {
-                // Only navigate if the click is not on the favorite button
+                // Skip card navigation when the heart was clicked (wishlist toggle only)
                 if (!e.target.closest('[data-favorite-button]')) {
-                    onClick();
+                    onClick?.();
                 }
             }}
         >
@@ -267,10 +269,10 @@ const ProductCard = memo(({ onClick, prod }) => {
                     />
                 )}
             </div>
-            <div 
-                className={`absolute top-3 lg:top-4 right-3 lg:right-6 rounded-full flex justify-center items-center z-30 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 drop-shadow-md ${isFavourite ? "bg-danger" : "bg-white"}`} 
+            {/* Isolated from the parent <a> — clicks here only toggle the heart highlight */}
+            <div
+                className={`absolute top-3 lg:top-4 right-3 lg:right-6 rounded-full flex justify-center items-center z-30 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 drop-shadow-md ${isFavourite ? "bg-danger" : "bg-white"}`}
                 onClick={handleFavoriteClick}
-                style={{ pointerEvents: 'auto' }}
                 data-favorite-button
             >
                 <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
@@ -341,7 +343,7 @@ const ProductCard = memo(({ onClick, prod }) => {
 ProductCard.displayName = 'ProductCard';
 
 ProductCard.propTypes = {
-    onClick: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
     prod: PropTypes.string.isRequired
 };
 
