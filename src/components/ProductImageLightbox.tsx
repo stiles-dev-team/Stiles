@@ -1,31 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 import { IoClose } from 'react-icons/io5';
 
-const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
-
 const ProductImageLightbox = ({ images, startIndex = 0, isOpen, onClose }) => {
-  const [isDesktop, setIsDesktop] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia(DESKTOP_MEDIA_QUERY).matches
-  );
-
   useEffect(() => {
-    const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
-    const handleChange = (event) => setIsDesktop(event.matches);
-
-    setIsDesktop(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  useEffect(() => {
-    if (isOpen && !isDesktop) onClose();
-  }, [isOpen, isDesktop, onClose]);
-
-  useEffect(() => {
-    if (!isOpen || !isDesktop) return;
+    if (!isOpen) return;
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
@@ -38,9 +18,9 @@ const ProductImageLightbox = ({ images, startIndex = 0, isOpen, onClose }) => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, isDesktop, onClose]);
+  }, [isOpen, onClose]);
 
-  if (!isOpen || !isDesktop || !images?.length) return null;
+  if (!isOpen || !images?.length) return null;
 
   return (
     <div
