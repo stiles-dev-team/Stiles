@@ -37,6 +37,7 @@ import {
   import { Splide, SplideSlide } from '@splidejs/react-splide';
   import '@splidejs/react-splide/css';
 import ProductCard from '../components/ProductCard';
+import ProductImageLightbox from '../components/ProductImageLightbox';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
@@ -82,6 +83,7 @@ const Product = () => {
     const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState(null);
     const [imageSelected, setImageSelected] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [isFavourite, setIsFavourite] = useState(false);
     const [stockInfo, setStockInfo] = useState(null);
@@ -768,7 +770,13 @@ const Product = () => {
                                 );
                             })
                         }
-                        <img src={product?.images[imageSelected].url + "?v=" + new Date().getTime()} alt={product?.images[imageSelected].alt} title={product?.images[imageSelected].title} className='w-full h-full aspect-square object-cover object-center rounded-md' />
+                        <img
+                            src={product?.images[imageSelected].url + "?v=" + new Date().getTime()}
+                            alt={product?.images[imageSelected].alt}
+                            title={product?.images[imageSelected].title}
+                            className='w-full h-full aspect-square object-cover object-center rounded-md cursor-zoom-in'
+                            onClick={() => setLightboxOpen(true)}
+                        />
                     </div>
                 )}
             <div className="flex flex-row lg:flex-col justify-start items-start gap-2 h-full max-h-[600px] overflow-y-auto">
@@ -1058,6 +1066,7 @@ const Product = () => {
                 ))
             }
         </div>
+        {related && related.length > 0 && (
         <div className="container mx-auto pb-20 px-4">
             <h2 className='font-bold text-3xl lg:text-5xl uppercase'>Related Products</h2>
             <br />
@@ -1090,6 +1099,13 @@ const Product = () => {
                     }
             </Splide>
         </div>
+        )}
+        <ProductImageLightbox
+            images={product?.images || []}
+            startIndex={imageSelected}
+            isOpen={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+        />
         <SubscribeBanner />
     </LayoutDark>
   )
