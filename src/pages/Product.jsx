@@ -1106,7 +1106,7 @@ const Product = () => {
             isOpen={lightboxOpen}
             onClose={() => setLightboxOpen(false)}
         />
-        <SubscribeBanner />
+        {/* <SubscribeBanner /> */}
     </LayoutDark>
   )
 }
