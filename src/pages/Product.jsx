@@ -918,7 +918,31 @@ const Product = () => {
                         </p>
                     )}
                 </div>
-                <div className='flex flex-col lg:flex-row justify-start items-center gap-2 w-full lg:pb-2'>
+                <div className={`flex gap-2 w-full lg:pb-2 ${stockInfo?.model == 'SI' ? 'flex-col lg:flex-row lg:items-center' : 'flex-row items-center'}`}>
+                    {stockInfo?.model == 'SI' && (
+                        <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
+                            <button 
+                                className='text-dark font-negro aspect-square w-7'
+                                onClick={() => handleQuantityChange(-1)}
+                            >
+                                -
+                            </button>
+                            <input 
+                                type="text" 
+                                className='border-0 appearance-none text-dark text-center w-16 outline-none' 
+                                min={1} 
+                                value={quantity}
+                                onChange={handleQuantityInput}
+                            />
+                            <button 
+                                className='text-dark font-negro aspect-square w-7'
+                                onClick={() => handleQuantityChange(1)}
+                            >
+                                +
+                            </button>
+                        </div>
+                    )}
+                    <div className='flex flex-row items-center gap-2 flex-1 min-w-0'>
                     {
                         !stockInfo ? (
                             <button 
@@ -937,37 +961,14 @@ const Product = () => {
                                 <IoAddCircleOutline className='fill-whtie' size={14} />
                             </button>
                         ) : stockInfo?.model == 'SI' ? (
-                            <>
-                                <div className="flex flex-row justify-between lg:justify-start items-center border border-azul p-2 rounded-md w-full lg:w-fit">
-                                    <button 
-                                        className='text-dark font-negro aspect-square w-7'
-                                        onClick={() => handleQuantityChange(-1)}
-                                    >
-                                        -
-                                    </button>
-                                    <input 
-                                        type="text" 
-                                        className='border-0 appearance-none text-dark text-center w-16 outline-none' 
-                                        min={1} 
-                                        value={quantity}
-                                        onChange={handleQuantityInput}
-                                    />
-                                    <button 
-                                        className='text-dark font-negro aspect-square w-7'
-                                        onClick={() => handleQuantityChange(1)}
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                                <button 
-                                    className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
-                                    onClick={addToCart}
-                                    disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
-                                >
-                                    ADD TO QUOTE
-                                    <IoAddCircleOutline className='fill-whtie' size={14} />
-                                </button>
-                            </>
+                            <button 
+                                className={`text-xs bg-primary text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 ${stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == '' ? "opacity-50" : ""}`}
+                                onClick={addToCart}
+                                disabled={stockInfo?.sellPInc1 == 0 || stockInfo?.sellPInc1 == null || stockInfo?.sellPInc1 == ''}
+                            >
+                                ADD TO QUOTE
+                                <IoAddCircleOutline className='fill-whtie' size={14} />
+                            </button>
                         ) : (
                             <button 
                                 className="text-xs bg-gray-400 text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 cursor-not-allowed"
@@ -978,10 +979,11 @@ const Product = () => {
                         )
                     }
                     <div 
-                        className={`rounded-full hidden lg:flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 ${isFavourite ? "bg-danger" : "bg-secondary/10"}`}
+                        className={`rounded-full flex justify-center items-center z-10 size-12 cursor-pointer group transition-all scale-90 hover:scale-100 flex-shrink-0 ${isFavourite ? "bg-danger" : "bg-secondary/10"}`}
                         onClick={toggleWishlist}
                     >
                         <FaHeart size={20} className={`transition-all ${isFavourite ? "fill-white" : "fill-dark"}`} />
+                    </div>
                     </div>
                 </div>
                 {product?.pdf_url && (
