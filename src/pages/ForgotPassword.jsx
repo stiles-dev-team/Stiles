@@ -25,7 +25,7 @@ const ForgotPassword = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('https://stiles.co.za/api/forgot-password.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/forgot-password.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

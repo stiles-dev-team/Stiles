@@ -28,7 +28,7 @@ const ResetPassword = () => {
     // Validate the reset token
     const validateToken = async () => {
       try {
-        const response = await fetch('https://stiles.co.za/api/validate-reset-token.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/validate-reset-token.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch('https://stiles.co.za/api/reset-password.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reset-password.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

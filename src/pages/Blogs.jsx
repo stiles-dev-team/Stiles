@@ -24,7 +24,7 @@ const Blogs = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetch(`https://stiles.co.za/api/get-blogs.php`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/get-blogs.php`)
     .then(res => {
       if (!res.ok) throw new Error('Failed to fetch blogs');
       return res.json();

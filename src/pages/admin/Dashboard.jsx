@@ -20,19 +20,19 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       // Fetch orders for stats
-      const ordersResponse = await fetch('https://stiles.co.za/api/orders_admin.php', {
+      const ordersResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/orders_admin.php`, {
         headers: { 'Accept': 'application/json' }
       })
       const ordersData = await ordersResponse.json()
       
       // Fetch products count
-      const productsResponse = await fetch('https://stiles.co.za/api/get-total-products.php', {
+      const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/get-total-products.php`, {
         headers: { 'Accept': 'application/json' }
       })
       const productsData = await productsResponse.json()
 
       // Fetch users count
-      const usersResponse = await fetch('https://stiles.co.za/api/get-total-users.php', {
+      const usersResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/get-total-users.php`, {
         headers: { 'Accept': 'application/json' }
       })
       const usersData = await usersResponse.json()

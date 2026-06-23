@@ -29,7 +29,7 @@ const AdminUniqueFinishes = () => {
   const fetchFinishes = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-unique-finishes.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-finishes.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const AdminUniqueFinishes = () => {
     try {
       if (editingFinish) {
         // Update existing finish
-        const response = await fetch('https://stiles.co.za/api/admin-unique-finishes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-finishes.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const AdminUniqueFinishes = () => {
         }
       } else {
         // Create new finish
-        const response = await fetch('https://stiles.co.za/api/admin-unique-finishes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-finishes.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminUniqueFinishes = () => {
   const handleDeleteFinish = async (finish) => {
     if (window.confirm(`Are you sure you want to delete the finish "${finish.finish}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-unique-finishes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-finishes.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

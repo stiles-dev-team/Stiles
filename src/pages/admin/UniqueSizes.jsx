@@ -29,7 +29,7 @@ const AdminUniqueSizes = () => {
   const fetchSizes = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-unique-sizes.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-sizes.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const AdminUniqueSizes = () => {
     try {
       if (editingSize) {
         // Update existing size
-        const response = await fetch('https://stiles.co.za/api/admin-unique-sizes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-sizes.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const AdminUniqueSizes = () => {
         }
       } else {
         // Create new size
-        const response = await fetch('https://stiles.co.za/api/admin-unique-sizes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-sizes.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminUniqueSizes = () => {
   const handleDeleteSize = async (size) => {
     if (window.confirm(`Are you sure you want to delete the size "${size.size}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-unique-sizes.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-sizes.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

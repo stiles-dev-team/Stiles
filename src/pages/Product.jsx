@@ -191,8 +191,8 @@ const Product = () => {
         setBrandPdf(null);
         // If admin, fetch product regardless of status, otherwise only published
         const apiUrl = isAdmin 
-            ? `https://stiles.co.za/api/admin-products.php?slug=${id}`
-            : `https://stiles.co.za/api/products.php?slug=${id}`;
+            ? `${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php?slug=${id}`
+            : `${import.meta.env.VITE_API_BASE_URL}/api/products.php?slug=${id}`;
         
         fetch(apiUrl)
         .then(res => {
@@ -298,7 +298,7 @@ const Product = () => {
                 // Fetch stock info
                 if (product.sku) {
                     console.log('Fetching stock info for SKU:', product.sku);
-                    fetch(`https://stiles.co.za/api/iq_new.php?code=${product.sku}`, {
+                    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/iq_new.php?code=${product.sku}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -334,7 +334,7 @@ const Product = () => {
 
                 const brandName = product['attribute:pa_brands'];
                 if (brandName) {
-                    fetch('https://stiles.co.za/api/admin-brands.php')
+                    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-brands.php`)
                         .then(res => res.json())
                         .then(data => {
                             const brand = data.brands?.find(b => b.name === brandName);
@@ -358,7 +358,7 @@ const Product = () => {
                 setIsFavourite(wishlist.some(item => item.slug === id));
                 
                 // Fetch related products
-                fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(product.product_category)}&limit=10`)
+                fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(product.product_category)}&limit=10`)
                 .then(res => res.json())
                 .then(response => {
                     if (response.status === 'success' && response.data) {

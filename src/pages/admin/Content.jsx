@@ -113,7 +113,7 @@ const AdminContent = () => {
   const fetchHomeContent = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-content.php?page=home", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-content.php?page=home`, {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -143,7 +143,7 @@ const AdminContent = () => {
   const handleSave = async (page) => {
     setSaving(true);
     try {
-      const response = await fetch("https://stiles.co.za/api/admin-content.php", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-content.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -256,7 +256,7 @@ const AdminContent = () => {
   // Blog management functions
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-blogs.php');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-blogs.php`);
       const data = await response.json();
       if (data.success) {
         setBlogs(data.blogs);
@@ -279,7 +279,7 @@ const AdminContent = () => {
           : ''
       };
 
-      const response = await fetch('https://stiles.co.za/api/admin-blogs.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-blogs.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -305,7 +305,7 @@ const AdminContent = () => {
   const handleDeleteBlog = async (blogId) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-blogs.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-blogs.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

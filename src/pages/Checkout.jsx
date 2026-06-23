@@ -158,7 +158,7 @@ const Checkout = () => {
     console.log('Request headers:', headers);
     
     try {
-        const response = await fetch('https://stiles.co.za/api/create-order.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/create-order.php`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({

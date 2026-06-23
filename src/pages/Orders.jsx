@@ -22,7 +22,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       console.log('Fetching orders for user:', user.id);
-      const response = await fetch(`https://stiles.co.za/api/orders.php?user_id=${user.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/orders.php?user_id=${user.id}`, {
         headers: {
           'Accept': 'application/json'
         }

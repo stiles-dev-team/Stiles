@@ -69,7 +69,7 @@ const ProductBrands = () => {
         const fetchBrandInfo = async () => {
             try {
                 console.log('Fetching brand info for slug:', slug);
-                const response = await fetch(`https://stiles.co.za/api/products.php?brand=${slug}&info=true`);
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?brand=${slug}&info=true`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         toast.error('Brand not found');
@@ -209,7 +209,7 @@ const Content = ({
 
         const fetchFilterValues = async () => {
             try {
-                const response = await fetch(`https://stiles.co.za/api/products.php?brand=${slug}&filters=true`);
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?brand=${slug}&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -297,7 +297,7 @@ const Content = ({
                 }
 
                 // Log the request URL for debugging
-                const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
+                const requestUrl = `${import.meta.env.VITE_API_BASE_URL}/api/products.php?${queryParams.toString()}`;
                 console.log('Fetching products with URL:', requestUrl);
                 
                 const res = await fetch(requestUrl);

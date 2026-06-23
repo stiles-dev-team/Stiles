@@ -27,7 +27,7 @@ const AdminLocations = () => {
   const fetchLocations = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://stiles.co.za/api/admin-locations.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-locations.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const AdminLocations = () => {
     };
 
     try {
-      const url = 'https://stiles.co.za/api/admin-locations.php';
+      const url = `${import.meta.env.VITE_API_BASE_URL}/api/admin-locations.php`;
       const method = editingIndex !== null ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -171,7 +171,7 @@ const AdminLocations = () => {
     }
 
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-locations.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-locations.php`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

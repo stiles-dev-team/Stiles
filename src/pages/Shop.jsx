@@ -115,7 +115,7 @@ const Content = () => {
                 // The API uses LIKE '%category%', so empty string becomes '%%' which matches all
                 queryParams.set('category', '');
 
-                const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
+                const requestUrl = `${import.meta.env.VITE_API_BASE_URL}/api/products.php?${queryParams.toString()}`;
                 
                 const res = await fetch(requestUrl);
                 if (!res.ok) throw new Error('Failed to fetch products');

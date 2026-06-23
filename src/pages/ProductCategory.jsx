@@ -197,7 +197,7 @@ const Content = ({
         const fetchFilterValues = async () => {
             try {
                 const encodedCategory = encodeCategoryEntities(dataSlug.name);
-                const response = await fetch(`https://stiles.co.za/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -296,7 +296,7 @@ const Content = ({
                 }
 
                 // Log the request URL for debugging
-                const requestUrl = `https://stiles.co.za/api/products.php?${queryParams.toString()}`;
+                const requestUrl = `${import.meta.env.VITE_API_BASE_URL}/api/products.php?${queryParams.toString()}`;
                 console.log('Fetching products with URL:', requestUrl);
                 
                 const res = await fetch(requestUrl);

@@ -83,7 +83,7 @@ const NavbarDark = () => {
       });
 
     // Fetch brands from API
-    fetch("https://stiles.co.za/api/admin-brands.php")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-brands.php`)
       .then((response) => response.json())
       .then((data) => {
         if (data.success && Array.isArray(data.brands)) {
@@ -113,7 +113,7 @@ const NavbarDark = () => {
       setIsSearchLoading(true);
       const fetchSearchResults = async () => {
         try {
-          const response = await fetch(`https://stiles.co.za/api/search.php?q=${encodeURIComponent(search.trim())}&limit=4`);
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/search.php?q=${encodeURIComponent(search.trim())}&limit=4`);
           if (!response.ok) {
             throw new Error('Failed to fetch search results');
           }

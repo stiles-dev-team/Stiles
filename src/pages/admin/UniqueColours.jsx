@@ -29,7 +29,7 @@ const AdminUniqueColours = () => {
   const fetchColours = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-unique-colours.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-colours.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const AdminUniqueColours = () => {
     try {
       if (editingColour) {
         // Update existing colour
-        const response = await fetch('https://stiles.co.za/api/admin-unique-colours.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-colours.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const AdminUniqueColours = () => {
         }
       } else {
         // Create new colour
-        const response = await fetch('https://stiles.co.za/api/admin-unique-colours.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-colours.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminUniqueColours = () => {
   const handleDeleteColour = async (colour) => {
     if (window.confirm(`Are you sure you want to delete the colour "${colour.colour}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-unique-colours.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-colours.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

@@ -28,7 +28,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ const AdminUsers = () => {
 
   const handleRoleUpdate = async (userId, newRole) => {
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const AdminUsers = () => {
 
   const handleStatusUpdate = async (userId, newStatus) => {
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ const AdminUsers = () => {
     setIsDeletingUser(true)
 
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -239,7 +239,7 @@ const AdminUsers = () => {
     setIsCreatingUser(true)
 
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-users.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

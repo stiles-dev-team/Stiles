@@ -29,7 +29,7 @@ const AdminUniqueCategoriesOld = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-categories.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const AdminUniqueCategoriesOld = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-categories.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const AdminUniqueCategoriesOld = () => {
         }
       } else {
         // Create new category
-        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-categories.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminUniqueCategoriesOld = () => {
   const handleDeleteCategory = async (category) => {
     if (window.confirm(`Are you sure you want to delete the category "${category.category}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-unique-categories.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-categories.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

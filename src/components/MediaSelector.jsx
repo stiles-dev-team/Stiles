@@ -36,7 +36,7 @@ const MediaSelector = ({
         type: filter
       });
 
-      const response = await fetch(`https://stiles.co.za/api/admin-media.php?${params}`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-media.php?${params}`);
       const data = await response.json();
 
       if (data.success) {

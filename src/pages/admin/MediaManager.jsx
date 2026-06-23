@@ -99,7 +99,7 @@ const MediaManager = () => {
         type: filterType
       })
       
-      const response = await fetch(`https://stiles.co.za/api/admin-media.php?${params}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-media.php?${params}`, {
         headers: { 'Accept': 'application/json' }
       })
       const data = await response.json()
@@ -173,7 +173,7 @@ const MediaManager = () => {
         formData.append('description[]', metadata.description)
       })
 
-      const response = await fetch('https://stiles.co.za/api/upload-media.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/upload-media.php`, {
         method: 'POST',
         body: formData
       })
@@ -250,7 +250,7 @@ const MediaManager = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-media.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-media.php`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -282,7 +282,7 @@ const MediaManager = () => {
     if (!window.confirm('Are you sure you want to delete this file?')) return
 
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-media.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-media.php`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: fileId })

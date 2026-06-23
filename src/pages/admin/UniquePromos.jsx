@@ -35,7 +35,7 @@ const AdminUniquePromos = () => {
   const fetchPromos = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-promos.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const AdminUniquePromos = () => {
     try {
       if (editingPromo) {
         // Update existing promo
-        const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-promos.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const AdminUniquePromos = () => {
         }
       } else {
         // Create new promo
-        const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-promos.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ const AdminUniquePromos = () => {
   const handleDeletePromo = async (promo) => {
     if (window.confirm(`Are you sure you want to delete the promo "${promo.promo}"?`)) {
       try {
-        const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-promos.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ const AdminUniquePromos = () => {
     const nextShowBadge = !current
 
     try {
-      const response = await fetch('https://stiles.co.za/api/admin-unique-promos.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-promos.php`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
