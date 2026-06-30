@@ -474,6 +474,24 @@ const Product = () => {
  
   const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
+  const isSanitaryWareCategory = product?.product_category &&
+      typeof product.product_category === 'string' &&
+      product.product_category.includes('Sanitary Ware');
+  const isSlabCategory = product?.product_category &&
+      typeof product.product_category === 'string' &&
+      product.product_category.includes('Slab');
+  const showSoldOutUnavailable = stockInfo?.onhand !== undefined &&
+      (isSanitaryWareCategory ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+      (isSlabCategory ? stockInfo.onhand === 0 : stockInfo.onhand < 5) &&
+      !badges.includes('Coming Soon') &&
+      !badges.includes('Backorder') &&
+      !badges.includes('Special Order') &&
+      !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Backorder')) &&
+      !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Coming Soon')) &&
+      !(product?.promo && typeof product.promo === 'string' && product.promo.includes('Special Order')) &&
+      !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Backorder')) &&
+      !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
+
   return (
     <LayoutDark>
         {
@@ -944,7 +962,7 @@ const Product = () => {
                     )}
                     <div className='flex flex-row items-center gap-2 flex-1 min-w-0'>
                     {
-                        !stockInfo ? (
+                        !stockInfo || showSoldOutUnavailable ? (
                             <button 
                                 className="text-xs bg-gray-400 text-white rounded-full py-4 px-5 flex justify-center items-center gap-2 font-semibold w-full flex-1 cursor-not-allowed"
                                 disabled={true}
