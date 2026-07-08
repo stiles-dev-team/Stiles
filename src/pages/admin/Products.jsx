@@ -1827,7 +1827,7 @@ const AdminProducts = () => {
                 options={[
                   { value: "Tiles", label: "Tiles" },
                   { value: "Sanitary Ware", label: "Sanware" },
-                  { value: "Engineered Hardwood", label: "Engineered Hardwood" },
+                  { value: "Engineered Wooden Flooring", label: "Engineered Wooden Flooring" },
                   { value: "Vinyl", label: "Vinyl" },
                   { value: "Laminate", label: "Laminate" },
                   { value: "Accessories", label: "Accessories" }
