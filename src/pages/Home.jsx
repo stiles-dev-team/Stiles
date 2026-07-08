@@ -776,6 +776,19 @@ const ShopCategory = ({ content }) => {
 }
 
 const WeWorkWithTheBest = () => {
+  const brands = [
+    { src: '/images/Etienne.png', href: '/product-category/brands/Etienne' },
+    { src: '/images/FunkyTiles.png', href: '/product-category/brands/Funky Tiles' },
+    { src: '/images/Nala.png', href: '/product-category/brands/Nala Baths' },
+    { src: '/images/Nest.png', href: '/product-category/brands/Nest Flooring by KREM' },
+    { src: '/images/Oak.png', href: '/product-category/brands/Oak' },
+    { src: '/images/hansgrohe_logo.jpg', href: '/product-category/brands/Hansgrohe' },
+    { src: '/images/duravit_logo.jpeg', href: '/product-category/brands/Duravit' },
+    { src: '/images/monocieb.webp', href: '/product-category/brands/Monocibec' },
+    { src: '/images/florim.webp', href: '/product-category/brands/Florim' },
+    { src: '/images/buttler_logo.jpg', href: '/product-category/brands/Bathroom Butler' },
+  ];
+
   return (
     <section id="WeWorkWithTheBest" className='container mx-auto px-4 flex flex-col justify-start items-start gap-5'>
       <div className='flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20 w-full pb-5'>
@@ -808,33 +821,16 @@ const WeWorkWithTheBest = () => {
           }
         },
       }}>
-        <SplideSlide>
-          <img src="/images/Etienne.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Etienne"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/FunkyTiles.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Funky Tiles"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/Nala.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nala Baths"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/Nest.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Nest Flooring by KREM"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/Oak.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Oak"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/partner.png" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Blutide"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/monocieb.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Monocibec"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/florim.webp" alt="" className='w-full object-cover object-center cursor-pointer' onClick={() => window.location.href="/product-category/brands/Florim"} />
-        </SplideSlide>
-        <SplideSlide>
-          <img src="/images/buttler_logo.jpg" alt="" className='w-full object-cover object-center cursor-pointer' />
-        </SplideSlide>
+        {brands.map((brand) => (
+          <SplideSlide key={brand.src} className="flex items-center justify-center h-20">
+            <img
+              src={brand.src}
+              alt=""
+              className="h-30 w-full max-w-full object-contain object-center cursor-pointer p-2 m-2"
+              onClick={() => { window.location.href = brand.href; }}
+            />
+          </SplideSlide>
+        ))}
       </Splide>
     </section>
   )
