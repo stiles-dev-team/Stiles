@@ -252,7 +252,12 @@ const Hero = ({ content }) => {
               )}
 
                 <div>
-                  <ButtonStiles text={slide.button_text} styleType="light" href={slide.button_link} extraStyle="hidden lg:block" />
+                  <ButtonStiles
+                    text={slide.button_text}
+                    styleType="light"
+                    href={slide.button_link}
+                    extraStyle="text-sm p-3 min-w-48 lg:text-base lg:p-4 lg:min-w-64"
+                  />
                 </div>
               {/* {index === 0 ? (
                 <div className='w-full flex justify-center mt-12'>
