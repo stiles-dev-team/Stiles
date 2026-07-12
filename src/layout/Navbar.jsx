@@ -34,6 +34,33 @@ function Icon({ id, open }) {
   );
 }
 
+function MobileNavHeader({ href, label, id, open, onToggle, className }) {
+  return (
+    <AccordionHeader className={className}>
+      <div className="flex w-full items-center justify-between gap-2">
+        {href ? (
+          <a href={href} className="flex-1 text-inherit">
+            {label}
+          </a>
+        ) : (
+          <span className="flex-1">{label}</span>
+        )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(id);
+          }}
+          className="p-1 shrink-0"
+          aria-label={`Toggle ${label} menu`}
+        >
+          <Icon id={id} open={open} />
+        </button>
+      </div>
+    </AccordionHeader>
+  );
+}
+
 const Navbar = () => {
   const navigate = useNavigate();
   const isTouchDevice = useIsTouchDevice();
@@ -795,14 +822,14 @@ const Navbar = () => {
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 4}
-          icon={<Icon id={4} open={open} />}
         >
-          <AccordionHeader
+          <MobileNavHeader
+            label="Shop By Brand"
+            id={4}
+            open={open}
+            onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-            onClick={() => handleOpen(4)}
-          >
-            Shop By Brand
-          </AccordionHeader>
+          />
           <AccordionBody className="py-0 pb-2">
             {Object.entries(categorizedBrands).map(
               ([range, brandList]) =>
@@ -811,14 +838,14 @@ const Navbar = () => {
                     key={range}
                     open={openBrandSection === range}
                     className="w-full"
-                    icon={<Icon id={range} open={openBrandSection} />}
                   >
-                    <AccordionHeader
-                      onClick={() => handleBrandSectionOpen(range)}
+                    <MobileNavHeader
+                      label={`Brands ${range}`}
+                      id={range}
+                      open={openBrandSection}
+                      onToggle={handleBrandSectionOpen}
                       className="text-sm py-2 font-medium border-none"
-                    >
-                      Brands {range}
-                    </AccordionHeader>
+                    />
                     <AccordionBody className="py-1">
                       <div className="flex flex-col gap-1 pl-4">
                         {brandList.map((brand) => (
@@ -840,14 +867,15 @@ const Navbar = () => {
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 1}
-          icon={<Icon id={1} open={open} />}
         >
-          <AccordionHeader
+          <MobileNavHeader
+            href="/product-category/tiles"
+            label="Tiles"
+            id={1}
+            open={open}
+            onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-            onClick={() => handleOpen(1)}
-          >
-            Tiles
-          </AccordionHeader>
+          />
           <AccordionBody className="py-0 pb-2">
             {data
               ?.filter((item) => {
@@ -866,14 +894,15 @@ const Navbar = () => {
                       key={item.term_id}
                       open={openTilesSection === item.term_id}
                       className="w-full"
-                      icon={<Icon id={item.term_id} open={openTilesSection} />}
                     >
-                      <AccordionHeader
-                        onClick={() => handleTilesSectionOpen(item.term_id)}
+                      <MobileNavHeader
+                        href={`/product-category/tiles/${item.slug}`}
+                        label={item.name}
+                        id={item.term_id}
+                        open={openTilesSection}
+                        onToggle={handleTilesSectionOpen}
                         className="text-sm py-2 font-medium border-none"
-                      >
-                        {item.name}
-                      </AccordionHeader>
+                      />
                       <AccordionBody className="py-1">
                         <div className="flex flex-col gap-1 pl-4">
                           {data
@@ -917,14 +946,15 @@ const Navbar = () => {
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 2}
-          icon={<Icon id={2} open={open} />}
         >
-          <AccordionHeader
+          <MobileNavHeader
+            href="/product-category/sanitary-ware"
+            label="Sanware"
+            id={2}
+            open={open}
+            onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-            onClick={() => handleOpen(2)}
-          >
-            Sanware
-          </AccordionHeader>
+          />
           <AccordionBody className="py-0 pb-2">
             {data
               ?.filter((item) => {
@@ -943,16 +973,15 @@ const Navbar = () => {
                       key={item.term_id}
                       open={openSanwareSection === item.term_id}
                       className="w-full"
-                      icon={
-                        <Icon id={item.term_id} open={openSanwareSection} />
-                      }
                     >
-                      <AccordionHeader
-                        onClick={() => handleSanwareSectionOpen(item.term_id)}
+                      <MobileNavHeader
+                        href={`/product-category/sanitary-ware/${item.slug}`}
+                        label={item.name}
+                        id={item.term_id}
+                        open={openSanwareSection}
+                        onToggle={handleSanwareSectionOpen}
                         className="text-sm py-2 font-medium border-none"
-                      >
-                        {item.name}
-                      </AccordionHeader>
+                      />
                       <AccordionBody className="py-1">
                         <div className="flex flex-col gap-1 pl-4">
                           {data
@@ -996,14 +1025,15 @@ const Navbar = () => {
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 3}
-          icon={<Icon id={3} open={open} />}
         >
-          <AccordionHeader
+          <MobileNavHeader
+            href="/product-category/flooring"
+            label="Flooring"
+            id={3}
+            open={open}
+            onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-            onClick={() => handleOpen(3)}
-          >
-            Flooring
-          </AccordionHeader>
+          />
           <AccordionBody className="py-0 pb-2">
             {data
               ?.filter((item) => {
@@ -1022,16 +1052,15 @@ const Navbar = () => {
                       key={item.term_id}
                       open={openFlooringSection === item.term_id}
                       className="w-full"
-                      icon={
-                        <Icon id={item.term_id} open={openFlooringSection} />
-                      }
                     >
-                      <AccordionHeader
-                        onClick={() => handleFlooringSectionOpen(item.term_id)}
+                      <MobileNavHeader
+                        href={`/product-category/flooring/${item.slug}`}
+                        label={item.name}
+                        id={item.term_id}
+                        open={openFlooringSection}
+                        onToggle={handleFlooringSectionOpen}
                         className="text-sm py-2 font-medium border-none"
-                      >
-                        {item.name}
-                      </AccordionHeader>
+                      />
                       <AccordionBody className="py-1">
                         <div className="flex flex-col gap-1 pl-4">
                           {data
@@ -1086,14 +1115,15 @@ const Navbar = () => {
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 5}
-          icon={<Icon id={5} open={open} />}
         >
-          <AccordionHeader
+          <MobileNavHeader
+            href="/contact-us"
+            label="Contact Us"
+            id={5}
+            open={open}
+            onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-            onClick={() => handleOpen(5)}
-          >
-            Contact Us
-          </AccordionHeader>
+          />
           <AccordionBody className="py-0 pb-2">
             {Object.entries(
               locations.reduce((acc, location) => {
