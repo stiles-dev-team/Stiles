@@ -454,13 +454,14 @@ const Product = () => {
                 return <div key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
             }) : [],
         },
-        {
-            label: "Description",
-            value: "desc",
-            desc: [
-                <div className='productdesc' dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join(' ') || "No product details available" }} />
-            ],
-        },
+        // Remove this to avoid duplicate content
+        // {
+        //     label: "Description",
+        //     value: "desc",
+        //     desc: [
+        //         <div className='productdesc' dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join(' ') || "No product details available" }} />
+        //     ],
+        // },
         {
             label: "Stock Disclaimer",
             value: "stock",
