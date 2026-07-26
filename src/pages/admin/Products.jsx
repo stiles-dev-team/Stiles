@@ -233,7 +233,7 @@ const AdminProducts = () => {
     let syncTriggered = false;
     try {
       try {
-        const response = await fetch("https://shopify-sync-app-ft-production.up.railway.app/sync-stiles", {
+        const response = await fetch("https://stiles-shopify-sync-app-ft-production.up.railway.app/sync-stiles", {
           method: "POST",
         });
 
