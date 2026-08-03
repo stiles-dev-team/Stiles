@@ -23,6 +23,8 @@ import AdminLocations from './admin/Locations'
 import MediaManager from './admin/MediaManager'
 
 const Admin = () => {
+
+  // test comment
     const { isAuthenticated, isAdmin, user } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
