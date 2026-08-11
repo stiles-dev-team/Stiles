@@ -93,7 +93,11 @@ function MegaMenuItemVisual({ item, itemType }) {
     );
   }
 
-  return <div className={`h-12 w-12 rounded-full ${item.swatch}`} />;
+  return (
+    <div
+      className={`h-12 w-12 ${item.swatch} group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out`}
+    />
+  );
 }
 
 function MegaMenuColumn({ column }) {
