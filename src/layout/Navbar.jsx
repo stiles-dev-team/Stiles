@@ -45,16 +45,22 @@ function MegaMenuItemVisual({ item, itemType }) {
 
   if (itemType === "size") {
     return (
-      <div className="flex h-8 w-8 items-center justify-center border border-gray-200 bg-gray-50 text-[8px] font-semibold leading-none text-gray-700">
-        {item.dimension}
+      <div className="flex h-8 w-8 items-center justify-center">
+        <div className="flex h-6 w-6 rotate-45 items-center justify-center border border-gray-200 bg-gray-50">
+          <span className="-rotate-45 text-[7px] font-semibold leading-none text-gray-700">
+            {item.dimension}
+          </span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`h-8 w-8 ${item.swatch} group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out`}
-    />
+    <div className="flex h-8 w-8 items-center justify-center">
+      <div
+        className={`h-6 w-6 rotate-45 ${item.swatch} group-hover:rotate-[405deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out`}
+      />
+    </div>
   );
 }
 
