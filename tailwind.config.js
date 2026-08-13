@@ -9,6 +9,9 @@ module.exports = withMT({
   ],
   theme: {
   	extend: {
+  		screens: {
+  			nav: '1140px',
+  		},
   		fontFamily: {
   			'sans': [
   				'Cabin',

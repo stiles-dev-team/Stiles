@@ -257,6 +257,70 @@ function Icon({ id, open }) {
   );
 }
 
+function getMegaMenuItemLabel(item) {
+  return item.label || item.dimension || "";
+}
+
+function MobileMegaMenuAccordion({
+  menu,
+  label,
+  href,
+  accordionId,
+  open,
+  onToggle,
+  openSection,
+  onSectionToggle,
+}) {
+  return (
+    <Accordion
+      className="w-full px-5 border-b border-b-gray-300 relative"
+      open={open === accordionId}
+    >
+      <MobileNavHeader
+        href={href}
+        label={label}
+        id={accordionId}
+        open={open}
+        onToggle={onToggle}
+        className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
+      />
+      <AccordionBody className="py-0 pb-2">
+        {menu.map((column) => {
+          const sectionKey = `${accordionId}-${column.title}`;
+          return (
+            <Accordion
+              key={column.title}
+              open={openSection === sectionKey}
+              className="w-full"
+            >
+              <MobileNavHeader
+                label={column.title}
+                id={sectionKey}
+                open={openSection}
+                onToggle={onSectionToggle}
+                className="text-sm py-2 font-medium border-none"
+              />
+              <AccordionBody className="py-1">
+                <div className="flex flex-col gap-1 pl-4">
+                  {column.items.map((item) => (
+                    <a
+                      key={`${item.href}-${getMegaMenuItemLabel(item)}`}
+                      href={item.href}
+                      className="text-sm text-dark hover:text-dark py-1"
+                    >
+                      {getMegaMenuItemLabel(item)}
+                    </a>
+                  ))}
+                </div>
+              </AccordionBody>
+            </Accordion>
+          );
+        })}
+      </AccordionBody>
+    </Accordion>
+  );
+}
+
 function MobileNavHeader({ href, label, id, open, onToggle, className }) {
   return (
     <AccordionHeader className={className}>
@@ -310,9 +374,7 @@ const Navbar = () => {
   const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(0);
   const [openBrandSection, setOpenBrandSection] = useState(null);
-  const [openTilesSection, setOpenTilesSection] = useState(null);
-  const [openSanwareSection, setOpenSanwareSection] = useState(null);
-  const [openFlooringSection, setOpenFlooringSection] = useState(null);
+  const [openMegaMenuSection, setOpenMegaMenuSection] = useState(null);
   const [parentCategories, setParentCategories] = useState([]);
 
   const categorizedBrands = {
@@ -326,12 +388,8 @@ const Navbar = () => {
   const handleOpen = (value) => setOpen(open === value ? 0 : value);
   const handleBrandSectionOpen = (value) =>
     setOpenBrandSection(openBrandSection === value ? null : value);
-  const handleTilesSectionOpen = (value) =>
-    setOpenTilesSection(openTilesSection === value ? null : value);
-  const handleSanwareSectionOpen = (value) =>
-    setOpenSanwareSection(openSanwareSection === value ? null : value);
-  const handleFlooringSectionOpen = (value) =>
-    setOpenFlooringSection(openFlooringSection === value ? null : value);
+  const handleMegaMenuSectionOpen = (value) =>
+    setOpenMegaMenuSection(openMegaMenuSection === value ? null : value);
 
   useEffect(() => {
     // Fetch categories
@@ -436,9 +494,7 @@ const Navbar = () => {
     setShowDecorMosaics(false);
     setShowContact(false);
     setOpenBrandSection(null);
-    setOpenTilesSection(null);
-    setOpenSanwareSection(null);
-    setOpenFlooringSection(null);
+    setOpenMegaMenuSection(null);
   };
 
   const openDropdown = (menu) => {
@@ -622,15 +678,15 @@ const Navbar = () => {
           </div>
         </div>
       )}
-      <nav className="w-full absolute top-0 left-0 py-3 lg:py-5 z-50">
+      <nav className="w-full fixed top-0 left-0 right-0 py-3 nav:py-5 z-50">
         <div className="container mx-auto flex flex-row items-center gap-4 px-4">
           <a href="/" className="shrink-0">
-            <img src="/images/logo_white.png" alt="" className="h-12 lg:h-16" />
+            <img src="/images/logo_white.png" alt="" className="h-12 nav:h-16" />
           </a>
 
           {/* --- Desktop pill menu --- */}
           <div
-            className="relative hidden lg:flex flex-1 items-center justify-between rounded-2xl bg-[#d4d9df]/95 px-5 py-2.5 backdrop-blur-sm"
+            className="relative hidden nav:flex flex-1 items-center justify-between rounded-2xl bg-[#d4d9df]/95 px-5 py-2.5 backdrop-blur-sm"
             onMouseLeave={closeAllDropdowns}
           >
             <div className="flex items-center gap-6 xl:gap-8">
@@ -1002,7 +1058,8 @@ const Navbar = () => {
 
           <button
             onClick={() => setShowMenu(true)}
-            className="ml-auto text-white lg:hidden"
+            className="ml-auto nav:hidden flex items-center justify-center rounded-2xl bg-[#d4d9df]/95 p-2.5 backdrop-blur-sm text-gray-900"
+            aria-label="Open menu"
           >
             <IoMenu size={24} />
           </button>
@@ -1011,12 +1068,12 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       <div
-        className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
-          showMenu ? "right-0" : "-right-full"
+        className={`w-10/12 h-lvh bg-white fixed top-0 right-0 z-[90] nav:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
+          showMenu ? "translate-x-0" : "translate-x-full"
         }`}
         id="navbar-mobile-menu"
       >
-        <div className="w-full py-5 z-50 flex justify-end items-center px-4">
+        <div className="sticky top-0 z-10 w-full bg-white py-5 flex justify-end items-center px-4 border-b border-b-gray-200">
           <IoClose
             stroke="black"
             size={30}
@@ -1075,248 +1132,49 @@ const Navbar = () => {
           </AccordionBody>
         </Accordion> */}
 
-        {/* Tiles */}
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 1}
-        >
-          <MobileNavHeader
-            href="/product-category/tiles"
-            label="Tiles"
-            id={1}
-            open={open}
-            onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-          />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
-                return tilesParent ? item.parent === tilesParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
+        <MobileMegaMenuAccordion
+          menu={FLOORING_MEGA_MENU}
+          label="Floor Tiles"
+          href="/product-category/flooring"
+          accordionId={1}
+          open={open}
+          onToggle={handleOpen}
+          openSection={openMegaMenuSection}
+          onSectionToggle={handleMegaMenuSectionOpen}
+        />
 
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openTilesSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/tiles/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openTilesSection}
-                        onToggle={handleTilesSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/tiles/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/tiles/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/tiles/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
+        <MobileMegaMenuAccordion
+          menu={WALL_TILES_MEGA_MENU}
+          label="Wall Tiles"
+          href="/product-category/tiles/wall-tiles"
+          accordionId={2}
+          open={open}
+          onToggle={handleOpen}
+          openSection={openMegaMenuSection}
+          onSectionToggle={handleMegaMenuSectionOpen}
+        />
 
-        {/* Sansware */}
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 2}
-        >
-          <MobileNavHeader
-            href="/product-category/sanitary-ware"
-            label="Sanware"
-            id={2}
-            open={open}
-            onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-          />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
-                return sanwareParent ? item.parent === sanwareParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
+        <MobileMegaMenuAccordion
+          menu={LARGE_SLABS_MEGA_MENU}
+          label="Large Slabs"
+          href="/product-category/tiles/large-slab"
+          accordionId={3}
+          open={open}
+          onToggle={handleOpen}
+          openSection={openMegaMenuSection}
+          onSectionToggle={handleMegaMenuSectionOpen}
+        />
 
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openSanwareSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/sanitary-ware/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openSanwareSection}
-                        onToggle={handleSanwareSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/sanitary-ware/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/sanitary-ware/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
-
-        {/* Flooring */}
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 3}
-        >
-          <MobileNavHeader
-            href="/product-category/flooring"
-            label="Flooring"
-            id={3}
-            open={open}
-            onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-          />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
-                return flooringParent ? item.parent === flooringParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
-
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openFlooringSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/flooring/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openFlooringSection}
-                        onToggle={handleFlooringSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/flooring/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/flooring/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/flooring/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
+        <MobileMegaMenuAccordion
+          menu={DECOR_MOSAICS_MEGA_MENU}
+          label="Decor"
+          href="/product-category/tiles/mosaics"
+          accordionId={4}
+          open={open}
+          onToggle={handleOpen}
+          openSection={openMegaMenuSection}
+          onSectionToggle={handleMegaMenuSectionOpen}
+        />
 
         {/* Fireplace */}
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
