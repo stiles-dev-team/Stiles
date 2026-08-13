@@ -148,6 +148,22 @@ function DecorMosaicsMegaMenu({ isOpen }) {
   );
 }
 
+function locationSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function groupLocationsByRegion(locations) {
+  return locations.reduce((acc, location) => {
+    if (!acc[location.region]) acc[location.region] = [];
+    acc[location.region].push(location);
+    return acc;
+  }, {});
+}
+
 // --- Desktop pill nav styles ---
 const navLinkClass =
   "text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors";
@@ -163,6 +179,35 @@ function PillDropdownPanel({ isOpen, className = "", children }) {
     >
       <div className="rounded-b-2xl bg-white p-6 shadow-lg">{children}</div>
     </div>
+  );
+}
+
+function ContactDropdown({ isOpen, locations }) {
+  if (!isOpen) return null;
+
+  const byRegion = groupLocationsByRegion(locations);
+
+  return (
+    <PillDropdownPanel isOpen className="contact-dropdown">
+      <div className="grid grid-cols-3 gap-8">
+        {Object.entries(byRegion).map(([region, locationsList]) => (
+          <div key={region}>
+            <p className="mb-3 text-sm font-bold text-gray-900">{region}</p>
+            <div className="flex flex-col gap-2">
+              {locationsList.map((location) => (
+                <a
+                  key={location.title}
+                  href={`/contact/${locationSlug(location.title)}`}
+                  className="text-sm text-gray-500 hover:text-gray-900"
+                >
+                  {location.title}
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </PillDropdownPanel>
   );
 }
 
@@ -946,39 +991,7 @@ const Navbar = () => {
             <FlooringMegaMenu isOpen={showFloorTiles} />
             <LargeSlabsMegaMenu isOpen={showLargeSlabs} />
             <DecorMosaicsMegaMenu isOpen={showDecorMosaics} />
-
-            {/* <PillDropdownPanel isOpen={showContact} className="contact-dropdown">
-              <div className="grid grid-cols-3 gap-8">
-                {Object.entries(
-                  locations.reduce((acc, location) => {
-                    if (!acc[location.region]) {
-                      acc[location.region] = [];
-                    }
-                    acc[location.region].push(location);
-                    return acc;
-                  }, {})
-                ).map(([region, locationsList]) => (
-                  <div key={region}>
-                    <p className="mb-3 text-sm font-bold text-gray-900">{region}</p>
-                    <div className="flex flex-col gap-2">
-                      {locationsList.map((location) => (
-                        <a
-                          key={location.title}
-                          href={`/contact/${location.title
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")
-                            .replace(/-+/g, "-")
-                            .replace(/^-|-$/g, "")}`}
-                          className="text-sm text-gray-500 hover:text-gray-900"
-                        >
-                          {location.title}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </PillDropdownPanel> */}
+            <ContactDropdown isOpen={showContact} locations={locations} />
           </div>
 
           <button
@@ -989,6 +1002,8 @@ const Navbar = () => {
           </button>
         </div>
       </nav>
+
+      {/* Mobile menu */}
       <div
         className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
           showMenu ? "right-0" : "-right-full"
@@ -1007,7 +1022,8 @@ const Navbar = () => {
             Home
           </a>
         </div>
-        <Accordion
+        {/* Brand */}
+        {/* <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 4}
         >
@@ -1051,7 +1067,9 @@ const Navbar = () => {
                 )
             )}
           </AccordionBody>
-        </Accordion>
+        </Accordion> */}
+
+        {/* Tiles */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 1}
@@ -1131,6 +1149,8 @@ const Navbar = () => {
               })}
           </AccordionBody>
         </Accordion>
+
+        {/* Sansware */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 2}
@@ -1210,6 +1230,8 @@ const Navbar = () => {
               })}
           </AccordionBody>
         </Accordion>
+
+        {/* Flooring */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 3}
@@ -1289,6 +1311,8 @@ const Navbar = () => {
               })}
           </AccordionBody>
         </Accordion>
+
+        {/* Fireplace */}
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
           <a href="/calore-kamado-jan/" className="text-sm font-bold text-dark">
             Fireplaces
@@ -1313,34 +1337,24 @@ const Navbar = () => {
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
           />
           <AccordionBody className="py-0 pb-2">
-            {Object.entries(
-              locations.reduce((acc, location) => {
-                if (!acc[location.region]) {
-                  acc[location.region] = [];
-                }
-                acc[location.region].push(location);
-                return acc;
-              }, {})
-            ).map(([region, locationsList]) => (
-              <div key={region} className="w-full mb-3 last:mb-0">
-                <p className="text-sm font-bold mb-2">{region}</p>
-                <div className="flex flex-col gap-2 pl-4">
-                  {locationsList.map((location) => (
-                    <a
-                      key={location.title}
-                      href={`/contact/${location.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, "-")
-                        .replace(/-+/g, "-")
-                        .replace(/^-|-$/g, "")}`}
-                      className="text-sm text-dark hover:text-dark"
-                    >
-                      {location.title}
-                    </a>
-                  ))}
+            {Object.entries(groupLocationsByRegion(locations)).map(
+              ([region, locationsList]) => (
+                <div key={region} className="w-full mb-3 last:mb-0">
+                  <p className="text-sm font-bold mb-2">{region}</p>
+                  <div className="flex flex-col gap-2 pl-4">
+                    {locationsList.map((location) => (
+                      <a
+                        key={location.title}
+                        href={`/contact/${locationSlug(location.title)}`}
+                        className="text-sm text-dark hover:text-dark"
+                      >
+                        {location.title}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </AccordionBody>
         </Accordion>
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
