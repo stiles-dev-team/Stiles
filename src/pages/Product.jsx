@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import LayoutDark from '../layout/LayoutDark'
+import Layout from '../layout/Layout'
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 
@@ -494,7 +494,7 @@ const Product = () => {
       !(product?.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon'));
 
   return (
-    <LayoutDark>
+    <Layout>
         {
             loading ? (
                 <div className='w-full h-svh fixed top-0 left-0 bg-white z-50 flex justify-center items-center'>
@@ -1128,7 +1128,7 @@ const Product = () => {
             onClose={() => setLightboxOpen(false)}
         />
         {/* <SubscribeBanner /> */}
-    </LayoutDark>
+    </Layout>
   )
 }
 

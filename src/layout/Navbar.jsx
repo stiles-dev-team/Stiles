@@ -678,17 +678,33 @@ const Navbar = () => {
           </div>
         </div>
       )}
-      <nav className="w-full fixed top-0 left-0 right-0 py-3 nav:py-5 z-50">
-        <div className="container mx-auto flex flex-row items-center gap-4 px-4">
+      <nav className="w-full fixed top-0 left-0 right-0 z-50">
+        {/* Mobile full-width nav bar */}
+        <div className="nav:hidden w-full bg-[#d4d9df]/95 px-4 py-3 backdrop-blur-sm flex items-center justify-between">
           <a href="/" className="shrink-0">
-            <img src="/images/logo_white.png" alt="" className="h-12 nav:h-16" />
+            <img src="/images/logo.png" alt="Stiles" className="h-12" />
           </a>
-
-          {/* --- Desktop pill menu --- */}
-          <div
-            className="relative hidden nav:flex flex-1 items-center justify-between rounded-2xl bg-[#d4d9df]/95 px-5 py-2.5 backdrop-blur-sm"
-            onMouseLeave={closeAllDropdowns}
+          <button
+            onClick={() => setShowMenu(true)}
+            className="text-gray-900 p-1"
+            aria-label="Open menu"
           >
+            <IoMenu size={24} />
+          </button>
+        </div>
+
+        {/* Desktop pill menu */}
+        <div className="hidden nav:block py-5">
+          <div className="container mx-auto px-4">
+            <div
+              className="relative flex w-full items-center gap-6 rounded-2xl bg-[#d4d9df]/95 px-5 py-2.5 backdrop-blur-sm"
+              onMouseLeave={closeAllDropdowns}
+            >
+              <a href="/" className="shrink-0">
+                <img src="/images/logo.png" alt="Stiles" className="h-14" />
+              </a>
+
+              <div className="flex flex-1 min-w-0 items-center justify-between">
             <div className="flex items-center gap-6 xl:gap-8">
               {/* <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("brands")}
@@ -1054,15 +1070,9 @@ const Navbar = () => {
             <LargeSlabsMegaMenu isOpen={showLargeSlabs} />
             <DecorMosaicsMegaMenu isOpen={showDecorMosaics} />
             <ContactDropdown isOpen={showContact} locations={locations} />
+              </div>
+            </div>
           </div>
-
-          <button
-            onClick={() => setShowMenu(true)}
-            className="ml-auto nav:hidden flex items-center justify-center rounded-2xl bg-[#d4d9df]/95 p-2.5 backdrop-blur-sm text-gray-900"
-            aria-label="Open menu"
-          >
-            <IoMenu size={24} />
-          </button>
         </div>
       </nav>
 
@@ -1073,7 +1083,7 @@ const Navbar = () => {
         }`}
         id="navbar-mobile-menu"
       >
-        <div className="sticky top-0 z-10 w-full bg-white py-5 flex justify-end items-center px-4 border-b border-b-gray-200">
+        <div className="sticky top-0 z-10 w-full bg-[#d4d9df]/95 px-4 py-3 flex justify-end items-center border-b border-b-gray-300">
           <IoClose
             stroke="black"
             size={30}

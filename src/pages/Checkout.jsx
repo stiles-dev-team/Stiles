@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import LayoutDark from '../layout/LayoutDark'
+import Layout from '../layout/Layout'
 import { Card, Input, Select, Option, Checkbox, Textarea } from "@material-tailwind/react"
 import { RiHandbagLine } from "react-icons/ri"
 import { Helmet } from 'react-helmet-async';
@@ -245,7 +245,7 @@ const Checkout = () => {
   };
 
   return (
-    <LayoutDark>
+    <Layout>
       <Helmet>
         <title>Checkout | Stiles</title>
         <meta name="description" content="Checkout on Stiles" />
@@ -490,7 +490,7 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-    </LayoutDark>
+    </Layout>
   )
 }
 
