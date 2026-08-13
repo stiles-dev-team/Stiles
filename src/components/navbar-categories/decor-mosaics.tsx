@@ -1,0 +1,91 @@
+
+import {
+  Bath,
+  CookingPot,
+  TreePine,
+  Home,
+  Waves,
+  PanelTop,
+  Package,
+  Droplets,
+  SprayCan,
+  LayoutGrid,
+} from "lucide-react";
+
+const BASE = "/product-category/tiles/mosaics";
+
+export const DECOR_MOSAICS_MEGA_MENU = [
+  {
+    title: "DECOR & MOSAICS BY LOOK",
+    itemType: "look",
+    items: [
+      { label: "Brick Look", href: `${BASE}/brick-look`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
+      { label: "Wood", href: `${BASE}/wood-look`, swatch: "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-400" },
+      { label: "Stone", href: `${BASE}/pebble-look`, swatch: "bg-stone-500" },
+      { label: "Marble", href: `${BASE}/marble-mosaics`, swatch: "bg-gradient-to-br from-gray-200 via-white to-gray-400" },
+      { label: "Cement", href: `${BASE}/concrete`, swatch: "bg-gray-400" },
+      { label: "Terrazzo", href: `${BASE}/terrazzo`, swatch: "bg-[radial-gradient(circle,#666_1px,transparent_1px)] bg-[length:4px_4px] bg-gray-200" },
+      { label: "Patterned", href: `${BASE}/patchwork-design`, swatch: "bg-[linear-gradient(45deg,#ccc_25%,transparent_25%),linear-gradient(-45deg,#ccc_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#ccc_75%),linear-gradient(-45deg,transparent_75%,#ccc_75%)] bg-[length:8px_8px] bg-[position:0_0,0_4px,4px_-4px,-4px_0px] bg-gray-100" },
+      { label: "Minimalistic", href: `${BASE}/herringbone-look`, swatch: "bg-gradient-to-br from-gray-100 to-gray-300" },
+      { label: "Handmade", href: `${BASE}/decor-mosaic`, swatch: "bg-gradient-to-br from-amber-700 via-orange-300 to-amber-900" },
+      { label: "Metal Look", href: `${BASE}/metallic-look`, swatch: "bg-gradient-to-br from-gray-700 via-gray-500 to-gray-800" },
+      { label: "Subway", href: `${BASE}/subway`, swatch: "bg-white border border-gray-300 bg-[linear-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:100%_33%]" },
+      { label: "Smalls", href: `${BASE}/colour-mix`, swatch: "bg-gray-200 bg-[radial-gradient(circle,#999_1px,transparent_1px)] bg-[length:6px_6px]" },
+      { label: "Fluted", href: `${BASE}/fluted`, swatch: "bg-gray-300 bg-[repeating-linear-gradient(90deg,#999_0px,#999_2px,transparent_2px,transparent_6px)]" },
+      { label: "Kit Kat", href: `${BASE}/kit-kat-mosaics`, swatch: "bg-stone-400 bg-[repeating-linear-gradient(90deg,transparent_0px,transparent_3px,#78716c_3px,#78716c_5px)]" },
+      { label: "Hexagon", href: `${BASE}/hexagon-design`, swatch: "bg-gray-200 bg-[conic-gradient(at_50%_50%,#ccc_0deg_60deg,transparent_60deg_120deg,#ccc_120deg_180deg,transparent_180deg_240deg,#ccc_240deg_300deg,transparent_300deg_360deg)] bg-[length:12px_12px]" },
+      { label: "Relief", href: `${BASE}/relief`, swatch: "bg-gradient-to-br from-stone-400 via-stone-300 to-stone-500 shadow-inner" },
+    ],
+  },
+  {
+    title: "DECOR & MOSAICS BY COLOUR",
+    itemType: "colour",
+    items: [
+      { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
+      { label: "Black", href: `${BASE}/black`, swatch: "bg-black" },
+      { label: "Green", href: `${BASE}/green`, swatch: "bg-green-600" },
+      { label: "Blue", href: `${BASE}/blue`, swatch: "bg-blue-600" },
+      { label: "Pink", href: `${BASE}/pink`, swatch: "bg-pink-400" },
+      { label: "Brown", href: `${BASE}/brown`, swatch: "bg-[#6b4423]" },
+      { label: "Beige", href: `${BASE}/beige`, swatch: "bg-[#d4b896]" },
+      { label: "Cream", href: `${BASE}/cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
+      { label: "White", href: `${BASE}/white`, swatch: "bg-white border border-gray-300" },
+      { label: "Red", href: `${BASE}/red`, swatch: "bg-red-600" },
+      { label: "Sand", href: `${BASE}/sand`, swatch: "bg-[#c2b280]" },
+      { label: "Gold", href: `${BASE}/gold`, swatch: "bg-[#d4af37]" },
+      { label: "Purple", href: `${BASE}/purple`, swatch: "bg-purple-600" },
+      { label: "Yellow", href: `${BASE}/yellow`, swatch: "bg-yellow-400" },
+      { label: "Orange", href: `${BASE}/orange`, swatch: "bg-orange-500" },
+    ],
+  },
+  {
+    title: "DECOR & MOSAICS BY SIZE",
+    itemType: "size",
+    items: [
+      { label: "All smaller sizes", href: BASE, dimension: "Small" },
+    ],
+  },
+  {
+    title: "DECOR & MOSAICS BY SPACE",
+    itemType: "icon",
+    items: [
+      { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
+      { label: "Bathroom", href: `${BASE}/bathroom`, icon: Bath },
+      { label: "Indoor", href: `${BASE}/indoor`, icon: Home },
+      { label: "Outdoor", href: `${BASE}/outdoor`, icon: TreePine },
+      { label: "Pool", href: `${BASE}/pool-mosaic`, icon: Waves },
+      { label: "Countertop", href: `${BASE}/countertop`, icon: PanelTop },
+    ],
+  },
+  {
+    title: "INSTALLATION NEEDS",
+    itemType: "icon",
+    items: [
+      { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
+      { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", icon: Droplets },
+      { label: "Skirtings & Edgings", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
+      { label: "Cleaning Products & Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan, className: "col-start-1" },
+      { label: "Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid, className: "col-start-2" },
+    ],
+  },
+];
