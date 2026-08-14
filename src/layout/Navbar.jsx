@@ -170,7 +170,9 @@ function groupLocationsByRegion(locations) {
   }, {});
 }
 
-// --- Desktop pill nav styles ---
+// --- Pill nav styles ---
+const pillContainerClass =
+  "rounded-2xl bg-white px-5 py-2.5 backdrop-blur-sm shadow-sm";
 const navLinkClass =
   "text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors";
 const navDropdownClass =
@@ -224,7 +226,7 @@ function NavDropdownTrigger({ children, onMouseEnter, onClick, className = "", i
       onMouseEnter={onMouseEnter}
       onClick={onClick}
       className={`${navDropdownClass} rounded-full px-3 py-1.5 ${
-        isOpen ? "bg-white/80" : ""
+        isOpen ? "bg-gray-100" : ""
       } ${className}`}
     >
       {children}
@@ -679,25 +681,31 @@ const Navbar = () => {
         </div>
       )}
       <nav className="w-full fixed top-0 left-0 right-0 z-50">
-        {/* Mobile full-width nav bar */}
-        <div className="nav:hidden w-full bg-[#d4d9df]/95 px-4 py-3 backdrop-blur-sm flex items-center justify-between">
-          <a href="/" className="shrink-0">
-            <img src="/images/logo.png" alt="Stiles" className="h-12" />
-          </a>
-          <button
-            onClick={() => setShowMenu(true)}
-            className="text-gray-900 p-1"
-            aria-label="Open menu"
-          >
-            <IoMenu size={24} />
-          </button>
+        {/* Mobile pill nav bar */}
+        <div className="nav:hidden py-3">
+          <div className="container mx-auto px-4">
+            <div
+              className={`flex w-full items-center justify-between ${pillContainerClass}`}
+            >
+              <a href="/" className="shrink-0">
+                <img src="/images/logo.png" alt="Stiles" className="h-12" />
+              </a>
+              <button
+                onClick={() => setShowMenu(true)}
+                className="text-gray-900 p-1"
+                aria-label="Open menu"
+              >
+                <IoMenu size={24} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Desktop pill menu */}
         <div className="hidden nav:block py-5">
           <div className="container mx-auto px-4">
             <div
-              className="relative flex w-full items-center gap-6 rounded-2xl bg-[#d4d9df]/95 px-5 py-2.5 backdrop-blur-sm"
+              className={`relative flex w-full items-center gap-6 ${pillContainerClass}`}
               onMouseLeave={closeAllDropdowns}
             >
               <a href="/" className="shrink-0">
@@ -1083,7 +1091,7 @@ const Navbar = () => {
         }`}
         id="navbar-mobile-menu"
       >
-        <div className="sticky top-0 z-10 w-full bg-[#d4d9df]/95 px-4 py-3 flex justify-end items-center border-b border-b-gray-300">
+        <div className="sticky top-0 z-10 w-full bg-white px-4 py-3 flex justify-end items-center border-b border-b-gray-300">
           <IoClose
             stroke="black"
             size={30}
