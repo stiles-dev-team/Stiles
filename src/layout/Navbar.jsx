@@ -712,7 +712,7 @@ const Navbar = () => {
                 <img src="/images/logo.png" alt="Stiles" className="h-14" />
               </a>
 
-              <div className="flex flex-1 min-w-0 items-center justify-between">
+              <div className="flex flex-1 min-w-0 items-center">
             <div className="flex items-center gap-6 xl:gap-8">
               {/* <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("brands")}
@@ -827,9 +827,7 @@ const Navbar = () => {
               <a href="/calore-kamado-jan/" className={navLinkClass}>
                 Fireplaces
               </a>
-            </div>
 
-            <div className="flex items-center gap-4 xl:gap-5">
               <a
                 href="javascript: roomvo.startStandaloneVisualizer();"
                 className={navLinkClass}
@@ -851,7 +849,9 @@ const Navbar = () => {
               >
                 Contact Us
               </NavDropdownTrigger>
+            </div>
 
+            <div className="ml-auto flex items-center gap-4 xl:gap-5">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
