@@ -248,7 +248,7 @@ const BlogPost = () => {
         <meta name="description" content={getMetaDescription()} />
         <meta property="og:title" content={getMetaTitle()} />
         <meta property="og:description" content={getMetaDescription()} />
-        <meta property="og:type" content="article" />
+        <meta property="og:type" content="website" />
         <meta property="og:url" content={getShareUrl()} />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
