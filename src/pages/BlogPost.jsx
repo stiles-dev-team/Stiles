@@ -162,6 +162,24 @@ const BlogPost = () => {
     return currentPost.post_title;
   };
 
+  const getMetaDescription = () => {
+    const description = currentPost.metadescription?.trim();
+    if (description && description !== 'NULL') {
+      return description;
+    }
+    const excerpt = currentPost.post_excerpt?.trim();
+    if (excerpt && excerpt !== 'NULL') {
+      return excerpt;
+    }
+    return '';
+  };
+
+  const getShareImage = () => {
+    return currentPost.featured_image?.replace(/^http:\/\//i, 'https://') || '';
+  };
+
+  const getMetaTitle = () => `${currentPost.post_title} | Stiles`;
+
   const handleShareFacebook = (e) => {
     e.preventDefault();
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`;
@@ -226,18 +244,21 @@ const BlogPost = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{currentPost.post_title} | Stiles Blog | Find The Best Deals On Tiles | Stiles</title>
-        <meta name="description" content={currentPost.metadescription} />
-        <meta property="og:title" content={currentPost.post_title} />
-        <meta property="og:description" content={currentPost.metadescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+        <title>{getMetaTitle()}</title>
+        <meta name="description" content={getMetaDescription()} />
+        <meta property="og:title" content={getMetaTitle()} />
+        <meta property="og:description" content={getMetaDescription()} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={getShareUrl()} />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content={currentPost.post_title} />
-        <meta name="twitter:description" content={currentPost.metadescription} />
-        <link rel="canonical" href={`https://stiles.co.za/stiles-blog/${currentPost.slug}`} />
+        <meta property="og:image" content={getShareImage()} />
+        <meta property="og:image:alt" content={currentPost.post_title} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={getMetaTitle()} />
+        <meta name="twitter:description" content={getMetaDescription()} />
+        <meta name="twitter:image" content={getShareImage()} />
+        <link rel="canonical" href={getShareUrl()} />
       </Helmet>
       {/* Hero Section */}
       <section className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20'>
@@ -399,7 +420,7 @@ const BlogPost = () => {
             )}
             
             {/* Comments Section */}
-            <div className="mt-12 pt-8 border-t border-gray-200">
+            {/* <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-2xl font-bold mb-6">Leave a Reply</h2>
               <form onSubmit={handleCommentSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -468,7 +489,7 @@ const BlogPost = () => {
                   </button>
                 </div>
               </form>
-            </div>
+            </div> */}
           </div>
           
           {/* Sidebar */}
