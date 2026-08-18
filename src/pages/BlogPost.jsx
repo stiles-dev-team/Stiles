@@ -175,7 +175,17 @@ const BlogPost = () => {
   };
 
   const getShareImage = () => {
-    return currentPost.featured_image?.replace(/^http:\/\//i, 'https://') || '';
+    const image = currentPost.featured_image?.trim();
+    if (!image) {
+      return 'https://stiles.co.za/images/logo.png';
+    }
+
+    const normalized = image.replace(/^http:\/\//i, 'https://');
+    if (/^https?:\/\//i.test(normalized)) {
+      return normalized;
+    }
+
+    return `https://stiles.co.za${normalized.startsWith('/') ? '' : '/'}${normalized}`;
   };
 
   const getMetaTitle = () => `${currentPost.post_title} | Stiles`;
@@ -248,12 +258,18 @@ const BlogPost = () => {
         <meta name="description" content={getMetaDescription()} />
         <meta property="og:title" content={getMetaTitle()} />
         <meta property="og:description" content={getMetaDescription()} />
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content="article" />
         <meta property="og:url" content={getShareUrl()} />
         <meta property="og:site_name" content="Stiles" />
         <meta property="og:locale" content="en_ZA" />
         <meta property="og:image" content={getShareImage()} />
+        <meta property="og:image:secure_url" content={getShareImage()} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={currentPost.post_title} />
+        {currentPost.categories?.split(',').map((category) => category.trim()).filter(Boolean).slice(0, 5).map((category) => (
+          <meta key={category} property="article:section" content={category} />
+        ))}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getMetaTitle()} />
         <meta name="twitter:description" content={getMetaDescription()} />
