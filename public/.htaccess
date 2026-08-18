@@ -20,6 +20,10 @@
   # Exclude API directory from rewrite rules - let Apache handle it directly
   RewriteCond %{REQUEST_URI} ^/api/
   RewriteRule . - [L]
+
+  # SSR Open Graph meta for individual blog posts (social crawlers + React SPA)
+  RewriteCond %{REQUEST_URI} !^/stiles-blog/category/
+  RewriteRule ^stiles-blog/([^/]+)/?$ api/blog-post-og.php?slug=$1 [L,QSA]
   
   # Rewrite everything else to index.html (SPA routing)
   RewriteCond %{REQUEST_FILENAME} !-f
