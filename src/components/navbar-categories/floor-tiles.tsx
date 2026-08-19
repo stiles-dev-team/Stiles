@@ -16,7 +16,7 @@ import {
 
 export const FLOORING_MEGA_MENU = [
   {
-    title: "FLOOR TILES BY LOOK",
+    title: "Floor tiles by look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: "/product-category/flooring/brick", swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -31,7 +31,7 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "FLOOR TILES BY COLOUR",
+    title: "Floor tiles by colour",
     itemType: "colour",
     items: [
       { label: "Grey", href: "/product-category/flooring/grey", swatch: "bg-gray-400" },
@@ -52,7 +52,7 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "FLOOR TILES BY SIZE",
+    title: "Floor tiles by size",
     itemType: "size",
     items: [
       { label: "", href: "/product-category/flooring?sizes=1080%20x%201080", dimension: "1080×1080" },
@@ -66,7 +66,7 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "FLOOR TILES BY SPACE",
+    title: "Floor tiles by space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: "/product-category/flooring/kitchen", icon: CookingPot },
@@ -84,7 +84,7 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "INSTALLATION NEEDS",
+    title: "Installation needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/flooring/adhesives", icon: Package },

@@ -16,7 +16,7 @@ const BASE = "/product-category/tiles/large-slab";
 
 export const LARGE_SLABS_MEGA_MENU = [
   {
-    title: "LARGE SLABS BY LOOK",
+    title: "Large slabs by look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -31,7 +31,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "LARGE SLABS BY COLOUR",
+    title: "Large slabs by colour",
     itemType: "colour",
     items: [
       { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
@@ -52,7 +52,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "LARGE SLABS BY SIZE",
+    title: "Large slabs by size",
     itemType: "size",
     items: [
       { label: "", href: `${BASE}?sizes=1200%20x%202400`, dimension: "1200×2400" },
@@ -61,7 +61,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "LARGE SLABS BY SPACE",
+    title: "Large slabs by space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
@@ -73,7 +73,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "INSTALLATION NEEDS",
+    title: "Installation needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },

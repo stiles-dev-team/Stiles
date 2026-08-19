@@ -29,6 +29,7 @@ import {WALL_TILES_MEGA_MENU} from "../components/navbar-categories/wall-tiles";
 import {FLOORING_MEGA_MENU} from "../components/navbar-categories/floor-tiles";
 import {LARGE_SLABS_MEGA_MENU} from "../components/navbar-categories/large-slabs";
 import { DECOR_MOSAICS_MEGA_MENU } from "../components/navbar-categories/decor-mosaics";
+import { SANWARE_MEGA_MENU } from "../components/navbar-categories/sanware";
 
 function MegaMenuItemVisual({ item, itemType }) {
   if (itemType === "icon") {
@@ -67,7 +68,7 @@ function MegaMenuItemVisual({ item, itemType }) {
 function MegaMenuColumn({ column }) {
   return (
     <div className="min-w-0 flex-1 border-r border-gray-200 px-2 last:border-r-0">
-      <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+      <p className="mb-3 text-center text-[10px] font-semibold tracking-wide text-gray-400">
         {column.title}
       </p>
       <div className="grid grid-cols-3 gap-x-1 gap-y-3">
@@ -95,7 +96,7 @@ function WallTilesMegaMenu({ isOpen }) {
 
   return (
     <div className="wall-tiles-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-b-2xl bg-white py-8 shadow-lg">
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
         <div className="flex flex-nowrap">
           {WALL_TILES_MEGA_MENU.map((column) => (
             <MegaMenuColumn key={column.title} column={column} />
@@ -111,7 +112,7 @@ function FlooringMegaMenu({ isOpen }) {
 
   return (
     <div className="floor-tiles-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-b-2xl bg-white py-8 shadow-lg">
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
         <div className="flex flex-nowrap">
           {FLOORING_MEGA_MENU.map((column) => (
             <MegaMenuColumn key={column.title} column={column} />
@@ -127,7 +128,7 @@ function LargeSlabsMegaMenu({ isOpen }) {
 
   return (
     <div className="large-slabs-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-b-2xl bg-white py-8 shadow-lg">
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
         <div className="flex flex-nowrap">
           {LARGE_SLABS_MEGA_MENU.map((column) => (
             <MegaMenuColumn key={column.title} column={column} />
@@ -143,10 +144,43 @@ function DecorMosaicsMegaMenu({ isOpen }) {
 
   return (
     <div className="decor-mosaics-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-b-2xl bg-white py-8 shadow-lg">
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
         <div className="flex flex-nowrap">
           {DECOR_MOSAICS_MEGA_MENU.map((column) => (
             <MegaMenuColumn key={column.title} column={column} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SanwareMegaMenu({ isOpen }) {
+  if (!isOpen) return null;
+
+  const section = SANWARE_MEGA_MENU[0];
+
+  return (
+    <div className="sanware-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
+      <div className="rounded-2xl bg-white px-6 py-8 shadow-lg">
+        <div className="flex flex-nowrap border-y border-gray-200">
+          {section.items.map((item, index) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className={`group flex flex-1 flex-col items-center gap-3 px-3 py-6 text-center ${
+                index < section.items.length - 1 ? "border-r border-gray-200" : ""
+              }`}
+            >
+              <img
+                src={item.image}
+                alt={item.label}
+                className="h-16 w-full max-w-[80px] object-contain"
+              />
+              <span className="text-[10px] font-medium leading-tight tracking-wide text-gray-700 group-hover:text-gray-900">
+                {item.label}
+              </span>
+            </a>
           ))}
         </div>
       </div>
@@ -185,7 +219,7 @@ function PillDropdownPanel({ isOpen, className = "", children }) {
     <div
       className={`absolute left-0 right-0 top-full z-[999] w-full pt-2 ${className}`}
     >
-      <div className="rounded-b-2xl bg-white p-6 shadow-lg">{children}</div>
+      <div className="rounded-2xl bg-white p-6 shadow-lg">{children}</div>
     </div>
   );
 }
@@ -794,7 +828,7 @@ const Navbar = () => {
                 Decor
               </NavDropdownTrigger>
 
-              {/* <NavDropdownTrigger
+              <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("sanware")}
                 onClick={() =>
                   isTouchDevice
@@ -807,7 +841,7 @@ const Navbar = () => {
                 isOpen={showSanware}
               >
                 Sanware
-              </NavDropdownTrigger> */}
+              </NavDropdownTrigger>
 
               {/* <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("flooring")}
@@ -931,7 +965,7 @@ const Navbar = () => {
                   ([range, brandList]) =>
                     brandList.length > 0 && (
                       <div key={range}>
-                        <p className="mb-3 text-xs font-bold uppercase text-gray-400">
+                        <p className="mb-3 text-xs font-bold text-gray-400">
                           Brands {range}
                         </p>
                         <div className="flex flex-col gap-1">
@@ -1077,6 +1111,7 @@ const Navbar = () => {
             <FlooringMegaMenu isOpen={showFloorTiles} />
             <LargeSlabsMegaMenu isOpen={showLargeSlabs} />
             <DecorMosaicsMegaMenu isOpen={showDecorMosaics} />
+            <SanwareMegaMenu isOpen={showSanware} />
             <ContactDropdown isOpen={showContact} locations={locations} />
               </div>
             </div>
@@ -1188,6 +1223,17 @@ const Navbar = () => {
           label="Decor"
           href="/product-category/tiles/mosaics"
           accordionId={4}
+          open={open}
+          onToggle={handleOpen}
+          openSection={openMegaMenuSection}
+          onSectionToggle={handleMegaMenuSectionOpen}
+        />
+
+        <MobileMegaMenuAccordion
+          menu={SANWARE_MEGA_MENU}
+          label="Sanware"
+          href="/product-category/sanitary-ware"
+          accordionId={5}
           open={open}
           onToggle={handleOpen}
           openSection={openMegaMenuSection}
