@@ -17,7 +17,7 @@ const BASE = "/product-category/tiles/wall-tiles";
 
 export const WALL_TILES_MEGA_MENU = [
   {
-    title: "WALL TILES BY LOOK",
+    title: "Wall tiles by look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick-wall-tiles`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -39,7 +39,7 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "WALL TILES BY COLOUR",
+    title: "Wall tiles by colour",
     itemType: "colour",
     items: [
       { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
@@ -60,7 +60,7 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "WALL TILES BY SIZE",
+    title: "Wall tiles by size",
     itemType: "size",
     items: [
       { label: "", href: `${BASE}?sizes=1080%20x%201080`, dimension: "1080×1080" },
@@ -74,7 +74,7 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "WALL TILES BY SPACE",
+    title: "Wall tiles by space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
@@ -87,7 +87,7 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "INSTALLATION NEEDS",
+    title: "Installation needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },

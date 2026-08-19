@@ -16,7 +16,7 @@ const BASE = "/product-category/tiles/mosaics";
 
 export const DECOR_MOSAICS_MEGA_MENU = [
   {
-    title: "DECOR & MOSAICS BY LOOK",
+    title: "Decor & Mosaics by look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick-look`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -38,7 +38,7 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     ],
   },
   {
-    title: "DECOR & MOSAICS BY COLOUR",
+    title: "Decor & Mosaics by colour",
     itemType: "colour",
     items: [
       { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
@@ -59,14 +59,14 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     ],
   },
   {
-    title: "DECOR & MOSAICS BY SIZE",
+    title: "Decor & Mosaics by size",
     itemType: "size",
     items: [
       { label: "All smaller sizes", href: BASE, dimension: "Small" },
     ],
   },
   {
-    title: "DECOR & MOSAICS BY SPACE",
+    title: "Decor & Mosaics by space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
@@ -78,7 +78,7 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     ],
   },
   {
-    title: "INSTALLATION NEEDS",
+    title: "installation needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
