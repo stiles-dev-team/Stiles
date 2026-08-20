@@ -208,9 +208,9 @@ function groupLocationsByRegion(locations) {
 const pillContainerClass =
   "rounded-2xl bg-white px-5 py-2.5 backdrop-blur-sm shadow-sm";
 const navLinkClass =
-  "text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors";
+  "flex flex-1 items-center justify-center text-center text-sm font-medium leading-tight text-gray-900 hover:text-gray-600 transition-colors";
 const navDropdownClass =
-  "flex items-center gap-1 text-sm font-medium text-gray-900 hover:text-gray-600 cursor-pointer";
+  "flex flex-1 items-center justify-center gap-1 text-sm font-medium leading-tight text-gray-900 hover:text-gray-600 cursor-pointer";
 
 function PillDropdownPanel({ isOpen, className = "", children }) {
   if (!isOpen) return null;
@@ -259,14 +259,14 @@ function NavDropdownTrigger({ children, onMouseEnter, onClick, className = "", i
       type="button"
       onMouseEnter={onMouseEnter}
       onClick={onClick}
-      className={`${navDropdownClass} rounded-full px-3 py-1.5 ${
+      className={`${navDropdownClass} rounded-full px-1 py-1 ${
         isOpen ? "bg-gray-100" : ""
       } ${className}`}
     >
-      {children}
+      <span className="w-min text-center">{children}</span>
       <IoChevronDown
         size={14}
-        className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+        className={`shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
       />
     </button>
   );
@@ -306,7 +306,12 @@ function MobileMegaMenuAccordion({
   onToggle,
   openSection,
   onSectionToggle,
+  flatten = false,
 }) {
+  const flatItems = flatten
+    ? menu.flatMap((column) => column.items)
+    : [];
+
   return (
     <Accordion
       className="w-full px-5 border-b border-b-gray-300 relative"
@@ -321,37 +326,51 @@ function MobileMegaMenuAccordion({
         className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
       />
       <AccordionBody className="py-0 pb-2">
-        {menu.map((column) => {
-          const sectionKey = `${accordionId}-${column.title}`;
-          return (
-            <Accordion
-              key={column.title}
-              open={openSection === sectionKey}
-              className="w-full"
-            >
-              <MobileNavHeader
-                label={column.title}
-                id={sectionKey}
-                open={openSection}
-                onToggle={onSectionToggle}
-                className="text-sm py-2 font-medium border-none"
-              />
-              <AccordionBody className="py-1">
-                <div className="flex flex-col gap-1 pl-4">
-                  {column.items.map((item) => (
-                    <a
-                      key={`${item.href}-${getMegaMenuItemLabel(item)}`}
-                      href={item.href}
-                      className="text-sm text-dark hover:text-dark py-1"
-                    >
-                      {getMegaMenuItemLabel(item)}
-                    </a>
-                  ))}
-                </div>
-              </AccordionBody>
-            </Accordion>
-          );
-        })}
+        {flatten ? (
+          <div className="flex flex-col gap-1 pl-4">
+            {flatItems.map((item) => (
+              <a
+                key={`${item.href}-${getMegaMenuItemLabel(item)}`}
+                href={item.href}
+                className="text-sm text-dark hover:text-dark py-1"
+              >
+                {getMegaMenuItemLabel(item)}
+              </a>
+            ))}
+          </div>
+        ) : (
+          menu.map((column) => {
+            const sectionKey = `${accordionId}-${column.title}`;
+            return (
+              <Accordion
+                key={column.title}
+                open={openSection === sectionKey}
+                className="w-full"
+              >
+                <MobileNavHeader
+                  label={column.title}
+                  id={sectionKey}
+                  open={openSection}
+                  onToggle={onSectionToggle}
+                  className="text-sm py-2 font-medium border-none"
+                />
+                <AccordionBody className="py-1">
+                  <div className="flex flex-col gap-1 pl-4">
+                    {column.items.map((item) => (
+                      <a
+                        key={`${item.href}-${getMegaMenuItemLabel(item)}`}
+                        href={item.href}
+                        className="text-sm text-dark hover:text-dark py-1"
+                      >
+                        {getMegaMenuItemLabel(item)}
+                      </a>
+                    ))}
+                  </div>
+                </AccordionBody>
+              </Accordion>
+            );
+          })
+        )}
       </AccordionBody>
     </Accordion>
   );
@@ -737,17 +756,17 @@ const Navbar = () => {
 
         {/* Desktop pill menu */}
         <div className="hidden nav:block py-5">
-          <div className="container mx-auto px-4">
+          <div className="mx-auto w-full max-w-[1440px] px-3 xl:px-4">
             <div
-              className={`relative flex w-full items-center gap-6 ${pillContainerClass}`}
+              className={`relative flex w-full items-center gap-4 ${pillContainerClass}`}
               onMouseLeave={closeAllDropdowns}
             >
               <a href="/" className="shrink-0">
                 <img src="/images/logo.png" alt="Stiles" className="h-14" />
               </a>
 
-              <div className="flex flex-1 min-w-0 items-center">
-            <div className="flex items-center gap-6 xl:gap-8">
+              <div className="flex min-w-0 flex-1 items-center">
+            <div className="flex min-w-0 flex-1 items-center">
               {/* <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("brands")}
                 onClick={() =>
@@ -859,14 +878,14 @@ const Navbar = () => {
               </NavDropdownTrigger> */}
 
               <a href="/calore-kamado-jan/" className={navLinkClass}>
-                Fireplaces
+                <span className="w-min text-center">Fireplaces</span>
               </a>
 
               <a
                 href="javascript: roomvo.startStandaloneVisualizer();"
                 className={navLinkClass}
               >
-                Tile Visualizer
+                <span className="w-min text-center">Tile Visualizer</span>
               </a>
 
               <NavDropdownTrigger
@@ -885,7 +904,7 @@ const Navbar = () => {
               </NavDropdownTrigger>
             </div>
 
-            <div className="ml-auto flex items-center gap-4 xl:gap-5">
+            <div className="ml-4 flex shrink-0 items-center gap-4">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
@@ -1238,6 +1257,7 @@ const Navbar = () => {
           onToggle={handleOpen}
           openSection={openMegaMenuSection}
           onSectionToggle={handleMegaMenuSectionOpen}
+          flatten
         />
 
         {/* Fireplace */}
@@ -1254,12 +1274,12 @@ const Navbar = () => {
       </div> */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 5}
+          open={open === 6}
         >
           <MobileNavHeader
             href="/contact-us"
             label="Contact Us"
-            id={5}
+            id={6}
             open={open}
             onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
