@@ -84,14 +84,14 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "Installation needs",
+    title: "Installation Needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/flooring/adhesives", icon: Package },
       { label: "Grouts", href: "/product-category/flooring/grouts", icon: Droplets },
-      { label: "Skirtings & Edgings", href: "/product-category/flooring/skirtings", icon: PanelTop },
-      { label: "Cleaning Products & Chemicals", href: "/product-category/flooring/cleaning", icon: SprayCan, className: "col-start-1" },
-      { label: "Spacers", href: "/product-category/flooring/spacers", icon: LayoutGrid, className: "col-start-2" },
+      { label: "Trims and Edges", href: "/product-category/flooring/skirtings", icon: PanelTop },
+      { label: "Tools and Spacers", href: "/product-category/flooring/spacers", icon: LayoutGrid },
+      { label: "Cleaning Products and Chemicals", href: "/product-category/flooring/cleaning", icon: SprayCan },
     ],
   },
 ];

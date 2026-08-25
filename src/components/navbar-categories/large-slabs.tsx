@@ -72,14 +72,14 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "Installation needs",
+    title: "Installation Needs",
     itemType: "icon",
     items: [
       { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
       { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", icon: Droplets },
-      { label: "Skirtings & Edgings", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
-      { label: "Cleaning Products & Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan, className: "col-start-1" },
-      { label: "Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid, className: "col-start-2" },
+      { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
+      { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid },
+      { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan },
     ],
   },
 ];
