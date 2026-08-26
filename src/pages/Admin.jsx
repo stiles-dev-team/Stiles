@@ -18,6 +18,7 @@ import AdminUniqueCategories from './admin/UniqueCategories'
 import AdminUniqueColours from './admin/UniqueColours'
 import AdminUniqueFinishes from './admin/UniqueFinishes'
 import AdminUniqueSizes from './admin/UniqueSizes'
+import AdminUniqueSpaces from './admin/UniqueSpaces'
 import AdminUniquePromos from './admin/UniquePromos'
 import AdminLocations from './admin/Locations'
 import MediaManager from './admin/MediaManager'
@@ -45,6 +46,7 @@ const Admin = () => {
       { name: 'Colours', href: '/admin/unique-colours', icon: '🎨' },
       { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
+      { name: 'Spaces', href: '/admin/unique-spaces', icon: '🏠' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
       { name: 'Media', href: '/admin/media', icon: '📁' },
@@ -103,6 +105,7 @@ const Admin = () => {
                   <Route path="/unique-colours" element={<AdminUniqueColours />} />
                   <Route path="/unique-finishes" element={<AdminUniqueFinishes />} />
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
+                  <Route path="/unique-spaces" element={<AdminUniqueSpaces />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
                   <Route path="/locations" element={<AdminLocations />} />
                   <Route path="/media" element={<MediaManager />} />

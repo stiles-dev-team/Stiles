@@ -665,6 +665,7 @@ try {
                             `attribute:pa_colour` = ?,
                             `attribute:pa_finish` = ?,
                             `attribute:pa_size` = ?,
+                            `attribute:pa_space` = ?,
                             `meta:product_details` = ?,
                             pdf_url = ?,
                             featured_image = ?, 
@@ -691,6 +692,7 @@ try {
                         $data['attribute:pa_colour'] ?? '',
                         $data['attribute:pa_finish'] ?? '',
                         $data['attribute:pa_size'] ?? '',
+                        $data['attribute:pa_space'] ?? '',
                         $data['meta:product_details'] ?? '',
                         $pdfUrl,
                         $featuredImageUrl,
@@ -732,9 +734,9 @@ try {
                             ID, title, slug, description, status, post_date, sku, stock, 
                             regular_price, sale_price, metadesc, product_category, product_tag,
                             `attribute:pa_brands`, `attribute:pa_colour`, `attribute:pa_finish`, 
-                            `attribute:pa_size`, `meta:product_details`, pdf_url, featured_image, 
+                            `attribute:pa_size`, `attribute:pa_space`, `meta:product_details`, pdf_url, featured_image, 
                             gallery_images, youtube_video_url, promo
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ');
                     
                     $stmt->execute([
@@ -755,6 +757,7 @@ try {
                         $data['attribute:pa_colour'] ?? '',
                         $data['attribute:pa_finish'] ?? '',
                         $data['attribute:pa_size'] ?? '',
+                        $data['attribute:pa_space'] ?? '',
                         $data['meta:product_details'] ?? '',
                         $pdfUrl,
                         $featuredImageUrl,
