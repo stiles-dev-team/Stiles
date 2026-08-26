@@ -15,7 +15,7 @@ const BASE = "/product-category/tiles/large-slab";
 
 export const LARGE_SLABS_MEGA_MENU = [
   {
-    title: "Large slabs by look",
+    title: "Large slabs by Look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -30,28 +30,28 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "Large slabs by colour",
+    title: "Large slabs by Colour",
     itemType: "colour",
     items: [
-      { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
-      { label: "Black", href: `${BASE}/black`, swatch: "bg-black" },
-      { label: "Green", href: `${BASE}/green`, swatch: "bg-green-600" },
-      { label: "Blue", href: `${BASE}/blue`, swatch: "bg-blue-600" },
-      { label: "Pink", href: `${BASE}/pink`, swatch: "bg-pink-400" },
-      { label: "Brown", href: `${BASE}/brown`, swatch: "bg-[#6b4423]" },
-      { label: "Beige", href: `${BASE}/beige`, swatch: "bg-[#d4b896]" },
-      { label: "Cream", href: `${BASE}/cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
-      { label: "White", href: `${BASE}/white`, swatch: "bg-white border border-gray-300" },
-      { label: "Red", href: `${BASE}/red`, swatch: "bg-red-600" },
-      { label: "Sand", href: `${BASE}/sand`, swatch: "bg-[#c2b280]" },
-      { label: "Gold", href: `${BASE}/gold`, swatch: "bg-[#d4af37]" },
-      { label: "Purple", href: `${BASE}/purple`, swatch: "bg-purple-600" },
-      { label: "Yellow", href: `${BASE}/yellow`, swatch: "bg-yellow-400" },
-      { label: "Orange", href: `${BASE}/orange`, swatch: "bg-orange-500" },
+      { label: "Grey", href: `${BASE}?colours=grey`, swatch: "bg-gray-400" },
+      { label: "Black", href: `${BASE}?colours=black`, swatch: "bg-black" },
+      { label: "Green", href: `${BASE}?colours=green`, swatch: "bg-green-600" },
+      { label: "Blue", href: `${BASE}?colours=blue`, swatch: "bg-blue-600" },
+      { label: "Pink", href: `${BASE}?colours=pink`, swatch: "bg-pink-400" },
+      { label: "Brown", href: `${BASE}?colours=brown`, swatch: "bg-[#6b4423]" },
+      { label: "Beige", href: `${BASE}?colours=beige`, swatch: "bg-[#d4b896]" },
+      { label: "Cream", href: `${BASE}?colours=cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
+      { label: "White", href: `${BASE}?colours=white`, swatch: "bg-white border border-gray-300" },
+      { label: "Red", href: `${BASE}?colours=red`, swatch: "bg-red-600" },
+      { label: "Sand", href: `${BASE}?colours=sand`, swatch: "bg-[#c2b280]" },
+      { label: "Gold", href: `${BASE}?colours=gold`, swatch: "bg-[#d4af37]" },
+      { label: "Purple", href: `${BASE}?colours=purple`, swatch: "bg-purple-600" },
+      { label: "Yellow", href: `${BASE}?colours=yellow`, swatch: "bg-yellow-400" },
+      { label: "Orange", href: `${BASE}?colours=orange`, swatch: "bg-orange-500" },
     ],
   },
   {
-    title: "Large slabs by size",
+    title: "Large slabs by Size",
     itemType: "size",
     items: [
       { label: "", href: `${BASE}?sizes=1200%20x%202400`, dimension: "1200×2400" },
@@ -60,7 +60,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     ],
   },
   {
-    title: "Large slabs by space",
+    title: "Large slabs by Space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
@@ -71,15 +71,15 @@ export const LARGE_SLABS_MEGA_MENU = [
       { label: "Countertop", href: `${BASE}/countertop`, icon: PanelTop },
     ],
   },
-  {
-    title: "Installation Needs",
-    itemType: "icon",
-    items: [
-      { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
-      { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", icon: Droplets },
-      { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
-      { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid },
-      { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan },
-    ],
-  },
+  // {
+  //   title: "Installation Needs",
+  //   itemType: "icon",
+  //   items: [
+  //     { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
+  //     { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", icon: Droplets },
+  //     { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
+  //     { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid },
+  //     { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan },
+  //   ],
+  // },
 ];

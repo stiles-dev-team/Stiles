@@ -16,7 +16,7 @@ import {
 
 export const FLOORING_MEGA_MENU = [
   {
-    title: "Floor tiles by look",
+    title: "Floor tiles by Look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: "/product-category/flooring/brick", swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -31,28 +31,28 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "Floor tiles by colour",
+    title: "Floor tiles by Colour",
     itemType: "colour",
     items: [
-      { label: "Grey", href: "/product-category/flooring/grey", swatch: "bg-gray-400" },
-      { label: "Black", href: "/product-category/flooring/black", swatch: "bg-black" },
-      { label: "Green", href: "/product-category/flooring/green", swatch: "bg-green-600" },
-      { label: "Blue", href: "/product-category/flooring/blue", swatch: "bg-blue-600" },
-      { label: "Pink", href: "/product-category/flooring/pink", swatch: "bg-pink-400" },
-      { label: "Brown", href: "/product-category/flooring/brown", swatch: "bg-[#6b4423]" },
-      { label: "Beige", href: "/product-category/flooring/beige", swatch: "bg-[#d4b896]" },
-      { label: "Cream", href: "/product-category/flooring/cream", swatch: "bg-[#f5f5dc] border border-gray-300" },
-      { label: "White", href: "/product-category/flooring/white", swatch: "bg-white border border-gray-300" },
-      { label: "Red", href: "/product-category/flooring/red", swatch: "bg-red-600" },
-      { label: "Sand", href: "/product-category/flooring/sand", swatch: "bg-[#c2b280]" },
-      { label: "Gold", href: "/product-category/flooring/gold", swatch: "bg-[#d4af37]" },
-      { label: "Purple", href: "/product-category/flooring/purple", swatch: "bg-purple-600" },
-      { label: "Yellow", href: "/product-category/flooring/yellow", swatch: "bg-yellow-400" },
-      { label: "Orange", href: "/product-category/flooring/orange", swatch: "bg-orange-500" },
+      { label: "Grey", href: "/product-category/flooring?colours=grey", swatch: "bg-gray-400" },
+      { label: "Black", href: "/product-category/flooring?colours=black", swatch: "bg-black" },
+      { label: "Green", href: "/product-category/flooring?colours=green", swatch: "bg-green-600" },
+      { label: "Blue", href: "/product-category/flooring?colours=blue", swatch: "bg-blue-600" },
+      { label: "Pink", href: "/product-category/flooring?colours=pink", swatch: "bg-pink-400" },
+      { label: "Brown", href: "/product-category/flooring?colours=brown", swatch: "bg-[#6b4423]" },
+      { label: "Beige", href: "/product-category/flooring?colours=beige", swatch: "bg-[#d4b896]" },
+      { label: "Cream", href: "/product-category/flooring?colours=cream", swatch: "bg-[#f5f5dc] border border-gray-300" },
+      { label: "White", href: "/product-category/flooring?colours=white", swatch: "bg-white border border-gray-300" },
+      { label: "Red", href: "/product-category/flooring?colours=red", swatch: "bg-red-600" },
+      { label: "Sand", href: "/product-category/flooring?colours=sand", swatch: "bg-[#c2b280]" },
+      { label: "Gold", href: "/product-category/flooring?colours=gold", swatch: "bg-[#d4af37]" },
+      { label: "Purple", href: "/product-category/flooring?colours=purple", swatch: "bg-purple-600" },
+      { label: "Yellow", href: "/product-category/flooring?colours=yellow", swatch: "bg-yellow-400" },
+      { label: "Orange", href: "/product-category/flooring?colours=orange", swatch: "bg-orange-500" },
     ],
   },
   {
-    title: "Floor tiles by size",
+    title: "Floor tiles by Size",
     itemType: "size",
     items: [
       { label: "", href: "/product-category/flooring?sizes=1080%20x%201080", dimension: "1080×1080" },
@@ -66,7 +66,7 @@ export const FLOORING_MEGA_MENU = [
     ],
   },
   {
-    title: "Floor tiles by space",
+    title: "Floor tiles by Space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: "/product-category/flooring/kitchen", icon: CookingPot },

@@ -16,7 +16,7 @@ const BASE = "/product-category/tiles/wall-tiles";
 
 export const WALL_TILES_MEGA_MENU = [
   {
-    title: "Wall tiles by look",
+    title: "Wall tiles by Look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick-wall-tiles`, swatch: "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
@@ -38,28 +38,28 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "Wall tiles by colour",
+    title: "Wall tiles by Colour",
     itemType: "colour",
     items: [
-      { label: "Grey", href: `${BASE}/grey`, swatch: "bg-gray-400" },
-      { label: "Black", href: `${BASE}/black`, swatch: "bg-black" },
-      { label: "Green", href: `${BASE}/green`, swatch: "bg-green-600" },
-      { label: "Blue", href: `${BASE}/blue`, swatch: "bg-blue-600" },
-      { label: "Pink", href: `${BASE}/pink`, swatch: "bg-pink-400" },
-      { label: "Brown", href: `${BASE}/brown`, swatch: "bg-[#6b4423]" },
-      { label: "Beige", href: `${BASE}/beige`, swatch: "bg-[#d4b896]" },
-      { label: "Cream", href: `${BASE}/cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
-      { label: "White", href: `${BASE}/white`, swatch: "bg-white border border-gray-300" },
-      { label: "Red", href: `${BASE}/red`, swatch: "bg-red-600" },
-      { label: "Sand", href: `${BASE}/sand`, swatch: "bg-[#c2b280]" },
-      { label: "Gold", href: `${BASE}/gold`, swatch: "bg-[#d4af37]" },
-      { label: "Purple", href: `${BASE}/purple`, swatch: "bg-purple-600" },
-      { label: "Yellow", href: `${BASE}/yellow`, swatch: "bg-yellow-400" },
-      { label: "Orange", href: `${BASE}/orange`, swatch: "bg-orange-500" },
+      { label: "Grey", href: `${BASE}?colours=grey`, swatch: "bg-gray-400" },
+      { label: "Black", href: `${BASE}?colours=black`, swatch: "bg-black" },
+      { label: "Green", href: `${BASE}?colours=green`, swatch: "bg-green-600" },
+      { label: "Blue", href: `${BASE}?colours=blue`, swatch: "bg-blue-600" },
+      { label: "Pink", href: `${BASE}?colours=pink`, swatch: "bg-pink-400" },
+      { label: "Brown", href: `${BASE}?colours=brown`, swatch: "bg-[#6b4423]" },
+      { label: "Beige", href: `${BASE}?colours=beige`, swatch: "bg-[#d4b896]" },
+      { label: "Cream", href: `${BASE}?colours=cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
+      { label: "White", href: `${BASE}?colours=white`, swatch: "bg-white border border-gray-300" },
+      { label: "Red", href: `${BASE}?colours=red`, swatch: "bg-red-600" },
+      { label: "Sand", href: `${BASE}?colours=sand`, swatch: "bg-[#c2b280]" },
+      { label: "Gold", href: `${BASE}?colours=gold`, swatch: "bg-[#d4af37]" },
+      { label: "Purple", href: `${BASE}?colours=purple`, swatch: "bg-purple-600" },
+      { label: "Yellow", href: `${BASE}?colours=yellow`, swatch: "bg-yellow-400" },
+      { label: "Orange", href: `${BASE}?colours=orange`, swatch: "bg-orange-500" },
     ],
   },
   {
-    title: "Wall tiles by size",
+    title: "Wall tiles by Size",
     itemType: "size",
     items: [
       { label: "", href: `${BASE}?sizes=1080%20x%201080`, dimension: "1080×1080" },
@@ -73,7 +73,7 @@ export const WALL_TILES_MEGA_MENU = [
     ],
   },
   {
-    title: "Wall tiles by space",
+    title: "Wall tiles by Space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
