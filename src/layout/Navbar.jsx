@@ -1207,7 +1207,7 @@ const Navbar = () => {
         <MobileMegaMenuAccordion
           menu={FLOORING_MEGA_MENU}
           label="Floor Tiles"
-          href="/product-category/flooring"
+          href="/product-category/floor-tiles"
           accordionId={1}
           open={open}
           onToggle={handleOpen}
