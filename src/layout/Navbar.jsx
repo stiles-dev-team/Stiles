@@ -12,29 +12,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeHtmlEntities } from "../utils/pricingUtils";
 import useIsTouchDevice from "../utils/useIsTouchDevice";
-import {
-  Bath,
-  Sofa,
-  CookingPot,
-  Sun,
-  TreePine,
-  Package,
-  Droplets,
-  PanelTop,
-  SprayCan,
-  LayoutGrid,
-} from "lucide-react";
-
-import {WALL_TILES_MEGA_MENU} from "../components/navbar-categories/wall-tiles";
-import {FLOORING_MEGA_MENU} from "../components/navbar-categories/floor-tiles";
-import {LARGE_SLABS_MEGA_MENU} from "../components/navbar-categories/large-slabs";
-import { DECOR_MOSAICS_MEGA_MENU } from "../components/navbar-categories/decor-mosaics";
-import { SANWARE_MEGA_MENU } from "../components/navbar-categories/sanware";
+import { resolveMenuIcons } from "../utils/menuConfig";
 
 function MegaMenuItemVisual({ item, itemType }) {
   if (itemType === "icon") {
     const IconComponent = item.icon;
     const ExtraIcon = item.extraIcon;
+
+    if (!IconComponent) return null;
 
     return (
       <div className="flex h-8 items-center justify-center gap-0.5 text-gray-700">
@@ -103,77 +88,14 @@ function MegaMenuColumn({ column }) {
   );
 }
 
-function WallTilesMegaMenu({ isOpen }) {
+function ImageMegaMenu({ isOpen, menu }) {
   if (!isOpen) return null;
 
-  return (
-    <div className="wall-tiles-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-2xl bg-white py-8 shadow-lg">
-        <div className="flex flex-nowrap">
-          {WALL_TILES_MEGA_MENU.map((column) => (
-            <MegaMenuColumn key={column.title} column={column} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FlooringMegaMenu({ isOpen }) {
-  if (!isOpen) return null;
+  const section = menu.columns?.[0];
+  if (!section) return null;
 
   return (
-    <div className="floor-tiles-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-2xl bg-white py-8 shadow-lg">
-        <div className="flex flex-nowrap">
-          {FLOORING_MEGA_MENU.map((column) => (
-            <MegaMenuColumn key={column.title} column={column} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LargeSlabsMegaMenu({ isOpen }) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="large-slabs-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-2xl bg-white py-8 shadow-lg">
-        <div className="flex flex-nowrap">
-          {LARGE_SLABS_MEGA_MENU.map((column) => (
-            <MegaMenuColumn key={column.title} column={column} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DecorMosaicsMegaMenu({ isOpen }) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="decor-mosaics-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
-      <div className="rounded-2xl bg-white py-8 shadow-lg">
-        <div className="flex flex-nowrap">
-          {DECOR_MOSAICS_MEGA_MENU.map((column) => (
-            <MegaMenuColumn key={column.title} column={column} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SanwareMegaMenu({ isOpen }) {
-  if (!isOpen) return null;
-
-  const section = SANWARE_MEGA_MENU[0];
-
-  return (
-    <div className="sanware-dropdown absolute left-0 right-0 top-full z-[999] w-full pt-2">
+    <div className={`${menu.dropdownClass} absolute left-0 right-0 top-full z-[999] w-full pt-2`}>
       <div className="rounded-2xl bg-white px-6 py-8 shadow-lg">
         <div className="flex flex-nowrap border-y border-gray-200">
           {section.items.map((item, index) => (
@@ -193,6 +115,27 @@ function SanwareMegaMenu({ isOpen }) {
                 {item.label}
               </span>
             </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DynamicMegaMenu({ isOpen, menu }) {
+  if (!isOpen || !menu) return null;
+
+  const isImageMenu = (menu.columns || []).some((column) => column.itemType === "image");
+  if (isImageMenu) {
+    return <ImageMegaMenu isOpen={isOpen} menu={menu} />;
+  }
+
+  return (
+    <div className={`${menu.dropdownClass} absolute left-0 right-0 top-full z-[999] w-full pt-2`}>
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
+        <div className="flex flex-nowrap">
+          {(menu.columns || []).map((column) => (
+            <MegaMenuColumn key={column.title} column={column} />
           ))}
         </div>
       </div>
@@ -420,11 +363,7 @@ const Navbar = () => {
   const isTouchDevice = useIsTouchDevice();
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
-  const [showWallTiles, setShowWallTiles] = useState(false);
-  const [showFloorTiles, setShowFloorTiles] = useState(false);
-  const [showSanware, setShowSanware] = useState(false);
-  const [showLargeSlabs, setShowLargeSlabs] = useState(false);
-  const [showDecorMosaics, setShowDecorMosaics] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [showBrands, setShowBrands] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [subMenu, setSubMenu] = useState("");
@@ -437,9 +376,10 @@ const Navbar = () => {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const [data, setData] = useState([]);
+  const [navMenus, setNavMenus] = useState([]);
   const [brands, setBrands] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState(null);
   const [openBrandSection, setOpenBrandSection] = useState(null);
   const [openMegaMenuSection, setOpenMegaMenuSection] = useState(null);
   const [parentCategories, setParentCategories] = useState([]);
@@ -452,13 +392,25 @@ const Navbar = () => {
     "S-Z": brands.filter((brand) => /^[S-Z]/i.test(brand)),
   };
 
-  const handleOpen = (value) => setOpen(open === value ? 0 : value);
+  const handleOpen = (value) => setOpen(open === value ? null : value);
   const handleBrandSectionOpen = (value) =>
     setOpenBrandSection(openBrandSection === value ? null : value);
   const handleMegaMenuSectionOpen = (value) =>
     setOpenMegaMenuSection(openMegaMenuSection === value ? null : value);
 
   useEffect(() => {
+    // Fetch mega menu items
+    fetch("/data/menu-items.json")
+      .then((response) => response.json())
+      .then((menuData) => {
+        if (Array.isArray(menuData.menus)) {
+          setNavMenus(resolveMenuIcons(menuData.menus));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching menu items:", error);
+      });
+
     // Fetch categories
     fetch("/data/navbar-categories.json")
       .then((response) => response.json())
@@ -554,11 +506,7 @@ const Navbar = () => {
 
   const closeAllDropdowns = () => {
     setShowBrands(false);
-    setShowWallTiles(false);
-    setShowFloorTiles(false);
-    setShowSanware(false);
-    setShowLargeSlabs(false);
-    setShowDecorMosaics(false);
+    setOpenMenuId(null);
     setShowContact(false);
     setOpenBrandSection(null);
     setOpenMegaMenuSection(null);
@@ -567,12 +515,8 @@ const Navbar = () => {
   const openDropdown = (menu) => {
     closeAllDropdowns();
     if (menu === "brands") setShowBrands(true);
-    if (menu === "wallTiles") setShowWallTiles(true);
-    if (menu === "floorTiles") setShowFloorTiles(true);
-    if (menu === "sanware") setShowSanware(true);
-    if (menu === "largeSlabs") setShowLargeSlabs(true);
-    if (menu === "decorMosaics") setShowDecorMosaics(true);
-    if (menu === "contact") setShowContact(true);
+    else if (menu === "contact") setShowContact(true);
+    else setOpenMenuId(menu);
   };
 
   // Add click outside handlers
@@ -585,60 +529,18 @@ const Navbar = () => {
         setShowBrands(false);
       }
 
-      const wallTilesDropdown = document.querySelector(".wall-tiles-dropdown");
-      const wallTilesButton = event.target.closest(".wall-tiles-button");
-
-      if (
-        showWallTiles &&
-        !wallTilesDropdown?.contains(event.target) &&
-        !wallTilesButton
-      ) {
-        setShowWallTiles(false);
-      }
-
-      const floorTilesDropdown = document.querySelector(".floor-tiles-dropdown");
-      const floorTilesButton = event.target.closest(".floor-tiles-button");
-
-      if (
-        showFloorTiles &&
-        !floorTilesDropdown?.contains(event.target) &&
-        !floorTilesButton
-      ) {
-        setShowFloorTiles(false);
-      }
-
-      const largeSlabsDropdown = document.querySelector(".large-slabs-dropdown");
-      const largeSlabsButton = event.target.closest(".large-slabs-button");
-
-      if (
-        showLargeSlabs &&
-        !largeSlabsDropdown?.contains(event.target) &&
-        !largeSlabsButton
-      ) {
-        setShowLargeSlabs(false);
-      }
-
-      const decorMosaicsDropdown = document.querySelector(".decor-mosaics-dropdown");
-      const decorMosaicsButton = event.target.closest(".decor-mosaics-button");
-
-      if (
-        showDecorMosaics &&
-        !decorMosaicsDropdown?.contains(event.target) &&
-        !decorMosaicsButton
-      ) {
-        setShowDecorMosaics(false);
-      }
-
-      const sanwareDropdown = document.querySelector(".sanware-dropdown");
-      const sanwareButton = event.target.closest(".sanware-button");
-
-      if (
-        showSanware &&
-        !sanwareDropdown?.contains(event.target) &&
-        !sanwareButton
-      ) {
-        setShowSanware(false);
-      }
+      navMenus.forEach((menu) => {
+        if (!menu.dropdownClass || !menu.buttonClass) return
+        const dropdown = document.querySelector(`.${menu.dropdownClass}`);
+        const button = event.target.closest(`.${menu.buttonClass}`);
+        if (
+          openMenuId === menu.id &&
+          !dropdown?.contains(event.target) &&
+          !button
+        ) {
+          setOpenMenuId(null);
+        }
+      });
 
       const contactDropdown = document.querySelector(".contact-dropdown");
       const contactButton = event.target.closest(".contact-button");
@@ -656,15 +558,7 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [
-    showBrands,
-    showWallTiles,
-    showFloorTiles,
-    showLargeSlabs,
-    showDecorMosaics,
-    showSanware,
-    showContact,
-  ]);
+  }, [showBrands, openMenuId, showContact, navMenus]);
 
   return (
     <>
@@ -795,84 +689,23 @@ const Navbar = () => {
               </NavDropdownTrigger> */}
 
 
-              {/* Floor Tiles */}
-              <NavDropdownTrigger
-                onMouseEnter={() => openDropdown("floorTiles")}
-                onClick={() =>
-                  isTouchDevice
-                    ? showFloorTiles
-                      ? closeAllDropdowns()
-                      : openDropdown("floorTiles")
-                    : (window.location.href = "/product-category/flooring")
-                }
-                className="floor-tiles-button"
-                isOpen={showFloorTiles}
-              >
-                Floor Tiles
-              </NavDropdownTrigger>
-              
-              {/* Wall Tiles */}
-              <NavDropdownTrigger
-                onMouseEnter={() => openDropdown("wallTiles")}
-                onClick={() =>
-                  isTouchDevice
-                    ? showWallTiles
-                      ? closeAllDropdowns()
-                      : openDropdown("wallTiles")
-                    : (window.location.href = "/product-category/tiles/wall-tiles")
-                }
-                className="wall-tiles-button"
-                isOpen={showWallTiles}
-              >
-                Wall Tiles
-              </NavDropdownTrigger>
-              
-              {/* Large Slabs */}
-              <NavDropdownTrigger
-                onMouseEnter={() => openDropdown("largeSlabs")}
-                onClick={() =>
-                  isTouchDevice
-                    ? showLargeSlabs
-                      ? closeAllDropdowns()
-                      : openDropdown("largeSlabs")
-                    : (window.location.href = "/product-category/tiles/large-slab")
-                }
-                className="large-slabs-button"
-                isOpen={showLargeSlabs}
-              >
-                Large Slabs
-              </NavDropdownTrigger>
-
-              {/* Decor */}
-              <NavDropdownTrigger
-                onMouseEnter={() => openDropdown("decorMosaics")}
-                onClick={() =>
-                  isTouchDevice
-                    ? showDecorMosaics
-                      ? closeAllDropdowns()
-                      : openDropdown("decorMosaics")
-                    : (window.location.href = "/product-category/tiles/mosaics")
-                }
-                className="decor-mosaics-button"
-                isOpen={showDecorMosaics}
-              >
-                Decor
-              </NavDropdownTrigger>
-
-              <NavDropdownTrigger
-                onMouseEnter={() => openDropdown("sanware")}
-                onClick={() =>
-                  isTouchDevice
-                    ? showSanware
-                      ? closeAllDropdowns()
-                      : openDropdown("sanware")
-                    : (window.location.href = "/product-category/sanitary-ware")
-                }
-                className="sanware-button"
-                isOpen={showSanware}
-              >
-                Sanware
-              </NavDropdownTrigger>
+              {navMenus.map((menu) => (
+                <NavDropdownTrigger
+                  key={menu.id}
+                  onMouseEnter={() => openDropdown(menu.id)}
+                  onClick={() =>
+                    isTouchDevice
+                      ? openMenuId === menu.id
+                        ? closeAllDropdowns()
+                        : openDropdown(menu.id)
+                      : (window.location.href = menu.href)
+                  }
+                  className={menu.buttonClass}
+                  isOpen={openMenuId === menu.id}
+                >
+                  {menu.label}
+                </NavDropdownTrigger>
+              ))}
 
               {/* <NavDropdownTrigger
                 onMouseEnter={() => openDropdown("flooring")}
@@ -1138,11 +971,13 @@ const Navbar = () => {
               </a>
             </PillDropdownPanel> */}
 
-            <WallTilesMegaMenu isOpen={showWallTiles} />
-            <FlooringMegaMenu isOpen={showFloorTiles} />
-            <LargeSlabsMegaMenu isOpen={showLargeSlabs} />
-            <DecorMosaicsMegaMenu isOpen={showDecorMosaics} />
-            <SanwareMegaMenu isOpen={showSanware} />
+            {navMenus.map((menu) => (
+              <DynamicMegaMenu
+                key={menu.id}
+                isOpen={openMenuId === menu.id}
+                menu={menu}
+              />
+            ))}
             <ContactDropdown isOpen={showContact} locations={locations} />
               </div>
             </div>
@@ -1216,61 +1051,20 @@ const Navbar = () => {
           </AccordionBody>
         </Accordion> */}
 
-        <MobileMegaMenuAccordion
-          menu={FLOORING_MEGA_MENU}
-          label="Floor Tiles"
-          href="/product-category/floor-tiles"
-          accordionId={1}
-          open={open}
-          onToggle={handleOpen}
-          openSection={openMegaMenuSection}
-          onSectionToggle={handleMegaMenuSectionOpen}
-        />
-
-        <MobileMegaMenuAccordion
-          menu={WALL_TILES_MEGA_MENU}
-          label="Wall Tiles"
-          href="/product-category/tiles/wall-tiles"
-          accordionId={2}
-          open={open}
-          onToggle={handleOpen}
-          openSection={openMegaMenuSection}
-          onSectionToggle={handleMegaMenuSectionOpen}
-        />
-
-        <MobileMegaMenuAccordion
-          menu={LARGE_SLABS_MEGA_MENU}
-          label="Large Slabs"
-          href="/product-category/tiles/large-slab"
-          accordionId={3}
-          open={open}
-          onToggle={handleOpen}
-          openSection={openMegaMenuSection}
-          onSectionToggle={handleMegaMenuSectionOpen}
-        />
-
-        <MobileMegaMenuAccordion
-          menu={DECOR_MOSAICS_MEGA_MENU}
-          label="Decor"
-          href="/product-category/tiles/mosaics"
-          accordionId={4}
-          open={open}
-          onToggle={handleOpen}
-          openSection={openMegaMenuSection}
-          onSectionToggle={handleMegaMenuSectionOpen}
-        />
-
-        <MobileMegaMenuAccordion
-          menu={SANWARE_MEGA_MENU}
-          label="Sanware"
-          href="/product-category/sanitary-ware"
-          accordionId={5}
-          open={open}
-          onToggle={handleOpen}
-          openSection={openMegaMenuSection}
-          onSectionToggle={handleMegaMenuSectionOpen}
-          flatten
-        />
+        {navMenus.map((menu) => (
+          <MobileMegaMenuAccordion
+            key={menu.id}
+            menu={menu.columns || []}
+            label={menu.label}
+            href={menu.mobileHref || menu.href}
+            accordionId={menu.id}
+            open={open}
+            onToggle={handleOpen}
+            openSection={openMegaMenuSection}
+            onSectionToggle={handleMegaMenuSectionOpen}
+            flatten={Boolean(menu.flatten)}
+          />
+        ))}
 
         {/* Fireplace */}
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
@@ -1286,12 +1080,12 @@ const Navbar = () => {
       </div> */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 6}
+          open={open === "contact"}
         >
           <MobileNavHeader
             href="/contact-us"
             label="Contact Us"
-            id={6}
+            id="contact"
             open={open}
             onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"

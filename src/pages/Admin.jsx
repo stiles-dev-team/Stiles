@@ -20,6 +20,7 @@ import AdminUniqueFinishes from './admin/UniqueFinishes'
 import AdminUniqueSizes from './admin/UniqueSizes'
 import AdminUniquePromos from './admin/UniquePromos'
 import AdminLocations from './admin/Locations'
+import AdminMenuItems from './admin/MenuItems'
 import MediaManager from './admin/MediaManager'
 
 const Admin = () => {
@@ -46,6 +47,7 @@ const Admin = () => {
       { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
+      { name: 'Menu Items', href: '/admin/menu-items', icon: '🧭' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
       { name: 'Media', href: '/admin/media', icon: '📁' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
@@ -104,6 +106,7 @@ const Admin = () => {
                   <Route path="/unique-finishes" element={<AdminUniqueFinishes />} />
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
+                  <Route path="/menu-items" element={<AdminMenuItems />} />
                   <Route path="/locations" element={<AdminLocations />} />
                   <Route path="/media" element={<MediaManager />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />
