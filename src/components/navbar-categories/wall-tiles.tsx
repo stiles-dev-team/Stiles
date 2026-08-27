@@ -43,7 +43,7 @@ export const WALL_TILES_MEGA_MENU = [
     items: [
       { label: "Grey", href: `${BASE}?colours=grey`, swatch: "bg-gray-400" },
       { label: "Black", href: `${BASE}?colours=black`, swatch: "bg-black" },
-      { label: "Green", href: `${BASE}?colours=green`, swatch: "bg-green-600" },
+      { label: "Green", href: `${BASE}/brick-wall-tiles`, image: "/images/green.png" },
       { label: "Blue", href: `${BASE}?colours=blue`, swatch: "bg-blue-600" },
       { label: "Pink", href: `${BASE}?colours=pink`, swatch: "bg-pink-400" },
       { label: "Brown", href: `${BASE}?colours=brown`, swatch: "bg-[#6b4423]" },

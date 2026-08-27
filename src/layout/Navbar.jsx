@@ -56,6 +56,18 @@ function MegaMenuItemVisual({ item, itemType }) {
     );
   }
 
+  if (item.image) {
+    return (
+      <div className="flex h-8 w-8 items-center justify-center">
+        <img
+          src={item.image}
+          alt={item.label || ""}
+          className="h-8 w-8 object-contain group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-8 w-8 items-center justify-center">
       <div
