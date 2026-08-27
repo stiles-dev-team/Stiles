@@ -32,11 +32,7 @@ function MegaMenuItemVisual({ item, itemType }) {
   if (itemType === "size") {
     return (
       <div className="flex h-8 w-8 items-center justify-center">
-        <div className="flex h-6 w-6 rotate-45 items-center justify-center border border-gray-200 bg-gray-50">
-          <span className="-rotate-45 text-[7px] font-semibold leading-none text-gray-700">
-            {item.dimension}
-          </span>
-        </div>
+        <div className="h-6 w-6 rotate-45 border border-gray-600 bg-gray-50" />
       </div>
     );
   }
@@ -65,24 +61,27 @@ function MegaMenuItemVisual({ item, itemType }) {
 function MegaMenuColumn({ column }) {
   return (
     <div className="min-w-0 flex-1 border-r border-gray-200 px-2 last:border-r-0">
-      <p className="mb-3 text-center text-[10px] font-semibold tracking-wide text-gray-400">
+      <p className="mb-3 text-center text-[10px] font-semibold tracking-wide text-black">
         {column.title}
       </p>
       <div className="grid grid-cols-3 gap-x-1 gap-y-3">
-        {column.items.map((item) => (
-          <a
-            key={item.label || item.dimension || item.href}
-            href={item.href}
-            className={`group flex flex-col items-center gap-1 text-center ${item.className || ""}`}
-          >
-            <MegaMenuItemVisual item={item} itemType={column.itemType} />
-            {item.label ? (
-              <span className="text-[9px] leading-tight text-gray-600 group-hover:text-gray-900">
-                {item.label}
-              </span>
-            ) : null}
-          </a>
-        ))}
+        {column.items.map((item) => {
+          const caption = item.label || item.dimension;
+          return (
+            <a
+              key={item.label || item.dimension || item.href}
+              href={item.href}
+              className={`group flex flex-col items-center gap-1 text-center ${item.className || ""}`}
+            >
+              <MegaMenuItemVisual item={item} itemType={column.itemType} />
+              {caption ? (
+                <span className="text-[9px] leading-tight text-gray-600 group-hover:text-gray-900">
+                  {caption}
+                </span>
+              ) : null}
+            </a>
+          );
+        })}
       </div>
     </div>
   );
