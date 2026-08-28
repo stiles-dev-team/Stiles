@@ -14,74 +14,256 @@
           "title": "Floor tiles by Look",
           "itemType": "look",
           "items": [
-            { "label": "Brick Look", "href": "/product-category/floor-tiles/brick", "swatch": "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
-            { "label": "Wood", "href": "/product-category/floor-tiles/wood-design", "swatch": "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-400" },
-            { "label": "Stone", "href": "/product-category/floor-tiles/stone-design", "swatch": "bg-stone-500" },
-            { "label": "Marble", "href": "/product-category/floor-tiles/marble-design", "swatch": "bg-gradient-to-br from-gray-200 via-white to-gray-400" },
-            { "label": "Cement", "href": "/product-category/floor-tiles/concrete-cement-design", "swatch": "bg-gray-400" },
-            { "label": "Terrazzo", "href": "/product-category/floor-tiles/terrazzo-design", "swatch": "bg-[radial-gradient(circle,#666_1px,transparent_1px)] bg-[length:4px_4px] bg-gray-200" },
-            { "label": "Patterned", "href": "/product-category/floor-tiles/patterned", "swatch": "bg-[linear-gradient(45deg,#ccc_25%,transparent_25%),linear-gradient(-45deg,#ccc_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#ccc_75%),linear-gradient(-45deg,transparent_75%,#ccc_75%)] bg-[length:8px_8px] bg-[position:0_0,0_4px,4px_-4px,-4px_0px] bg-gray-100" },
-            { "label": "Minimalistic", "href": "/product-category/floor-tiles/minimalist-design", "swatch": "bg-gradient-to-br from-gray-100 to-gray-300" },
-            { "label": "Handmade", "href": "/product-category/floor-tiles/decor-tiles", "swatch": "bg-gradient-to-br from-amber-700 via-orange-300 to-amber-900" }
+            {
+              "label": "Brick Look",
+              "href": "/product-category/floor-tiles/brick",
+              "image": "/images/menu-look/brick.png"
+            },
+            {
+              "label": "Wood",
+              "href": "/product-category/floor-tiles/wood-design",
+              "image": "/images/menu-look/wood.png"
+            },
+            {
+              "label": "Stone",
+              "href": "/product-category/floor-tiles/stone-design",
+              "image": "/images/menu-look/stone.png"
+            },
+            {
+              "label": "Marble",
+              "href": "/product-category/floor-tiles/marble-design",
+              "image": "/images/menu-look/marble.png"
+            },
+            {
+              "label": "Cement",
+              "href": "/product-category/floor-tiles/concrete-cement-design",
+              "image": "/images/menu-look/cement.png"
+            },
+            {
+              "label": "Terrazzo",
+              "href": "/product-category/floor-tiles/terrazzo-design",
+              "image": "/images/menu-look/terrazzo.png"
+            },
+            {
+              "label": "Patterned",
+              "href": "/product-category/floor-tiles/patterned",
+              "image": "/images/menu-look/patterned.png"
+            },
+            {
+              "label": "Minimalistic",
+              "href": "/product-category/floor-tiles/minimalist-design",
+              "image": "/images/menu-look/minimalist.png"
+            },
+            {
+              "label": "Handmade",
+              "href": "/product-category/floor-tiles/decor-tiles",
+              "image": "/images/menu-look/handmade.png"
+            }
           ]
         },
         {
           "title": "Floor tiles by Colour",
           "itemType": "colour",
           "items": [
-            { "label": "Grey", "href": "/product-category/floor-tiles?colours=grey", "swatch": "bg-gray-400" },
-            { "label": "Black", "href": "/product-category/floor-tiles?colours=black", "swatch": "bg-black" },
-            { "label": "Green", "href": "/product-category/floor-tiles?colours=green", "swatch": "bg-green-600" },
-            { "label": "Blue", "href": "/product-category/floor-tiles?colours=blue", "swatch": "bg-blue-600" },
-            { "label": "Pink", "href": "/product-category/floor-tiles?colours=pink", "swatch": "bg-pink-400" },
-            { "label": "Brown", "href": "/product-category/floor-tiles?colours=brown", "swatch": "bg-[#6b4423]" },
-            { "label": "Beige", "href": "/product-category/floor-tiles?colours=beige", "swatch": "bg-[#d4b896]" },
-            { "label": "Cream", "href": "/product-category/floor-tiles?colours=cream", "swatch": "bg-[#f5f5dc] border border-gray-300" },
-            { "label": "White", "href": "/product-category/floor-tiles?colours=white", "swatch": "bg-white border border-gray-300" },
-            { "label": "Red", "href": "/product-category/floor-tiles?colours=red", "swatch": "bg-red-600" },
-            { "label": "Sand", "href": "/product-category/floor-tiles?colours=sand", "swatch": "bg-[#c2b280]" },
-            { "label": "Gold", "href": "/product-category/floor-tiles?colours=gold", "swatch": "bg-[#d4af37]" },
-            { "label": "Purple", "href": "/product-category/floor-tiles?colours=purple", "swatch": "bg-purple-600" },
-            { "label": "Yellow", "href": "/product-category/floor-tiles?colours=yellow", "swatch": "bg-yellow-400" },
-            { "label": "Orange", "href": "/product-category/floor-tiles?colours=orange", "swatch": "bg-orange-500" }
+            {
+              "label": "Grey",
+              "href": "/product-category/floor-tiles?colours=grey",
+              "image": "/images/menu-colour/grey.png"
+            },
+            {
+              "label": "Black",
+              "href": "/product-category/floor-tiles?colours=black",
+              "swatch": "bg-black"
+            },
+            {
+              "label": "Green",
+              "href": "/product-category/floor-tiles?colours=green",
+              "image": "/images/menu-colour/green.png"
+            },
+            {
+              "label": "Blue",
+              "href": "/product-category/floor-tiles?colours=blue",
+              "image": "/images/menu-colour/blue.png"
+            },
+            {
+              "label": "Pink",
+              "href": "/product-category/floor-tiles?colours=pink",
+              "image": "/images/menu-colour/pink.png"
+            },
+            {
+              "label": "Brown",
+              "href": "/product-category/floor-tiles?colours=brown",
+              "image": "/images/menu-colour/brown.png"
+            },
+            {
+              "label": "Beige",
+              "href": "/product-category/floor-tiles?colours=beige",
+              "swatch": "bg-[#d4b896]"
+            },
+            {
+              "label": "Cream",
+              "href": "/product-category/floor-tiles?colours=cream",
+              "swatch": "bg-[#f5f5dc] border border-gray-300"
+            },
+            {
+              "label": "White",
+              "href": "/product-category/floor-tiles?colours=white",
+              "image": "/images/menu-colour/white.png"
+            },
+            {
+              "label": "Red",
+              "href": "/product-category/floor-tiles?colours=red",
+              "image": "/images/menu-colour/red.png"
+            },
+            {
+              "label": "Sand",
+              "href": "/product-category/floor-tiles?colours=sand",
+              "swatch": "bg-[#c2b280]"
+            },
+            {
+              "label": "Gold",
+              "href": "/product-category/floor-tiles?colours=gold",
+              "image": "/images/menu-colour/matellic.png"
+            },
+            {
+              "label": "Purple",
+              "href": "/product-category/floor-tiles?colours=purple",
+              "swatch": "bg-purple-600"
+            },
+            {
+              "label": "Yellow",
+              "href": "/product-category/floor-tiles?colours=yellow",
+              "image": "/images/menu-colour/yellow.png"
+            },
+            {
+              "label": "Orange",
+              "href": "/product-category/floor-tiles?colours=orange",
+              "swatch": "bg-orange-500"
+            },
+            {
+              "label": "Multicolour",
+              "href": "/product-category/floor-tiles?colours=multicolour",
+              "image": "/images/menu-colour/multicolour.png"
+            }
           ]
         },
         {
           "title": "Floor tiles by Size",
           "itemType": "size",
           "items": [
-            { "label": "", "href": "/product-category/floor-tiles?sizes=1080%20x%201080", "dimension": "1080×1080" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=600%20x%20600", "dimension": "600×600" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=800%20x%20800", "dimension": "800×800" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=1200%20x%201200", "dimension": "1200×1200" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=600%20x%201200", "dimension": "600×1200" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=1600%20x%20800", "dimension": "1600×800" },
-            { "label": "", "href": "/product-category/floor-tiles?sizes=1000%20x%201000", "dimension": "1000×1000" },
-            { "label": "Smaller Sizes", "href": "/product-category/floor-tiles", "dimension": "Small" }
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=1080%20x%201080",
+              "dimension": "1080×1080"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=600%20x%20600",
+              "dimension": "600×600"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=800%20x%20800",
+              "dimension": "800×800"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=1200%20x%201200",
+              "dimension": "1200×1200"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=600%20x%201200",
+              "dimension": "600×1200"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=1600%20x%20800",
+              "dimension": "1600×800"
+            },
+            {
+              "label": "",
+              "href": "/product-category/floor-tiles?sizes=1000%20x%201000",
+              "dimension": "1000×1000"
+            },
+            {
+              "label": "Smaller Sizes",
+              "href": "/product-category/floor-tiles",
+              "dimension": "Small"
+            }
           ]
         },
         {
           "title": "Floor tiles by Space",
           "itemType": "icon",
           "items": [
-            { "label": "Kitchen", "href": "/product-category/floor-tiles/kitchen", "icon": "CookingPot" },
-            { "label": "Bathroom", "href": "/product-category/floor-tiles/bathroom", "icon": "Bath" },
-            { "label": "Indoor", "href": "/product-category/floor-tiles/indoor", "icon": "Home" },
-            { "label": "Outdoor / Slip Resistant", "href": "/product-category/floor-tiles/outdoor", "icon": "TreePine", "extraIcon": "Sun" },
-            { "label": "Pool", "href": "/product-category/floor-tiles/pool", "icon": "Waves" },
-            { "label": "Commercial", "href": "/product-category/floor-tiles/commercial", "icon": "Building2" },
-            { "label": "Countertop", "href": "/product-category/floor-tiles/countertop", "icon": "PanelTop" }
+            {
+              "label": "Kitchen",
+              "href": "/product-category/floor-tiles/kitchen",
+              "icon": "CookingPot"
+            },
+            {
+              "label": "Bathroom",
+              "href": "/product-category/floor-tiles/bathroom",
+              "icon": "Bath"
+            },
+            {
+              "label": "Indoor",
+              "href": "/product-category/floor-tiles/indoor",
+              "icon": "Home"
+            },
+            {
+              "label": "Outdoor / Slip Resistant",
+              "href": "/product-category/floor-tiles/outdoor",
+              "icon": "TreePine",
+              "extraIcon": "Sun"
+            },
+            {
+              "label": "Pool",
+              "href": "/product-category/floor-tiles/pool",
+              "icon": "Waves"
+            },
+            {
+              "label": "Commercial",
+              "href": "/product-category/floor-tiles/commercial",
+              "icon": "Building2"
+            },
+            {
+              "label": "Countertop",
+              "href": "/product-category/floor-tiles/countertop",
+              "icon": "PanelTop"
+            }
           ]
         },
         {
           "title": "Installation Needs",
           "itemType": "icon",
           "items": [
-            { "label": "Adhesives", "href": "/product-category/floor-tiles/adhesives", "icon": "Package" },
-            { "label": "Grouts", "href": "/product-category/floor-tiles/grouts", "icon": "Droplets" },
-            { "label": "Trims and Edges", "href": "/product-category/floor-tiles/skirtings", "icon": "PanelTop" },
-            { "label": "Tools and Spacers", "href": "/product-category/floor-tiles/spacers", "icon": "LayoutGrid" },
-            { "label": "Cleaning Products and Chemicals", "href": "/product-category/floor-tiles/cleaning", "icon": "SprayCan" }
+            {
+              "label": "Adhesives",
+              "href": "/product-category/floor-tiles/adhesives",
+              "icon": "Package"
+            },
+            {
+              "label": "Grouts",
+              "href": "/product-category/floor-tiles/grouts",
+              "icon": "Droplets"
+            },
+            {
+              "label": "Trims and Edges",
+              "href": "/product-category/floor-tiles/skirtings",
+              "icon": "PanelTop"
+            },
+            {
+              "label": "Tools and Spacers",
+              "href": "/product-category/floor-tiles/spacers",
+              "icon": "LayoutGrid"
+            },
+            {
+              "label": "Cleaning Products and Chemicals",
+              "href": "/product-category/floor-tiles/cleaning",
+              "icon": "SprayCan"
+            }
           ]
         }
       ]
@@ -100,81 +282,290 @@
           "title": "Wall tiles by Look",
           "itemType": "look",
           "items": [
-            { "label": "Brick Look", "href": "/product-category/tiles/wall-tiles/brick-wall-tiles", "image": "/images/green.png" },
-            { "label": "Wood", "href": "/product-category/tiles/wall-tiles/wood-design-wall-tiles", "swatch": "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-400" },
-            { "label": "Stone", "href": "/product-category/tiles/wall-tiles/stone", "swatch": "bg-stone-500" },
-            { "label": "Marble", "href": "/product-category/tiles/wall-tiles/marble", "swatch": "bg-gradient-to-br from-gray-200 via-white to-gray-400" },
-            { "label": "Cement", "href": "/product-category/tiles/wall-tiles/concrete-design-wall-tiles", "swatch": "bg-gray-400" },
-            { "label": "Terrazzo", "href": "/product-category/tiles/wall-tiles/terrazo-design", "swatch": "bg-[radial-gradient(circle,#666_1px,transparent_1px)] bg-[length:4px_4px] bg-gray-200" },
-            { "label": "Patterned", "href": "/product-category/tiles/wall-tiles/patterned-wall-tiles", "swatch": "bg-[linear-gradient(45deg,#ccc_25%,transparent_25%),linear-gradient(-45deg,#ccc_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#ccc_75%),linear-gradient(-45deg,transparent_75%,#ccc_75%)] bg-[length:8px_8px] bg-[position:0_0,0_4px,4px_-4px,-4px_0px] bg-gray-100" },
-            { "label": "Minimalistic", "href": "/product-category/tiles/wall-tiles/minimalist", "swatch": "bg-gradient-to-br from-gray-100 to-gray-300" },
-            { "label": "Handmade", "href": "/product-category/tiles/wall-tiles/decor-tiles-wall-tiles", "swatch": "bg-gradient-to-br from-amber-700 via-orange-300 to-amber-900" },
-            { "label": "Metal Look", "href": "/product-category/tiles/wall-tiles/metallic-look-wall-tiles", "swatch": "bg-gradient-to-br from-gray-700 via-gray-500 to-gray-800" },
-            { "label": "Subway", "href": "/product-category/tiles/wall-tiles/subway-tiles", "swatch": "bg-white border border-gray-300 bg-[linear-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:100%_33%]" },
-            { "label": "Smalls", "href": "/product-category/tiles/wall-tiles/monocolour-wall-tiles", "swatch": "bg-gray-200 bg-[radial-gradient(circle,#999_1px,transparent_1px)] bg-[length:6px_6px]" },
-            { "label": "Fluted", "href": "/product-category/tiles/wall-tiles/fluted", "swatch": "bg-gray-300 bg-[repeating-linear-gradient(90deg,#999_0px,#999_2px,transparent_2px,transparent_6px)]" },
-            { "label": "Kit Kat", "href": "/product-category/tiles/wall-tiles/kit-kat-wall-tiles", "swatch": "bg-stone-400 bg-[repeating-linear-gradient(90deg,transparent_0px,transparent_3px,#78716c_3px,#78716c_5px)]" },
-            { "label": "Hexagon", "href": "/product-category/tiles/wall-tiles/hexagon-tiles-wall-tiles", "swatch": "bg-gray-200 bg-[conic-gradient(at_50%_50%,#ccc_0deg_60deg,transparent_60deg_120deg,#ccc_120deg_180deg,transparent_180deg_240deg,#ccc_240deg_300deg,transparent_300deg_360deg)] bg-[length:12px_12px]" },
-            { "label": "Relief", "href": "/product-category/tiles/wall-tiles/relief", "swatch": "bg-gradient-to-br from-stone-400 via-stone-300 to-stone-500 shadow-inner" }
+            {
+              "label": "Brick Look",
+              "href": "/product-category/tiles/wall-tiles/brick-wall-tiles",
+              "image": "/images/menu-look/brick.png"
+            },
+            {
+              "label": "Wood",
+              "href": "/product-category/tiles/wall-tiles/wood-design-wall-tiles",
+              "image": "/images/menu-look/wood.png"
+            },
+            {
+              "label": "Stone",
+              "href": "/product-category/tiles/wall-tiles/stone",
+              "image": "/images/menu-look/stone.png"
+            },
+            {
+              "label": "Marble",
+              "href": "/product-category/tiles/wall-tiles/marble",
+              "image": "/images/menu-look/marble.png"
+            },
+            {
+              "label": "Cement",
+              "href": "/product-category/tiles/wall-tiles/concrete-design-wall-tiles",
+              "image": "/images/menu-look/cement.png"
+            },
+            {
+              "label": "Terrazzo",
+              "href": "/product-category/tiles/wall-tiles/terrazo-design",
+              "image": "/images/menu-look/terrazzo.png"
+            },
+            {
+              "label": "Patterned",
+              "href": "/product-category/tiles/wall-tiles/patterned-wall-tiles",
+              "image": "/images/menu-look/patterned.png"
+            },
+            {
+              "label": "Minimalistic",
+              "href": "/product-category/tiles/wall-tiles/minimalist",
+              "image": "/images/menu-look/minimalist.png"
+            },
+            {
+              "label": "Handmade",
+              "href": "/product-category/tiles/wall-tiles/decor-tiles-wall-tiles",
+              "image": "/images/menu-look/handmade.png"
+            },
+            {
+              "label": "Metal Look",
+              "href": "/product-category/tiles/wall-tiles/metallic-look-wall-tiles",
+              "image": "/images/menu-look/metal.png"
+            },
+            {
+              "label": "Subway",
+              "href": "/product-category/tiles/wall-tiles/subway-tiles",
+              "image": "/images/menu-look/subway.png"
+            },
+            {
+              "label": "Smalls",
+              "href": "/product-category/tiles/wall-tiles/monocolour-wall-tiles",
+              "image": "/images/menu-look/smalls.png"
+            },
+            {
+              "label": "Fluted",
+              "href": "/product-category/tiles/wall-tiles/fluted",
+              "image": "/images/menu-look/fluted.png"
+            },
+            {
+              "label": "Kit Kat",
+              "href": "/product-category/tiles/wall-tiles/kit-kat-wall-tiles",
+              "image": "/images/menu-look/kit-kat.png"
+            },
+            {
+              "label": "Hexagon",
+              "href": "/product-category/tiles/wall-tiles/hexagon-tiles-wall-tiles",
+              "image": "/images/menu-look/hexagon.png"
+            },
+            {
+              "label": "Relief",
+              "href": "/product-category/tiles/wall-tiles/relief",
+              "image": "/images/menu-look/relief.png"
+            }
           ]
         },
         {
           "title": "Wall tiles by Colour",
           "itemType": "colour",
           "items": [
-            { "label": "Grey", "href": "/product-category/tiles/wall-tiles?colours=grey", "swatch": "bg-gray-400" },
-            { "label": "Black", "href": "/product-category/tiles/wall-tiles?colours=black", "swatch": "bg-black" },
-            { "label": "Green", "href": "/product-category/tiles/wall-tiles?colours=green", "swatch": "bg-green-600" },
-            { "label": "Blue", "href": "/product-category/tiles/wall-tiles?colours=blue", "swatch": "bg-blue-600" },
-            { "label": "Pink", "href": "/product-category/tiles/wall-tiles?colours=pink", "swatch": "bg-pink-400" },
-            { "label": "Brown", "href": "/product-category/tiles/wall-tiles?colours=brown", "swatch": "bg-[#6b4423]" },
-            { "label": "Beige", "href": "/product-category/tiles/wall-tiles?colours=beige", "swatch": "bg-[#d4b896]" },
-            { "label": "Cream", "href": "/product-category/tiles/wall-tiles?colours=cream", "swatch": "bg-[#f5f5dc] border border-gray-300" },
-            { "label": "White", "href": "/product-category/tiles/wall-tiles?colours=white", "swatch": "bg-white border border-gray-300" },
-            { "label": "Red", "href": "/product-category/tiles/wall-tiles?colours=red", "swatch": "bg-red-600" },
-            { "label": "Sand", "href": "/product-category/tiles/wall-tiles?colours=sand", "swatch": "bg-[#c2b280]" },
-            { "label": "Gold", "href": "/product-category/tiles/wall-tiles?colours=gold", "swatch": "bg-[#d4af37]" },
-            { "label": "Purple", "href": "/product-category/tiles/wall-tiles?colours=purple", "swatch": "bg-purple-600" },
-            { "label": "Yellow", "href": "/product-category/tiles/wall-tiles?colours=yellow", "swatch": "bg-yellow-400" },
-            { "label": "Orange", "href": "/product-category/tiles/wall-tiles?colours=orange", "swatch": "bg-orange-500" }
+            {
+              "label": "Grey",
+              "href": "/product-category/tiles/wall-tiles?colours=grey",
+              "image": "/images/menu-colour/grey.png"
+            },
+            {
+              "label": "Black",
+              "href": "/product-category/tiles/wall-tiles?colours=black",
+              "swatch": "bg-black"
+            },
+            {
+              "label": "Green",
+              "href": "/product-category/tiles/wall-tiles?colours=green",
+              "image": "/images/menu-colour/green.png"
+            },
+            {
+              "label": "Blue",
+              "href": "/product-category/tiles/wall-tiles?colours=blue",
+              "image": "/images/menu-colour/blue.png"
+            },
+            {
+              "label": "Pink",
+              "href": "/product-category/tiles/wall-tiles?colours=pink",
+              "image": "/images/menu-colour/pink.png"
+            },
+            {
+              "label": "Brown",
+              "href": "/product-category/tiles/wall-tiles?colours=brown",
+              "image": "/images/menu-colour/brown.png"
+            },
+            {
+              "label": "Beige",
+              "href": "/product-category/tiles/wall-tiles?colours=beige",
+              "swatch": "bg-[#d4b896]"
+            },
+            {
+              "label": "Cream",
+              "href": "/product-category/tiles/wall-tiles?colours=cream",
+              "swatch": "bg-[#f5f5dc] border border-gray-300"
+            },
+            {
+              "label": "White",
+              "href": "/product-category/tiles/wall-tiles?colours=white",
+              "image": "/images/menu-colour/white.png"
+            },
+            {
+              "label": "Red",
+              "href": "/product-category/tiles/wall-tiles?colours=red",
+              "image": "/images/menu-colour/red.png"
+            },
+            {
+              "label": "Sand",
+              "href": "/product-category/tiles/wall-tiles?colours=sand",
+              "swatch": "bg-[#c2b280]"
+            },
+            {
+              "label": "Gold",
+              "href": "/product-category/tiles/wall-tiles?colours=gold",
+              "image": "/images/menu-colour/matellic.png"
+            },
+            {
+              "label": "Purple",
+              "href": "/product-category/tiles/wall-tiles?colours=purple",
+              "swatch": "bg-purple-600"
+            },
+            {
+              "label": "Yellow",
+              "href": "/product-category/tiles/wall-tiles?colours=yellow",
+              "image": "/images/menu-colour/yellow.png"
+            },
+            {
+              "label": "Orange",
+              "href": "/product-category/tiles/wall-tiles?colours=orange",
+              "swatch": "bg-orange-500"
+            },
+            {
+              "label": "Multicolour",
+              "href": "/product-category/tiles/wall-tiles?colours=multicolour",
+              "image": "/images/menu-colour/multicolour.png"
+            }
           ]
         },
         {
           "title": "Wall tiles by Size",
           "itemType": "size",
           "items": [
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=1080%20x%201080", "dimension": "1080×1080" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=600%20x%20600", "dimension": "600×600" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=800%20x%20800", "dimension": "800×800" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=1200%20x%20200", "dimension": "1200×200" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=600%20x%201200", "dimension": "600×1200" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=1600%20x%20800", "dimension": "1600×800" },
-            { "label": "", "href": "/product-category/tiles/wall-tiles?sizes=1000%20x%201000", "dimension": "1000×1000" },
-            { "label": "Smaller Sizes", "href": "/product-category/tiles/wall-tiles", "dimension": "Small" }
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=1080%20x%201080",
+              "dimension": "1080×1080"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=600%20x%20600",
+              "dimension": "600×600"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=800%20x%20800",
+              "dimension": "800×800"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=1200%20x%20200",
+              "dimension": "1200×200"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=600%20x%201200",
+              "dimension": "600×1200"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=1600%20x%20800",
+              "dimension": "1600×800"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/wall-tiles?sizes=1000%20x%201000",
+              "dimension": "1000×1000"
+            },
+            {
+              "label": "Smaller Sizes",
+              "href": "/product-category/tiles/wall-tiles",
+              "dimension": "Small"
+            }
           ]
         },
         {
           "title": "Wall tiles by Space",
           "itemType": "icon",
           "items": [
-            { "label": "Kitchen", "href": "/product-category/tiles/wall-tiles/kitchen", "icon": "CookingPot" },
-            { "label": "Bathroom", "href": "/product-category/tiles/wall-tiles/bathroom", "icon": "Bath" },
-            { "label": "Indoor", "href": "/product-category/tiles/wall-tiles/indoor", "icon": "Home" },
-            { "label": "Outdoor Walls", "href": "/product-category/tiles/wall-tiles/outdoor-walls", "icon": "TreePine" },
-            { "label": "Pool", "href": "/product-category/tiles/wall-tiles/pool", "icon": "Waves" },
-            { "label": "Commercial", "href": "/product-category/tiles/wall-tiles/commercial", "icon": "Building2" },
-            { "label": "Countertop", "href": "/product-category/tiles/wall-tiles/countertop", "icon": "PanelTop" }
+            {
+              "label": "Kitchen",
+              "href": "/product-category/tiles/wall-tiles/kitchen",
+              "icon": "CookingPot"
+            },
+            {
+              "label": "Bathroom",
+              "href": "/product-category/tiles/wall-tiles/bathroom",
+              "icon": "Bath"
+            },
+            {
+              "label": "Indoor",
+              "href": "/product-category/tiles/wall-tiles/indoor",
+              "icon": "Home"
+            },
+            {
+              "label": "Outdoor Walls",
+              "href": "/product-category/tiles/wall-tiles/outdoor-walls",
+              "icon": "TreePine"
+            },
+            {
+              "label": "Pool",
+              "href": "/product-category/tiles/wall-tiles/pool",
+              "icon": "Waves"
+            },
+            {
+              "label": "Commercial",
+              "href": "/product-category/tiles/wall-tiles/commercial",
+              "icon": "Building2"
+            },
+            {
+              "label": "Countertop",
+              "href": "/product-category/tiles/wall-tiles/countertop",
+              "icon": "PanelTop"
+            }
           ]
         },
         {
           "title": "Installation Needs",
           "itemType": "icon",
           "items": [
-            { "label": "Adhesives", "href": "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", "icon": "Package" },
-            { "label": "Grouts", "href": "/product-category/tiles/accessories-tools/grout", "icon": "Droplets" },
-            { "label": "Trims and Edges", "href": "/product-category/tiles/accessories-tools/trim", "icon": "PanelTop" },
-            { "label": "Tools and Spacers", "href": "/product-category/tiles/accessories-tools/tile-spacer", "icon": "LayoutGrid" },
-            { "label": "Cleaning Products and Chemicals", "href": "/product-category/tiles/accessories-tools/cleaning-product", "icon": "SprayCan" }
+            {
+              "label": "Adhesives",
+              "href": "/product-category/tiles/accessories-tools/tile-adhesive-porcelain",
+              "icon": "Package"
+            },
+            {
+              "label": "Grouts",
+              "href": "/product-category/tiles/accessories-tools/grout",
+              "icon": "Droplets"
+            },
+            {
+              "label": "Trims and Edges",
+              "href": "/product-category/tiles/accessories-tools/trim",
+              "icon": "PanelTop"
+            },
+            {
+              "label": "Tools and Spacers",
+              "href": "/product-category/tiles/accessories-tools/tile-spacer",
+              "icon": "LayoutGrid"
+            },
+            {
+              "label": "Cleaning Products and Chemicals",
+              "href": "/product-category/tiles/accessories-tools/cleaning-product",
+              "icon": "SprayCan"
+            }
           ]
         }
       ]
@@ -193,57 +584,194 @@
           "title": "Large slabs by Look",
           "itemType": "look",
           "items": [
-            { "label": "Brick Look", "href": "/product-category/tiles/large-slab/brick", "swatch": "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
-            { "label": "Wood", "href": "/product-category/tiles/large-slab/wood-design", "swatch": "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-400" },
-            { "label": "Stone", "href": "/product-category/tiles/large-slab/stone-design", "swatch": "bg-stone-500" },
-            { "label": "Marble", "href": "/product-category/tiles/large-slab/marble-design", "swatch": "bg-gradient-to-br from-gray-200 via-white to-gray-400" },
-            { "label": "Cement", "href": "/product-category/tiles/large-slab/concrete-cement-design", "swatch": "bg-gray-400" },
-            { "label": "Terrazzo", "href": "/product-category/tiles/large-slab/terrazzo-design", "swatch": "bg-[radial-gradient(circle,#666_1px,transparent_1px)] bg-[length:4px_4px] bg-gray-200" },
-            { "label": "Patterned", "href": "/product-category/tiles/large-slab/patterned", "swatch": "bg-[linear-gradient(45deg,#ccc_25%,transparent_25%),linear-gradient(-45deg,#ccc_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#ccc_75%),linear-gradient(-45deg,transparent_75%,#ccc_75%)] bg-[length:8px_8px] bg-[position:0_0,0_4px,4px_-4px,-4px_0px] bg-gray-100" },
-            { "label": "Minimalistic", "href": "/product-category/tiles/large-slab/minimalist-design", "swatch": "bg-gradient-to-br from-gray-100 to-gray-300" },
-            { "label": "Handmade", "href": "/product-category/tiles/large-slab/decor-tiles", "swatch": "bg-gradient-to-br from-amber-700 via-orange-300 to-amber-900" }
+            {
+              "label": "Brick Look",
+              "href": "/product-category/tiles/large-slab/brick",
+              "image": "/images/menu-look/brick.png"
+            },
+            {
+              "label": "Wood",
+              "href": "/product-category/tiles/large-slab/wood-design",
+              "image": "/images/menu-look/wood.png"
+            },
+            {
+              "label": "Stone",
+              "href": "/product-category/tiles/large-slab/stone-design",
+              "image": "/images/menu-look/stone.png"
+            },
+            {
+              "label": "Marble",
+              "href": "/product-category/tiles/large-slab/marble-design",
+              "image": "/images/menu-look/marble.png"
+            },
+            {
+              "label": "Cement",
+              "href": "/product-category/tiles/large-slab/concrete-cement-design",
+              "image": "/images/menu-look/cement.png"
+            },
+            {
+              "label": "Terrazzo",
+              "href": "/product-category/tiles/large-slab/terrazzo-design",
+              "image": "/images/menu-look/terrazzo.png"
+            },
+            {
+              "label": "Patterned",
+              "href": "/product-category/tiles/large-slab/patterned",
+              "image": "/images/menu-look/patterned.png"
+            },
+            {
+              "label": "Minimalistic",
+              "href": "/product-category/tiles/large-slab/minimalist-design",
+              "image": "/images/menu-look/minimalist.png"
+            },
+            {
+              "label": "Handmade",
+              "href": "/product-category/tiles/large-slab/decor-tiles",
+              "image": "/images/menu-look/handmade.png"
+            }
           ]
         },
         {
           "title": "Large slabs by Colour",
           "itemType": "colour",
           "items": [
-            { "label": "Grey", "href": "/product-category/tiles/large-slab?colours=grey", "swatch": "bg-gray-400" },
-            { "label": "Black", "href": "/product-category/tiles/large-slab?colours=black", "swatch": "bg-black" },
-            { "label": "Green", "href": "/product-category/tiles/large-slab?colours=green", "swatch": "bg-green-600" },
-            { "label": "Blue", "href": "/product-category/tiles/large-slab?colours=blue", "swatch": "bg-blue-600" },
-            { "label": "Pink", "href": "/product-category/tiles/large-slab?colours=pink", "swatch": "bg-pink-400" },
-            { "label": "Brown", "href": "/product-category/tiles/large-slab?colours=brown", "swatch": "bg-[#6b4423]" },
-            { "label": "Beige", "href": "/product-category/tiles/large-slab?colours=beige", "swatch": "bg-[#d4b896]" },
-            { "label": "Cream", "href": "/product-category/tiles/large-slab?colours=cream", "swatch": "bg-[#f5f5dc] border border-gray-300" },
-            { "label": "White", "href": "/product-category/tiles/large-slab?colours=white", "swatch": "bg-white border border-gray-300" },
-            { "label": "Red", "href": "/product-category/tiles/large-slab?colours=red", "swatch": "bg-red-600" },
-            { "label": "Sand", "href": "/product-category/tiles/large-slab?colours=sand", "swatch": "bg-[#c2b280]" },
-            { "label": "Gold", "href": "/product-category/tiles/large-slab?colours=gold", "swatch": "bg-[#d4af37]" },
-            { "label": "Purple", "href": "/product-category/tiles/large-slab?colours=purple", "swatch": "bg-purple-600" },
-            { "label": "Yellow", "href": "/product-category/tiles/large-slab?colours=yellow", "swatch": "bg-yellow-400" },
-            { "label": "Orange", "href": "/product-category/tiles/large-slab?colours=orange", "swatch": "bg-orange-500" }
+            {
+              "label": "Grey",
+              "href": "/product-category/tiles/large-slab?colours=grey",
+              "image": "/images/menu-colour/grey.png"
+            },
+            {
+              "label": "Black",
+              "href": "/product-category/tiles/large-slab?colours=black",
+              "swatch": "bg-black"
+            },
+            {
+              "label": "Green",
+              "href": "/product-category/tiles/large-slab?colours=green",
+              "image": "/images/menu-colour/green.png"
+            },
+            {
+              "label": "Blue",
+              "href": "/product-category/tiles/large-slab?colours=blue",
+              "image": "/images/menu-colour/blue.png"
+            },
+            {
+              "label": "Pink",
+              "href": "/product-category/tiles/large-slab?colours=pink",
+              "image": "/images/menu-colour/pink.png"
+            },
+            {
+              "label": "Brown",
+              "href": "/product-category/tiles/large-slab?colours=brown",
+              "image": "/images/menu-colour/brown.png"
+            },
+            {
+              "label": "Beige",
+              "href": "/product-category/tiles/large-slab?colours=beige",
+              "swatch": "bg-[#d4b896]"
+            },
+            {
+              "label": "Cream",
+              "href": "/product-category/tiles/large-slab?colours=cream",
+              "swatch": "bg-[#f5f5dc] border border-gray-300"
+            },
+            {
+              "label": "White",
+              "href": "/product-category/tiles/large-slab?colours=white",
+              "image": "/images/menu-colour/white.png"
+            },
+            {
+              "label": "Red",
+              "href": "/product-category/tiles/large-slab?colours=red",
+              "image": "/images/menu-colour/red.png"
+            },
+            {
+              "label": "Sand",
+              "href": "/product-category/tiles/large-slab?colours=sand",
+              "swatch": "bg-[#c2b280]"
+            },
+            {
+              "label": "Gold",
+              "href": "/product-category/tiles/large-slab?colours=gold",
+              "image": "/images/menu-colour/matellic.png"
+            },
+            {
+              "label": "Purple",
+              "href": "/product-category/tiles/large-slab?colours=purple",
+              "swatch": "bg-purple-600"
+            },
+            {
+              "label": "Yellow",
+              "href": "/product-category/tiles/large-slab?colours=yellow",
+              "image": "/images/menu-colour/yellow.png"
+            },
+            {
+              "label": "Orange",
+              "href": "/product-category/tiles/large-slab?colours=orange",
+              "swatch": "bg-orange-500"
+            },
+            {
+              "label": "Multicolour",
+              "href": "/product-category/tiles/large-slab?colours=multicolour",
+              "image": "/images/menu-colour/multicolour.png"
+            }
           ]
         },
         {
           "title": "Large slabs by Size",
           "itemType": "size",
           "items": [
-            { "label": "", "href": "/product-category/tiles/large-slab?sizes=1200%20x%202400", "dimension": "1200×2400" },
-            { "label": "", "href": "/product-category/tiles/large-slab?sizes=1200%20x%202800", "dimension": "1200×2800" },
-            { "label": "", "href": "/product-category/tiles/large-slab?sizes=1600%20x%203200", "dimension": "1600×3200" }
+            {
+              "label": "",
+              "href": "/product-category/tiles/large-slab?sizes=1200%20x%202400",
+              "dimension": "1200×2400"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/large-slab?sizes=1200%20x%202800",
+              "dimension": "1200×2800"
+            },
+            {
+              "label": "",
+              "href": "/product-category/tiles/large-slab?sizes=1600%20x%203200",
+              "dimension": "1600×3200"
+            }
           ]
         },
         {
           "title": "Large slabs by Space",
           "itemType": "icon",
           "items": [
-            { "label": "Kitchen", "href": "/product-category/tiles/large-slab/kitchen", "icon": "CookingPot" },
-            { "label": "Bathroom", "href": "/product-category/tiles/large-slab/bathroom", "icon": "Bath" },
-            { "label": "Indoor", "href": "/product-category/tiles/large-slab/indoor", "icon": "Home" },
-            { "label": "Outdoor Walls", "href": "/product-category/tiles/large-slab/outdoor-walls", "icon": "TreePine" },
-            { "label": "Commercial", "href": "/product-category/tiles/large-slab/commercial", "icon": "Building2" },
-            { "label": "Countertop", "href": "/product-category/tiles/large-slab/countertop", "icon": "PanelTop" }
+            {
+              "label": "Kitchen",
+              "href": "/product-category/tiles/large-slab/kitchen",
+              "icon": "CookingPot"
+            },
+            {
+              "label": "Bathroom",
+              "href": "/product-category/tiles/large-slab/bathroom",
+              "icon": "Bath"
+            },
+            {
+              "label": "Indoor",
+              "href": "/product-category/tiles/large-slab/indoor",
+              "icon": "Home"
+            },
+            {
+              "label": "Outdoor Walls",
+              "href": "/product-category/tiles/large-slab/outdoor-walls",
+              "icon": "TreePine"
+            },
+            {
+              "label": "Commercial",
+              "href": "/product-category/tiles/large-slab/commercial",
+              "icon": "Building2"
+            },
+            {
+              "label": "Countertop",
+              "href": "/product-category/tiles/large-slab/countertop",
+              "icon": "PanelTop"
+            }
           ]
         }
       ]
@@ -262,66 +790,239 @@
           "title": "Decor & Mosaics by Look",
           "itemType": "look",
           "items": [
-            { "label": "Brick Look", "href": "/product-category/tiles/mosaics/brick-look", "swatch": "bg-gradient-to-br from-red-900 via-red-700 to-red-500" },
-            { "label": "Wood", "href": "/product-category/tiles/mosaics/wood-look", "swatch": "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-400" },
-            { "label": "Stone", "href": "/product-category/tiles/mosaics/pebble-look", "swatch": "bg-stone-500" },
-            { "label": "Marble", "href": "/product-category/tiles/mosaics/marble-mosaics", "swatch": "bg-gradient-to-br from-gray-200 via-white to-gray-400" },
-            { "label": "Cement", "href": "/product-category/tiles/mosaics/concrete", "swatch": "bg-gray-400" },
-            { "label": "Terrazzo", "href": "/product-category/tiles/mosaics/terrazzo", "swatch": "bg-[radial-gradient(circle,#666_1px,transparent_1px)] bg-[length:4px_4px] bg-gray-200" },
-            { "label": "Patterned", "href": "/product-category/tiles/mosaics/patchwork-design", "swatch": "bg-[linear-gradient(45deg,#ccc_25%,transparent_25%),linear-gradient(-45deg,#ccc_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#ccc_75%),linear-gradient(-45deg,transparent_75%,#ccc_75%)] bg-[length:8px_8px] bg-[position:0_0,0_4px,4px_-4px,-4px_0px] bg-gray-100" },
-            { "label": "Minimalistic", "href": "/product-category/tiles/mosaics/herringbone-look", "swatch": "bg-gradient-to-br from-gray-100 to-gray-300" },
-            { "label": "Handmade", "href": "/product-category/tiles/mosaics/decor-mosaic", "swatch": "bg-gradient-to-br from-amber-700 via-orange-300 to-amber-900" },
-            { "label": "Metal Look", "href": "/product-category/tiles/mosaics/metallic-look", "swatch": "bg-gradient-to-br from-gray-700 via-gray-500 to-gray-800" },
-            { "label": "Subway", "href": "/product-category/tiles/mosaics/subway", "swatch": "bg-white border border-gray-300 bg-[linear-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:100%_33%]" },
-            { "label": "Smalls", "href": "/product-category/tiles/mosaics/colour-mix", "swatch": "bg-gray-200 bg-[radial-gradient(circle,#999_1px,transparent_1px)] bg-[length:6px_6px]" },
-            { "label": "Fluted", "href": "/product-category/tiles/mosaics/fluted", "swatch": "bg-gray-300 bg-[repeating-linear-gradient(90deg,#999_0px,#999_2px,transparent_2px,transparent_6px)]" },
-            { "label": "Kit Kat", "href": "/product-category/tiles/mosaics/kit-kat-mosaics", "swatch": "bg-stone-400 bg-[repeating-linear-gradient(90deg,transparent_0px,transparent_3px,#78716c_3px,#78716c_5px)]" },
-            { "label": "Hexagon", "href": "/product-category/tiles/mosaics/hexagon-design", "swatch": "bg-gray-200 bg-[conic-gradient(at_50%_50%,#ccc_0deg_60deg,transparent_60deg_120deg,#ccc_120deg_180deg,transparent_180deg_240deg,#ccc_240deg_300deg,transparent_300deg_360deg)] bg-[length:12px_12px]" },
-            { "label": "Relief", "href": "/product-category/tiles/mosaics/relief", "swatch": "bg-gradient-to-br from-stone-400 via-stone-300 to-stone-500 shadow-inner" }
+            {
+              "label": "Brick Look",
+              "href": "/product-category/tiles/mosaics/brick-look",
+              "image": "/images/menu-look/brick.png"
+            },
+            {
+              "label": "Wood",
+              "href": "/product-category/tiles/mosaics/wood-look",
+              "image": "/images/menu-look/wood.png"
+            },
+            {
+              "label": "Stone",
+              "href": "/product-category/tiles/mosaics/pebble-look",
+              "image": "/images/menu-look/stone.png"
+            },
+            {
+              "label": "Marble",
+              "href": "/product-category/tiles/mosaics/marble-mosaics",
+              "image": "/images/menu-look/marble.png"
+            },
+            {
+              "label": "Cement",
+              "href": "/product-category/tiles/mosaics/concrete",
+              "image": "/images/menu-look/cement.png"
+            },
+            {
+              "label": "Terrazzo",
+              "href": "/product-category/tiles/mosaics/terrazzo",
+              "image": "/images/menu-look/terrazzo.png"
+            },
+            {
+              "label": "Patterned",
+              "href": "/product-category/tiles/mosaics/patchwork-design",
+              "image": "/images/menu-look/patterned.png"
+            },
+            {
+              "label": "Minimalistic",
+              "href": "/product-category/tiles/mosaics/herringbone-look",
+              "image": "/images/menu-look/minimalist.png"
+            },
+            {
+              "label": "Handmade",
+              "href": "/product-category/tiles/mosaics/decor-mosaic",
+              "image": "/images/menu-look/handmade.png"
+            },
+            {
+              "label": "Metal Look",
+              "href": "/product-category/tiles/mosaics/metallic-look",
+              "image": "/images/menu-look/metal.png"
+            },
+            {
+              "label": "Subway",
+              "href": "/product-category/tiles/mosaics/subway",
+              "image": "/images/menu-look/subway.png"
+            },
+            {
+              "label": "Smalls",
+              "href": "/product-category/tiles/mosaics/colour-mix",
+              "image": "/images/menu-look/smalls.png"
+            },
+            {
+              "label": "Fluted",
+              "href": "/product-category/tiles/mosaics/fluted",
+              "image": "/images/menu-look/fluted.png"
+            },
+            {
+              "label": "Kit Kat",
+              "href": "/product-category/tiles/mosaics/kit-kat-mosaics",
+              "image": "/images/menu-look/kit-kat.png"
+            },
+            {
+              "label": "Hexagon",
+              "href": "/product-category/tiles/mosaics/hexagon-design",
+              "image": "/images/menu-look/hexagon.png"
+            },
+            {
+              "label": "Relief",
+              "href": "/product-category/tiles/mosaics/relief",
+              "image": "/images/menu-look/relief.png"
+            }
           ]
         },
         {
           "title": "Decor & Mosaics by Colour",
           "itemType": "colour",
           "items": [
-            { "label": "Grey", "href": "/product-category/tiles/mosaics?colours=grey", "swatch": "bg-gray-400" },
-            { "label": "Black", "href": "/product-category/tiles/mosaics?colours=black", "swatch": "bg-black" },
-            { "label": "Green", "href": "/product-category/tiles/mosaics?colours=green", "swatch": "bg-green-600" },
-            { "label": "Blue", "href": "/product-category/tiles/mosaics?colours=blue", "swatch": "bg-blue-600" },
-            { "label": "Pink", "href": "/product-category/tiles/mosaics?colours=pink", "swatch": "bg-pink-400" },
-            { "label": "Brown", "href": "/product-category/tiles/mosaics?colours=brown", "swatch": "bg-[#6b4423]" },
-            { "label": "Beige", "href": "/product-category/tiles/mosaics?colours=beige", "swatch": "bg-[#d4b896]" },
-            { "label": "Cream", "href": "/product-category/tiles/mosaics?colours=cream", "swatch": "bg-[#f5f5dc] border border-gray-300" },
-            { "label": "White", "href": "/product-category/tiles/mosaics?colours=white", "swatch": "bg-white border border-gray-300" },
-            { "label": "Red", "href": "/product-category/tiles/mosaics?colours=red", "swatch": "bg-red-600" },
-            { "label": "Sand", "href": "/product-category/tiles/mosaics?colours=sand", "swatch": "bg-[#c2b280]" },
-            { "label": "Gold", "href": "/product-category/tiles/mosaics?colours=gold", "swatch": "bg-[#d4af37]" },
-            { "label": "Purple", "href": "/product-category/tiles/mosaics?colours=purple", "swatch": "bg-purple-600" },
-            { "label": "Yellow", "href": "/product-category/tiles/mosaics?colours=yellow", "swatch": "bg-yellow-400" },
-            { "label": "Orange", "href": "/product-category/tiles/mosaics?colours=orange", "swatch": "bg-orange-500" }
+            {
+              "label": "Grey",
+              "href": "/product-category/tiles/mosaics?colours=grey",
+              "image": "/images/menu-colour/grey.png"
+            },
+            {
+              "label": "Black",
+              "href": "/product-category/tiles/mosaics?colours=black",
+              "swatch": "bg-black"
+            },
+            {
+              "label": "Green",
+              "href": "/product-category/tiles/mosaics?colours=green",
+              "image": "/images/menu-colour/green.png"
+            },
+            {
+              "label": "Blue",
+              "href": "/product-category/tiles/mosaics?colours=blue",
+              "image": "/images/menu-colour/blue.png"
+            },
+            {
+              "label": "Pink",
+              "href": "/product-category/tiles/mosaics?colours=pink",
+              "image": "/images/menu-colour/pink.png"
+            },
+            {
+              "label": "Brown",
+              "href": "/product-category/tiles/mosaics?colours=brown",
+              "image": "/images/menu-colour/brown.png"
+            },
+            {
+              "label": "Beige",
+              "href": "/product-category/tiles/mosaics?colours=beige",
+              "swatch": "bg-[#d4b896]"
+            },
+            {
+              "label": "Cream",
+              "href": "/product-category/tiles/mosaics?colours=cream",
+              "swatch": "bg-[#f5f5dc] border border-gray-300"
+            },
+            {
+              "label": "White",
+              "href": "/product-category/tiles/mosaics?colours=white",
+              "image": "/images/menu-colour/white.png"
+            },
+            {
+              "label": "Red",
+              "href": "/product-category/tiles/mosaics?colours=red",
+              "image": "/images/menu-colour/red.png"
+            },
+            {
+              "label": "Sand",
+              "href": "/product-category/tiles/mosaics?colours=sand",
+              "swatch": "bg-[#c2b280]"
+            },
+            {
+              "label": "Gold",
+              "href": "/product-category/tiles/mosaics?colours=gold",
+              "image": "/images/menu-colour/matellic.png"
+            },
+            {
+              "label": "Purple",
+              "href": "/product-category/tiles/mosaics?colours=purple",
+              "swatch": "bg-purple-600"
+            },
+            {
+              "label": "Yellow",
+              "href": "/product-category/tiles/mosaics?colours=yellow",
+              "image": "/images/menu-colour/yellow.png"
+            },
+            {
+              "label": "Orange",
+              "href": "/product-category/tiles/mosaics?colours=orange",
+              "swatch": "bg-orange-500"
+            },
+            {
+              "label": "Multicolour",
+              "href": "/product-category/tiles/mosaics?colours=multicolour",
+              "image": "/images/menu-colour/multicolour.png"
+            }
           ]
         },
         {
           "title": "Decor & Mosaics by Space",
           "itemType": "icon",
           "items": [
-            { "label": "Kitchen", "href": "/product-category/tiles/mosaics/kitchen", "icon": "CookingPot" },
-            { "label": "Bathroom", "href": "/product-category/tiles/mosaics/bathroom", "icon": "Bath" },
-            { "label": "Indoor", "href": "/product-category/tiles/mosaics/indoor", "icon": "Home" },
-            { "label": "Outdoor", "href": "/product-category/tiles/mosaics/outdoor", "icon": "TreePine" },
-            { "label": "Pool", "href": "/product-category/tiles/mosaics/pool-mosaic", "icon": "Waves" },
-            { "label": "Countertop", "href": "/product-category/tiles/mosaics/countertop", "icon": "PanelTop" }
+            {
+              "label": "Kitchen",
+              "href": "/product-category/tiles/mosaics/kitchen",
+              "icon": "CookingPot"
+            },
+            {
+              "label": "Bathroom",
+              "href": "/product-category/tiles/mosaics/bathroom",
+              "icon": "Bath"
+            },
+            {
+              "label": "Indoor",
+              "href": "/product-category/tiles/mosaics/indoor",
+              "icon": "Home"
+            },
+            {
+              "label": "Outdoor",
+              "href": "/product-category/tiles/mosaics/outdoor",
+              "icon": "TreePine"
+            },
+            {
+              "label": "Pool",
+              "href": "/product-category/tiles/mosaics/pool-mosaic",
+              "icon": "Waves"
+            },
+            {
+              "label": "Countertop",
+              "href": "/product-category/tiles/mosaics/countertop",
+              "icon": "PanelTop"
+            }
           ]
         },
         {
           "title": "Installation Needs",
           "itemType": "icon",
           "items": [
-            { "label": "Adhesives", "href": "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", "icon": "Package" },
-            { "label": "Grouts", "href": "/product-category/tiles/accessories-tools/grout", "icon": "Droplets" },
-            { "label": "Trims and Edges", "href": "/product-category/tiles/accessories-tools/trim", "icon": "PanelTop" },
-            { "label": "Tools and Spacers", "href": "/product-category/tiles/accessories-tools/tile-spacer", "icon": "LayoutGrid" },
-            { "label": "Cleaning Products and Chemicals", "href": "/product-category/tiles/accessories-tools/cleaning-product", "icon": "SprayCan" }
+            {
+              "label": "Adhesives",
+              "href": "/product-category/tiles/accessories-tools/tile-adhesive-porcelain",
+              "icon": "Package"
+            },
+            {
+              "label": "Grouts",
+              "href": "/product-category/tiles/accessories-tools/grout",
+              "icon": "Droplets"
+            },
+            {
+              "label": "Trims and Edges",
+              "href": "/product-category/tiles/accessories-tools/trim",
+              "icon": "PanelTop"
+            },
+            {
+              "label": "Tools and Spacers",
+              "href": "/product-category/tiles/accessories-tools/tile-spacer",
+              "icon": "LayoutGrid"
+            },
+            {
+              "label": "Cleaning Products and Chemicals",
+              "href": "/product-category/tiles/accessories-tools/cleaning-product",
+              "icon": "SprayCan"
+            }
           ]
         }
       ]

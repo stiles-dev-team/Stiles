@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeHtmlEntities } from "../utils/pricingUtils";
 import useIsTouchDevice from "../utils/useIsTouchDevice";
-import { resolveMenuIcons } from "../utils/menuConfig";
+import { NAV_MENUS } from "../components/navbar-categories";
 
 function MegaMenuItemVisual({ item, itemType }) {
   if (itemType === "icon") {
@@ -374,14 +374,12 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
-  const [data, setData] = useState([]);
-  const [navMenus, setNavMenus] = useState([]);
+  const navMenus = NAV_MENUS;
   const [brands, setBrands] = useState([]);
   const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(null);
   const [openBrandSection, setOpenBrandSection] = useState(null);
   const [openMegaMenuSection, setOpenMegaMenuSection] = useState(null);
-  const [parentCategories, setParentCategories] = useState([]);
 
   const categorizedBrands = {
     "A-C": brands.filter((brand) => /^[A-C]/i.test(brand)),
@@ -398,28 +396,6 @@ const Navbar = () => {
     setOpenMegaMenuSection(openMegaMenuSection === value ? null : value);
 
   useEffect(() => {
-    // Fetch mega menu items
-    fetch("/data/menu-items.json")
-      .then((response) => response.json())
-      .then((menuData) => {
-        if (Array.isArray(menuData.menus)) {
-          setNavMenus(resolveMenuIcons(menuData.menus));
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching menu items:", error);
-      });
-
-    // Fetch categories
-    fetch("/data/navbar-categories.json")
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        // Extract parent categories (those with parent = 0)
-        const parents = data.filter(category => category.parent === 0);
-        setParentCategories(parents);
-      });
-
     // Fetch brands from API
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-brands.php`)
       .then((response) => response.json())

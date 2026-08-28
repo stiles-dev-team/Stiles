@@ -32,6 +32,46 @@ export const MENU_ICONS = {
 
 export const ICON_OPTIONS = Object.keys(MENU_ICONS);
 
+export const LOOK_IMAGES = {
+  "Brick Look": "/images/menu-look/brick.png",
+  Wood: "/images/menu-look/wood.png",
+  Stone: "/images/menu-look/stone.png",
+  Marble: "/images/menu-look/marble.png",
+  Cement: "/images/menu-look/cement.png",
+  Terrazzo: "/images/menu-look/terrazzo.png",
+  Patterned: "/images/menu-look/patterned.png",
+  Minimalistic: "/images/menu-look/minimalist.png",
+  Handmade: "/images/menu-look/handmade.png",
+  "Metal Look": "/images/menu-look/metal.png",
+  Subway: "/images/menu-look/subway.png",
+  Smalls: "/images/menu-look/smalls.png",
+  Fluted: "/images/menu-look/fluted.png",
+  "Kit Kat": "/images/menu-look/kit-kat.png",
+  Hexagon: "/images/menu-look/hexagon.png",
+  Relief: "/images/menu-look/relief.png",
+};
+
+export const COLOUR_IMAGES = {
+  Grey: "/images/menu-colour/grey.png",
+  Green: "/images/menu-colour/green.png",
+  Blue: "/images/menu-colour/blue.png",
+  Pink: "/images/menu-colour/pink.png",
+  Brown: "/images/menu-colour/brown.png",
+  White: "/images/menu-colour/white.png",
+  Red: "/images/menu-colour/red.png",
+  Yellow: "/images/menu-colour/yellow.png",
+  Gold: "/images/menu-colour/matellic.png",
+  Multicolour: "/images/menu-colour/multicolour.png",
+};
+
+export const withMenuImage = (item, type) => {
+  const image =
+    type === "look" ? LOOK_IMAGES[item.label] : COLOUR_IMAGES[item.label];
+  if (!image) return item;
+  const { swatch, ...rest } = item;
+  return { ...rest, image };
+};
+
 export const ITEM_TYPES = [
   { value: "look", label: "Look (swatch)" },
   { value: "colour", label: "Colour (swatch)" },

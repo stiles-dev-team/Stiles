@@ -25,6 +25,7 @@ import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
+import { getCategoryBySlug } from '../components/navbar-categories';
 
 function Icon({ id, open }) {
     return (
@@ -77,17 +78,7 @@ const ProductTagCategory = () => {
 
     
 
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const data = getCategoryBySlug(slug);
 
   return (
     <Layout>
@@ -115,18 +106,7 @@ const ProductTagCategory = () => {
 export default ProductTagCategory
 
 const Hero = ({slug}) => {
-
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const data = getCategoryBySlug(slug);
 
     return (
         <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
@@ -158,7 +138,7 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const [dataSlug, setDataSlug] = useState(null);
+    const dataSlug = getCategoryBySlug(slug);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
@@ -234,7 +214,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [dataSlug]);
+    }, [slug]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -310,18 +290,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setDataSlug(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, [slug]);
-
+    }, [slug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {

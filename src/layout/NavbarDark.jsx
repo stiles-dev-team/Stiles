@@ -73,16 +73,6 @@ const NavbarDark = () => {
 
   useEffect(() => {
     // Fetch categories
-    fetch('/data/navbar-categories.json')
-      .then(response => response.json())
-      .then(data => {
-        setData(data);
-        // Extract parent categories (those with parent = 0)
-        const parents = data.filter(category => category.parent === 0);
-        setParentCategories(parents);
-      });
-
-    // Fetch brands from API
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-brands.php`)
       .then((response) => response.json())
       .then((data) => {

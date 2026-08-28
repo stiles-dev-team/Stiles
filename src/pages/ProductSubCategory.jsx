@@ -25,6 +25,13 @@ import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
+import {
+    BathroomAccessoriesSubcategories,
+    BasinSubcategories,
+    isBathroomAccessoriesSlug,
+    isBasinsSlug,
+} from '../components/SanwareSubcategories';
+import { getCategoryBySlug } from '../components/navbar-categories';
 
 // Function to extract plain text from HTML descriptions
 const extractTextFromHTML = (htmlString) => {
@@ -77,17 +84,7 @@ const ProductSubCategory = () => {
 
     
 
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const data = getCategoryBySlug(slug);
 
   return (
     <Layout>
@@ -95,7 +92,11 @@ const ProductSubCategory = () => {
             <title>{data?.name || 'Products'} | Stiles</title>
             <meta name="description" content={extractTextFromHTML(data?.description)} />
         </Helmet>
-        <Hero slug={slug} />
+        {isBathroomAccessoriesSlug(slug) ? (
+            <BathroomAccessoriesSubcategories />
+        ) : (
+            <Hero slug={slug} />
+        )}
         <Content 
             slug={slug}
             category={category}
@@ -114,18 +115,7 @@ const ProductSubCategory = () => {
 export default ProductSubCategory
 
 const Hero = ({slug}) => {
-
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const data = getCategoryBySlug(slug);
 
     return (
         <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
@@ -156,7 +146,7 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const [dataSlug, setDataSlug] = useState(null);
+    const dataSlug = getCategoryBySlug(slug);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
@@ -232,7 +222,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [dataSlug]);
+    }, [slug]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -308,18 +298,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setDataSlug(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, [slug]);
-
+    }, [slug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
@@ -487,6 +466,7 @@ const Content = ({
     };
 
     const hasProducts = totalCount > 0;
+    const showBasins = isBasinsSlug(slug);
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -687,6 +667,7 @@ const Content = ({
                             </a>
                         </Breadcrumbs>
                     </div>
+                    {showBasins && <BasinSubcategories />}
                     {hasProducts && (
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>
