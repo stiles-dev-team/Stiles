@@ -4,6 +4,26 @@ import Select from 'react-select';
 import { formatCurrency } from '../../utils/pricingUtils';
 import MediaSelector from '../../components/MediaSelector';
 
+// Attribute names can contain trailing NBSP (\u00A0), which encodes as %C2%A0 in URLs
+const sanitizeFilterValue = (value) => {
+  if (value == null) return '';
+  return String(value).replace(/\u00A0/g, ' ').trim();
+};
+
+const sanitizeNamedOptions = (items, nameKey = 'name') =>
+  (items || [])
+    .map((item) => ({
+      ...item,
+      [nameKey]: sanitizeFilterValue(item[nameKey]),
+    }))
+    .filter((item) => item[nameKey]);
+
+const sanitizeAttributeList = (value) => {
+  if (!value) return [];
+  const parts = Array.isArray(value) ? value : String(value).split(',');
+  return parts.map(sanitizeFilterValue).filter(Boolean);
+};
+
 const AdminProducts = () => {
   // Function to extract YouTube video ID from URL
   const extractYouTubeId = (url) => {
@@ -25,13 +45,14 @@ const AdminProducts = () => {
   
   // Initialize filter states from URL params, with defaults
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('brand') || "all");
+  const [selectedCategory, setSelectedCategory] = useState(sanitizeFilterValue(searchParams.get('brand')) || "all");
   const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || "all");
-  const [selectedColour, setSelectedColour] = useState(searchParams.get('colour') || "all");
-  const [selectedFinish, setSelectedFinish] = useState(searchParams.get('finish') || "all");
-  const [selectedPromo, setSelectedPromo] = useState(searchParams.get('promo') || "all");
+  const [selectedColour, setSelectedColour] = useState(sanitizeFilterValue(searchParams.get('colour')) || "all");
+  const [selectedFinish, setSelectedFinish] = useState(sanitizeFilterValue(searchParams.get('finish')) || "all");
+  const [selectedSpace, setSelectedSpace] = useState(sanitizeFilterValue(searchParams.get('space')) || "all");
+  const [selectedPromo, setSelectedPromo] = useState(sanitizeFilterValue(searchParams.get('promo')) || "all");
   const [selectedProductTypes, setSelectedProductTypes] = useState(
-    searchParams.get('product_type') ? searchParams.get('product_type').split(',') : []
+    sanitizeAttributeList(searchParams.get('product_type'))
   );
   const [selectedProductCategory, setSelectedProductCategory] = useState(searchParams.get('category_id') || "all");
   const [selectedSoldOut, setSelectedSoldOut] = useState(searchParams.get('sold_out') || "all");
@@ -43,6 +64,7 @@ const AdminProducts = () => {
   const [colours, setColours] = useState([]);
   const [finishes, setFinishes] = useState([]);
   const [sizes, setSizes] = useState([]);
+  const [spaces, setSpaces] = useState([]);
   const [promos, setPromos] = useState([]);
   const [formData, setFormData] = useState({
     id: "",
@@ -62,6 +84,7 @@ const AdminProducts = () => {
     "attribute:pa_colour": [],
     "attribute:pa_finish": [],
     "attribute:pa_size": [],
+    "attribute:pa_space": [],
     "meta:product_details": "",
     pdf_url: "",
     pdf_preview: "",
@@ -112,10 +135,11 @@ const AdminProducts = () => {
     
     // Update or remove brand
     if (updates.brand !== undefined) {
-      if (updates.brand && updates.brand !== 'all') newParams.set('brand', updates.brand);
+      const brand = sanitizeFilterValue(updates.brand);
+      if (brand && brand !== 'all') newParams.set('brand', brand);
       else newParams.delete('brand');
     } else if (selectedCategory && selectedCategory !== 'all') {
-      newParams.set('brand', selectedCategory);
+      newParams.set('brand', sanitizeFilterValue(selectedCategory));
     } else {
       newParams.delete('brand');
     }
@@ -132,43 +156,58 @@ const AdminProducts = () => {
     
     // Update or remove colour
     if (updates.colour !== undefined) {
-      if (updates.colour && updates.colour !== 'all') newParams.set('colour', updates.colour);
+      const colour = sanitizeFilterValue(updates.colour);
+      if (colour && colour !== 'all') newParams.set('colour', colour);
       else newParams.delete('colour');
     } else if (selectedColour && selectedColour !== 'all') {
-      newParams.set('colour', selectedColour);
+      newParams.set('colour', sanitizeFilterValue(selectedColour));
     } else {
       newParams.delete('colour');
     }
     
     // Update or remove finish
     if (updates.finish !== undefined) {
-      if (updates.finish && updates.finish !== 'all') newParams.set('finish', updates.finish);
+      const finish = sanitizeFilterValue(updates.finish);
+      if (finish && finish !== 'all') newParams.set('finish', finish);
       else newParams.delete('finish');
     } else if (selectedFinish && selectedFinish !== 'all') {
-      newParams.set('finish', selectedFinish);
+      newParams.set('finish', sanitizeFilterValue(selectedFinish));
     } else {
       newParams.delete('finish');
     }
     
+    // Update or remove space
+    if (updates.space !== undefined) {
+      const space = sanitizeFilterValue(updates.space);
+      if (space && space !== 'all') newParams.set('space', space);
+      else newParams.delete('space');
+    } else if (selectedSpace && selectedSpace !== 'all') {
+      newParams.set('space', sanitizeFilterValue(selectedSpace));
+    } else {
+      newParams.delete('space');
+    }
+    
     // Update or remove promo
     if (updates.promo !== undefined) {
-      if (updates.promo && updates.promo !== 'all') newParams.set('promo', updates.promo);
+      const promo = sanitizeFilterValue(updates.promo);
+      if (promo && promo !== 'all') newParams.set('promo', promo);
       else newParams.delete('promo');
     } else if (selectedPromo && selectedPromo !== 'all') {
-      newParams.set('promo', selectedPromo);
+      newParams.set('promo', sanitizeFilterValue(selectedPromo));
     } else {
       newParams.delete('promo');
     }
     
     // Update or remove product_type
     if (updates.product_type !== undefined) {
-      if (updates.product_type && updates.product_type.length > 0) {
-        newParams.set('product_type', updates.product_type.join(','));
+      const productTypes = sanitizeAttributeList(updates.product_type);
+      if (productTypes.length > 0) {
+        newParams.set('product_type', productTypes.join(','));
       } else {
         newParams.delete('product_type');
       }
     } else if (selectedProductTypes && selectedProductTypes.length > 0) {
-      newParams.set('product_type', selectedProductTypes.join(','));
+      newParams.set('product_type', sanitizeAttributeList(selectedProductTypes).join(','));
     } else {
       newParams.delete('product_type');
     }
@@ -265,6 +304,7 @@ const AdminProducts = () => {
           selectedStatus,
           selectedColour,
           selectedFinish,
+          selectedSpace,
           selectedPromo,
           selectedProductTypes,
           selectedProductCategory,
@@ -354,7 +394,7 @@ const AdminProducts = () => {
     updateURLParams({ sort_field: field, sort_direction: newSortDirection });
     
     // Fetch products with new sorting
-    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, field, newSortDirection);
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, field, newSortDirection);
   };
 
 
@@ -406,7 +446,7 @@ const AdminProducts = () => {
           setSelectedProducts([]);
           // Invalidate cache and refetch
           invalidateCache();
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting products");
         }
@@ -468,13 +508,14 @@ const AdminProducts = () => {
   useEffect(() => {
     // Initial fetch should bypass cache to get fresh data
     // Use currentPage from URL params (or default to 1)
-    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
     fetchCategories();
     fetchUniqueCategories();
     fetchBrands();
     fetchColours();
     fetchFinishes();
     fetchSizes();
+    fetchSpaces();
     fetchPromos();
   }, []);
 
@@ -514,7 +555,7 @@ const AdminProducts = () => {
   }, [formData.sku]);
 
   // Generate cache key from filter parameters
-  const getCacheKey = (page, search, category, status, colour, finish, promo, productType, productCategory, sortField, sortDirection) => {
+  const getCacheKey = (page, search, category, status, colour, finish, space, promo, productType, productCategory, sortField, sortDirection) => {
     // Use default sort (id, asc) when no explicit sort is set, to match API behavior
     const effectiveSortField = sortField || 'id';
     const effectiveSortDirection = sortField ? sortDirection : 'asc';
@@ -526,6 +567,7 @@ const AdminProducts = () => {
       status: status || 'all',
       colour: colour || 'all',
       finish: finish || 'all',
+      space: space || 'all',
       promo: promo || 'all',
       productType: Array.isArray(productType) ? productType.sort().join(',') : '',
       productCategory: productCategory || 'all',
@@ -555,9 +597,9 @@ const AdminProducts = () => {
     }
   };
 
-  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", space = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
     // Generate cache key
-    const cacheKey = getCacheKey(page, search, category, status, colour, finish, promo, productType, productCategory, sortField, sortDirection);
+    const cacheKey = getCacheKey(page, search, category, status, colour, finish, space, promo, productType, productCategory, sortField, sortDirection);
     
     // Check cache first
     if (useCache) {
@@ -585,12 +627,13 @@ const AdminProducts = () => {
       });
 
       if (search) params.append("search", search);
-      if (category && category !== "all") params.append("brand", category);
+      if (category && category !== "all") params.append("brand", sanitizeFilterValue(category));
       if (status && status !== "all") params.append("status", status);
-      if (colour && colour !== "all") params.append("colour", colour);
-      if (finish && finish !== "all") params.append("finish", finish);
-      if (promo && promo !== "all") params.append("promo", promo);
-      if (productType && productType.length > 0) params.append("product_type", productType.join(","));
+      if (colour && colour !== "all") params.append("colour", sanitizeFilterValue(colour));
+      if (finish && finish !== "all") params.append("finish", sanitizeFilterValue(finish));
+      if (space && space !== "all") params.append("space", sanitizeFilterValue(space));
+      if (promo && promo !== "all") params.append("promo", sanitizeFilterValue(promo));
+      if (productType && productType.length > 0) params.append("product_type", sanitizeAttributeList(productType).join(","));
       if (productCategory && productCategory !== "all") {
         // Find the category name from the ID
         // If uniqueCategories is not loaded yet, try to use the ID as fallback
@@ -599,7 +642,7 @@ const AdminProducts = () => {
           : null;
         
         if (selectedCategory) {
-          params.append("category", selectedCategory.category);
+          params.append("category", sanitizeFilterValue(selectedCategory.category));
           console.log('Product Category Filter - ID:', productCategory, 'Name:', selectedCategory.category);
         } else if (uniqueCategories.length === 0) {
           // If categories not loaded yet, store the ID and we'll retry after categories load
@@ -628,6 +671,7 @@ const AdminProducts = () => {
         status,
         colour,
         finish,
+        space,
         url: `${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php?${params}`
       });
 
@@ -684,7 +728,7 @@ const AdminProducts = () => {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setCategories(data.categories || []);
+      setCategories(sanitizeNamedOptions(data.categories || []));
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
@@ -702,7 +746,7 @@ const AdminProducts = () => {
       const data = await response.json();
       
       if (data.success && data.brands) {
-        setBrands(data.brands);
+        setBrands(sanitizeNamedOptions(data.brands));
       } else {
         console.error('Error fetching brands:', data.error || 'Unknown error');
         setBrands([]);
@@ -719,7 +763,7 @@ const AdminProducts = () => {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setColours(data.colours || []);
+      setColours(sanitizeNamedOptions(data.colours || []));
     } catch (error) {
       console.error("Error fetching colours:", error);
     }
@@ -731,7 +775,7 @@ const AdminProducts = () => {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setFinishes(data.finishes || []);
+      setFinishes(sanitizeNamedOptions(data.finishes || []));
     } catch (error) {
       console.error("Error fetching finishes:", error);
     }
@@ -743,9 +787,21 @@ const AdminProducts = () => {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setSizes(data.sizes || []);
+      setSizes(sanitizeNamedOptions(data.sizes || []));
     } catch (error) {
       console.error("Error fetching sizes:", error);
+    }
+  };
+
+  const fetchSpaces = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/unique-spaces.php`, {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      setSpaces(sanitizeNamedOptions(data.spaces || []));
+    } catch (error) {
+      console.error("Error fetching spaces:", error);
     }
   };
 
@@ -755,7 +811,7 @@ const AdminProducts = () => {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setPromos(data.promos || []);
+      setPromos(sanitizeNamedOptions(data.promos || []));
     } catch (error) {
       console.error("Error fetching promos:", error);
     }
@@ -773,7 +829,10 @@ const AdminProducts = () => {
       const data = await response.json();
       
       if (data.success && data.categories) {
-        setUniqueCategories(data.categories);
+        setUniqueCategories((data.categories || []).map((item) => ({
+          ...item,
+          category: sanitizeFilterValue(item.category),
+        })));
       } else {
         console.error('Error fetching unique categories:', data.error || 'Unknown error');
         setUniqueCategories([]);
@@ -792,7 +851,7 @@ const AdminProducts = () => {
       categoriesLoadedRef.current = true;
       // If a category is selected, refetch products with the filter
       if (selectedProductCategory !== "all") {
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
       }
     }
   }, [uniqueCategories.length]); // Only trigger when categories are loaded
@@ -919,7 +978,7 @@ const AdminProducts = () => {
     if (onhand === undefined || onhand === null) return false;
     const promoStr = product.promo != null ? String(product.promo) : '';
     const tagStr = product.product_tag != null ? String(product.product_tag) : '';
-    const badges = promoStr ? promoStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const badges = sanitizeAttributeList(promoStr);
     const hasExcludedBadge =
       badges.includes('Coming Soon') || badges.includes('Backorder') || badges.includes('Special Order') ||
       (promoStr && (promoStr.includes('Backorder') || promoStr.includes('Coming Soon') || promoStr.includes('Special Order'))) ||
@@ -964,7 +1023,7 @@ const AdminProducts = () => {
           alert("Product deleted successfully");
           // Invalidate cache and refetch
           invalidateCache();
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting product: " + result.message);
         }
@@ -1004,12 +1063,13 @@ const AdminProducts = () => {
         regular_price: product.regular_price || 0,
         sale_price: product.sale_price || 0,
         metadesc: product.metadesc || "",
-        product_category: product.product_category ? product.product_category.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
+        product_category: sanitizeAttributeList(product.product_category),
         product_tag: product.product_tag || "",
-        "attribute:pa_brands": product["attribute:pa_brands"] || "",
-        "attribute:pa_colour": product["attribute:pa_colour"] ? product["attribute:pa_colour"].split(',').map(colour => colour.trim()).filter(colour => colour) : [],
-        "attribute:pa_finish": product["attribute:pa_finish"] ? product["attribute:pa_finish"].split(',').map(finish => finish.trim()).filter(finish => finish) : [],
-        "attribute:pa_size": product["attribute:pa_size"] ? product["attribute:pa_size"].split(',').map(size => size.trim()).filter(size => size) : [],
+        "attribute:pa_brands": sanitizeFilterValue(product["attribute:pa_brands"] || ""),
+        "attribute:pa_colour": sanitizeAttributeList(product["attribute:pa_colour"]),
+        "attribute:pa_finish": sanitizeAttributeList(product["attribute:pa_finish"]),
+        "attribute:pa_size": sanitizeAttributeList(product["attribute:pa_size"]),
+        "attribute:pa_space": sanitizeAttributeList(product["attribute:pa_space"]),
         "meta:product_details": product["meta:product_details"] || "",
         pdf_url: product.pdf_url || "",
         pdf_preview: product.pdf_url || "",
@@ -1021,7 +1081,7 @@ const AdminProducts = () => {
         gallery_previews: galleryPreviews,
         gallery_files: [],
         youtube_video_url: product.youtube_video_url || "",
-        promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
+        promo: sanitizeAttributeList(product.promo),
       });
       
       setEditingProduct(null); // Clear editing product since this is a new product
@@ -1060,8 +1120,10 @@ const AdminProducts = () => {
             // Only add non-empty values
             if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
               // Convert arrays to comma-separated strings
-              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
-                formDataToSend.append(key, formData[key].join(', '));
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'promo') && Array.isArray(formData[key])) {
+                formDataToSend.append(key, sanitizeAttributeList(formData[key]).join(', '));
+              } else if (key === 'attribute:pa_brands') {
+                formDataToSend.append(key, sanitizeFilterValue(formData[key]));
               } else {
                 formDataToSend.append(key, formData[key]);
               }
@@ -1107,8 +1169,10 @@ const AdminProducts = () => {
             // Only add non-empty values
             if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
               // Convert arrays to comma-separated strings for consistency
-              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'promo') && Array.isArray(formData[key])) {
-                jsonData[key] = formData[key].join(', ');
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'promo') && Array.isArray(formData[key])) {
+                jsonData[key] = sanitizeAttributeList(formData[key]).join(', ');
+              } else if (key === 'attribute:pa_brands') {
+                jsonData[key] = sanitizeFilterValue(formData[key]);
               } else {
                 jsonData[key] = formData[key];
               }
@@ -1208,6 +1272,7 @@ const AdminProducts = () => {
            "attribute:pa_colour": [],
            "attribute:pa_finish": [],
            "attribute:pa_size": [],
+           "attribute:pa_space": [],
            "meta:product_details": "",
            pdf_url: "",
            pdf_preview: "",
@@ -1221,7 +1286,7 @@ const AdminProducts = () => {
          });
         // Invalidate cache and refetch
         invalidateCache();
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         // Handle specific error types
         if (result.error === 'SKU_CONFLICT') {
@@ -1243,7 +1308,7 @@ const AdminProducts = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'attribute:pa_brands' ? sanitizeFilterValue(value) : value,
     }));
   };
 
@@ -1295,6 +1360,7 @@ const AdminProducts = () => {
       "attribute:pa_colour": [],
       "attribute:pa_finish": [],
       "attribute:pa_size": [],
+      "attribute:pa_space": [],
       "meta:product_details": "",
       pdf_url: "",
       pdf_preview: "",
@@ -1338,12 +1404,13 @@ const AdminProducts = () => {
       regular_price: product.regular_price || 0,
       sale_price: product.sale_price || 0,
       metadesc: product.metadesc || "",
-      product_category: product.product_category ? product.product_category.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
+      product_category: sanitizeAttributeList(product.product_category),
       product_tag: product.product_tag || "",
-      "attribute:pa_brands": product["attribute:pa_brands"] || "",
-      "attribute:pa_colour": product["attribute:pa_colour"] ? product["attribute:pa_colour"].split(',').map(colour => colour.trim()).filter(colour => colour) : [],
-      "attribute:pa_finish": product["attribute:pa_finish"] ? product["attribute:pa_finish"].split(',').map(finish => finish.trim()).filter(finish => finish) : [],
-      "attribute:pa_size": product["attribute:pa_size"] ? product["attribute:pa_size"].split(',').map(size => size.trim()).filter(size => size) : [],
+      "attribute:pa_brands": sanitizeFilterValue(product["attribute:pa_brands"] || ""),
+      "attribute:pa_colour": sanitizeAttributeList(product["attribute:pa_colour"]),
+      "attribute:pa_finish": sanitizeAttributeList(product["attribute:pa_finish"]),
+      "attribute:pa_size": sanitizeAttributeList(product["attribute:pa_size"]),
+      "attribute:pa_space": sanitizeAttributeList(product["attribute:pa_space"]),
       "meta:product_details": product["meta:product_details"] || "",
       pdf_url: product.pdf_url || "",
       pdf_preview: product.pdf_url || "",
@@ -1355,7 +1422,7 @@ const AdminProducts = () => {
       gallery_previews: galleryPreviews,
       gallery_files: [],
       youtube_video_url: product.youtube_video_url || "",
-      promo: product.promo ? product.promo.split(',').map(promo => promo.trim()).filter(promo => promo) : [],
+      promo: sanitizeAttributeList(product.promo),
     });
     console.log("FormData after setting:", formData);
     setShowAddModal(true);
@@ -1371,58 +1438,70 @@ const AdminProducts = () => {
     debounceTimeoutRef.current = setTimeout(() => {
       setCurrentPage(1);
       updateURLParams({ search: value, page: 1 });
-      fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+      fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
     }, 500); // 500ms debounce
   };
 
   const handleCategoryChange = (value) => {
-    setSelectedCategory(value);
+    const brand = sanitizeFilterValue(value) || "all";
+    setSelectedCategory(brand);
     setCurrentPage(1);
-    updateURLParams({ brand: value, page: 1 });
-    fetchProducts(1, searchTerm, value, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
+    updateURLParams({ brand, page: 1 });
+    fetchProducts(1, searchTerm, brand, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setCurrentPage(1);
     updateURLParams({ status: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleColourChange = (value) => {
-    setSelectedColour(value);
+    const colour = sanitizeFilterValue(value) || "all";
+    setSelectedColour(colour);
     setCurrentPage(1);
-    updateURLParams({ colour: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, value, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory);
+    updateURLParams({ colour, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, colour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleFinishChange = (value) => {
-    setSelectedFinish(value);
+    const finish = sanitizeFilterValue(value) || "all";
+    setSelectedFinish(finish);
     setCurrentPage(1);
-    updateURLParams({ finish: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, value, selectedPromo, selectedProductTypes, selectedProductCategory);
+    updateURLParams({ finish, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, finish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
+  };
+
+  const handleSpaceChange = (value) => {
+    const space = sanitizeFilterValue(value) || "all";
+    setSelectedSpace(space);
+    setCurrentPage(1);
+    updateURLParams({ space, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, space, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handlePromoChange = (value) => {
-    setSelectedPromo(value);
+    const promo = sanitizeFilterValue(value) || "all";
+    setSelectedPromo(promo);
     setCurrentPage(1);
-    updateURLParams({ promo: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, value, selectedProductTypes, selectedProductCategory);
+    updateURLParams({ promo, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, promo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleProductCategoryChange = (value) => {
     setSelectedProductCategory(value);
     setCurrentPage(1);
     updateURLParams({ category_id: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
   };
 
   const handleProductTypeChange = (selectedOptions) => {
-    const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
     setSelectedProductTypes(values);
     setCurrentPage(1);
     updateURLParams({ product_type: values, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, values, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, values, selectedProductCategory);
   };
 
   const handleSoldOutChange = (value) => {
@@ -1433,7 +1512,7 @@ const AdminProducts = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     updateURLParams({ page });
-    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
   };
 
   // Function to open download modal
@@ -1479,7 +1558,7 @@ const AdminProducts = () => {
         const headers = [
           'ID', 'Title', 'Slug', 'Description', 'Status', 'Post Date', 'SKU', 'Stock',
           'Regular Price', 'Sale Price', 'Meta Description', 'Product Category', 'Product Tag',
-          'Brand', 'Colour', 'Finish', 'Size', 'Product Details', 'PDF URL', 'Featured Image',
+          'Brand', 'Colour', 'Finish', 'Size', 'Space', 'Product Details', 'PDF URL', 'Featured Image',
           'Gallery Images', 'YouTube Video URL', 'Promo'
         ];
 
@@ -1498,18 +1577,19 @@ const AdminProducts = () => {
             product.regular_price || '',
             product.sale_price || '',
             `"${(product.metadesc || '').replace(/"/g, '""')}"`,
-            Array.isArray(product.product_category) ? product.product_category.join(', ') : (product.product_category || ''),
+            Array.isArray(product.product_category) ? sanitizeAttributeList(product.product_category).join(', ') : sanitizeFilterValue(product.product_category || ''),
             product.product_tag || '',
-            product['attribute:pa_brands'] || '',
-            Array.isArray(product['attribute:pa_colour']) ? product['attribute:pa_colour'].join(', ') : (product['attribute:pa_colour'] || ''),
-            Array.isArray(product['attribute:pa_finish']) ? product['attribute:pa_finish'].join(', ') : (product['attribute:pa_finish'] || ''),
-            Array.isArray(product['attribute:pa_size']) ? product['attribute:pa_size'].join(', ') : (product['attribute:pa_size'] || ''),
+            sanitizeFilterValue(product['attribute:pa_brands'] || ''),
+            Array.isArray(product['attribute:pa_colour']) ? sanitizeAttributeList(product['attribute:pa_colour']).join(', ') : sanitizeFilterValue(product['attribute:pa_colour'] || ''),
+            Array.isArray(product['attribute:pa_finish']) ? sanitizeAttributeList(product['attribute:pa_finish']).join(', ') : sanitizeFilterValue(product['attribute:pa_finish'] || ''),
+            Array.isArray(product['attribute:pa_size']) ? sanitizeAttributeList(product['attribute:pa_size']).join(', ') : sanitizeFilterValue(product['attribute:pa_size'] || ''),
+            Array.isArray(product['attribute:pa_space']) ? sanitizeAttributeList(product['attribute:pa_space']).join(', ') : sanitizeFilterValue(product['attribute:pa_space'] || ''),
             `"${(product['meta:product_details'] || '').replace(/"/g, '""')}"`,
             product.pdf_url || '',
             product.featured_image || '',
             product.gallery_images || '',
             product.youtube_video_url || '',
-            Array.isArray(product.promo) ? product.promo.join(', ') : (product.promo || '')
+            Array.isArray(product.promo) ? sanitizeAttributeList(product.promo).join(', ') : sanitizeFilterValue(product.promo || '')
           ].join('~'))
         ];
 
@@ -1589,7 +1669,7 @@ const AdminProducts = () => {
         alert(`CSV upload successful!\nUpdated: ${result.updated} products\nInserted: ${result.inserted} new products`);
         // Invalidate cache and refresh the products list
         invalidateCache();
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         alert(`Error uploading CSV: ${result.message}`);
       }
@@ -1691,7 +1771,7 @@ const AdminProducts = () => {
                        }
                        setCurrentPage(1);
                        updateURLParams({ search: searchTerm, page: 1 });
-                       fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+                       fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
                      }
                    }}
                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1704,7 +1784,7 @@ const AdminProducts = () => {
                      }
                      setCurrentPage(1);
                      updateURLParams({ search: searchTerm, page: 1 });
-                     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+                     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
                    }}
                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                  >
@@ -1801,6 +1881,23 @@ const AdminProducts = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Space
+              </label>
+              <select
+                value={selectedSpace}
+                onChange={(e) => handleSpaceChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Spaces</option>
+                {spaces.map((space) => (
+                  <option key={space.id} value={space.name}>
+                    {space.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Promo
               </label>
               <select
@@ -1872,6 +1969,7 @@ const AdminProducts = () => {
                 setSelectedStatus("all");
                 setSelectedColour("all");
                 setSelectedFinish("all");
+                setSelectedSpace("all");
                 setSelectedPromo("all");
                 setSelectedProductTypes([]);
                 setSelectedProductCategory("all");
@@ -1885,7 +1983,7 @@ const AdminProducts = () => {
                   newParams.set('slug', searchParams.get('slug'));
                 }
                 setSearchParams(newParams, { replace: true });
-                fetchProducts(1, "", "all", "all", "all", "all", "all", [], "all", null, "asc");
+                fetchProducts(1, "", "all", "all", "all", "all", "all", "all", [], "all", null, "asc");
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
             >
@@ -1901,7 +1999,7 @@ const AdminProducts = () => {
                   ? `Showing ${products.length} of ${pagination.total_products} products`
                   : `Showing ${filteredProducts.length} of ${products.length} on this page (${selectedSoldOut === "sold_out" ? "sold out" : "in stock"})`}
               </div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedSpace !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -1927,6 +2025,11 @@ const AdminProducts = () => {
                   {selectedFinish !== "all" && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-pink-100 text-pink-800">
                       Finish: {selectedFinish}
+                    </span>
+                  )}
+                  {selectedSpace !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-cyan-100 text-cyan-800">
+                      Space: {selectedSpace}
                     </span>
                   )}
                   {selectedPromo !== "all" && (
@@ -2570,7 +2673,7 @@ const AdminProducts = () => {
                         label: cat
                       }))}
                       onChange={(selectedOptions) => {
-                        const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                        const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
                         setFormData(prev => ({
                           ...prev,
                           product_category: values
@@ -2637,7 +2740,7 @@ const AdminProducts = () => {
                           label: colour
                         }))}
                         onChange={(selectedOptions) => {
-                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
                           setFormData(prev => ({
                             ...prev,
                             "attribute:pa_colour": values
@@ -2666,7 +2769,7 @@ const AdminProducts = () => {
                           label: finish
                         }))}
                         onChange={(selectedOptions) => {
-                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
                           setFormData(prev => ({
                             ...prev,
                             "attribute:pa_finish": values
@@ -2692,7 +2795,7 @@ const AdminProducts = () => {
                           label: size
                         }))}
                         onChange={(selectedOptions) => {
-                          const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                          const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
                           setFormData(prev => ({
                             ...prev,
                             "attribute:pa_size": values
@@ -2703,6 +2806,35 @@ const AdminProducts = () => {
                           label: size.name
                         }))}
                         placeholder="Select sizes..."
+                        isClearable
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Space
+                      </label>
+                      <Select
+                        name="attribute:pa_space"
+                        isMulti
+                        value={formData["attribute:pa_space"].map(space => ({
+                          value: space,
+                          label: space
+                        }))}
+                        onChange={(selectedOptions) => {
+                          const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
+                          setFormData(prev => ({
+                            ...prev,
+                            "attribute:pa_space": values
+                          }));
+                        }}
+                        options={spaces.map(space => ({
+                          value: space.name,
+                          label: space.name
+                        }))}
+                        placeholder="Select spaces..."
                         isClearable
                       />
                     </div>
@@ -2972,7 +3104,7 @@ const AdminProducts = () => {
                       label: promo
                     }))}
                     onChange={(selectedOptions) => {
-                      const values = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                      const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
                       setFormData(prev => ({
                         ...prev,
                         promo: values
