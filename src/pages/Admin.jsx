@@ -47,7 +47,7 @@ const Admin = () => {
       { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
-      { name: 'Menu Items', href: '/admin/menu-items', icon: '🧭' },
+      // { name: 'Menu Items', href: '/admin/menu-items', icon: '🧭' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
       { name: 'Media', href: '/admin/media', icon: '📁' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
