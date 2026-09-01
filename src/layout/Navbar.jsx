@@ -162,7 +162,7 @@ function groupLocationsByRegion(locations) {
 const pillContainerClass =
   "rounded-2xl bg-white px-3 xl:px-5 py-2.5 backdrop-blur-sm shadow-sm";
 const navLinkClass =
-  "shrink-0 whitespace-nowrap text-xs font-medium text-gray-900 hover:text-gray-600 transition-colors";
+  "shrink-0 whitespace-nowrap rounded-full px-1.5 py-1.5 xl:px-2.5 text-xs font-medium text-gray-900 hover:text-gray-600 transition-colors";
 const navDropdownClass =
   "flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-gray-900 hover:text-gray-600 cursor-pointer";
 
@@ -622,7 +622,8 @@ const Navbar = () => {
               className={`flex w-full items-center justify-between ${pillContainerClass}`}
             >
               <a href="/" className="shrink-0">
-                <img src="/images/logo.png" alt="Stiles" className="h-12" />
+                {/* <img src="/images/logo.png" alt="Stiles" className="h-12" /> */}
+                <img src="/images/logo-black.png" alt="Stiles" className="h-12" />
               </a>
               <button
                 onClick={() => setShowMenu(true)}
@@ -643,7 +644,8 @@ const Navbar = () => {
               onMouseLeave={closeAllDropdowns}
             >
               <a href="/" className="shrink-0">
-                <img src="/images/logo.png" alt="Stiles" className="h-12 xl:h-14" />
+                {/* <img src="/images/logo.png" alt="Stiles" className="h-12 xl:h-14" /> */}
+                <img src="/images/logo-black.png" alt="Stiles" className="h-12" />
               </a>
 
               <div className="flex min-w-0 flex-1 items-center">
