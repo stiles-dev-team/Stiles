@@ -32,7 +32,18 @@ function MegaMenuItemVisual({ item, itemType }) {
   if (itemType === "size") {
     return (
       <div className="flex h-8 w-8 items-center justify-center">
-        <div className="h-6 w-6 rotate-45 border border-gray-600 bg-gray-50" />
+        <svg
+          viewBox="0 0 32 32"
+          className="h-8 w-8 text-gray-600 group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
+          aria-hidden
+        >
+          <polygon
+            points="16,2 30,16 16,30 2,16"
+            fill="#ffffff"
+            stroke="currentColor"
+            strokeWidth="1.25"
+          />
+        </svg>
       </div>
     );
   }
@@ -96,7 +107,7 @@ function ImageMegaMenu({ isOpen, menu }) {
   return (
     <div className={`${menu.dropdownClass} absolute left-0 right-0 top-full z-[999] w-full pt-2`}>
       <div className="rounded-2xl bg-white px-6 py-8 shadow-lg">
-        <div className="flex flex-nowrap border-y border-gray-200">
+        <div className="flex flex-nowrap">
           {section.items.map((item, index) => (
             <a
               key={item.label}
@@ -756,9 +767,12 @@ const Navbar = () => {
 
               {isAuthenticated ? (
                 <div className="relative group">
-                  <button className="flex items-center gap-2 whitespace-nowrap rounded-full border border-gray-900 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 xl:px-4">
+                  <button
+                    className="flex items-center gap-2 whitespace-nowrap rounded-full border border-gray-900 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 xl:px-4"
+                    aria-label={user.firstName || "Account"}
+                  >
                     <FaUser size={14} />
-                    {user.firstName}
+                    <span className="uppercase">{(user.firstName || "?").charAt(0)}</span>
                   </button>
                   <div className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-white py-2 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <div className="py-1">
