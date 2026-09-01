@@ -49,7 +49,7 @@ export const FLOORING_MEGA_MENU = [
       // { label: "Purple", href: "/product-category/floor-tiles?colours=purple", swatch: "bg-purple-600" },
       { label: "Yellow", href: "/product-category/floor-tiles?colours=yellow", image: "/images/menu-colour/yellow.png" },
       // { label: "Orange", href: "/product-category/floor-tiles?colours=orange", swatch: "bg-orange-500" },
-      { label: "Multicolour", href: "/product-category/floor-tiles?colours=multicolour", image: "/images/menu-colour/multicolour.png" },
+      // { label: "Multicolour", href: "/product-category/floor-tiles?colours=multicolour", image: "/images/menu-colour/multicolour.png" },
     ],
   },
   {

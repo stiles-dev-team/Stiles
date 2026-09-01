@@ -48,7 +48,7 @@ export const LARGE_SLABS_MEGA_MENU = [
       // { label: "Purple", href: `${BASE}?colours=purple`, swatch: "bg-purple-600" },
       { label: "Yellow", href: `${BASE}?colours=yellow`, image: "/images/menu-colour/yellow.png" },
       // { label: "Orange", href: `${BASE}?colours=orange`, swatch: "bg-orange-500" },
-      { label: "Multicolour", href: `${BASE}?colours=multicolour`, image: "/images/menu-colour/multicolour.png" },
+      // { label: "Multicolour", href: `${BASE}?colours=multicolour`, image: "/images/menu-colour/multicolour.png" },
     ],
   },
   {
