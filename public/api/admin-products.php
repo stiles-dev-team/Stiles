@@ -26,6 +26,22 @@ ini_set('error_log', __DIR__ . '/api_errors.log');
 
 require_once 'config.php';
 
+function append_csv_values($existing, $new) {
+    $split = function ($value) {
+        $parts = array_map('trim', explode(',', (string) $value));
+        return array_values(array_filter($parts, function ($part) {
+            return $part !== '';
+        }));
+    };
+
+    $merged = array_unique(array_merge($split($existing), $split($new)));
+    return implode(', ', $merged);
+}
+
+function quoted_column($field) {
+    return strpos($field, ':') !== false ? "`$field`" : $field;
+}
+
 // Test database connection
 try {
     $pdo->query('SELECT 1');
@@ -526,6 +542,91 @@ try {
             break;
 
         case 'POST':
+            // Append selected fields onto a group of products without replacing existing values
+            if (is_array($data) && isset($data['action']) && $data['action'] === 'append_fields') {
+                $ids = isset($data['ids']) && is_array($data['ids']) ? $data['ids'] : [];
+                $allowedFields = [
+                    'product_category',
+                    'product_tag',
+                    'attribute:pa_colour',
+                    'attribute:pa_finish',
+                    'attribute:pa_size',
+                    'attribute:pa_space',
+                ];
+
+                $appendValues = [];
+                foreach ($allowedFields as $field) {
+                    $value = trim((string) ($data[$field] ?? ''));
+                    if ($value !== '') {
+                        $appendValues[$field] = $value;
+                    }
+                }
+
+                if (empty($ids)) {
+                    http_response_code(400);
+                    echo json_encode(['status' => 'error', 'message' => 'No products selected']);
+                    exit();
+                }
+
+                if (empty($appendValues)) {
+                    http_response_code(400);
+                    echo json_encode(['status' => 'error', 'message' => 'No fields to append']);
+                    exit();
+                }
+
+                $selectCols = 'ID, ' . implode(', ', array_map('quoted_column', array_keys($appendValues)));
+                $selectStmt = $pdo->prepare("SELECT $selectCols FROM stiles_products WHERE ID = ?");
+                $updated = 0;
+
+                $pdo->beginTransaction();
+                try {
+                    foreach ($ids as $id) {
+                        $selectStmt->execute([$id]);
+                        $product = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                        if (!$product) {
+                            continue;
+                        }
+
+                        $setParts = [];
+                        $params = [];
+                        foreach ($appendValues as $field => $newValue) {
+                            if ($field === 'product_tag') {
+                                $setParts[] = "product_tag = CASE WHEN product_tag IS NULL OR TRIM(product_tag) = '' THEN ? ELSE CONCAT(product_tag, ', ', ?) END";
+                                $params[] = $newValue;
+                                $params[] = $newValue;
+                            } else {
+                                $setParts[] = quoted_column($field) . ' = ?';
+                                $params[] = append_csv_values($product[$field] ?? '', $newValue);
+                            }
+                        }
+                        $params[] = $id;
+
+                        $updateStmt = $pdo->prepare(
+                            'UPDATE stiles_products SET ' . implode(', ', $setParts) . ' WHERE ID = ?'
+                        );
+                        $updateStmt->execute($params);
+                        $updated++;
+                    }
+
+                    $pdo->commit();
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => "Updated $updated product(s)",
+                        'updated' => $updated,
+                    ]);
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    error_log('append_fields error: ' . $e->getMessage());
+                    http_response_code(500);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Failed to update products',
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+                break;
+            }
+
             // Handle both create and update operations
             if (!isset($data['title'])) {
                 http_response_code(400);
