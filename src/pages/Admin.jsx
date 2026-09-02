@@ -19,6 +19,7 @@ import AdminUniqueColours from './admin/UniqueColours'
 import AdminUniqueFinishes from './admin/UniqueFinishes'
 import AdminUniqueSizes from './admin/UniqueSizes'
 import AdminUniqueSpaces from './admin/UniqueSpaces'
+import AdminUniqueInstallationNeeds from './admin/UniqueInstallationNeeds'
 import AdminUniquePromos from './admin/UniquePromos'
 import AdminLocations from './admin/Locations'
 import AdminMenuItems from './admin/MenuItems'
@@ -48,6 +49,7 @@ const Admin = () => {
       { name: 'Finishes', href: '/admin/unique-finishes', icon: '✨' },
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Spaces', href: '/admin/unique-spaces', icon: '🏠' },
+      { name: 'Installation Needs', href: '/admin/unique-installation-needs', icon: '🔧' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
       // { name: 'Menu Items', href: '/admin/menu-items', icon: '🧭' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
@@ -108,6 +110,7 @@ const Admin = () => {
                   <Route path="/unique-finishes" element={<AdminUniqueFinishes />} />
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
                   <Route path="/unique-spaces" element={<AdminUniqueSpaces />} />
+                  <Route path="/unique-installation-needs" element={<AdminUniqueInstallationNeeds />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
                   <Route path="/menu-items" element={<AdminMenuItems />} />
                   <Route path="/locations" element={<AdminLocations />} />
