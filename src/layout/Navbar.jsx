@@ -15,6 +15,24 @@ import useIsTouchDevice from "../utils/useIsTouchDevice";
 import { NAV_MENUS } from "../components/navbar-categories";
 
 function MegaMenuItemVisual({ item, itemType }) {
+  if (item.image) {
+    const isNeedImage = itemType === "icon";
+    const sizeClass = isNeedImage ? "h-12 w-12" : "h-8 w-8";
+    const rotateOnHover = !isNeedImage
+      ? " group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
+      : "";
+
+    return (
+      <div className={`flex items-center justify-center ${sizeClass}`}>
+        <img
+          src={item.image}
+          alt={item.label || ""}
+          className={`${sizeClass} object-contain${rotateOnHover}`}
+        />
+      </div>
+    );
+  }
+
   if (itemType === "icon") {
     const IconComponent = item.icon;
     const ExtraIcon = item.extraIcon;
@@ -44,18 +62,6 @@ function MegaMenuItemVisual({ item, itemType }) {
             strokeWidth="1.25"
           />
         </svg>
-      </div>
-    );
-  }
-
-  if (item.image) {
-    return (
-      <div className="flex h-8 w-8 items-center justify-center">
-        <img
-          src={item.image}
-          alt={item.label || ""}
-          className="h-8 w-8 object-contain group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
-        />
       </div>
     );
   }

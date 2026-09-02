@@ -1,19 +1,3 @@
-
-import {
-  Bath,
-  CookingPot,
-  Sun,
-  TreePine,
-  Home,
-  Waves,
-  Building2,
-  PanelTop,
-  Package,
-  Droplets,
-  SprayCan,
-  LayoutGrid,
-} from "lucide-react";
-
 export const FLOORING_MEGA_MENU = [
   {
     title: "Floor tiles by Look",
@@ -70,29 +54,28 @@ export const FLOORING_MEGA_MENU = [
     title: "Floor tiles by Space",
     itemType: "icon",
     items: [
-      { label: "Kitchen", href: "/product-category/floor-tiles/kitchen", icon: CookingPot },
-      { label: "Bathroom", href: "/product-category/floor-tiles/bathroom", icon: Bath },
-      { label: "Indoor", href: "/product-category/floor-tiles/indoor", icon: Home },
+      { label: "Kitchen", href: "/product-category/floor-tiles/kitchen", image: "/images/needs/kitchen.jpg" },
+      { label: "Bathroom", href: "/product-category/floor-tiles/bathroom", image: "/images/needs/bathrooms.jpg" },
+      { label: "Indoor", href: "/product-category/floor-tiles/indoor", image: "/images/needs/indoor.jpg" },
       {
         label: "Outdoor / Slip Resistant",
         href: "/product-category/floor-tiles/outdoor",
-        icon: TreePine,
-        extraIcon: Sun,
+        image: "/images/needs/outdoors.jpg",
       },
-      { label: "Pool", href: "/product-category/floor-tiles/pool", icon: Waves },
-      { label: "Commercial", href: "/product-category/floor-tiles/commercial", icon: Building2 },
-      { label: "Countertop", href: "/product-category/floor-tiles/countertop", icon: PanelTop },
+      { label: "Pool", href: "/product-category/floor-tiles/pool", image: "/images/needs/pool.jpg" },
+      { label: "Commercial", href: "/product-category/floor-tiles/commercial", image: "/images/needs/commercial.jpg" },
+      { label: "Countertop", href: "/product-category/floor-tiles/countertop", image: "/images/needs/counters.jpg" },
     ],
   },
   {
     title: "Installation Needs",
     itemType: "icon",
     items: [
-      { label: "Adhesives", href: "/product-category/floor-tiles/adhesives", icon: Package },
-      { label: "Grouts", href: "/product-category/floor-tiles/grouts", icon: Droplets },
-      { label: "Trims and Edges", href: "/product-category/floor-tiles/skirtings", icon: PanelTop },
-      { label: "Tools and Spacers", href: "/product-category/floor-tiles/spacers", icon: LayoutGrid },
-      { label: "Cleaning Products and Chemicals", href: "/product-category/floor-tiles/cleaning", icon: SprayCan },
+      { label: "Adhesives", href: "/product-category/floor-tiles/adhesives", image: "/images/needs/adhesives.jpg" },
+      { label: "Grouts", href: "/product-category/floor-tiles/grouts", image: "/images/needs/grouts.jpg" },
+      { label: "Trims and Edges", href: "/product-category/floor-tiles/skirtings", image: "/images/needs/trims%20and%20edges.jpg" },
+      { label: "Tools and Spacers", href: "/product-category/floor-tiles/spacers", image: "/images/needs/tools%20and%20spacers.jpg" },
+      { label: "Cleaning Products and Chemicals", href: "/product-category/floor-tiles/cleaning", image: "/images/needs/cleaning.jpg" },
     ],
   },
 ];

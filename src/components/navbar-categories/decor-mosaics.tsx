@@ -1,16 +1,3 @@
-import {
-  Bath,
-  CookingPot,
-  TreePine,
-  Home,
-  Waves,
-  PanelTop,
-  Package,
-  Droplets,
-  SprayCan,
-  LayoutGrid,
-} from "lucide-react";
-
 const BASE = "/product-category/tiles/mosaics";
 
 export const DECOR_MOSAICS_MEGA_MENU = [
@@ -69,23 +56,23 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     title: "Decor & Mosaics by Space",
     itemType: "icon",
     items: [
-      { label: "Kitchen", href: `${BASE}/kitchen`, icon: CookingPot },
-      { label: "Bathroom", href: `${BASE}/bathroom`, icon: Bath },
-      { label: "Indoor", href: `${BASE}/indoor`, icon: Home },
-      { label: "Outdoor", href: `${BASE}/outdoor`, icon: TreePine },
-      { label: "Pool", href: `${BASE}/pool-mosaic`, icon: Waves },
-      { label: "Countertop", href: `${BASE}/countertop`, icon: PanelTop },
+      { label: "Kitchen", href: `${BASE}/kitchen`, image: "/images/needs/kitchen.jpg" },
+      { label: "Bathroom", href: `${BASE}/bathroom`, image: "/images/needs/bathrooms.jpg" },
+      { label: "Indoor", href: `${BASE}/indoor`, image: "/images/needs/indoor.jpg" },
+      { label: "Outdoor", href: `${BASE}/outdoor`, image: "/images/needs/outdoors.jpg" },
+      { label: "Pool", href: `${BASE}/pool-mosaic`, image: "/images/needs/pool.jpg" },
+      { label: "Countertop", href: `${BASE}/countertop`, image: "/images/needs/counters.jpg" },
     ],
   },
   {
     title: "Installation Needs",
     itemType: "icon",
     items: [
-      { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", icon: Package },
-      { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", icon: Droplets },
-      { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", icon: PanelTop },
-      { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", icon: LayoutGrid },
-      { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", icon: SprayCan },
+      { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", image: "/images/needs/adhesives.jpg" },
+      { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", image: "/images/needs/grouts.jpg" },
+      { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", image: "/images/needs/trims%20and%20edges.jpg" },
+      { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", image: "/images/needs/tools%20and%20spacers.jpg" },
+      { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", image: "/images/needs/cleaning.jpg" },
     ],
   },
 ];
