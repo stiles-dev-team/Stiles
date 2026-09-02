@@ -12,6 +12,236 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeHtmlEntities } from "../utils/pricingUtils";
 import useIsTouchDevice from "../utils/useIsTouchDevice";
+import { NAV_MENUS } from "../components/navbar-categories";
+
+function MegaMenuItemVisual({ item, itemType }) {
+  if (item.image) {
+    const isNeedImage = itemType === "icon";
+    const sizeClass = isNeedImage ? "h-12 w-12" : "h-8 w-8";
+    const rotateOnHover = !isNeedImage
+      ? " group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
+      : "";
+
+    return (
+      <div className={`flex items-center justify-center ${sizeClass}`}>
+        <img
+          src={item.image}
+          alt={item.label || ""}
+          className={`${sizeClass} object-contain${rotateOnHover}`}
+        />
+      </div>
+    );
+  }
+
+  if (itemType === "icon") {
+    const IconComponent = item.icon;
+    const ExtraIcon = item.extraIcon;
+
+    if (!IconComponent) return null;
+
+    return (
+      <div className="flex h-8 items-center justify-center gap-0.5 text-gray-700">
+        {ExtraIcon && <ExtraIcon size={18} strokeWidth={1.25} />}
+        <IconComponent size={22} strokeWidth={1.25} />
+      </div>
+    );
+  }
+
+  if (itemType === "size") {
+    return (
+      <div className="flex h-8 w-8 items-center justify-center">
+        <svg
+          viewBox="0 0 32 32"
+          className="h-8 w-8 text-gray-600 group-hover:rotate-[360deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out"
+          aria-hidden
+        >
+          <polygon
+            points="16,2 30,16 16,30 2,16"
+            fill="#ffffff"
+            stroke="currentColor"
+            strokeWidth="1.25"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-8 w-8 items-center justify-center">
+      <div
+        className={`h-6 w-6 rotate-45 ${item.swatch} group-hover:rotate-[405deg] group-hover:transition-transform group-hover:duration-500 group-hover:ease-in-out`}
+      />
+    </div>
+  );
+}
+
+function MegaMenuColumn({ column }) {
+  return (
+    <div className="min-w-0 flex-1 border-r border-gray-200 px-2 last:border-r-0">
+      <p className="mb-3 text-center text-[10px] font-semibold tracking-wide text-black">
+        {column.title}
+      </p>
+      <div className="grid grid-cols-3 gap-x-1 gap-y-3">
+        {column.items.map((item) => {
+          const caption = item.label || item.dimension;
+          return (
+            <a
+              key={item.label || item.dimension || item.href}
+              href={item.href}
+              className={`group flex flex-col items-center gap-1 text-center ${item.className || ""}`}
+            >
+              <MegaMenuItemVisual item={item} itemType={column.itemType} />
+              {caption ? (
+                <span className="text-[9px] leading-tight text-gray-600 group-hover:text-gray-900">
+                  {caption}
+                </span>
+              ) : null}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ImageMegaMenu({ isOpen, menu }) {
+  if (!isOpen) return null;
+
+  const section = menu.columns?.[0];
+  if (!section) return null;
+
+  return (
+    <div className={`${menu.dropdownClass} absolute left-0 right-0 top-full z-[999] w-full pt-2`}>
+      <div className="rounded-2xl bg-white px-6 py-8 shadow-lg">
+        <div className="flex flex-nowrap">
+          {section.items.map((item, index) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className={`group flex flex-1 flex-col items-center gap-3 px-3 py-6 text-center ${
+                index < section.items.length - 1 ? "border-r border-gray-200" : ""
+              }`}
+            >
+              <img
+                src={item.image}
+                alt={item.label}
+                className="h-16 w-full max-w-[80px] object-contain"
+              />
+              <span className="text-[10px] font-medium leading-tight tracking-wide text-gray-700 group-hover:text-gray-900">
+                {item.label}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DynamicMegaMenu({ isOpen, menu }) {
+  if (!isOpen || !menu) return null;
+
+  const isImageMenu = (menu.columns || []).some((column) => column.itemType === "image");
+  if (isImageMenu) {
+    return <ImageMegaMenu isOpen={isOpen} menu={menu} />;
+  }
+
+  return (
+    <div className={`${menu.dropdownClass} absolute left-0 right-0 top-full z-[999] w-full pt-2`}>
+      <div className="rounded-2xl bg-white py-8 shadow-lg">
+        <div className="flex flex-nowrap">
+          {(menu.columns || []).map((column) => (
+            <MegaMenuColumn key={column.title} column={column} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function locationSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function groupLocationsByRegion(locations) {
+  return locations.reduce((acc, location) => {
+    if (!acc[location.region]) acc[location.region] = [];
+    acc[location.region].push(location);
+    return acc;
+  }, {});
+}
+
+// --- Pill nav styles ---
+const pillContainerClass =
+  "rounded-2xl bg-white px-3 xl:px-5 py-2.5 backdrop-blur-sm shadow-sm";
+const navLinkClass =
+  "shrink-0 whitespace-nowrap rounded-full px-1.5 py-1.5 xl:px-2.5 text-xs font-medium text-gray-900 hover:text-gray-600 transition-colors";
+const navDropdownClass =
+  "flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-gray-900 hover:text-gray-600 cursor-pointer";
+
+function PillDropdownPanel({ isOpen, className = "", children }) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className={`absolute left-0 right-0 top-full z-[999] w-full pt-2 ${className}`}
+    >
+      <div className="rounded-2xl bg-white p-6 shadow-lg">{children}</div>
+    </div>
+  );
+}
+
+function ContactDropdown({ isOpen, locations }) {
+  if (!isOpen) return null;
+
+  const byRegion = groupLocationsByRegion(locations);
+
+  return (
+    <PillDropdownPanel isOpen className="contact-dropdown">
+      <div className="grid grid-cols-3 gap-8">
+        {Object.entries(byRegion).map(([region, locationsList]) => (
+          <div key={region}>
+            <p className="mb-3 text-sm font-bold text-gray-900">{region}</p>
+            <div className="flex flex-col gap-2">
+              {locationsList.map((location) => (
+                <a
+                  key={location.title}
+                  href={`/contact/${locationSlug(location.title)}`}
+                  className="text-sm text-gray-500 hover:text-gray-900"
+                >
+                  {location.title}
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </PillDropdownPanel>
+  );
+}
+
+function NavDropdownTrigger({ children, onMouseEnter, onClick, className = "", isOpen = false }) {
+  return (
+    <button
+      type="button"
+      onMouseEnter={onMouseEnter}
+      onClick={onClick}
+      className={`${navDropdownClass} rounded-full px-1.5 py-1.5 xl:px-2.5 ${
+        isOpen ? "bg-gray-100" : ""
+      } ${className}`}
+    >
+      {children}
+      <IoChevronDown
+        size={12}
+        className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+      />
+    </button>
+  );
+}
 
 function Icon({ id, open }) {
   return (
@@ -31,6 +261,89 @@ function Icon({ id, open }) {
         d="M19.5 8.25l-7.5 7.5-7.5-7.5"
       />
     </svg>
+  );
+}
+
+function getMegaMenuItemLabel(item) {
+  return item.label || item.dimension || "";
+}
+
+function MobileMegaMenuAccordion({
+  menu,
+  label,
+  href,
+  accordionId,
+  open,
+  onToggle,
+  openSection,
+  onSectionToggle,
+  flatten = false,
+}) {
+  const flatItems = flatten
+    ? menu.flatMap((column) => column.items)
+    : [];
+
+  return (
+    <Accordion
+      className="w-full px-5 border-b border-b-gray-300 relative"
+      open={open === accordionId}
+    >
+      <MobileNavHeader
+        href={href}
+        label={label}
+        id={accordionId}
+        open={open}
+        onToggle={onToggle}
+        className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
+      />
+      <AccordionBody className="py-0 pb-2">
+        {flatten ? (
+          <div className="flex flex-col gap-1 pl-4">
+            {flatItems.map((item) => (
+              <a
+                key={`${item.href}-${getMegaMenuItemLabel(item)}`}
+                href={item.href}
+                className="text-sm text-dark hover:text-dark py-1"
+              >
+                {getMegaMenuItemLabel(item)}
+              </a>
+            ))}
+          </div>
+        ) : (
+          menu.map((column) => {
+            const sectionKey = `${accordionId}-${column.title}`;
+            return (
+              <Accordion
+                key={column.title}
+                open={openSection === sectionKey}
+                className="w-full"
+              >
+                <MobileNavHeader
+                  label={column.title}
+                  id={sectionKey}
+                  open={openSection}
+                  onToggle={onSectionToggle}
+                  className="text-sm py-2 font-medium border-none"
+                />
+                <AccordionBody className="py-1">
+                  <div className="flex flex-col gap-1 pl-4">
+                    {column.items.map((item) => (
+                      <a
+                        key={`${item.href}-${getMegaMenuItemLabel(item)}`}
+                        href={item.href}
+                        className="text-sm text-dark hover:text-dark py-1"
+                      >
+                        {getMegaMenuItemLabel(item)}
+                      </a>
+                    ))}
+                  </div>
+                </AccordionBody>
+              </Accordion>
+            );
+          })
+        )}
+      </AccordionBody>
+    </Accordion>
   );
 }
 
@@ -66,9 +379,7 @@ const Navbar = () => {
   const isTouchDevice = useIsTouchDevice();
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
-  const [showTiles, setShowTiles] = useState(false);
-  const [showSanware, setShowSanware] = useState(false);
-  const [showFlooring, setShowFlooring] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [showBrands, setShowBrands] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [subMenu, setSubMenu] = useState("");
@@ -80,15 +391,12 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
-  const [data, setData] = useState([]);
+  const navMenus = NAV_MENUS;
   const [brands, setBrands] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState(null);
   const [openBrandSection, setOpenBrandSection] = useState(null);
-  const [openTilesSection, setOpenTilesSection] = useState(null);
-  const [openSanwareSection, setOpenSanwareSection] = useState(null);
-  const [openFlooringSection, setOpenFlooringSection] = useState(null);
-  const [parentCategories, setParentCategories] = useState([]);
+  const [openMegaMenuSection, setOpenMegaMenuSection] = useState(null);
 
   const categorizedBrands = {
     "A-C": brands.filter((brand) => /^[A-C]/i.test(brand)),
@@ -98,27 +406,13 @@ const Navbar = () => {
     "S-Z": brands.filter((brand) => /^[S-Z]/i.test(brand)),
   };
 
-  const handleOpen = (value) => setOpen(open === value ? 0 : value);
+  const handleOpen = (value) => setOpen(open === value ? null : value);
   const handleBrandSectionOpen = (value) =>
     setOpenBrandSection(openBrandSection === value ? null : value);
-  const handleTilesSectionOpen = (value) =>
-    setOpenTilesSection(openTilesSection === value ? null : value);
-  const handleSanwareSectionOpen = (value) =>
-    setOpenSanwareSection(openSanwareSection === value ? null : value);
-  const handleFlooringSectionOpen = (value) =>
-    setOpenFlooringSection(openFlooringSection === value ? null : value);
+  const handleMegaMenuSectionOpen = (value) =>
+    setOpenMegaMenuSection(openMegaMenuSection === value ? null : value);
 
   useEffect(() => {
-    // Fetch categories
-    fetch("/data/navbar-categories.json")
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        // Extract parent categories (those with parent = 0)
-        const parents = data.filter(category => category.parent === 0);
-        setParentCategories(parents);
-      });
-
     // Fetch brands from API
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-brands.php`)
       .then((response) => response.json())
@@ -202,36 +496,53 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const closeAllDropdowns = () => {
+    setShowBrands(false);
+    setOpenMenuId(null);
+    setShowContact(false);
+    setOpenBrandSection(null);
+    setOpenMegaMenuSection(null);
+  };
+
+  const openDropdown = (menu) => {
+    closeAllDropdowns();
+    if (menu === "brands") setShowBrands(true);
+    else if (menu === "contact") setShowContact(true);
+    else setOpenMenuId(menu);
+  };
+
   // Add click outside handlers
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const tilesDropdown = document.querySelector(".tiles-dropdown");
-      const tilesButton = event.target.closest(".tiles-button");
+      const brandsDropdown = document.querySelector(".brands-dropdown");
+      const brandsButton = event.target.closest(".brands-button");
 
-      if (showTiles && !tilesDropdown?.contains(event.target) && !tilesButton) {
-        setShowTiles(false);
+      if (showBrands && !brandsDropdown?.contains(event.target) && !brandsButton) {
+        setShowBrands(false);
       }
 
-      const sanwareDropdown = document.querySelector(".sanware-dropdown");
-      const sanwareButton = event.target.closest(".sanware-button");
+      navMenus.forEach((menu) => {
+        if (!menu.dropdownClass || !menu.buttonClass) return
+        const dropdown = document.querySelector(`.${menu.dropdownClass}`);
+        const button = event.target.closest(`.${menu.buttonClass}`);
+        if (
+          openMenuId === menu.id &&
+          !dropdown?.contains(event.target) &&
+          !button
+        ) {
+          setOpenMenuId(null);
+        }
+      });
+
+      const contactDropdown = document.querySelector(".contact-dropdown");
+      const contactButton = event.target.closest(".contact-button");
 
       if (
-        showSanware &&
-        !sanwareDropdown?.contains(event.target) &&
-        !sanwareButton
+        showContact &&
+        !contactDropdown?.contains(event.target) &&
+        !contactButton
       ) {
-        setShowSanware(false);
-      }
-
-      const flooringDropdown = document.querySelector(".flooring-dropdown");
-      const flooringButton = event.target.closest(".flooring-button");
-
-      if (
-        showFlooring &&
-        !flooringDropdown?.contains(event.target) &&
-        !flooringButton
-      ) {
-        setShowFlooring(false);
+        setShowContact(false);
       }
     };
 
@@ -239,7 +550,7 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showTiles, showSanware, showFlooring]);
+  }, [showBrands, openMenuId, showContact, navMenus]);
 
   return (
     <>
@@ -320,437 +631,171 @@ const Navbar = () => {
           </div>
         </div>
       )}
-      <nav className="w-full absolute top-0 left-0 py-3 lg:py-5 z-50">
-        <div className="container mx-auto px-4 flex flex-row justify-between items-center gap-5">
-          <a href="/">
-            <img src="/images/logo_white.png" alt="" className="h-12 lg:h-16" />
-          </a>
-          <div className="lg:flex flex-row justify-end items-center lg:gap-5 xl:gap-7 hidden">
+      <nav className="w-full fixed top-0 left-0 right-0 z-50">
+        {/* Mobile pill nav bar */}
+        <div className="nav:hidden py-3">
+          <div className="container mx-auto px-4">
             <div
-              className="relative"
-              onMouseLeave={() => {
-                setShowBrands(false);
-                setOpenBrandSection(null);
-              }}
+              className={`flex w-full items-center justify-between ${pillContainerClass}`}
             >
-              <a
-                onMouseEnter={() => setShowBrands(true)}
-                className="text-white font-medium"
+              <a href="/" className="shrink-0">
+                {/* <img src="/images/logo.png" alt="Stiles" className="h-12" /> */}
+                <img src="/images/logo-black.png" alt="Stiles" className="h-12" />
+              </a>
+              <button
+                onClick={() => setShowMenu(true)}
+                className="text-gray-900 p-1"
+                aria-label="Open menu"
+              >
+                <IoMenu size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop pill menu */}
+        <div className="hidden nav:block py-5">
+          <div className="mx-auto w-full max-w-[1440px] px-3 xl:px-4">
+            <div
+              className={`relative flex w-full items-center gap-3 xl:gap-6 ${pillContainerClass}`}
+              onMouseLeave={closeAllDropdowns}
+            >
+              <a href="/" className="shrink-0">
+                {/* <img src="/images/logo.png" alt="Stiles" className="h-12 xl:h-14" /> */}
+                <img src="/images/logo-black.png" alt="Stiles" className="h-12" />
+              </a>
+
+              <div className="flex min-w-0 flex-1 items-center">
+            <div className="flex flex-nowrap items-center gap-2 xl:gap-4 2xl:gap-8">
+              {/* <NavDropdownTrigger
+                onMouseEnter={() => openDropdown("brands")}
+                onClick={() =>
+                  isTouchDevice
+                    ? showBrands
+                      ? closeAllDropdowns()
+                      : openDropdown("brands")
+                    : undefined
+                }
+                className="brands-button"
+                isOpen={showBrands}
               >
                 Brands
-              </a>
-              <div
-                className={`absolute top-6 left-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 ${
-                  showBrands ? "flex" : "hidden"
-                }`}
-              >
-                {Object.entries(categorizedBrands).map(
-                  ([range, brandList]) =>
-                    brandList.length > 0 && (
-                      <Accordion
-                        key={range}
-                        open={openBrandSection === range}
-                        className="w-full border-b border-b-gray-200"
-                        icon={<Icon id={range} open={openBrandSection} />}
-                      >
-                        <AccordionHeader
-                          onClick={() => handleBrandSectionOpen(range)}
-                          className="text-xs py-2 font-bold border-none flex justify-between items-center"
-                        >
-                          Brands {range}
-                        </AccordionHeader>
-                        <AccordionBody className="py-1">
-                          <div className="flex flex-col gap-1">
-                            {brandList.map((brand) => (
-                              <a
-                                key={brand}
-                                href={`/product-category/brands/${brand}`}
-                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                              >
-                                {decodeHtmlEntities(brand)}
-                              </a>
-                            ))}
-                          </div>
-                        </AccordionBody>
-                      </Accordion>
-                    )
-                )}
-              </div>
-            </div>
-            <div
-              className="relative"
-              onMouseLeave={() => {
-                setShowTiles(false);
-                setOpenTilesSection(null);
-              }}
-            >
-              <p
-                onMouseEnter={() => setShowTiles(true)}
-                onClick={() => isTouchDevice ? setShowTiles(!showTiles) : window.location.href = "/product-category/tiles"}
-                className="text-white font-medium cursor-pointer tiles-button"
-              >
-                Tiles
-              </p>
-              <div
-                className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] tiles-dropdown ${
-                  showTiles ? "flex" : "hidden"
-                }`}
-              >
-                {data
-                  ?.filter((item) => {
-                    const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
-                    return tilesParent ? item.parent === tilesParent.term_id : false;
-                  })
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => {
-                    // Check if the item has subcategories
-                    const hasSubcategories = data?.some(
-                      (subItem) => subItem.parent === item.term_id
-                    );
+              </NavDropdownTrigger> */}
 
-                    if (hasSubcategories) {
-                      return (
-                        <Accordion
-                          key={item.term_id}
-                          open={openTilesSection === item.term_id}
-                          className="w-full border-b border-b-gray-200"
-                          icon={
-                            <Icon id={item.term_id} open={openTilesSection} />
-                          }
-                        >
-                          <AccordionHeader
-                            onClick={() => handleTilesSectionOpen(item.term_id)}
-                            className="text-xs py-2 font-bold border-none flex justify-between items-center text-dark"
-                          >
-                            {item.name}
-                          </AccordionHeader>
-                          <AccordionBody className="py-1">
-                            <div className="flex flex-col gap-1">
-                              {data
-                                ?.filter(
-                                  (subItem) => subItem.parent === item.term_id
-                                )
-                                .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((subItem) => (
-                                  <a
-                                    key={subItem.term_id}
-                                    href={`/product-category/tiles/${item.slug}/${subItem.slug}`}
-                                    className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                                  >
-                                    {subItem.name}
-                                  </a>
-                                ))}
-                              <a
-                                href={`/product-category/tiles/${item.slug}`}
-                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                              >
-                                See all {item.name}
-                              </a>
-                            </div>
-                          </AccordionBody>
-                        </Accordion>
-                      );
-                    } else {
-                      return (
-                        <a
-                          key={item.term_id}
-                          href={`/product-category/tiles/${item.slug}`}
-                          className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
-                        >
-                          {item.name}
-                        </a>
-                      );
-                    }
-                  })}
-                <a
-                  href={`/product-category/tiles`}
-                  className="text-xs py-2 font-bold text-dark w-full"
-                >
-                  See all Tiles
-                </a>
-              </div>
-            </div>
-            <div
-              className="relative"
-              onMouseLeave={() => {
-                setShowSanware(false);
-                setOpenSanwareSection(null);
-              }}
-            >
-              <p
-                onMouseEnter={() => setShowSanware(true)}
-                onClick={() => isTouchDevice ? setShowSanware(!showSanware) : window.location.href = "/product-category/sanitary-ware"}
-                className="text-white font-medium cursor-pointer sanware-button"
-              >
-                Sanware
-              </p>
-              <div
-                className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] sanware-dropdown ${
-                  showSanware ? "flex" : "hidden"
-                }`}
-              >
-                {data
-                  ?.filter((item) => {
-                    const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
-                    return sanwareParent ? item.parent === sanwareParent.term_id : false;
-                  })
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => {
-                    // Check if the item has subcategories
-                    const hasSubcategories = data?.some(
-                      (subItem) => subItem.parent === item.term_id
-                    );
 
-                    if (hasSubcategories) {
-                      return (
-                        <Accordion
-                          key={item.term_id}
-                          open={openSanwareSection === item.term_id}
-                          className="w-full border-b border-b-gray-200"
-                          icon={
-                            <Icon id={item.term_id} open={openSanwareSection} />
-                          }
-                        >
-                          <AccordionHeader
-                            onClick={() =>
-                              handleSanwareSectionOpen(item.term_id)
-                            }
-                            className="text-xs py-2 font-bold border-none text-dark flex justify-between items-center"
-                          >
-                            {item.name}
-                          </AccordionHeader>
-                          <AccordionBody className="py-1">
-                            <div className="flex flex-col gap-1">
-                              {data
-                                ?.filter(
-                                  (subItem) => subItem.parent === item.term_id
-                                )
-                                .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((subItem) => (
-                                  <a
-                                    key={subItem.term_id}
-                                    href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`}
-                                    className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                                  >
-                                    {subItem.name}
-                                  </a>
-                                ))}
-                              <a
-                                href={`/product-category/sanitary-ware/${item.slug}`}
-                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                              >
-                                See all {item.name}
-                              </a>
-                            </div>
-                          </AccordionBody>
-                        </Accordion>
-                      );
-                    } else {
-                      return (
-                        <a
-                          key={item.term_id}
-                          href={`/product-category/sanitary-ware/${item.slug}`}
-                          className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
-                        >
-                          {item.name}
-                        </a>
-                      );
-                    }
-                  })}
-                <a
-                  href={`/product-category/sanitary-ware`}
-                  className="text-xs py-2 font-bold text-dark w-full"
+              {navMenus.map((menu) => (
+                <NavDropdownTrigger
+                  key={menu.id}
+                  onMouseEnter={() => openDropdown(menu.id)}
+                  onClick={() =>
+                    isTouchDevice
+                      ? openMenuId === menu.id
+                        ? closeAllDropdowns()
+                        : openDropdown(menu.id)
+                      : (window.location.href = menu.href)
+                  }
+                  className={menu.buttonClass}
+                  isOpen={openMenuId === menu.id}
                 >
-                  See all Sanware
-                </a>
-              </div>
-            </div>
-            <div
-              className="relative"
-              onMouseLeave={() => {
-                setShowFlooring(false);
-                setOpenFlooringSection(null);
-              }}
-            >
-              <p
-                onMouseEnter={() => setShowFlooring(true)}
-                onClick={() => isTouchDevice ? setShowFlooring(!showFlooring) : window.location.href = "/product-category/flooring"}
-                className="text-white font-medium cursor-pointer flooring-button"
+                  {menu.label}
+                </NavDropdownTrigger>
+              ))}
+
+              {/* <NavDropdownTrigger
+                onMouseEnter={() => openDropdown("flooring")}
+                onClick={() =>
+                  isTouchDevice
+                    ? showFlooring
+                      ? closeAllDropdowns()
+                      : openDropdown("flooring")
+                    : (window.location.href = "/product-category/flooring")
+                }
+                className="flooring-button"
+                isOpen={showFlooring}
               >
                 Flooring
-              </p>
-              <div
-                className={`absolute top-6 left-0 bg-white p-5 pb-2 flex-col justify-start items-start gap-3 w-72 shadow-lg z-[999] flooring-dropdown ${
-                  showFlooring ? "flex" : "hidden"
-                }`}
-              >
-                {data
-                  ?.filter((item) => {
-                    const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
-                    return flooringParent ? item.parent === flooringParent.term_id : false;
-                  })
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((item, index) => {
-                    // Check if the item has subcategories
-                    const hasSubcategories = data?.some(
-                      (subItem) => subItem.parent === item.term_id
-                    );
+              </NavDropdownTrigger> */}
 
-                    if (hasSubcategories) {
-                      return (
-                        <Accordion
-                          key={item.term_id}
-                          open={openFlooringSection === item.term_id}
-                          className="w-full border-b border-b-gray-200"
-                          icon={
-                            <Icon
-                              id={item.term_id}
-                              open={openFlooringSection}
-                            />
-                          }
-                        >
-                          <AccordionHeader
-                            onClick={() =>
-                              handleFlooringSectionOpen(item.term_id)
-                            }
-                            className="text-xs py-2 font-bold text-dark border-none flex justify-between items-center"
-                          >
-                            {item.name}
-                          </AccordionHeader>
-                          <AccordionBody className="py-1">
-                            <div className="flex flex-col gap-1">
-                              {data
-                                ?.filter(
-                                  (subItem) => subItem.parent === item.term_id
-                                )
-                                .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((subItem) => (
-                                  <a
-                                    key={subItem.term_id}
-                                    href={`/product-category/flooring/${item.slug}/${subItem.slug}`}
-                                    className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                                  >
-                                    {subItem.name}
-                                  </a>
-                                ))}
-                              <a
-                                href={`/product-category/flooring/${item.slug}`}
-                                className="text-xs font-medium text-gray-400 hover:text-dark py-1"
-                              >
-                                See all {item.name}
-                              </a>
-                            </div>
-                          </AccordionBody>
-                        </Accordion>
-                      );
-                    } else {
-                      return (
-                        <a
-                          key={item.term_id}
-                          href={`/product-category/flooring/${item.slug}`}
-                          className="text-xs py-2 font-bold text-dark w-full border-b border-b-gray-200"
-                        >
-                          {item.name}
-                        </a>
-                      );
-                    }
-                  })}
-                <a
-                  href={`/product-category/flooring`}
-                  className="text-xs py-2 font-bold text-dark w-full"
-                >
-                  See all Flooring
-                </a>
-              </div>
-            </div>
-            <a href="/calore-kamado-jan/" className="text-white font-medium">
-              Fireplaces
-            </a>
-            {/* <a href="/promos" className='text-white font-medium'>Promos</a> */}
-            <div
-              className="relative"
-              onMouseLeave={() => setShowContact(false)}
-            >
+              <a href="/calore-kamado-jan/" className={navLinkClass}>
+                Fireplaces
+              </a>
+
               <a
-                href="/contact-us"
-                className="text-white font-medium cursor-pointer"
-                onMouseEnter={() => setShowContact(true)}
+                href="javascript: roomvo.startStandaloneVisualizer();"
+                className={navLinkClass}
+              >
+                Tile Visualizer
+              </a>
+
+              <NavDropdownTrigger
+                onMouseEnter={() => openDropdown("contact")}
+                onClick={() =>
+                  isTouchDevice
+                    ? showContact
+                      ? closeAllDropdowns()
+                      : openDropdown("contact")
+                    : (window.location.href = "/contact-us")
+                }
+                className="contact-button"
+                isOpen={showContact}
               >
                 Contact Us
-              </a>
-              <div
-                className={`absolute top-6 right-0 bg-white p-5 flex-col justify-start items-start gap-3 w-72 ${
-                  showContact ? "flex" : "hidden"
-                }`}
-              >
-                {Object.entries(
-                  locations.reduce((acc, location) => {
-                    if (!acc[location.region]) {
-                      acc[location.region] = [];
-                    }
-                    acc[location.region].push(location);
-                    return acc;
-                  }, {})
-                ).map(([region, locationsList]) => (
-                  <div key={region} className="w-full mb-3 last:mb-0">
-                    <p className="text-sm font-bold mb-2">{region}</p>
-                    <div className="flex flex-col gap-2">
-                      {locationsList.map((location) => (
-                        <a
-                          key={location.title}
-                          href={`/contact/${location.title
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")
-                            .replace(/-+/g, "-")
-                            .replace(/^-|-$/g, "")}`}
-                          className="text-sm text-gray-400 hover:text-dark transition-colors"
-                        >
-                          {location.title}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              </NavDropdownTrigger>
             </div>
-            <a
-              href="javascript: roomvo.startStandaloneVisualizer();"
-              className="text-white font-medium cursor-pointer"
-            >
-              Tile Visualizer
-            </a>
-            <div className="flex items-center gap-4">
+
+            <div className="ml-auto flex shrink-0 items-center gap-3 xl:gap-5">
+              <div className="flex items-center gap-2.5 xl:gap-3">
+                <button
+                  onClick={() => {
+                    setShowSearch(true);
+                    document.getElementById("search-input-navbar").focus();
+                  }}
+                  className="text-gray-900 hover:text-gray-600"
+                  aria-label="Search"
+                >
+                  <IoSearch size={18} />
+                </button>
+                <a href="/wishlist" className="text-gray-900 hover:text-gray-600">
+                  <FaHeart size={16} />
+                </a>
+                {cartCount > 0 ? (
+                  <a href="/cart" className="relative flex items-center text-gray-900">
+                    <Badge color="red">
+                      <FaCartShopping size={16} />
+                    </Badge>
+                  </a>
+                ) : (
+                  <a href="/cart" className="text-gray-900 hover:text-gray-600">
+                    <FaCartShopping size={16} />
+                  </a>
+                )}
+              </div>
+
               {isAuthenticated ? (
                 <div className="relative group">
-                  <button className="text-white flex items-center gap-2 py-2">
-                    <FaUser size={18} />
-                    <span className="text-sm">{user.firstName}</span>
+                  <button
+                    className="flex items-center gap-2 whitespace-nowrap rounded-full border border-gray-900 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 xl:px-4"
+                    aria-label={user.firstName || "Account"}
+                  >
+                    <FaUser size={14} />
+                    <span className="uppercase">{(user.firstName || "?").charAt(0)}</span>
                   </button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-white py-2 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <div className="py-1">
-                      <a
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
+                      <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Profile
                       </a>
-                      <a
-                        href="/orders"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
+                      <a href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Orders
                       </a>
                       {isAdmin && (
-                        <a
-                          href="/admin"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
+                        <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                           Admin
                         </a>
                       )}
                       <button
                         onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Logout
                       </button>
@@ -758,56 +803,193 @@ const Navbar = () => {
                   </div>
                 </div>
               ) : (
-                <a href="/login" className="text-white">
-                  <FaUser size={20} />
+                <a
+                  href="/login"
+                  className="whitespace-nowrap rounded-full border border-gray-900 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-50 xl:px-4"
+                >
+                  Login
                 </a>
               )}
-              <button
-                onClick={() => {
-                  setShowSearch(true);
-                  document.getElementById("search-input-navbar").focus();
-                }}
-                className="text-white"
+
+              {/* <a
+                href="/shop"
+                className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
               >
-                <IoSearch size={20} />
-              </button>
-              <a href="/wishlist" className="text-white relative">
-                <FaHeart size={20} />
+                Shop
+              </a> */}
+            </div>
+
+            {/* --- Full-width pill dropdowns --- */}
+            {/* <PillDropdownPanel isOpen={showBrands} className="brands-dropdown">
+              <div className="grid grid-cols-5 gap-6">
+                {Object.entries(categorizedBrands).map(
+                  ([range, brandList]) =>
+                    brandList.length > 0 && (
+                      <div key={range}>
+                        <p className="mb-3 text-xs font-bold text-gray-400">
+                          Brands {range}
+                        </p>
+                        <div className="flex flex-col gap-1">
+                          {brandList.map((brand) => (
+                            <a
+                              key={brand}
+                              href={`/product-category/brands/${brand}`}
+                              className="text-sm text-gray-600 hover:text-gray-900"
+                            >
+                              {decodeHtmlEntities(brand)}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                )}
+              </div>
+            </PillDropdownPanel> */}
+
+            {/* <PillDropdownPanel isOpen={showTiles} className="tiles-dropdown">
+              <div className="grid grid-cols-3 gap-6">
+                {data
+                  ?.filter((item) => {
+                    const tilesParent = parentCategories.find((p) =>
+                      p.name.toLowerCase().includes("tile")
+                    );
+                    return tilesParent ? item.parent === tilesParent.term_id : false;
+                  })
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item) => {
+                    const hasSubcategories = data?.some(
+                      (subItem) => subItem.parent === item.term_id
+                    );
+
+                    if (hasSubcategories) {
+                      return (
+                        <div key={item.term_id}>
+                          <a
+                            href={`/product-category/tiles/${item.slug}`}
+                            className="mb-2 block text-sm font-semibold text-gray-900"
+                          >
+                            {item.name}
+                          </a>
+                          <div className="flex flex-col gap-1">
+                            {data
+                              ?.filter((subItem) => subItem.parent === item.term_id)
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((subItem) => (
+                                <a
+                                  key={subItem.term_id}
+                                  href={`/product-category/tiles/${item.slug}/${subItem.slug}`}
+                                  className="text-sm text-gray-500 hover:text-gray-900"
+                                >
+                                  {subItem.name}
+                                </a>
+                              ))}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <a
+                        key={item.term_id}
+                        href={`/product-category/tiles/${item.slug}`}
+                        className="text-sm font-semibold text-gray-900 hover:text-gray-600"
+                      >
+                        {item.name}
+                      </a>
+                    );
+                  })}
+              </div>
+              <a
+                href="/product-category/tiles"
+                className="mt-6 inline-block text-sm font-semibold text-gray-900"
+              >
+                See all Tiles
               </a>
-              {cartCount > 0 ? (
-                <a
-                  href="/cart"
-                  className="relative flex justify-center items-center"
-                >
-                  <Badge color="red">
-                    <FaCartShopping fill="white" size={20} />
-                  </Badge>
-                </a>
-              ) : (
-                <a
-                  href="/cart"
-                  className="relative flex justify-center items-center"
-                >
-                  <FaCartShopping fill="white" size={18} />
-                </a>
-              )}
+            </PillDropdownPanel> */}
+
+            {/* <PillDropdownPanel isOpen={showSanware} className="sanware-dropdown">
+              <div className="grid grid-cols-3 gap-6">
+                {data
+                  ?.filter((item) => {
+                    const sanwareParent = parentCategories.find((p) =>
+                      p.name.toLowerCase().includes("sanitary")
+                    );
+                    return sanwareParent ? item.parent === sanwareParent.term_id : false;
+                  })
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((item) => {
+                    const hasSubcategories = data?.some(
+                      (subItem) => subItem.parent === item.term_id
+                    );
+
+                    if (hasSubcategories) {
+                      return (
+                        <div key={item.term_id}>
+                          <a
+                            href={`/product-category/sanitary-ware/${item.slug}`}
+                            className="mb-2 block text-sm font-semibold text-gray-900"
+                          >
+                            {item.name}
+                          </a>
+                          <div className="flex flex-col gap-1">
+                            {data
+                              ?.filter((subItem) => subItem.parent === item.term_id)
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((subItem) => (
+                                <a
+                                  key={subItem.term_id}
+                                  href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`}
+                                  className="text-sm text-gray-500 hover:text-gray-900"
+                                >
+                                  {subItem.name}
+                                </a>
+                              ))}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <a
+                        key={item.term_id}
+                        href={`/product-category/sanitary-ware/${item.slug}`}
+                        className="text-sm font-semibold text-gray-900 hover:text-gray-600"
+                      >
+                        {item.name}
+                      </a>
+                    );
+                  })}
+              </div>
+              <a
+                href="/product-category/sanitary-ware"
+                className="mt-6 inline-block text-sm font-semibold text-gray-900"
+              >
+                See all Sanware
+              </a>
+            </PillDropdownPanel> */}
+
+            {navMenus.map((menu) => (
+              <DynamicMegaMenu
+                key={menu.id}
+                isOpen={openMenuId === menu.id}
+                menu={menu}
+              />
+            ))}
+            <ContactDropdown isOpen={showContact} locations={locations} />
+              </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowMenu(true)}
-            className="lg:hidden text-white"
-          >
-            <IoMenu size={24} />
-          </button>
         </div>
       </nav>
+
+      {/* Mobile menu */}
       <div
-        className={`w-10/12 h-lvh bg-white fixed top-0 z-[90] lg:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
-          showMenu ? "right-0" : "-right-full"
+        className={`w-10/12 h-lvh bg-white fixed top-0 right-0 z-[90] nav:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
+          showMenu ? "translate-x-0" : "translate-x-full"
         }`}
         id="navbar-mobile-menu"
       >
-        <div className="w-full py-5 z-50 flex justify-end items-center px-4">
+        <div className="sticky top-0 z-10 w-full bg-white px-4 py-3 flex justify-end items-center border-b border-b-gray-300">
           <IoClose
             stroke="black"
             size={30}
@@ -819,7 +1001,8 @@ const Navbar = () => {
             Home
           </a>
         </div>
-        <Accordion
+        {/* Brand */}
+        {/* <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
           open={open === 4}
         >
@@ -863,244 +1046,24 @@ const Navbar = () => {
                 )
             )}
           </AccordionBody>
-        </Accordion>
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 1}
-        >
-          <MobileNavHeader
-            href="/product-category/tiles"
-            label="Tiles"
-            id={1}
+        </Accordion> */}
+
+        {navMenus.map((menu) => (
+          <MobileMegaMenuAccordion
+            key={menu.id}
+            menu={menu.columns || []}
+            label={menu.label}
+            href={menu.mobileHref || menu.href}
+            accordionId={menu.id}
             open={open}
             onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
+            openSection={openMegaMenuSection}
+            onSectionToggle={handleMegaMenuSectionOpen}
+            flatten={Boolean(menu.flatten)}
           />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const tilesParent = parentCategories.find(p => p.name.toLowerCase().includes('tile'));
-                return tilesParent ? item.parent === tilesParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
+        ))}
 
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openTilesSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/tiles/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openTilesSection}
-                        onToggle={handleTilesSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/tiles/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/tiles/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/tiles/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 2}
-        >
-          <MobileNavHeader
-            href="/product-category/sanitary-ware"
-            label="Sanware"
-            id={2}
-            open={open}
-            onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-          />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const sanwareParent = parentCategories.find(p => p.name.toLowerCase().includes('sanitary'));
-                return sanwareParent ? item.parent === sanwareParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
-
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openSanwareSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/sanitary-ware/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openSanwareSection}
-                        onToggle={handleSanwareSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/sanitary-ware/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/sanitary-ware/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/sanitary-ware/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
-        <Accordion
-          className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 3}
-        >
-          <MobileNavHeader
-            href="/product-category/flooring"
-            label="Flooring"
-            id={3}
-            open={open}
-            onToggle={handleOpen}
-            className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
-          />
-          <AccordionBody className="py-0 pb-2">
-            {data
-              ?.filter((item) => {
-                const flooringParent = parentCategories.find(p => p.name.toLowerCase().includes('flooring'));
-                return flooringParent ? item.parent === flooringParent.term_id : false;
-              })
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((item, index) => {
-                const hasSubcategories = data?.some(
-                  (subItem) => subItem.parent === item.term_id
-                );
-
-                if (hasSubcategories) {
-                  return (
-                    <Accordion
-                      key={item.term_id}
-                      open={openFlooringSection === item.term_id}
-                      className="w-full"
-                    >
-                      <MobileNavHeader
-                        href={`/product-category/flooring/${item.slug}`}
-                        label={item.name}
-                        id={item.term_id}
-                        open={openFlooringSection}
-                        onToggle={handleFlooringSectionOpen}
-                        className="text-sm py-2 font-medium border-none"
-                      />
-                      <AccordionBody className="py-1">
-                        <div className="flex flex-col gap-1 pl-4">
-                          {data
-                            ?.filter(
-                              (subItem) => subItem.parent === item.term_id
-                            )
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subItem) => (
-                              <a
-                                key={subItem.term_id}
-                                href={`/product-category/flooring/${item.slug}/${subItem.slug}`}
-                                className="text-sm text-dark hover:text-dark py-1"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          <a
-                            href={`/product-category/flooring/${item.slug}`}
-                            className="text-sm text-dark hover:text-dark py-1"
-                          >
-                            See all {item.name}
-                          </a>
-                        </div>
-                      </AccordionBody>
-                    </Accordion>
-                  );
-                } else {
-                  return (
-                    <a
-                      key={item.term_id}
-                      href={`/product-category/flooring/${item.slug}`}
-                      className="text-sm text-dark hover:text-dark py-2 block"
-                    >
-                      {item.name}
-                    </a>
-                  );
-                }
-              })}
-          </AccordionBody>
-        </Accordion>
+        {/* Fireplace */}
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">
           <a href="/calore-kamado-jan/" className="text-sm font-bold text-dark">
             Fireplaces
@@ -1114,45 +1077,35 @@ const Navbar = () => {
       </div> */}
         <Accordion
           className="w-full px-5 border-b border-b-gray-300 relative"
-          open={open === 5}
+          open={open === "contact"}
         >
           <MobileNavHeader
             href="/contact-us"
             label="Contact Us"
-            id={5}
+            id="contact"
             open={open}
             onToggle={handleOpen}
             className="text-sm font-bold w-full flex flex-row justify-between items-center gap-2 border-none py-3.5 text-dark"
           />
           <AccordionBody className="py-0 pb-2">
-            {Object.entries(
-              locations.reduce((acc, location) => {
-                if (!acc[location.region]) {
-                  acc[location.region] = [];
-                }
-                acc[location.region].push(location);
-                return acc;
-              }, {})
-            ).map(([region, locationsList]) => (
-              <div key={region} className="w-full mb-3 last:mb-0">
-                <p className="text-sm font-bold mb-2">{region}</p>
-                <div className="flex flex-col gap-2 pl-4">
-                  {locationsList.map((location) => (
-                    <a
-                      key={location.title}
-                      href={`/contact/${location.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, "-")
-                        .replace(/-+/g, "-")
-                        .replace(/^-|-$/g, "")}`}
-                      className="text-sm text-dark hover:text-dark"
-                    >
-                      {location.title}
-                    </a>
-                  ))}
+            {Object.entries(groupLocationsByRegion(locations)).map(
+              ([region, locationsList]) => (
+                <div key={region} className="w-full mb-3 last:mb-0">
+                  <p className="text-sm font-bold mb-2">{region}</p>
+                  <div className="flex flex-col gap-2 pl-4">
+                    {locationsList.map((location) => (
+                      <a
+                        key={location.title}
+                        href={`/contact/${locationSlug(location.title)}`}
+                        className="text-sm text-dark hover:text-dark"
+                      >
+                        {location.title}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </AccordionBody>
         </Accordion>
         <div className="w-full px-5 py-3.5 border-b border-b-gray-300 relative">

@@ -24,6 +24,15 @@ const sanitizeAttributeList = (value) => {
   return parts.map(sanitizeFilterValue).filter(Boolean);
 };
 
+const emptyUpdateFields = () => ({
+  product_category: [],
+  product_tag: "",
+  "attribute:pa_colour": [],
+  "attribute:pa_finish": [],
+  "attribute:pa_size": [],
+  "attribute:pa_space": [],
+});
+
 const AdminProducts = () => {
   // Function to extract YouTube video ID from URL
   const extractYouTubeId = (url) => {
@@ -116,6 +125,9 @@ const AdminProducts = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showUpdateFieldsModal, setShowUpdateFieldsModal] = useState(false);
+  const [updateFieldsData, setUpdateFieldsData] = useState(emptyUpdateFields());
+  const [updateFieldsSubmitting, setUpdateFieldsSubmitting] = useState(false);
   const [sortField, setSortField] = useState(searchParams.get('sort_field') || null);
   const [sortDirection, setSortDirection] = useState(searchParams.get('sort_direction') || 'asc');
   
@@ -413,6 +425,73 @@ const AdminProducts = () => {
       setSelectedProducts([]);
     } else {
       setSelectedProducts(filteredProducts.map(product => String(product.ID || product.id)));
+    }
+  };
+
+  const openUpdateFieldsModal = () => {
+    setUpdateFieldsData(emptyUpdateFields());
+    setShowUpdateFieldsModal(true);
+  };
+
+  const handleBulkAppendFields = async (e) => {
+    e.preventDefault();
+    if (selectedProducts.length === 0) {
+      alert("Please select products to update");
+      return;
+    }
+
+    const payload = {
+      action: "append_fields",
+      ids: selectedProducts,
+      product_category: sanitizeAttributeList(updateFieldsData.product_category).join(", "),
+      product_tag: sanitizeFilterValue(updateFieldsData.product_tag),
+      "attribute:pa_colour": sanitizeAttributeList(updateFieldsData["attribute:pa_colour"]).join(", "),
+      "attribute:pa_finish": sanitizeAttributeList(updateFieldsData["attribute:pa_finish"]).join(", "),
+      "attribute:pa_size": sanitizeAttributeList(updateFieldsData["attribute:pa_size"]).join(", "),
+      "attribute:pa_space": sanitizeAttributeList(updateFieldsData["attribute:pa_space"]).join(", "),
+    };
+
+    const hasValues = [
+      payload.product_category,
+      payload.product_tag,
+      payload["attribute:pa_colour"],
+      payload["attribute:pa_finish"],
+      payload["attribute:pa_size"],
+      payload["attribute:pa_space"],
+    ].some((value) => value);
+
+    if (!hasValues) {
+      alert("Select or enter at least one field to append");
+      return;
+    }
+
+    setUpdateFieldsSubmitting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert(result.message || `Updated ${selectedProducts.length} product(s)`);
+        setShowUpdateFieldsModal(false);
+        setUpdateFieldsData(emptyUpdateFields());
+        setSelectedProducts([]);
+        invalidateCache();
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+      } else {
+        alert(result.message || "Error updating products");
+      }
+    } catch (error) {
+      console.error("Error appending fields:", error);
+      alert("Error updating products");
+    } finally {
+      setUpdateFieldsSubmitting(false);
     }
   };
 
@@ -2076,6 +2155,12 @@ const AdminProducts = () => {
             </div>
             <div className="flex items-center space-x-2">
               <button
+                onClick={openUpdateFieldsModal}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Update fields
+              </button>
+              <button
                 onClick={handleBulkDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
               >
@@ -3156,6 +3241,205 @@ const AdminProducts = () => {
                        : editingProduct
                        ? "Update Product"
                        : "Add Product"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Update Fields Modal */}
+      {showUpdateFieldsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ marginTop: '0px !important' }}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Update fields ({selectedProducts.length} product{selectedProducts.length !== 1 ? "s" : ""})
+              </h3>
+              <button
+                onClick={() => setShowUpdateFieldsModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Selected values will be appended to the existing fields on each product.
+              </p>
+              <form onSubmit={handleBulkAppendFields} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Category
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData.product_category.map((cat) => ({
+                        value: cat,
+                        label: cat,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          product_category: sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={getSortedCategories().map((category) => ({
+                        value: category.category,
+                        label: formatCategoryLabel(category),
+                      }))}
+                      placeholder="Select categories..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Tags
+                    </label>
+                    <textarea
+                      rows={2}
+                      name="product_tag"
+                      value={updateFieldsData.product_tag}
+                      onChange={(e) =>
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          product_tag: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Colour
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_colour"].map((colour) => ({
+                        value: colour,
+                        label: colour,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_colour": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={colours.map((colour) => ({
+                        value: colour.name,
+                        label: colour.name,
+                      }))}
+                      placeholder="Select colours..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Finish
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_finish"].map((finish) => ({
+                        value: finish,
+                        label: finish,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_finish": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={finishes.map((finish) => ({
+                        value: finish.name,
+                        label: finish.name,
+                      }))}
+                      placeholder="Select finishes..."
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Size
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_size"].map((size) => ({
+                        value: size,
+                        label: size,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_size": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={sizes.map((size) => ({
+                        value: size.name,
+                        label: size.name,
+                      }))}
+                      placeholder="Select sizes..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Space
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_space"].map((space) => ({
+                        value: space,
+                        label: space,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_space": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={spaces.map((space) => ({
+                        value: space.name,
+                        label: space.name,
+                      }))}
+                      placeholder="Select spaces..."
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowUpdateFieldsModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateFieldsSubmitting}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updateFieldsSubmitting ? "Updating..." : "Update fields"}
                   </button>
                 </div>
               </form>

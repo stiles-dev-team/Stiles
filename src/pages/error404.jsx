@@ -1,9 +1,9 @@
 import React from 'react'
-import LayoutDark from '../layout/LayoutDark'
+import Layout from '../layout/Layout'
 
 const Error404 = () => {
   return (
-    <LayoutDark>
+    <Layout>
       <main className="min-h-[70vh] flex items-center justify-center px-4 pt-24 pb-24">
         <div className="container mx-auto flex flex-col items-center text-center gap-6">
           <p className="text-sm font-semibold tracking-[0.3em] uppercase text-dark/60">
@@ -32,7 +32,7 @@ const Error404 = () => {
           </div>
         </div>
       </main>
-    </LayoutDark>
+    </Layout>
   )
 }
 

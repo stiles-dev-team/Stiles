@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom'
-import Layout from '../layout/LayoutDark'
+import Layout from '../layout/Layout'
 import { Helmet } from 'react-helmet-async'
 // Test
 
@@ -21,6 +21,7 @@ import AdminUniqueSizes from './admin/UniqueSizes'
 import AdminUniqueSpaces from './admin/UniqueSpaces'
 import AdminUniquePromos from './admin/UniquePromos'
 import AdminLocations from './admin/Locations'
+import AdminMenuItems from './admin/MenuItems'
 import MediaManager from './admin/MediaManager'
 
 const Admin = () => {
@@ -48,6 +49,7 @@ const Admin = () => {
       { name: 'Sizes', href: '/admin/unique-sizes', icon: '📏' },
       { name: 'Spaces', href: '/admin/unique-spaces', icon: '🏠' },
       { name: 'Promos', href: '/admin/unique-promos', icon: '🏷️' },
+      // { name: 'Menu Items', href: '/admin/menu-items', icon: '🧭' },
       { name: 'Locations', href: '/admin/locations', icon: '📍' },
       { name: 'Media', href: '/admin/media', icon: '📁' },
       { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
@@ -66,7 +68,7 @@ const Admin = () => {
           <meta name="description" content="Admin dashboard for Stiles" />
         </Helmet>
         
-        <div className="min-h-screen pt-20">
+        <div className="min-h-screen pt-20 lg:pt-40">
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex gap-8">
@@ -107,6 +109,7 @@ const Admin = () => {
                   <Route path="/unique-sizes" element={<AdminUniqueSizes />} />
                   <Route path="/unique-spaces" element={<AdminUniqueSpaces />} />
                   <Route path="/unique-promos" element={<AdminUniquePromos />} />
+                  <Route path="/menu-items" element={<AdminMenuItems />} />
                   <Route path="/locations" element={<AdminLocations />} />
                   <Route path="/media" element={<MediaManager />} />
                   <Route path="/analytics" element={<AdminAnalytics />} />

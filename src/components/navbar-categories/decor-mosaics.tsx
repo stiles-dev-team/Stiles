@@ -1,0 +1,78 @@
+const BASE = "/product-category/tiles/mosaics";
+
+export const DECOR_MOSAICS_MEGA_MENU = [
+  {
+    title: "Decor & Mosaics by Look",
+    itemType: "look",
+    items: [
+      { label: "Brick Look", href: `${BASE}/brick-look`, image: "/images/menu-look/brick.png" },
+      { label: "Wood", href: `${BASE}/wood-look`, image: "/images/menu-look/wood.png" },
+      { label: "Stone", href: `${BASE}/pebble-look`, image: "/images/menu-look/stone.png" },
+      { label: "Marble", href: `${BASE}/marble-mosaics`, image: "/images/menu-look/marble.png" },
+      { label: "Cement", href: `${BASE}/concrete`, image: "/images/menu-look/cement.png" },
+      { label: "Terrazzo", href: `${BASE}/terrazzo`, image: "/images/menu-look/terrazzo.png" },
+      { label: "Patterned", href: `${BASE}/patchwork-design`, image: "/images/menu-look/patterned.png" },
+      { label: "Minimalistic", href: `${BASE}/herringbone-look`, image: "/images/menu-look/minimalist.png" },
+      { label: "Handmade", href: `${BASE}/decor-mosaic`, image: "/images/menu-look/handmade.png" },
+      { label: "Metal Look", href: `${BASE}/metallic-look`, image: "/images/menu-look/metal.png" },
+      { label: "Subway", href: `${BASE}/subway`, image: "/images/menu-look/subway.png" },
+      { label: "Smalls", href: `${BASE}/colour-mix`, image: "/images/menu-look/smalls.png" },
+      { label: "Fluted", href: `${BASE}/fluted`, image: "/images/menu-look/fluted.png" },
+      { label: "Kit Kat", href: `${BASE}/kit-kat-mosaics`, image: "/images/menu-look/kit-kat.png" },
+      { label: "Hexagon", href: `${BASE}/hexagon-design`, image: "/images/menu-look/hexagon.png" },
+      { label: "Relief", href: `${BASE}/relief`, image: "/images/menu-look/relief.png" },
+    ],
+  },
+  {
+    title: "Decor & Mosaics by Colour",
+    itemType: "colour",
+    items: [
+      { label: "Grey", href: `${BASE}?colours=grey`, image: "/images/menu-colour/grey.png" },
+      // { label: "Black", href: `${BASE}?colours=black`, swatch: "bg-black" },
+      { label: "Green", href: `${BASE}?colours=green`, image: "/images/menu-colour/green.png" },
+      { label: "Blue", href: `${BASE}?colours=blue`, image: "/images/menu-colour/blue.png" },
+      { label: "Pink", href: `${BASE}?colours=pink`, image: "/images/menu-colour/pink.png" },
+      { label: "Brown", href: `${BASE}?colours=brown`, image: "/images/menu-colour/brown.png" },
+      // { label: "Beige", href: `${BASE}?colours=beige`, swatch: "bg-[#d4b896]" },
+      // { label: "Cream", href: `${BASE}?colours=cream`, swatch: "bg-[#f5f5dc] border border-gray-300" },
+      { label: "White", href: `${BASE}?colours=white`, image: "/images/menu-colour/white.png" },
+      { label: "Red", href: `${BASE}?colours=red`, image: "/images/menu-colour/red.png" },
+      // { label: "Sand", href: `${BASE}?colours=sand`, swatch: "bg-[#c2b280]" },
+      { label: "Gold", href: `${BASE}?colours=gold`, image: "/images/menu-colour/matellic.png" },
+      // { label: "Purple", href: `${BASE}?colours=purple`, swatch: "bg-purple-600" },
+      { label: "Yellow", href: `${BASE}?colours=yellow`, image: "/images/menu-colour/yellow.png" },
+      // { label: "Orange", href: `${BASE}?colours=orange`, swatch: "bg-orange-500" },
+      // { label: "Multicolour", href: `${BASE}?colours=multicolour`, image: "/images/menu-colour/multicolour.png" },
+    ],
+  },
+  // {
+  //   title: "Decor & Mosaics by Size",
+  //   itemType: "size",
+  //   items: [
+  //     { label: "All smaller sizes", href: BASE, dimension: "Small" },
+  //   ],
+  // },
+  {
+    title: "Decor & Mosaics by Space",
+    itemType: "icon",
+    items: [
+      { label: "Kitchen", href: `${BASE}/kitchen`, image: "/images/needs/kitchen.jpg" },
+      { label: "Bathroom", href: `${BASE}/bathroom`, image: "/images/needs/bathrooms.jpg" },
+      { label: "Indoor", href: `${BASE}/indoor`, image: "/images/needs/indoor.jpg" },
+      { label: "Outdoor", href: `${BASE}/outdoor`, image: "/images/needs/outdoors.jpg" },
+      { label: "Pool", href: `${BASE}/pool-mosaic`, image: "/images/needs/pool.jpg" },
+      { label: "Countertop", href: `${BASE}/countertop`, image: "/images/needs/counters.jpg" },
+    ],
+  },
+  {
+    title: "Installation Needs",
+    itemType: "icon",
+    items: [
+      { label: "Adhesives", href: "/product-category/tiles/accessories-tools/tile-adhesive-porcelain", image: "/images/needs/adhesives.jpg" },
+      { label: "Grouts", href: "/product-category/tiles/accessories-tools/grout", image: "/images/needs/grouts.jpg" },
+      { label: "Trims and Edges", href: "/product-category/tiles/accessories-tools/trim", image: "/images/needs/trims%20and%20edges.jpg" },
+      { label: "Tools and Spacers", href: "/product-category/tiles/accessories-tools/tile-spacer", image: "/images/needs/tools%20and%20spacers.jpg" },
+      { label: "Cleaning Products and Chemicals", href: "/product-category/tiles/accessories-tools/cleaning-product", image: "/images/needs/cleaning.jpg" },
+    ],
+  },
+];
