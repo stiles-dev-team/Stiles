@@ -24,6 +24,16 @@ const sanitizeAttributeList = (value) => {
   return parts.map(sanitizeFilterValue).filter(Boolean);
 };
 
+const emptyUpdateFields = () => ({
+  product_category: [],
+  product_tag: "",
+  "attribute:pa_colour": [],
+  "attribute:pa_finish": [],
+  "attribute:pa_size": [],
+  "attribute:pa_space": [],
+  "attribute:pa_installation_need": []
+});
+
 const AdminProducts = () => {
   // Function to extract YouTube video ID from URL
   const extractYouTubeId = (url) => {
@@ -50,6 +60,7 @@ const AdminProducts = () => {
   const [selectedColour, setSelectedColour] = useState(sanitizeFilterValue(searchParams.get('colour')) || "all");
   const [selectedFinish, setSelectedFinish] = useState(sanitizeFilterValue(searchParams.get('finish')) || "all");
   const [selectedSpace, setSelectedSpace] = useState(sanitizeFilterValue(searchParams.get('space')) || "all");
+  const [selectedInstallationNeed, setSelectedInstallationNeed] = useState(sanitizeFilterValue(searchParams.get('installation_need')) || "all");
   const [selectedPromo, setSelectedPromo] = useState(sanitizeFilterValue(searchParams.get('promo')) || "all");
   const [selectedProductTypes, setSelectedProductTypes] = useState(
     sanitizeAttributeList(searchParams.get('product_type'))
@@ -65,6 +76,7 @@ const AdminProducts = () => {
   const [finishes, setFinishes] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [spaces, setSpaces] = useState([]);
+  const [installationNeeds, setInstallationNeeds] = useState([]);
   const [promos, setPromos] = useState([]);
   const [formData, setFormData] = useState({
     id: "",
@@ -85,6 +97,7 @@ const AdminProducts = () => {
     "attribute:pa_finish": [],
     "attribute:pa_size": [],
     "attribute:pa_space": [],
+    "attribute:pa_installation_need": [],
     "meta:product_details": "",
     pdf_url: "",
     pdf_preview: "",
@@ -116,6 +129,9 @@ const AdminProducts = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showUpdateFieldsModal, setShowUpdateFieldsModal] = useState(false);
+  const [updateFieldsData, setUpdateFieldsData] = useState(emptyUpdateFields());
+  const [updateFieldsSubmitting, setUpdateFieldsSubmitting] = useState(false);
   const [sortField, setSortField] = useState(searchParams.get('sort_field') || null);
   const [sortDirection, setSortDirection] = useState(searchParams.get('sort_direction') || 'asc');
   
@@ -185,6 +201,17 @@ const AdminProducts = () => {
       newParams.set('space', sanitizeFilterValue(selectedSpace));
     } else {
       newParams.delete('space');
+    }
+    
+    // Update or remove installation need
+    if (updates.installation_need !== undefined) {
+      const installationNeed = sanitizeFilterValue(updates.installation_need);
+      if (installationNeed && installationNeed !== 'all') newParams.set('installation_need', installationNeed);
+      else newParams.delete('installation_need');
+    } else if (selectedInstallationNeed && selectedInstallationNeed !== 'all') {
+      newParams.set('installation_need', sanitizeFilterValue(selectedInstallationNeed));
+    } else {
+      newParams.delete('installation_need');
     }
     
     // Update or remove promo
@@ -305,6 +332,7 @@ const AdminProducts = () => {
           selectedColour,
           selectedFinish,
           selectedSpace,
+          selectedInstallationNeed,
           selectedPromo,
           selectedProductTypes,
           selectedProductCategory,
@@ -394,7 +422,7 @@ const AdminProducts = () => {
     updateURLParams({ sort_field: field, sort_direction: newSortDirection });
     
     // Fetch products with new sorting
-    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, field, newSortDirection);
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, field, newSortDirection);
   };
 
 
@@ -413,6 +441,75 @@ const AdminProducts = () => {
       setSelectedProducts([]);
     } else {
       setSelectedProducts(filteredProducts.map(product => String(product.ID || product.id)));
+    }
+  };
+
+  const openUpdateFieldsModal = () => {
+    setUpdateFieldsData(emptyUpdateFields());
+    setShowUpdateFieldsModal(true);
+  };
+
+  const handleBulkAppendFields = async (e) => {
+    e.preventDefault();
+    if (selectedProducts.length === 0) {
+      alert("Please select products to update");
+      return;
+    }
+
+    const payload = {
+      action: "append_fields",
+      ids: selectedProducts,
+      product_category: sanitizeAttributeList(updateFieldsData.product_category).join(", "),
+      product_tag: sanitizeFilterValue(updateFieldsData.product_tag),
+      "attribute:pa_colour": sanitizeAttributeList(updateFieldsData["attribute:pa_colour"]).join(", "),
+      "attribute:pa_finish": sanitizeAttributeList(updateFieldsData["attribute:pa_finish"]).join(", "),
+      "attribute:pa_size": sanitizeAttributeList(updateFieldsData["attribute:pa_size"]).join(", "),
+      "attribute:pa_space": sanitizeAttributeList(updateFieldsData["attribute:pa_space"]).join(", "),
+      "attribute:pa_installation_need": sanitizeAttributeList(updateFieldsData["attribute:pa_installation_need"]).join(", "),
+    };
+
+    const hasValues = [
+      payload.product_category,
+      payload.product_tag,
+      payload["attribute:pa_colour"],
+      payload["attribute:pa_finish"],
+      payload["attribute:pa_size"],
+      payload["attribute:pa_space"],
+      payload["attribute:pa_installation_need"],
+    ].some((value) => value);
+
+    if (!hasValues) {
+      alert("Select or enter at least one field to append");
+      return;
+    }
+
+    setUpdateFieldsSubmitting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert(result.message || `Updated ${selectedProducts.length} product(s)`);
+        setShowUpdateFieldsModal(false);
+        setUpdateFieldsData(emptyUpdateFields());
+        setSelectedProducts([]);
+        invalidateCache();
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+      } else {
+        alert(result.message || "Error updating products");
+      }
+    } catch (error) {
+      console.error("Error appending fields:", error);
+      alert("Error updating products");
+    } finally {
+      setUpdateFieldsSubmitting(false);
     }
   };
 
@@ -446,7 +543,7 @@ const AdminProducts = () => {
           setSelectedProducts([]);
           // Invalidate cache and refetch
           invalidateCache();
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting products");
         }
@@ -508,7 +605,7 @@ const AdminProducts = () => {
   useEffect(() => {
     // Initial fetch should bypass cache to get fresh data
     // Use currentPage from URL params (or default to 1)
-    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+    fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
     fetchCategories();
     fetchUniqueCategories();
     fetchBrands();
@@ -516,6 +613,7 @@ const AdminProducts = () => {
     fetchFinishes();
     fetchSizes();
     fetchSpaces();
+    fetchInstallationNeeds();
     fetchPromos();
   }, []);
 
@@ -555,7 +653,7 @@ const AdminProducts = () => {
   }, [formData.sku]);
 
   // Generate cache key from filter parameters
-  const getCacheKey = (page, search, category, status, colour, finish, space, promo, productType, productCategory, sortField, sortDirection) => {
+  const getCacheKey = (page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection) => {
     // Use default sort (id, asc) when no explicit sort is set, to match API behavior
     const effectiveSortField = sortField || 'id';
     const effectiveSortDirection = sortField ? sortDirection : 'asc';
@@ -568,6 +666,7 @@ const AdminProducts = () => {
       colour: colour || 'all',
       finish: finish || 'all',
       space: space || 'all',
+      installationNeed: installationNeed || 'all',
       promo: promo || 'all',
       productType: Array.isArray(productType) ? productType.sort().join(',') : '',
       productCategory: productCategory || 'all',
@@ -597,9 +696,9 @@ const AdminProducts = () => {
     }
   };
 
-  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", space = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", space = "", installationNeed = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
     // Generate cache key
-    const cacheKey = getCacheKey(page, search, category, status, colour, finish, space, promo, productType, productCategory, sortField, sortDirection);
+    const cacheKey = getCacheKey(page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection);
     
     // Check cache first
     if (useCache) {
@@ -632,6 +731,7 @@ const AdminProducts = () => {
       if (colour && colour !== "all") params.append("colour", sanitizeFilterValue(colour));
       if (finish && finish !== "all") params.append("finish", sanitizeFilterValue(finish));
       if (space && space !== "all") params.append("space", sanitizeFilterValue(space));
+      if (installationNeed && installationNeed !== "all") params.append("installation_need", sanitizeFilterValue(installationNeed));
       if (promo && promo !== "all") params.append("promo", sanitizeFilterValue(promo));
       if (productType && productType.length > 0) params.append("product_type", sanitizeAttributeList(productType).join(","));
       if (productCategory && productCategory !== "all") {
@@ -672,6 +772,7 @@ const AdminProducts = () => {
         colour,
         finish,
         space,
+        installationNeed,
         url: `${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php?${params}`
       });
 
@@ -795,13 +896,33 @@ const AdminProducts = () => {
 
   const fetchSpaces = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/unique-spaces.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-spaces.php`, {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
-      setSpaces(sanitizeNamedOptions(data.spaces || []));
+      const items = (data.spaces || []).map((item) => ({
+        ...item,
+        name: item.name || item.space,
+      }));
+      setSpaces(sanitizeNamedOptions(items));
     } catch (error) {
       console.error("Error fetching spaces:", error);
+    }
+  };
+
+  const fetchInstallationNeeds = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-unique-installation-needs.php`, {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      const items = (data.installation_needs || []).map((item) => ({
+        ...item,
+        name: item.name || item.installation_need,
+      }));
+      setInstallationNeeds(sanitizeNamedOptions(items));
+    } catch (error) {
+      console.error("Error fetching installation needs:", error);
     }
   };
 
@@ -851,7 +972,7 @@ const AdminProducts = () => {
       categoriesLoadedRef.current = true;
       // If a category is selected, refetch products with the filter
       if (selectedProductCategory !== "all") {
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
       }
     }
   }, [uniqueCategories.length]); // Only trigger when categories are loaded
@@ -1023,7 +1144,7 @@ const AdminProducts = () => {
           alert("Product deleted successfully");
           // Invalidate cache and refetch
           invalidateCache();
-          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+          fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
         } else {
           alert("Error deleting product: " + result.message);
         }
@@ -1070,6 +1191,7 @@ const AdminProducts = () => {
         "attribute:pa_finish": sanitizeAttributeList(product["attribute:pa_finish"]),
         "attribute:pa_size": sanitizeAttributeList(product["attribute:pa_size"]),
         "attribute:pa_space": sanitizeAttributeList(product["attribute:pa_space"]),
+        "attribute:pa_installation_need": sanitizeAttributeList(product["attribute:pa_installation_need"]),
         "meta:product_details": product["meta:product_details"] || "",
         pdf_url: product.pdf_url || "",
         pdf_preview: product.pdf_url || "",
@@ -1120,7 +1242,7 @@ const AdminProducts = () => {
             // Only add non-empty values
             if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
               // Convert arrays to comma-separated strings
-              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'promo') && Array.isArray(formData[key])) {
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'attribute:pa_installation_need' || key === 'promo') && Array.isArray(formData[key])) {
                 formDataToSend.append(key, sanitizeAttributeList(formData[key]).join(', '));
               } else if (key === 'attribute:pa_brands') {
                 formDataToSend.append(key, sanitizeFilterValue(formData[key]));
@@ -1169,7 +1291,7 @@ const AdminProducts = () => {
             // Only add non-empty values
             if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
               // Convert arrays to comma-separated strings for consistency
-              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'promo') && Array.isArray(formData[key])) {
+              if ((key === 'product_category' || key === 'attribute:pa_colour' || key === 'attribute:pa_finish' || key === 'attribute:pa_size' || key === 'attribute:pa_space' || key === 'attribute:pa_installation_need' || key === 'promo') && Array.isArray(formData[key])) {
                 jsonData[key] = sanitizeAttributeList(formData[key]).join(', ');
               } else if (key === 'attribute:pa_brands') {
                 jsonData[key] = sanitizeFilterValue(formData[key]);
@@ -1273,6 +1395,7 @@ const AdminProducts = () => {
            "attribute:pa_finish": [],
            "attribute:pa_size": [],
            "attribute:pa_space": [],
+           "attribute:pa_installation_need": [],
            "meta:product_details": "",
            pdf_url: "",
            pdf_preview: "",
@@ -1286,7 +1409,7 @@ const AdminProducts = () => {
          });
         // Invalidate cache and refetch
         invalidateCache();
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         // Handle specific error types
         if (result.error === 'SKU_CONFLICT') {
@@ -1361,6 +1484,7 @@ const AdminProducts = () => {
       "attribute:pa_finish": [],
       "attribute:pa_size": [],
       "attribute:pa_space": [],
+      "attribute:pa_installation_need": [],
       "meta:product_details": "",
       pdf_url: "",
       pdf_preview: "",
@@ -1411,6 +1535,7 @@ const AdminProducts = () => {
       "attribute:pa_finish": sanitizeAttributeList(product["attribute:pa_finish"]),
       "attribute:pa_size": sanitizeAttributeList(product["attribute:pa_size"]),
       "attribute:pa_space": sanitizeAttributeList(product["attribute:pa_space"]),
+      "attribute:pa_installation_need": sanitizeAttributeList(product["attribute:pa_installation_need"]),
       "meta:product_details": product["meta:product_details"] || "",
       pdf_url: product.pdf_url || "",
       pdf_preview: product.pdf_url || "",
@@ -1438,7 +1563,7 @@ const AdminProducts = () => {
     debounceTimeoutRef.current = setTimeout(() => {
       setCurrentPage(1);
       updateURLParams({ search: value, page: 1 });
-      fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+      fetchProducts(1, value, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
     }, 500); // 500ms debounce
   };
 
@@ -1447,14 +1572,14 @@ const AdminProducts = () => {
     setSelectedCategory(brand);
     setCurrentPage(1);
     updateURLParams({ brand, page: 1 });
-    fetchProducts(1, searchTerm, brand, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, brand, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setCurrentPage(1);
     updateURLParams({ status: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, value, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleColourChange = (value) => {
@@ -1462,7 +1587,7 @@ const AdminProducts = () => {
     setSelectedColour(colour);
     setCurrentPage(1);
     updateURLParams({ colour, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, colour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, colour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleFinishChange = (value) => {
@@ -1470,7 +1595,7 @@ const AdminProducts = () => {
     setSelectedFinish(finish);
     setCurrentPage(1);
     updateURLParams({ finish, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, finish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, finish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleSpaceChange = (value) => {
@@ -1478,7 +1603,15 @@ const AdminProducts = () => {
     setSelectedSpace(space);
     setCurrentPage(1);
     updateURLParams({ space, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, space, selectedPromo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, space, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
+  };
+
+  const handleInstallationNeedChange = (value) => {
+    const installationNeed = sanitizeFilterValue(value) || "all";
+    setSelectedInstallationNeed(installationNeed);
+    setCurrentPage(1);
+    updateURLParams({ installation_need: installationNeed, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, installationNeed, selectedPromo, selectedProductTypes, selectedProductCategory);
   };
 
   const handlePromoChange = (value) => {
@@ -1486,14 +1619,14 @@ const AdminProducts = () => {
     setSelectedPromo(promo);
     setCurrentPage(1);
     updateURLParams({ promo, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, promo, selectedProductTypes, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, promo, selectedProductTypes, selectedProductCategory);
   };
 
   const handleProductCategoryChange = (value) => {
     setSelectedProductCategory(value);
     setCurrentPage(1);
     updateURLParams({ category_id: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
   };
 
   const handleProductTypeChange = (selectedOptions) => {
@@ -1501,7 +1634,7 @@ const AdminProducts = () => {
     setSelectedProductTypes(values);
     setCurrentPage(1);
     updateURLParams({ product_type: values, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, values, selectedProductCategory);
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, values, selectedProductCategory);
   };
 
   const handleSoldOutChange = (value) => {
@@ -1512,7 +1645,7 @@ const AdminProducts = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     updateURLParams({ page });
-    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+    fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
   };
 
   // Function to open download modal
@@ -1558,7 +1691,7 @@ const AdminProducts = () => {
         const headers = [
           'ID', 'Title', 'Slug', 'Description', 'Status', 'Post Date', 'SKU', 'Stock',
           'Regular Price', 'Sale Price', 'Meta Description', 'Product Category', 'Product Tag',
-          'Brand', 'Colour', 'Finish', 'Size', 'Space', 'Product Details', 'PDF URL', 'Featured Image',
+          'Brand', 'Colour', 'Finish', 'Size', 'Space', 'Installation Need', 'Product Details', 'PDF URL', 'Featured Image',
           'Gallery Images', 'YouTube Video URL', 'Promo'
         ];
 
@@ -1584,6 +1717,7 @@ const AdminProducts = () => {
             Array.isArray(product['attribute:pa_finish']) ? sanitizeAttributeList(product['attribute:pa_finish']).join(', ') : sanitizeFilterValue(product['attribute:pa_finish'] || ''),
             Array.isArray(product['attribute:pa_size']) ? sanitizeAttributeList(product['attribute:pa_size']).join(', ') : sanitizeFilterValue(product['attribute:pa_size'] || ''),
             Array.isArray(product['attribute:pa_space']) ? sanitizeAttributeList(product['attribute:pa_space']).join(', ') : sanitizeFilterValue(product['attribute:pa_space'] || ''),
+            Array.isArray(product['attribute:pa_installation_need']) ? sanitizeAttributeList(product['attribute:pa_installation_need']).join(', ') : sanitizeFilterValue(product['attribute:pa_installation_need'] || ''),
             `"${(product['meta:product_details'] || '').replace(/"/g, '""')}"`,
             product.pdf_url || '',
             product.featured_image || '',
@@ -1669,7 +1803,7 @@ const AdminProducts = () => {
         alert(`CSV upload successful!\nUpdated: ${result.updated} products\nInserted: ${result.inserted} new products`);
         // Invalidate cache and refresh the products list
         invalidateCache();
-        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
       } else {
         alert(`Error uploading CSV: ${result.message}`);
       }
@@ -1771,7 +1905,7 @@ const AdminProducts = () => {
                        }
                        setCurrentPage(1);
                        updateURLParams({ search: searchTerm, page: 1 });
-                       fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+                       fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
                      }
                    }}
                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1784,7 +1918,7 @@ const AdminProducts = () => {
                      }
                      setCurrentPage(1);
                      updateURLParams({ search: searchTerm, page: 1 });
-                     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+                     fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
                    }}
                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                  >
@@ -1915,6 +2049,23 @@ const AdminProducts = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Installation Need
+              </label>
+              <select
+                value={selectedInstallationNeed}
+                onChange={(e) => handleInstallationNeedChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Installation Needs</option>
+                {installationNeeds.map((installationNeed) => (
+                  <option key={installationNeed.id} value={installationNeed.name}>
+                    {installationNeed.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Type
               </label>
               <Select
@@ -1970,6 +2121,7 @@ const AdminProducts = () => {
                 setSelectedColour("all");
                 setSelectedFinish("all");
                 setSelectedSpace("all");
+                setSelectedInstallationNeed("all");
                 setSelectedPromo("all");
                 setSelectedProductTypes([]);
                 setSelectedProductCategory("all");
@@ -1983,7 +2135,7 @@ const AdminProducts = () => {
                   newParams.set('slug', searchParams.get('slug'));
                 }
                 setSearchParams(newParams, { replace: true });
-                fetchProducts(1, "", "all", "all", "all", "all", "all", "all", [], "all", null, "asc");
+                fetchProducts(1, "", "all", "all", "all", "all", "all", "all", "all", [], "all", null, "asc");
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
             >
@@ -1999,7 +2151,7 @@ const AdminProducts = () => {
                   ? `Showing ${products.length} of ${pagination.total_products} products`
                   : `Showing ${filteredProducts.length} of ${products.length} on this page (${selectedSoldOut === "sold_out" ? "sold out" : "in stock"})`}
               </div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedSpace !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedSpace !== "all" || selectedInstallationNeed !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -2030,6 +2182,11 @@ const AdminProducts = () => {
                   {selectedSpace !== "all" && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-cyan-100 text-cyan-800">
                       Space: {selectedSpace}
+                    </span>
+                  )}
+                  {selectedInstallationNeed !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800">
+                      Installation Need: {selectedInstallationNeed}
                     </span>
                   )}
                   {selectedPromo !== "all" && (
@@ -2075,6 +2232,12 @@ const AdminProducts = () => {
               </button>
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={openUpdateFieldsModal}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Update fields
+              </button>
               <button
                 onClick={handleBulkDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
@@ -2838,6 +3001,32 @@ const AdminProducts = () => {
                         isClearable
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Installation Need
+                      </label>
+                      <Select
+                        name="attribute:pa_installation_need"
+                        isMulti
+                        value={formData["attribute:pa_installation_need"].map(installationNeed => ({
+                          value: installationNeed,
+                          label: installationNeed
+                        }))}
+                        onChange={(selectedOptions) => {
+                          const values = sanitizeAttributeList(selectedOptions ? selectedOptions.map(option => option.value) : []);
+                          setFormData(prev => ({
+                            ...prev,
+                            "attribute:pa_installation_need": values
+                          }));
+                        }}
+                        options={installationNeeds.map(installationNeed => ({
+                          value: installationNeed.name,
+                          label: installationNeed.name
+                        }))}
+                        placeholder="Select installation needs..."
+                        isClearable
+                      />
+                    </div>
                   </div>
 
                                    {/* Product Details */}
@@ -3156,6 +3345,231 @@ const AdminProducts = () => {
                        : editingProduct
                        ? "Update Product"
                        : "Add Product"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Update Fields Modal */}
+      {showUpdateFieldsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ marginTop: '0px !important' }}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Update fields ({selectedProducts.length} product{selectedProducts.length !== 1 ? "s" : ""})
+              </h3>
+              <button
+                onClick={() => setShowUpdateFieldsModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Selected values will be appended to the existing fields on each product.
+              </p>
+              <form onSubmit={handleBulkAppendFields} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Category
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData.product_category.map((cat) => ({
+                        value: cat,
+                        label: cat,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          product_category: sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={getSortedCategories().map((category) => ({
+                        value: category.category,
+                        label: formatCategoryLabel(category),
+                      }))}
+                      placeholder="Select categories..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Tags
+                    </label>
+                    <textarea
+                      rows={2}
+                      name="product_tag"
+                      value={updateFieldsData.product_tag}
+                      onChange={(e) =>
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          product_tag: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Colour
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_colour"].map((colour) => ({
+                        value: colour,
+                        label: colour,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_colour": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={colours.map((colour) => ({
+                        value: colour.name,
+                        label: colour.name,
+                      }))}
+                      placeholder="Select colours..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Finish
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_finish"].map((finish) => ({
+                        value: finish,
+                        label: finish,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_finish": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={finishes.map((finish) => ({
+                        value: finish.name,
+                        label: finish.name,
+                      }))}
+                      placeholder="Select finishes..."
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Size
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_size"].map((size) => ({
+                        value: size,
+                        label: size,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_size": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={sizes.map((size) => ({
+                        value: size.name,
+                        label: size.name,
+                      }))}
+                      placeholder="Select sizes..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Space
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_space"].map((space) => ({
+                        value: space,
+                        label: space,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_space": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={spaces.map((space) => ({
+                        value: space.name,
+                        label: space.name,
+                      }))}
+                      placeholder="Select spaces..."
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Installation Need
+                    </label>
+                    <Select
+                      isMulti
+                      value={updateFieldsData["attribute:pa_installation_need"].map((installationNeed) => ({
+                        value: installationNeed,
+                        label: installationNeed,
+                      }))}
+                      onChange={(selectedOptions) => {
+                        setUpdateFieldsData((prev) => ({
+                          ...prev,
+                          "attribute:pa_installation_need": sanitizeAttributeList(
+                            selectedOptions ? selectedOptions.map((option) => option.value) : []
+                          ),
+                        }));
+                      }}
+                      options={installationNeeds.map((installationNeed) => ({
+                        value: installationNeed.name,
+                        label: installationNeed.name,
+                      }))}
+                      placeholder="Select installation needs..."
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowUpdateFieldsModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateFieldsSubmitting}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updateFieldsSubmitting ? "Updating..." : "Update fields"}
                   </button>
                 </div>
               </form>
