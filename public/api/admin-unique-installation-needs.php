@@ -40,7 +40,7 @@ $data = json_decode($input, true);
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS unique_installation_needs (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        installation_need VARCHAR(255) NOT NULL
+        installation_need LONGTEXT NOT NULL
     )");
 
     switch ($_SERVER['REQUEST_METHOD']) {
