@@ -344,6 +344,12 @@ const Product = () => {
                                     pdf_url: brand.pdf_url,
                                     pdf_text: brand.pdf_text || brand.name
                                 });
+                            } else if (brand?.pdf_text) {
+                                setBrandPdf({
+                                    name: brand.name,
+                                    pdf_url: null,
+                                    pdf_text: brand.pdf_text
+                                });
                             } else {
                                 setBrandPdf(null);
                             }
@@ -931,9 +937,16 @@ const Product = () => {
                     <div dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
                     {brandPdf && (
                         <p className='text-sm text-dark'>
-                            <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
-                                {decodeHtmlEntities(brandPdf.pdf_text)}
-                            </a>
+                            {brandPdf.pdf_url ? (
+                                <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
+                                    {decodeHtmlEntities(brandPdf.pdf_text)}
+                                </a>
+                            ) : (
+                                <div>
+                                    <span className='font-bold'>Please note: </span>
+                                    <span>{decodeHtmlEntities(brandPdf.pdf_text)}</span>
+                                </div>
+                            )}
                         </p>
                     )}
                 </div>
