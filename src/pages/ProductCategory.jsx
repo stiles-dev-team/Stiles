@@ -160,7 +160,25 @@ const Content = ({
     const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',').filter(Boolean) || []);
     const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',').filter(Boolean) || []);
     const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
+    const [selectedInstallationNeeds, setSelectedInstallationNeeds] = useState(
+        searchParams.get('installation_needs')?.split(',').filter(Boolean) || []
+    );
+    const [selectedSpaces, setSelectedSpaces] = useState(
+        searchParams.get('space')?.split(',').filter(Boolean) || []
+    );
     const [filteredProducts, setFilteredProducts] = useState(null);
+
+    // Keep URL-driven filters in sync (e.g. mega menu links)
+    useEffect(() => {
+        const installationNeedsFromUrl = searchParams.get('installation_needs')?.split(',').filter(Boolean) || [];
+        const spacesFromUrl = searchParams.get('space')?.split(',').filter(Boolean) || [];
+        setSelectedInstallationNeeds((prev) =>
+            prev.join(',') === installationNeedsFromUrl.join(',') ? prev : installationNeedsFromUrl
+        );
+        setSelectedSpaces((prev) =>
+            prev.join(',') === spacesFromUrl.join(',') ? prev : spacesFromUrl
+        );
+    }, [searchParams]);
 
     // Ensure category names match DB's HTML-encoded values (e.g., & -> &amp; without double-encoding)
     const encodeCategoryEntities = (name) => {
@@ -281,6 +299,12 @@ const Content = ({
                 if (selectedSizes.length > 0) {
                     queryParams.set('sizes', selectedSizes.join(','));
                 }
+                if (selectedSpaces.length > 0) {
+                    queryParams.set('space', selectedSpaces.join(','));
+                }
+                if (selectedInstallationNeeds.length > 0) {
+                    queryParams.set('installation_needs', selectedInstallationNeeds.join(','));
+                }
                 if (sortBy) {
                     queryParams.set('sort', sortBy);
                 }
@@ -308,7 +332,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [slug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
+    }, [slug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
@@ -347,13 +371,31 @@ const Content = ({
                 return selectedSizes.some(size => itemSizes.includes(size));
             });
         }
+
+        // Apply space filter
+        if (selectedSpaces.length > 0) {
+            filtered = filtered.filter(item => {
+                const itemSpaces = item.space?.split(',').map(s => s.trim()) || [];
+                return selectedSpaces.some(space => itemSpaces.includes(space));
+            });
+        }
+
+        // Apply installation needs filter
+        if (selectedInstallationNeeds.length > 0) {
+            filtered = filtered.filter(item => {
+                const itemNeeds = item.installation_need?.split(',').map(n => n.trim()) || [];
+                return selectedInstallationNeeds.some(need => itemNeeds.includes(need));
+            });
+        }
         
         console.log('Filtered products:', {
             total: filtered.length,
             selectedBrands,
             selectedFinish,
             selectedColours,
-            selectedSizes
+            selectedSizes,
+            selectedSpaces,
+            selectedInstallationNeeds
         });
         
         setFilteredProducts(filtered);
@@ -364,7 +406,7 @@ const Content = ({
         if (product) {
             applyFilters(product);
         }
-    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes]);
+    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds]);
 
     // Update URL when filters change
     useEffect(() => {
@@ -395,6 +437,18 @@ const Content = ({
             newParams.delete('sizes');
         }
 
+        if (selectedSpaces.length > 0) {
+            newParams.set('space', selectedSpaces.join(','));
+        } else {
+            newParams.delete('space');
+        }
+
+        if (selectedInstallationNeeds.length > 0) {
+            newParams.set('installation_needs', selectedInstallationNeeds.join(','));
+        } else {
+            newParams.delete('installation_needs');
+        }
+
         if (sortBy) {
             newParams.set('sort', sortBy);
         } else {
@@ -405,7 +459,7 @@ const Content = ({
         newParams.set('page', currentPage.toString());
         
         setSearchParams(newParams);
-    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, productsPerPage, currentPage]);
+    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy, productsPerPage, currentPage]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -499,6 +553,8 @@ const Content = ({
                             setSelectedFinish([]);
                             setSelectedColours([]);
                             setSelectedSizes([]);
+                            setSelectedSpaces([]);
+                            setSelectedInstallationNeeds([]);
                             setCurrentPage(1);
                         }}
                         className="w-full mb-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all flex items-center justify-center gap-2"

@@ -59,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
                 `attribute:pa_colour` as colour,
                 `attribute:pa_finish` as finish,
                 `attribute:pa_brands` as brands,
-                `attribute:pa_size` as size
+                `attribute:pa_size` as size,
+                `attribute:pa_space` as space,
+                `attribute:pa_installation_need` as installation_need
             FROM stiles_products 
             WHERE status = "publish" 
             AND LOWER(TRIM(promo)) LIKE LOWER(?)
@@ -92,7 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
             'colours' => $processValues($products, 'colour'),
             'finishes' => $processValues($products, 'finish'),
             'brands' => $processValues($products, 'brands'),
-            'sizes' => $processValues($products, 'size')
+            'sizes' => $processValues($products, 'size'),
+            'spaces' => $processValues($products, 'space') ?: [],
+            'installation_needs' => $processValues($products, 'installation_need') ?: []
         ];
         
         echo json_encode([
@@ -127,7 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
                 `attribute:pa_colour` as colour,
                 `attribute:pa_finish` as finish,
                 `attribute:pa_brands` as brands,
-                `attribute:pa_size` as size
+                `attribute:pa_size` as size,
+                `attribute:pa_space` as space,
+                `attribute:pa_installation_need` as installation_need
             FROM stiles_products 
             WHERE status = "publish" 
             AND product_category LIKE ?
@@ -159,7 +165,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
             'colours' => $processValues($products, 'colour'),
             'finishes' => $processValues($products, 'finish'),
             'brands' => $processValues($products, 'brands'),
-            'sizes' => $processValues($products, 'size')
+            'sizes' => $processValues($products, 'size'),
+            'spaces' => $processValues($products, 'space') ?: [],
+            'installation_needs' => $processValues($products, 'installation_need') ?: []
         ];
         
         echo json_encode([
@@ -259,7 +267,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET
                 `attribute:pa_colour` as colour,
                 `attribute:pa_finish` as finish,
                 `attribute:pa_brands` as brands,
-                `attribute:pa_size` as size
+                `attribute:pa_size` as size,
+                `attribute:pa_space` as space,
+                `attribute:pa_installation_need` as installation_need
             FROM stiles_products 
             WHERE status = "publish" 
             AND `attribute:pa_brands` = ?
@@ -291,7 +301,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && isset($_GET
             'colours' => $processValues($products, 'colour'),
             'finishes' => $processValues($products, 'finish'),
             'brands' => $processValues($products, 'brands'),
-            'sizes' => $processValues($products, 'size')
+            'sizes' => $processValues($products, 'size'),
+            'spaces' => $processValues($products, 'space') ?: [],
+            'installation_needs' => $processValues($products, 'installation_need') ?: []
         ];
         
         echo json_encode([
@@ -393,6 +405,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
                 $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
             }
         }
+
+        if (isset($_GET['space']) && !empty($_GET['space'])) {
+            $spaces = explode(',', $_GET['space']);
+            $spaceConditions = [];
+            foreach ($spaces as $space) {
+                $cleanSpace = trim($space);
+                $spaceConditions[] = 'sp.`attribute:pa_space` LIKE ?';
+                $params[] = '%' . $cleanSpace . '%';
+            }
+            if (!empty($spaceConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $spaceConditions) . ')';
+            }
+        }
+
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs'])) {
+            $installationNeeds = explode(',', $_GET['installation_needs']);
+            $installationNeedConditions = [];
+            foreach ($installationNeeds as $installationNeed) {
+                $cleanInstallationNeed = trim($installationNeed);
+                $installationNeedConditions[] = 'sp.`attribute:pa_installation_need` LIKE ?';
+                $params[] = '%' . $cleanInstallationNeed . '%';
+            }
+            if (!empty($installationNeedConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
+            }
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -415,6 +453,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         
         // Log the total count
         error_log("Total count: " . $totalCount);
+
+        // If installation_needs filter matches no products, return an empty array
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs']) && (int)$totalCount === 0) {
+            echo json_encode([
+                'status' => 'success',
+                'data' => [],
+                'total_count' => 0,
+                'current_page' => 1,
+                'total_pages' => 0,
+                'per_page' => $limit,
+                'type' => 'brand'
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            exit();
+        }
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
@@ -450,6 +502,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             sp.`attribute:pa_finish` as finish,
             sp.`attribute:pa_brands` as brands,
             sp.`attribute:pa_size` as size,
+            sp.`attribute:pa_space` as space,
+            sp.`attribute:pa_installation_need` as installation_need,
             sp.status,
             sp.post_date,
             iq.sellPInc1
@@ -480,6 +534,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
                 'finish' => $product['finish'],
                 'brands' => $product['brands'],
                 'size' => $product['size'],
+                'space' => $product['space'],
+                'installation_need' => $product['installation_need'],
                 'status' => $product['status'],
                 'post_date' => $product['post_date']
             ];
@@ -487,7 +543,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         
         $response = [
             'status' => 'success',
-            'data' => $processedProducts,
+            'data' => $processedProducts ?: [],
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
@@ -806,6 +862,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
                 $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
             }
         }
+
+        if (isset($_GET['space']) && !empty($_GET['space'])) {
+            $spaces = explode(',', $_GET['space']);
+            $spaceConditions = [];
+            foreach ($spaces as $space) {
+                $cleanSpace = trim($space);
+                $spaceConditions[] = 'sp.`attribute:pa_space` LIKE ?';
+                $params[] = '%' . $cleanSpace . '%';
+            }
+            if (!empty($spaceConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $spaceConditions) . ')';
+            }
+        }
+
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs'])) {
+            $installationNeeds = explode(',', $_GET['installation_needs']);
+            $installationNeedConditions = [];
+            foreach ($installationNeeds as $installationNeed) {
+                $cleanInstallationNeed = trim($installationNeed);
+                $installationNeedConditions[] = 'sp.`attribute:pa_installation_need` LIKE ?';
+                $params[] = '%' . $cleanInstallationNeed . '%';
+            }
+            if (!empty($installationNeedConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
+            }
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -828,6 +910,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         
         // Log the total count
         error_log("Total count: " . $totalCount);
+
+        // If installation_needs filter matches no products, return an empty array
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs']) && (int)$totalCount === 0) {
+            echo json_encode([
+                'status' => 'success',
+                'data' => [],
+                'total_count' => 0,
+                'current_page' => 1,
+                'total_pages' => 0,
+                'per_page' => $limit,
+                'type' => 'promo'
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            exit();
+        }
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
@@ -863,6 +959,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             sp.`attribute:pa_finish` as finish,
             sp.`attribute:pa_brands` as brands,
             sp.`attribute:pa_size` as size,
+            sp.`attribute:pa_space` as space,
+            sp.`attribute:pa_installation_need` as installation_need,
             sp.status,
             sp.post_date,
             iq.sellPInc1
@@ -893,6 +991,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
                 'finish' => $product['finish'],
                 'brands' => $product['brands'],
                 'size' => $product['size'],
+                'space' => $product['space'],
+                'installation_need' => $product['installation_need'],
                 'status' => $product['status'],
                 'post_date' => $product['post_date']
             ];
@@ -900,7 +1000,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         
         $response = [
             'status' => 'success',
-            'data' => $processedProducts,
+            'data' => $processedProducts ?: [],
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
@@ -1004,6 +1104,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 $baseQuery .= ' AND (' . implode(' OR ', $sizeConditions) . ')';
             }
         }
+
+        if (isset($_GET['space']) && !empty($_GET['space'])) {
+            $spaces = explode(',', $_GET['space']);
+            $spaceConditions = [];
+            foreach ($spaces as $space) {
+                $cleanSpace = trim($space);
+                $spaceConditions[] = 'sp.`attribute:pa_space` LIKE ?';
+                $params[] = '%' . $cleanSpace . '%';
+            }
+            if (!empty($spaceConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $spaceConditions) . ')';
+            }
+        }
+
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs'])) {
+            $installationNeeds = explode(',', $_GET['installation_needs']);
+            $installationNeedConditions = [];
+            foreach ($installationNeeds as $installationNeed) {
+                $cleanInstallationNeed = trim($installationNeed);
+                $installationNeedConditions[] = 'sp.`attribute:pa_installation_need` LIKE ?';
+                $params[] = '%' . $cleanInstallationNeed . '%';
+            }
+            if (!empty($installationNeedConditions)) {
+                $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
+            }
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -1026,6 +1152,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         
         // Log the total count
         error_log("Total count: " . $totalCount);
+
+        // If installation_needs filter matches no products, return an empty array
+        if (isset($_GET['installation_needs']) && !empty($_GET['installation_needs']) && (int)$totalCount === 0) {
+            echo json_encode([
+                'status' => 'success',
+                'data' => [],
+                'total_count' => 0,
+                'current_page' => 1,
+                'total_pages' => 0,
+                'per_page' => $limit,
+                'type' => 'random products by category with limit'
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            exit();
+        }
         
         // Add sorting
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
@@ -1061,6 +1201,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             sp.`attribute:pa_finish` as finish,
             sp.`attribute:pa_brands` as brands,
             sp.`attribute:pa_size` as size,
+            sp.`attribute:pa_space` as space,
+            sp.`attribute:pa_installation_need` as installation_need,
             sp.status,
             sp.post_date,
             iq.sellPInc1
@@ -1091,6 +1233,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 'finish' => $product['finish'],
                 'brands' => $product['brands'],
                 'size' => $product['size'],
+                'space' => $product['space'],
+                'installation_need' => $product['installation_need'],
                 'status' => $product['status'],
                 'post_date' => $product['post_date']
             ];
@@ -1098,7 +1242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         
         $response = [
             'status' => 'success',
-            'data' => $processedProducts,
+            'data' => $processedProducts ?: [],
             'total_count' => (int)$totalCount,
             'current_page' => floor($offset / $limit) + 1,
             'total_pages' => ceil($totalCount / $limit),
@@ -1131,10 +1275,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             title, slug, description, excerpt, status, post_date, sku, stock,
             regular_price, sale_price, total_sales, metadesc, product_category,
             product_tag, `attribute:pa_brands`, `attribute:pa_colour`,
-            `attribute:pa_finish`, `attribute:pa_size`, `meta:product_details`,
+            `attribute:pa_finish`, `attribute:pa_size`, `attribute:pa_space`,
+            `attribute:pa_installation_need`, `meta:product_details`,
             pdf_url, featured_image, gallery_images
         ) VALUES (
-            ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )');
         
         $stmt->execute([
@@ -1155,6 +1300,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data['attribute:pa_colour'],
             $data['attribute:pa_finish'],
             $data['attribute:pa_size'],
+            $data['attribute:pa_space'] ?? '',
+            $data['attribute:pa_installation_need'] ?? '',
             $data['meta:product_details'],
             $data['pdf_url'],
             $data['featured_image'],
@@ -1180,6 +1327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($_GET['id'])) {
             metadesc = ?, product_category = ?, product_tag = ?,
             `attribute:pa_brands` = ?, `attribute:pa_colour` = ?,
             `attribute:pa_finish` = ?, `attribute:pa_size` = ?,
+            `attribute:pa_space` = ?, `attribute:pa_installation_need` = ?,
             `meta:product_details` = ?, pdf_url = ?, featured_image = ?,
             gallery_images = ?
             WHERE ID = ?');
@@ -1202,6 +1350,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($_GET['id'])) {
             $data['attribute:pa_colour'],
             $data['attribute:pa_finish'],
             $data['attribute:pa_size'],
+            $data['attribute:pa_space'] ?? '',
+            $data['attribute:pa_installation_need'] ?? '',
             $data['meta:product_details'],
             $data['pdf_url'],
             $data['featured_image'],

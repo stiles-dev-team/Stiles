@@ -30,6 +30,7 @@ export const NAV_MENUS = [
   {
     id: "large-slabs",
     label: "Large Slabs",
+    categoryName: "Large Slab",
     href: "/product-category/tiles/large-slab",
     mobileHref: "/product-category/tiles/large-slab",
     filterBase: "/product-category/tiles/large-slab",
@@ -40,7 +41,7 @@ export const NAV_MENUS = [
   },
   {
     id: "decor-mosaics",
-    label: "Decor",
+    label: "Decor & Mosaics",
     href: "/product-category/tiles/mosaics",
     mobileHref: "/product-category/tiles/mosaics",
     filterBase: "/product-category/tiles/mosaics",
@@ -93,7 +94,7 @@ export const getCategoryBySlug = (slug) => {
   );
   if (menuMatch) {
     return {
-      name: menuMatch.label,
+      name: menuMatch.categoryName || menuMatch.label,
       slug: key,
       description: "",
       thumbnail: "",
