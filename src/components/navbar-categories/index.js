@@ -42,6 +42,7 @@ export const NAV_MENUS = [
   {
     id: "decor-mosaics",
     label: "Decor & Mosaics",
+    categoryName: "Mosaics",
     href: "/product-category/tiles/mosaics",
     mobileHref: "/product-category/tiles/mosaics",
     filterBase: "/product-category/tiles/mosaics",
@@ -86,7 +87,7 @@ const pickName = (slug, label) => {
 export const getCategoryBySlug = (slug) => {
   const key = String(slug || "").toLowerCase();
   if (!key) {
-    return { name: "", slug: "", description: "", thumbnail: "" };
+    return { name: "", categoryName: "", slug: "", description: "", thumbnail: "" };
   }
 
   const menuMatch = NAV_MENUS.find(
@@ -94,7 +95,8 @@ export const getCategoryBySlug = (slug) => {
   );
   if (menuMatch) {
     return {
-      name: menuMatch.categoryName || menuMatch.label,
+      name: menuMatch.label,
+      categoryName: menuMatch.categoryName || menuMatch.label,
       slug: key,
       description: "",
       thumbnail: "",
@@ -107,6 +109,7 @@ export const getCategoryBySlug = (slug) => {
         if (slugFromHref(item.href) === key) {
           return {
             name: pickName(key, item.label),
+            categoryName: pickName(key, item.label),
             slug: key,
             description: "",
             thumbnail: item.image || "",
@@ -118,6 +121,7 @@ export const getCategoryBySlug = (slug) => {
 
   return {
     name: nameFromSlug(key),
+    categoryName: nameFromSlug(key),
     slug: key,
     description: "",
     thumbnail: "",

@@ -194,7 +194,7 @@ const Content = ({
 
         const fetchFilterValues = async () => {
             try {
-                const encodedCategory = encodeCategoryEntities(dataSlug.name);
+                const encodedCategory = encodeCategoryEntities(dataSlug.categoryName || dataSlug.name);
                 const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
@@ -270,7 +270,7 @@ const Content = ({
                 
                 // Build query parameters for filters
                 const queryParams = new URLSearchParams({
-                    category: encodeCategoryEntities(dataSlug.name),
+                    category: encodeCategoryEntities(dataSlug.categoryName || dataSlug.name),
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()
