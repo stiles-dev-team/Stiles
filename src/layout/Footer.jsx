@@ -1,5 +1,6 @@
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaPinterest } from "react-icons/fa";
 import { useEffect, useState } from 'react';
+import { openCookieSettings } from '../utils/cookies';
 
 const Footer = () => {
 
@@ -34,6 +35,8 @@ const Footer = () => {
           <h3 className="text-2xl font-bold text-white mb-4">LEGAL</h3>
           <a href="/stiles-terms-and-conditions-of-sale" className="text-white text-sm text-center lg:text-left">Terms & Conditions</a>
           <a href="/privacy-policy-popi-compliance" className="text-white text-sm text-center lg:text-left">Privacy Policy</a>
+          <a href="/cookie-policy" className="text-white text-sm text-center lg:text-left">Cookie Policy</a>
+          <button type="button" onClick={openCookieSettings} className="text-white text-sm text-center lg:text-left">Cookie settings</button>
           <a href="/product-disclaimer" className="text-white text-sm text-center lg:text-left">Product Disclaimer</a>
         </div>
         <div className="flex flex-col justify-start items-center lg:items-start gap-2 lg:col-span-2">

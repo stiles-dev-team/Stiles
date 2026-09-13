@@ -238,8 +238,9 @@ const PrivacyPolicy = () => {
           </ul>
           <p>
             For more information about the cookies we use and your choices
-            regarding cookies, please visit our Cookies Policy or the Cookies
-            section of our Privacy Policy.
+            regarding cookies, please visit our{" "}
+            <a href="/cookie-policy">Cookie Policy</a> or the Cookies
+            section of this Privacy Policy.
           </p>
           <h2 className="font-bold text-lg">Use of Your Personal Data</h2>
           <p>The Company may use Personal Data for the following purposes:</p>
