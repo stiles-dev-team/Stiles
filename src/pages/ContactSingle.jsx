@@ -63,7 +63,7 @@ const ContactSingle = () => {
   <div className="container mx-auto px-4">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Contact Form */}
-      <div className="bg-white p-8 rounded-lg shadow-md">
+      {/* <div className="bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-3xl font-bold mb-6">Send us a Message</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -128,12 +128,14 @@ const ContactSingle = () => {
             Send Message
           </button>
         </form>
-      </div>
+      </div> */}
 
       {/* Contact Information */}
-      <div>
+      <div className="flex flex-col items-center text-center lg:col-span-2">
         <h2 className="text-3xl font-bold mb-6">Contact Information</h2>
-        <LocationCard location={location} />
+        <div className="w-full max-w-md">
+          <LocationCard location={location} />
+        </div>
       </div>
     </div>
   </div>
