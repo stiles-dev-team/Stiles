@@ -28,8 +28,20 @@ import { toast } from 'sonner';
 import {
     BathroomAccessoriesSubcategories,
     BasinSubcategories,
+    ShowerSubcategories,
+    DomesticHotWaterSubcategories,
+    ToiletSubcategories,
+    TapwareSubcategories,
+    KitchenSubcategories,
+    BathSubcategories,
     isBathroomAccessoriesSlug,
     isBasinsSlug,
+    isShowersSlug,
+    isDomesticHotWaterSlug,
+    isToiletsSlug,
+    isTapwareSlug,
+    isKitchenSlug,
+    isBathsSlug,
 } from '../components/SanwareSubcategories';
 import { getCategoryBySlug } from '../components/navbar-categories';
 
@@ -94,6 +106,20 @@ const ProductCategory = () => {
         </Helmet>
         {isBathroomAccessoriesSlug(slug) ? (
             <BathroomAccessoriesSubcategories />
+        ) : isBasinsSlug(slug) ? (
+            <BasinSubcategories />
+        ) : isShowersSlug(slug) ? (
+            <ShowerSubcategories />
+        ) : isDomesticHotWaterSlug(slug) ? (
+            <DomesticHotWaterSubcategories />
+        ) : isToiletsSlug(slug) ? (
+            <ToiletSubcategories />
+        ) : isTapwareSlug(slug) ? (
+            <TapwareSubcategories />
+        ) : isKitchenSlug(slug) ? (
+            <KitchenSubcategories />
+        ) : isBathsSlug(slug) ? (
+            <BathSubcategories />
         ) : (
             <Hero slug={slug} />
         )}
@@ -534,7 +560,6 @@ const Content = ({
     };
 
     const hasProducts = totalCount > 0;
-    const showBasins = isBasinsSlug(slug);
 
     return (
         <>
@@ -718,7 +743,6 @@ const Content = ({
                             </a>
                         </Breadcrumbs>
                     </div>
-                    {showBasins && <BasinSubcategories />}
                     {hasProducts && (
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>

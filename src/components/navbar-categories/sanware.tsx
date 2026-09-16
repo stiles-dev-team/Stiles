@@ -42,7 +42,7 @@ export const SANWARE_MEGA_MENU = [
       },
       {
         label: "Domestic Hot Water",
-        href: `${BASE}/heating/water-heater`,
+        href: `${BASE}/domestic-hot-water`,
         image: "/images/sanware-icons/hot%20water_.jpg",
       },
     ],

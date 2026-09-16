@@ -26,6 +26,20 @@ import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import { getCategoryBySlug } from '../components/navbar-categories';
+import {
+    DomesticHotWaterSubcategories,
+    ToiletNestedSubcategories,
+    ShowerNestedSubcategories,
+    BathroomAccessoriesNestedSubcategories,
+    TapwareNestedSubcategories,
+    KitchenNestedSubcategories,
+    isDomesticHotWaterSlug,
+    getToiletCategoryWithChildren,
+    getShowerCategoryWithChildren,
+    getBathroomAccessoryCategoryWithChildren,
+    getTapwareCategoryWithChildren,
+    getKitchenCategoryWithChildren,
+} from '../components/SanwareSubcategories';
 
 function Icon({ id, open }) {
     return (
@@ -79,14 +93,39 @@ const ProductTagCategory = () => {
     
 
     const data = getCategoryBySlug(slug);
+    const toiletCategoryWithChildren = getToiletCategoryWithChildren(slug);
+    const showerCategoryWithChildren = getShowerCategoryWithChildren(slug);
+    const bathroomAccessoryCategoryWithChildren = getBathroomAccessoryCategoryWithChildren(slug);
+    const tapwareCategoryWithChildren = getTapwareCategoryWithChildren(slug);
+    const kitchenCategoryWithChildren = getKitchenCategoryWithChildren(slug);
+    const nestedCategory =
+      toiletCategoryWithChildren ||
+      showerCategoryWithChildren ||
+      bathroomAccessoryCategoryWithChildren ||
+      tapwareCategoryWithChildren ||
+      kitchenCategoryWithChildren;
 
   return (
     <Layout>
         <Helmet>
-            <title>{data?.name || 'Products'} | Stiles</title>
+            <title>{data?.name || nestedCategory?.label || 'Products'} | Stiles</title>
             <meta name="description" content={extractTextFromHTML(data?.description)} />
         </Helmet>
-        <Hero slug={slug} />
+        {toiletCategoryWithChildren ? (
+            <ToiletNestedSubcategories category={toiletCategoryWithChildren} />
+        ) : showerCategoryWithChildren ? (
+            <ShowerNestedSubcategories category={showerCategoryWithChildren} />
+        ) : bathroomAccessoryCategoryWithChildren ? (
+            <BathroomAccessoriesNestedSubcategories category={bathroomAccessoryCategoryWithChildren} />
+        ) : tapwareCategoryWithChildren ? (
+            <TapwareNestedSubcategories category={tapwareCategoryWithChildren} />
+        ) : kitchenCategoryWithChildren ? (
+            <KitchenNestedSubcategories category={kitchenCategoryWithChildren} />
+        ) : isDomesticHotWaterSlug(slug) ? (
+            <DomesticHotWaterSubcategories />
+        ) : (
+            <Hero slug={slug} />
+        )}
         <Content 
             slug={slug} 
             category={category}
