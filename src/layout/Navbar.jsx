@@ -569,6 +569,7 @@ const Navbar = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchSubmit}
+              autoFocus
             />
             {isSearchLoading ? (
               <div className="w-full bg-white mt-2 rounded-lg shadow-lg p-4 text-center">
