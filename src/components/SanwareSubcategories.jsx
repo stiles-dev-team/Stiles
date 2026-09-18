@@ -11,10 +11,11 @@ const BATHROOM_ACCESSORY_ITEMS = [
     label: "Toilet Accessories",
     slug: "toilet-accessories",
     href: `${BATHROOM_ACCESSORY_BASE}/toilet-accessories`,
+    image: "/images/sanware/bathroom-accessories/toilet-paper-holders.png",
     children: [
-      { label: "Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-holder` },
-      { label: "Toilet Brush and Holder (Toilet Brush) + (Toilet Holder)", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder` },
-      { label: "Spare Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/spare-toilet-roll-holder` },
+      { label: "Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-holder`, image: "/images/sanware/bathroom-accessories/toilet-paper-holders.png" },
+      { label: "Toilet Brush and Holder (Toilet Brush) + (Toilet Holder)", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/bathroom-accessories/toilet-brushes.png" },
+      { label: "Spare Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/spare-toilet-roll-holder`, image: "/images/sanware/bathroom-accessories/toilet-paper-holders.png" },
       { label: "Sanitary Bag Holder", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bag-holder` },
       { label: "Watse Bin", href: `${BATHROOM_ACCESSORY_BASE}/watse-bin` },
     ],
@@ -33,13 +34,14 @@ const BATHROOM_ACCESSORY_ITEMS = [
     label: "Shower and Bath Accessories",
     slug: "shower-and-bath-accessories",
     href: `${BATHROOM_ACCESSORY_BASE}/shower-and-bath-accessories`,
+    image: "/images/sanware/bathroom-accessories/shower-caddies.png",
     children: [
-      { label: "Shower Racks (Shower Caddies)", href: `${BATHROOM_ACCESSORY_BASE}/shower-racks` },
-      { label: "Glass Shelves", href: `${BATHROOM_ACCESSORY_BASE}/glass-shelves` },
-      { label: "Shower Seats", href: `${BATHROOM_ACCESSORY_BASE}/shower-seats` },
+      { label: "Shower Racks (Shower Caddies)", href: `${BATHROOM_ACCESSORY_BASE}/shower-racks`, image: "/images/sanware/bathroom-accessories/shower-caddies.png" },
+      { label: "Glass Shelves", href: `${BATHROOM_ACCESSORY_BASE}/glass-shelves`, image: "/images/sanware/bathroom-accessories/shelves.png" },
+      { label: "Shower Seats", href: `${BATHROOM_ACCESSORY_BASE}/shower-seats`, image: "/images/sanware/shower/Shower%20Seats.png" },
       { label: "Shower Door Accessories", href: `${BATHROOM_ACCESSORY_BASE}/shower-door-accessories` },
-      { label: "Towel Rails", href: `${BATHROOM_ACCESSORY_BASE}/towel-rails` },
-      { label: "Robe Hooks", href: `${BATHROOM_ACCESSORY_BASE}/robe-hooks` },
+      { label: "Towel Rails", href: `${BATHROOM_ACCESSORY_BASE}/towel-rails`, image: "/images/sanware/bathroom-accessories/towel-rails.png" },
+      { label: "Robe Hooks", href: `${BATHROOM_ACCESSORY_BASE}/robe-hooks`, image: "/images/sanware/bathroom-accessories/robe-hooks.png" },
       { label: "Shower Filters", href: `${BATHROOM_ACCESSORY_BASE}/shower-filters` },
     ],
   },
@@ -47,11 +49,13 @@ const BATHROOM_ACCESSORY_ITEMS = [
     label: "Soap Holder",
     slug: "soap-holder",
     href: `${BATHROOM_ACCESSORY_BASE}/soap-holder`,
+    image: "/images/sanware/bathroom-accessories/soap-holders.png",
   },
   {
     label: "Heated Towel Rails",
     slug: "heated-towel-rails",
     href: `${BATHROOM_ACCESSORY_BASE}/heated-towel-rails`,
+    image: "/images/sanware/bathroom-accessories/heated-towel-rails.png",
   },
   {
     label: "Mirrors",
@@ -80,15 +84,15 @@ const BATHROOM_ACCESSORY_ITEMS = [
 ];
 
 const BASIN_ITEMS = [
-  { label: "Counter Top Basins", href: "/product-category/sanitary-ware/basins/counter-top-basins" },
-  { label: "Undercounter Basins (Underslung Basin)", href: "/product-category/sanitary-ware/basins/undercounter-basins" },
+  { label: "Counter Top Basins", href: "/product-category/sanitary-ware/basins/counter-top-basins", image: "/images/sanware/basins/Counter%20Top%20Basins.png" },
+  { label: "Undercounter Basins (Underslung Basin)", href: "/product-category/sanitary-ware/basins/undercounter-basins", image: "/images/sanware/basins/Undercounter%20Basins.png" },
   { label: "Freestanding Basins", href: "/product-category/sanitary-ware/basins/freestanding-basins" },
-  { label: "Drop in Basins", href: "/product-category/sanitary-ware/basins/drop-in-basins" },
-  { label: "Semi-Recessed Basins", href: "/product-category/sanitary-ware/basins/semi-recessed-basins" },
-  { label: "Wall Hung Basins (Same as Handrinse Basins)", href: "/product-category/sanitary-ware/basins/wall-hung-basins" },
-  { label: "Pedestal Basins", href: "/product-category/sanitary-ware/basins/pedestal-basins" },
-  { label: "Medical Basins", href: "/product-category/sanitary-ware/basins/medical-basins" },
-  { label: "Cabinets (also Vanity)", href: "/product-category/sanitary-ware/basins/cabinets" },
+  { label: "Drop in Basins", href: "/product-category/sanitary-ware/basins/drop-in-basins", image: "/images/sanware/basins/Drop%20in%20Basins.png" },
+  { label: "Semi-Recessed Basins", href: "/product-category/sanitary-ware/basins/semi-recessed-basins", image: "/images/sanware/basins/Semi-Recessed%20Basins.png" },
+  { label: "Wall Hung Basins (Same as Handrinse Basins)", href: "/product-category/sanitary-ware/basins/wall-hung-basins", image: "/images/sanware/basins/Wall%20Hung%20Basin.png" },
+  { label: "Pedestal Basins", href: "/product-category/sanitary-ware/basins/pedestal-basins", image: "/images/sanware/basins/Pedestal%20Basins.png" },
+  { label: "Medical Basins", href: "/product-category/sanitary-ware/basins/medical-basins", image: "/images/sanware/basins/Medical%20Basins.png" },
+  { label: "Cabinets (also Vanity)", href: "/product-category/sanitary-ware/basins/cabinets", image: "/images/sanware/basins/Cabinets.png" },
 ];
 
 const SHOWER_BASE = "/product-category/sanitary-ware/showers";
@@ -98,51 +102,59 @@ const SHOWER_ITEMS = [
     label: "Shower Roses (Shower Heads) + (Shower Heads + Arms)",
     slug: "shower-roses",
     href: `${SHOWER_BASE}/shower-roses`,
+    image: "/images/sanware/shower/Shower%20Roses%20.png",
   },
   {
     label: "Shower Arms",
     slug: "shower-arms",
     href: `${SHOWER_BASE}/shower-arms`,
+    image: "/images/sanware/shower/Shower%20Arms.png",
   },
   {
     label: "Shower Rails (Rail Sets) (Shower Bar)",
     slug: "shower-rails",
     href: `${SHOWER_BASE}/shower-rails`,
+    image: "/images/sanware/shower/Shower%20Rails.png",
   },
   {
     label: "Shower Columns",
     slug: "shower-columns",
     href: `${SHOWER_BASE}/shower-columns`,
+    image: "/images/sanware/shower/Shower%20Columns.png",
   },
   {
     label: "Shower Pipes",
     slug: "shower-pipes",
     href: `${SHOWER_BASE}/shower-pipes`,
+    image: "/images/sanware/shower/Shower%20Pipes.png",
   },
   {
     label: "Hand Showers (Outlet and Bracket) + (Shower Hoses) + (Wall Outlets)",
     slug: "hand-showers",
     href: `${SHOWER_BASE}/hand-showers`,
+    image: "/images/sanware/shower/Hand%20Showers.png",
   },
   {
     label: "Shower Glass",
     slug: "shower-glass",
     href: `${SHOWER_BASE}/shower-glass`,
+    image: "/images/sanware/shower/Shower%20Screen.png",
     children: [
-      { label: "Shower Screen", href: `${SHOWER_BASE}/shower-screen` },
-      { label: "Pivot Door", href: `${SHOWER_BASE}/pivot-door` },
-      { label: "Return Panel", href: `${SHOWER_BASE}/return-panel` },
-      { label: "Tri Slider", href: `${SHOWER_BASE}/tri-slider` },
-      { label: "Bi Slider", href: `${SHOWER_BASE}/bi-slider` },
-      { label: "Bath Screen", href: `${SHOWER_BASE}/bath-screen` },
-      { label: "Telescopic Shower Door", href: `${SHOWER_BASE}/telescopic-shower-door` },
-      { label: "Mono Telescopic Shower Door", href: `${SHOWER_BASE}/mono-telescopic-shower-door` },
+      { label: "Shower Screen", href: `${SHOWER_BASE}/shower-screen`, image: "/images/sanware/shower/Shower%20Screen.png" },
+      { label: "Pivot Door", href: `${SHOWER_BASE}/pivot-door`, image: "/images/sanware/shower/Pivot%20Door.png" },
+      { label: "Return Panel", href: `${SHOWER_BASE}/return-panel`, image: "/images/sanware/shower/Return%20Panel.png" },
+      { label: "Tri Slider", href: `${SHOWER_BASE}/tri-slider`, image: "/images/sanware/shower/Tri%20Slider.png" },
+      { label: "Bi Slider", href: `${SHOWER_BASE}/bi-slider`, image: "/images/sanware/shower/Bi%20Slider.png" },
+      { label: "Bath Screen", href: `${SHOWER_BASE}/bath-screen`, image: "/images/sanware/shower/Bath%20Screen.png" },
+      { label: "Telescopic Shower Door", href: `${SHOWER_BASE}/telescopic-shower-door`, image: "/images/sanware/shower/Telescopic%20Shower%20Door.png" },
+      { label: "Mono Telescopic Shower Door", href: `${SHOWER_BASE}/mono-telescopic-shower-door`, image: "/images/sanware/shower/Mono%20Telescopic%20Shower%20Door.png" },
     ],
   },
   {
     label: "Shower Trays",
     slug: "shower-trays",
     href: `${SHOWER_BASE}/shower-trays`,
+    image: "/images/sanware/shower/Shower%20Trays.png",
   },
   {
     label: "Shower Wall Panels",
@@ -153,11 +165,13 @@ const SHOWER_ITEMS = [
     label: "Pet Friendly",
     slug: "pet-friendly",
     href: `${SHOWER_BASE}/pet-friendly`,
+    image: "/images/sanware/shower/Pet%20Friendly.png",
   },
   {
     label: "Bidet Spray (Trigger Spray)",
     slug: "bidet-spray",
     href: `${SHOWER_BASE}/bidet-spray`,
+    image: "/images/sanware/shower/Bidet%20Spray.png",
   },
 ];
 
@@ -173,50 +187,55 @@ const TAPWARE_ITEMS = [
     label: "Mixers",
     slug: "mixers",
     href: `${TAPWARE_BASE}/mixers`,
+    image: "/images/sanware/tapware/Mixers.png",
     children: [
-      { label: "Basin Mixers", href: `${TAPWARE_BASE}/basin-mixers` },
-      { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers` },
-      { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers` },
-      { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers` },
-      { label: "Sink Mixers (Kitchen Mixers)", href: `${TAPWARE_BASE}/sink-mixers` },
-      { label: "Electronic Mixers", href: `${TAPWARE_BASE}/electronic-mixers` },
-      { label: "Stop Taps", href: `${TAPWARE_BASE}/stop-taps` },
-      { label: "Bib Taps", href: `${TAPWARE_BASE}/bib-taps` },
-      { label: "Pillar Taps", href: `${TAPWARE_BASE}/pillar-taps` },
+      { label: "Basin Mixers", href: `${TAPWARE_BASE}/basin-mixers`, image: "/images/sanware/tapware/Mixers.png" },
+      { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers`, image: "/images/sanware/tapware/Concealed%20Mixers.png" },
+      { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers`, image: "/images/sanware/tapware/Concealed%20Diver%20Mixers.png" },
+      { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers`, image: "/images/sanware/tapware/Thermostatic%20Mixers.png" },
+      { label: "Sink Mixers (Kitchen Mixers)", href: `${TAPWARE_BASE}/sink-mixers`, image: "/images/sanware/tapware/Sink%20Mixers%20.png" },
+      { label: "Electronic Mixers", href: `${TAPWARE_BASE}/electronic-mixers`, image: "/images/sanware/tapware/Electronic%20Mixers%20copy.png" },
+      { label: "Stop Taps", href: `${TAPWARE_BASE}/stop-taps`, image: "/images/sanware/tapware/-%20Stop%20Taps.png" },
+      { label: "Bib Taps", href: `${TAPWARE_BASE}/bib-taps`, image: "/images/sanware/tapware/Bib%20Taps.png" },
+      { label: "Pillar Taps", href: `${TAPWARE_BASE}/pillar-taps`, image: "/images/sanware/tapware/Pillar%20Taps.png" },
     ],
   },
   {
     label: "Spouts",
     slug: "spouts",
     href: `${TAPWARE_BASE}/spouts`,
+    image: "/images/sanware/tapware/Basin%20Spouts.png",
     children: [
-      { label: "Bath Spouts", href: `${TAPWARE_BASE}/bath-spouts` },
-      { label: "Basin Spouts", href: `${TAPWARE_BASE}/basin-spouts` },
+      { label: "Bath Spouts", href: `${TAPWARE_BASE}/bath-spouts`, image: "/images/sanware/tapware/Bath%20Spouts.png" },
+      { label: "Basin Spouts", href: `${TAPWARE_BASE}/basin-spouts`, image: "/images/sanware/tapware/Basin%20Spouts.png" },
     ],
   },
   {
     label: "Wastes",
     slug: "wastes",
     href: `${TAPWARE_BASE}/wastes`,
+    image: "/images/sanware/tapware/Basin%20Wastes.png",
     children: [
-      { label: "Bath Wastes", href: `${TAPWARE_BASE}/bath-wastes` },
-      { label: "Basin Wastes", href: `${TAPWARE_BASE}/basin-wastes` },
+      { label: "Bath Wastes", href: `${TAPWARE_BASE}/bath-wastes`, image: "/images/sanware/tapware/Bath%20Wastes.png" },
+      { label: "Basin Wastes", href: `${TAPWARE_BASE}/basin-wastes`, image: "/images/sanware/tapware/Basin%20Wastes.png" },
     ],
   },
   {
     label: "Valves",
     slug: "valves",
     href: `${TAPWARE_BASE}/valves`,
+    image: "/images/sanware/tapware/Valves.png",
   },
   {
     label: "Traps",
     slug: "traps",
     href: `${TAPWARE_BASE}/traps`,
+    image: "/images/sanware/tapware/Bottle%20Traps.png",
     children: [
-      { label: "PVC Traps", href: `${TAPWARE_BASE}/pvc-traps` },
-      { label: "Bottle Traps", href: `${TAPWARE_BASE}/bottle-traps` },
-      { label: "Shower Traps", href: `${TAPWARE_BASE}/shower-traps` },
-      { label: "Shower Channels", href: `${TAPWARE_BASE}/shower-channels` },
+      { label: "PVC Traps", href: `${TAPWARE_BASE}/pvc-traps`, image: "/images/sanware/tapware/PVC%20Traps.png" },
+      { label: "Bottle Traps", href: `${TAPWARE_BASE}/bottle-traps`, image: "/images/sanware/tapware/Bottle%20Traps.png" },
+      { label: "Shower Traps", href: `${TAPWARE_BASE}/shower-traps`, image: "/images/sanware/tapware/Shower%20Traps.png" },
+      { label: "Shower Channels", href: `${TAPWARE_BASE}/shower-channels`, image: "/images/sanware/tapware/Shower%20Channelsss.png" },
     ],
   },
 ];
@@ -228,39 +247,45 @@ const KITCHEN_ITEMS = [
     label: "Sink",
     slug: "sink",
     href: `${KITCHEN_BASE}/sink`,
+    image: "/images/sanware/kitchen/Undermount%20Sinks.png",
     children: [
-      { label: "Undermount Sinks", href: `${KITCHEN_BASE}/undermount-sinks` },
-      { label: "Drop in Sinks", href: `${KITCHEN_BASE}/drop-in-sinks` },
+      { label: "Undermount Sinks", href: `${KITCHEN_BASE}/undermount-sinks`, image: "/images/sanware/kitchen/Undermount%20Sinks.png" },
+      { label: "Drop in Sinks", href: `${KITCHEN_BASE}/drop-in-sinks`, image: "/images/sanware/kitchen/Drop%20in%20Sinks.png" },
     ],
   },
   {
     label: "Prep Bowl",
     slug: "prep-bowl",
     href: `${KITCHEN_BASE}/prep-bowl`,
+    image: "/images/sanware/kitchen/undermount%20prep.png",
     children: [
-      { label: "Undermount Sinks", href: `${KITCHEN_BASE}/prep-bowl-undermount-sinks` },
-      { label: "Drop in Sink", href: `${KITCHEN_BASE}/prep-bowl-drop-in-sink` },
+      { label: "Undermount Sinks", href: `${KITCHEN_BASE}/prep-bowl-undermount-sinks`, image: "/images/sanware/kitchen/undermount%20prep.png" },
+      { label: "Drop in Sink", href: `${KITCHEN_BASE}/prep-bowl-drop-in-sink`, image: "/images/sanware/kitchen/dropin%20prep.png" },
     ],
   },
   {
     label: "Butler Sinks",
     slug: "butler-sinks",
     href: `${KITCHEN_BASE}/butler-sinks`,
+    image: "/images/sanware/kitchen/Butler%20Sinks.png",
   },
   {
     label: "Wash Trough",
     slug: "wash-trough",
     href: `${KITCHEN_BASE}/wash-trough`,
+    image: "/images/sanware/kitchen/Wash%20trough.png",
   },
   {
     label: "Kitchen Mixers",
     slug: "kitchen-mixers",
     href: `${KITCHEN_BASE}/kitchen-mixers`,
+    image: "/images/sanware/kitchen/Sink%20Mixers%20.png",
   },
   {
     label: "Waste Disposers",
     slug: "waste-disposers",
     href: `${KITCHEN_BASE}/waste-disposers`,
+    image: "/images/sanware/kitchen/Waste%20Disposers.png",
   },
   {
     label: "Cleaning Agent",
@@ -271,18 +296,20 @@ const KITCHEN_ITEMS = [
     label: "Sink Wastes",
     slug: "sink-wastes",
     href: `${KITCHEN_BASE}/sink-wastes`,
+    image: "/images/sanware/kitchen/Sink%20Wastes.png",
   },
   {
     label: "Water Filters",
     slug: "water-filters",
     href: `${KITCHEN_BASE}/water-filters`,
+    image: "/images/sanware/kitchen/Water%20Filters.png",
   },
 ];
 
 const BATH_ITEMS = [
-  { label: "Freestanding Baths", href: "/product-category/sanitary-ware/baths/freestanding-baths" },
-  { label: "Built In Baths", href: "/product-category/sanitary-ware/baths/built-in-baths" },
-  { label: "Spa and Jacuzzi", href: "/product-category/sanitary-ware/baths/spa-and-jacuzzi" },
+  { label: "Freestanding Baths", href: "/product-category/sanitary-ware/baths/freestanding-baths", image: "/images/sanware/baths/Freestanding%20Baths.png" },
+  { label: "Built In Baths", href: "/product-category/sanitary-ware/baths/built-in-baths", image: "/images/sanware/baths/Built%20In%20Baths.png" },
+  { label: "Spa and Jacuzzi", href: "/product-category/sanitary-ware/baths/spa-and-jacuzzi", image: "/images/sanware/baths/Spa%20and%20Jacuzzi.png" },
 ];
 
 const TOILET_BASE = "/product-category/sanitary-ware/toilets";
@@ -427,9 +454,9 @@ export const getKitchenCategoryWithChildren = (slug) =>
 const AccessoryCard = ({ item }) => (
   <a href={item.href} className="flex flex-col items-center text-center px-1">
     <img
-      src="/images/product_ph.png"
+      src={item.image || "/images/product_ph.png"}
       alt={item.label}
-      className="w-full aspect-[4/3] object-cover rounded-lg"
+      className="w-full aspect-[4/3] object-contain rounded-lg"
     />
     <span className="mt-4 text-sm font-medium text-dark leading-snug">
       {item.label}
@@ -455,7 +482,7 @@ const SubcategoryCards = ({ title, items }) => {
               extensions={shouldAutoScroll ? { AutoScroll } : undefined}
               options={{
                 type: shouldAutoScroll ? 'loop' : 'slide',
-                perPage: 8,
+                perPage: 7,
                 perMove: 1,
                 gap: '1.5rem',
                 arrows: false,
@@ -471,9 +498,9 @@ const SubcategoryCards = ({ title, items }) => {
                   : undefined,
                 breakpoints: {
                   640: { perPage: 2 },
-                  768: { perPage: 3 },
-                  1024: { perPage: 5 },
-                  1280: { perPage: 7 },
+                  768: { perPage: 2 },
+                  1024: { perPage: 4 },
+                  1280: { perPage: 6 },
                 },
               }}
             >

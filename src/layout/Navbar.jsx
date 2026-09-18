@@ -125,7 +125,7 @@ function ImageMegaMenu({ isOpen, menu }) {
               <img
                 src={item.image}
                 alt={item.label}
-                className="h-16 w-full max-w-[80px] object-contain"
+                className="h-20 w-full max-w-[96px] object-contain"
               />
               <span className="text-[10px] font-medium leading-tight tracking-wide text-gray-700 group-hover:text-gray-900">
                 {item.label}
