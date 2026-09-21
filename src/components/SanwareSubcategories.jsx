@@ -86,7 +86,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
 const BASIN_ITEMS = [
   { label: "Counter Top Basins", href: "/product-category/sanitary-ware/basins/counter-top-basins", image: "/images/sanware/basins/Counter%20Top%20Basins.png" },
   { label: "Undercounter Basins (Underslung Basin)", href: "/product-category/sanitary-ware/basins/undercounter-basins", image: "/images/sanware/basins/Undercounter%20Basins.png" },
-  { label: "Freestanding Basins", href: "/product-category/sanitary-ware/basins/freestanding-basins" },
+  { label: "Freestanding Basins", href: "/product-category/sanitary-ware/basins/freestanding-basins", image: "/images/sanware/basins/Counter%20Top%20Basins.png" },
   { label: "Drop in Basins", href: "/product-category/sanitary-ware/basins/drop-in-basins", image: "/images/sanware/basins/Drop%20in%20Basins.png" },
   { label: "Semi-Recessed Basins", href: "/product-category/sanitary-ware/basins/semi-recessed-basins", image: "/images/sanware/basins/Semi-Recessed%20Basins.png" },
   { label: "Wall Hung Basins (Same as Handrinse Basins)", href: "/product-category/sanitary-ware/basins/wall-hung-basins", image: "/images/sanware/basins/Wall%20Hung%20Basin.png" },
@@ -160,6 +160,7 @@ const SHOWER_ITEMS = [
     label: "Shower Wall Panels",
     slug: "shower-wall-panels",
     href: `${SHOWER_BASE}/shower-wall-panels`,
+    image: "/images/sanware/shower/shower%20wall%20panel.png",
   },
   {
     label: "Pet Friendly",
@@ -175,9 +176,19 @@ const SHOWER_ITEMS = [
   },
 ];
 
+const DOMESTIC_HOT_WATER_BASE = "/product-category/sanitary-ware/domestic-hot-water";
+
 const DOMESTIC_HOT_WATER_ITEMS = [
-  { label: "Heat Pumps", href: "/product-category/sanitary-ware/domestic-hot-water/heat-pumps" },
-  { label: "Instantaneous Water Heaters", href: "/product-category/sanitary-ware/domestic-hot-water/instantaneous-water-heaters" },
+  {
+    label: "Heat Pumps",
+    href: `${DOMESTIC_HOT_WATER_BASE}/heat-pumps`,
+    image: "/images/sanware/domestic-hot-water/heatpump.png",
+  },
+  {
+    label: "Instantaneous Water Heaters",
+    href: `${DOMESTIC_HOT_WATER_BASE}/instantaneous-water-heaters`,
+    image: "/images/sanware/domestic-hot-water/Instantaneous%20Water%20Heaters.png",
+  },
 ];
 
 const TAPWARE_BASE = "/product-category/sanitary-ware/mixers-and-taps";
@@ -319,25 +330,30 @@ const TOILET_ITEMS = [
     label: "Wall Hung Toilets",
     slug: "wall-hung-toilets",
     href: `${TOILET_BASE}/wall-hung-toilets`,
+    image: "/images/sanware/toilets/Wall%20Hung%20Toilets.png",
   },
   {
     label: "Close Coupled Wall Hung Toilets",
     slug: "close-coupled-wall-hung-toilets",
     href: `${TOILET_BASE}/close-coupled-wall-hung-toilets`,
+    image: "/images/sanware/toilets/Close%20Coupled%20Wall%20Hung%20Toilets.png",
   },
   {
     label: "Back to Wall Floor Mounted Toilets (Floor Mounted Pans)",
     slug: "back-to-wall-floor-mounted-toilets",
     href: `${TOILET_BASE}/back-to-wall-floor-mounted-toilets`,
+    image: "/images/sanware/toilets/Back%20to%20Wall%20Floor%20Mounted%20Toilets%20_Floor%20Mounted%20Pan.png",
   },
   {
     label: "Close Coupled Toilets",
     slug: "close-coupled-toilets",
     href: `${TOILET_BASE}/close-coupled-toilets`,
+    image: "/images/sanware/toilets/Back%20to%20Wall%20Closed%20Coupled%20Toilets.png",
     children: [
       {
         label: "Back to Wall Closed Coupled Toilets",
         href: `${TOILET_BASE}/back-to-wall-closed-coupled-toilets`,
+        image: "/images/sanware/toilets/Back%20to%20Wall%20Closed%20Coupled%20Toilets.png",
       },
     ],
   },
@@ -345,42 +361,48 @@ const TOILET_ITEMS = [
     label: "Accesible Toilets",
     slug: "accesible-toilets",
     href: `${TOILET_BASE}/accesible-toilets`,
+    image: "/images/sanware/toilets/Accesible%20Toilets.png",
   },
   {
     label: "Shower Toilets",
     slug: "shower-toilets",
     href: `${TOILET_BASE}/shower-toilets`,
+    image: "/images/sanware/toilets/Shower%20Toilets.png",
   },
   {
     label: "Aquaclean Toilets",
     slug: "aquaclean-toilets",
     href: `${TOILET_BASE}/aquaclean-toilets`,
+    image: "/images/sanware/toilets/Aquaclean%20Toilets.png",
   },
   {
     label: "Toilet Seats",
     slug: "toilet-seats",
     href: `${TOILET_BASE}/toilet-seats`,
+    image: "/images/sanware/toilets/Toilet%20Seats.png",
   },
   {
     label: "Concealed Systems",
     slug: "concealed-systems",
     href: `${TOILET_BASE}/concealed-systems`,
+    image: "/images/sanware/toilets/Wall%20Hung%20Cisterns.png",
     children: [
-      { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/wall-hung-cisterns` },
-      { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/dry-wall-wall-hung-cisterns` },
-      { label: "Floor Mount Cisterns", href: `${TOILET_BASE}/floor-mount-cisterns` },
-      { label: "Actuator Plates", href: `${TOILET_BASE}/actuator-plates` },
+      { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/wall-hung-cisterns`, image: "/images/sanware/toilets/Wall%20Hung%20Cisterns.png" },
+      { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/dry-wall-wall-hung-cisterns`, image: "/images/sanware/toilets/Dry%20Wall%20Wall%20Hung%20Cisterns.png" },
+      { label: "Floor Mount Cisterns", href: `${TOILET_BASE}/floor-mount-cisterns`, image: "/images/sanware/toilets/Floor%20Mount%20Cisterns.png" },
+      { label: "Actuator Plates", href: `${TOILET_BASE}/actuator-plates`, image: "/images/sanware/toilets/Actuator%20Plates.png" },
     ],
   },
   {
     label: "Urinals",
     slug: "urinals",
     href: `${TOILET_BASE}/urinals`,
+    image: "/images/sanware/toilets/Back%20Entry%20Urinal.png",
     children: [
-      { label: "Back Entry Urinal", href: `${TOILET_BASE}/back-entry-urinal` },
-      { label: "Top Entry Urinal", href: `${TOILET_BASE}/top-entry-urinal` },
-      { label: "Electronic Urinal", href: `${TOILET_BASE}/electronic-urinal` },
-      { label: "Waterless Urinal", href: `${TOILET_BASE}/waterless-urinal` },
+      { label: "Back Entry Urinal", href: `${TOILET_BASE}/back-entry-urinal`, image: "/images/sanware/toilets/Back%20Entry%20Urinal.png" },
+      { label: "Top Entry Urinal", href: `${TOILET_BASE}/top-entry-urinal`, image: "/images/sanware/toilets/Top%20Entry%20Urinal.png" },
+      { label: "Electronic Urinal", href: `${TOILET_BASE}/electronic-urinal`, image: "/images/sanware/toilets/Electronic%20Urinal.png" },
+      { label: "Waterless Urinal", href: `${TOILET_BASE}/waterless-urinal`, image: "/images/sanware/toilets/Waterless%20Urinal.png" },
     ],
   },
 ];
