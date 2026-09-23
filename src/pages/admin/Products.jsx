@@ -111,15 +111,21 @@ const AdminProducts = () => {
     promo: [],
   });
   const [submitting, setSubmitting] = useState(false);
+  const PAGE_SIZE_OPTIONS = [20, 50, 100, 200, 500];
+  const initialPageSize = (() => {
+    const fromUrl = parseInt(searchParams.get('limit'), 10);
+    return PAGE_SIZE_OPTIONS.includes(fromUrl) ? fromUrl : 20;
+  })();
   const [pagination, setPagination] = useState({
     current_page: 1,
     total_pages: 1,
     total_products: 0,
-    products_per_page: 20,
+    products_per_page: initialPageSize,
     has_next_page: false,
     has_prev_page: false,
   });
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
+  const [pageSize, setPageSize] = useState(initialPageSize);
   const [iqStatus, setIqStatus] = useState(null); // null = not checked, true = exists, false = doesn't exist
   const [checkingIq, setCheckingIq] = useState(false);
   const [csvUploading, setCsvUploading] = useState(false);
@@ -267,6 +273,16 @@ const AdminProducts = () => {
       newParams.set('page', currentPage.toString());
     } else {
       newParams.delete('page');
+    }
+
+    // Update or remove limit (page size)
+    if (updates.limit !== undefined) {
+      if (updates.limit && updates.limit !== 20) newParams.set('limit', updates.limit.toString());
+      else newParams.delete('limit');
+    } else if (pageSize && pageSize !== 20) {
+      newParams.set('limit', pageSize.toString());
+    } else {
+      newParams.delete('limit');
     }
     
     // Update or remove sort_field
@@ -653,13 +669,14 @@ const AdminProducts = () => {
   }, [formData.sku]);
 
   // Generate cache key from filter parameters
-  const getCacheKey = (page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection) => {
+  const getCacheKey = (page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection, limit = 20) => {
     // Use default sort (id, asc) when no explicit sort is set, to match API behavior
     const effectiveSortField = sortField || 'id';
     const effectiveSortDirection = sortField ? sortDirection : 'asc';
     
     return JSON.stringify({
       page,
+      limit,
       search: search || '',
       category: category || 'all',
       status: status || 'all',
@@ -696,9 +713,10 @@ const AdminProducts = () => {
     }
   };
 
-  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", space = "", installationNeed = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true) => {
+  const fetchProducts = async (page = 1, search = "", category = "", status = "", colour = "", finish = "", space = "", installationNeed = "", promo = "", productType = [], productCategory = "", sortField = null, sortDirection = "asc", useCache = true, limitOverride = null) => {
+    const limit = limitOverride ?? pageSize;
     // Generate cache key
-    const cacheKey = getCacheKey(page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection);
+    const cacheKey = getCacheKey(page, search, category, status, colour, finish, space, installationNeed, promo, productType, productCategory, sortField, sortDirection, limit);
     
     // Check cache first
     if (useCache) {
@@ -722,7 +740,7 @@ const AdminProducts = () => {
       }
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: "20",
+        limit: limit.toString(),
       });
 
       if (search) params.append("search", search);
@@ -791,7 +809,7 @@ const AdminProducts = () => {
           current_page: 1,
           total_pages: 1,
           total_products: 0,
-          products_per_page: 20,
+          products_per_page: limit,
           has_next_page: false,
           has_prev_page: false,
         };
@@ -1646,6 +1664,14 @@ const AdminProducts = () => {
     setCurrentPage(page);
     updateURLParams({ page });
     fetchProducts(page, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
+  };
+
+  const handlePageSizeChange = (newSize) => {
+    const size = PAGE_SIZE_OPTIONS.includes(newSize) ? newSize : 20;
+    setPageSize(size);
+    setCurrentPage(1);
+    updateURLParams({ page: 1, limit: size });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, true, size);
   };
 
   // Function to open download modal
@@ -2521,66 +2547,87 @@ const AdminProducts = () => {
         )}
 
         {/* Pagination */}
-        {pagination.total_pages > 1 && (
+        {pagination.total_products > 0 && (
           <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <div className="text-sm text-gray-700">
-                Showing page {pagination.current_page} of{" "}
-                {pagination.total_pages}
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(pagination.current_page - 1)}
-                  disabled={!pagination.has_prev_page}
-                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Previous
-                </button>
-
-                {/* Page numbers */}
-                <div className="flex items-center space-x-1">
-                  {Array.from(
-                    { length: Math.min(5, pagination.total_pages) },
-                    (_, i) => {
-                      let pageNum;
-                      if (pagination.total_pages <= 5) {
-                        pageNum = i + 1;
-                      } else if (pagination.current_page <= 3) {
-                        pageNum = i + 1;
-                      } else if (
-                        pagination.current_page >=
-                        pagination.total_pages - 2
-                      ) {
-                        pageNum = pagination.total_pages - 4 + i;
-                      } else {
-                        pageNum = pagination.current_page - 2 + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`px-2 sm:px-3 py-1 text-xs sm:text-sm border rounded-md ${
-                            pageNum === pagination.current_page
-                              ? "bg-blue-600 text-white border-blue-600"
-                              : "border-gray-300 hover:bg-gray-50"
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    }
-                  )}
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
+                <div className="text-sm text-gray-700">
+                  Showing page {pagination.current_page} of{" "}
+                  {pagination.total_pages}
                 </div>
-
-                <button
-                  onClick={() => handlePageChange(pagination.current_page + 1)}
-                  disabled={!pagination.has_next_page}
-                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Next
-                </button>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="products-page-size" className="text-sm text-gray-700 whitespace-nowrap">
+                    Per page
+                  </label>
+                  <select
+                    id="products-page-size"
+                    value={pageSize}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    className="px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+              {pagination.total_pages > 1 && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(pagination.current_page - 1)}
+                    disabled={!pagination.has_prev_page}
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Previous
+                  </button>
+
+                  {/* Page numbers */}
+                  <div className="flex items-center space-x-1">
+                    {Array.from(
+                      { length: Math.min(5, pagination.total_pages) },
+                      (_, i) => {
+                        let pageNum;
+                        if (pagination.total_pages <= 5) {
+                          pageNum = i + 1;
+                        } else if (pagination.current_page <= 3) {
+                          pageNum = i + 1;
+                        } else if (
+                          pagination.current_page >=
+                          pagination.total_pages - 2
+                        ) {
+                          pageNum = pagination.total_pages - 4 + i;
+                        } else {
+                          pageNum = pagination.current_page - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm border rounded-md ${
+                              pageNum === pagination.current_page
+                                ? "bg-blue-600 text-white border-blue-600"
+                                : "border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(pagination.current_page + 1)}
+                    disabled={!pagination.has_next_page}
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
