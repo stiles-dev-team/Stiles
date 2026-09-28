@@ -7,7 +7,7 @@ const Footer = () => {
   const [locationData, setLocationData] = useState(null)
 
   useEffect(() => {
-    fetch('/data/stiles-locations.json')
+    fetch('/data/stiles-locations.json', { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {
       setLocationData(data)
