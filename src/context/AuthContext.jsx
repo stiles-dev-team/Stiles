@@ -45,6 +45,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('stiles_auth_token');
     localStorage.removeItem('stiles_user_data');
     localStorage.removeItem('stiles_is_admin');
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout.php`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(() => {});
   };
 
   const value = {
