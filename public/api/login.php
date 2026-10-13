@@ -3,6 +3,11 @@
 ob_start();
 
 require_once 'config.php';
+require_once 'auth.php';
+
+allowCookieCors();
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -84,6 +89,9 @@ try {
         if ($storedToken !== $token) {
             throw new Exception('Token verification failed - stored token does not match generated token');
         }
+
+        // Browser stores this. JavaScript cannot read it.
+        setLoginCookie($token);
 
         // Clear any output buffers
         ob_end_clean();
