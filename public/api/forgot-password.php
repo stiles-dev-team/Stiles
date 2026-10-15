@@ -44,14 +44,13 @@ if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
 
 try {
     // Check if user exists and is active
-    $stmt = $pdo->prepare('SELECT id, first_name, last_name, email FROM users WHERE email = ? AND is_active = TRUE');
+    $stmt = $pdo->prepare('SELECT id, first_name, last_name, email FROM users WHERE email = ? AND is_active = 1');
     $stmt->execute([$data['email']]);
     $user = $stmt->fetch();
 
     if (!$user) {
-        // Don't reveal if email exists or not for security
-        http_response_code(200);
-        echo json_encode(['message' => 'If an account with that email exists, a password reset link has been sent']);
+        http_response_code(404);
+        echo json_encode(['error' => 'No account found with that email address']);
         exit();
     }
 
@@ -128,9 +127,8 @@ try {
     // Clear any output buffers
     ob_end_clean();
 
-    // Return success response (don't reveal if email exists)
     http_response_code(200);
-    echo json_encode(['message' => 'If an account with that email exists, a password reset link has been sent']);
+    echo json_encode(['message' => 'A password reset link has been sent to your email address']);
 
 } catch (PDOException $e) {
     error_log('Forgot password error: ' . $e->getMessage());
