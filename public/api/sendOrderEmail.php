@@ -289,13 +289,9 @@ function sendOrderEmail($orderData, $recipientEmail) {
 
     if (!$mailSent) {
         error_log('Failed to send order confirmation email to: ' . $recipientEmail);
-        http_response_code(421);
-        echo json_encode(['success' => false, 'message' => 'Failed to send order confirmation email']);
         return false;
     }
 
-    http_response_code(200);
-    echo json_encode(['success' => true, 'message' => 'Order confirmation email sent']);
     return true;
 }
 ?> 
