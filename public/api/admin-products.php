@@ -483,12 +483,20 @@ try {
                             );
                             $iqStmt->execute($skuList);
                             $iqBySku = [];
+                            // Price sort joins iq_table in MySQL, which ignores trailing spaces and letter case.
+                            // This default lookup used the raw SKU as a PHP array key, so those same products
+                            // missed their IQ row and were returned with a null price (shown as N/A).
                             while ($iqRow = $iqStmt->fetch(PDO::FETCH_ASSOC)) {
-                                $iqBySku[$iqRow['code']] = $iqRow;
+                                $iqKey = strtolower(trim((string)$iqRow['code']));
+                                $incomingHasPrice = isset($iqRow['sellPInc1']) && $iqRow['sellPInc1'] !== null && $iqRow['sellPInc1'] !== '';
+                                $existingHasPrice = isset($iqBySku[$iqKey]['sellPInc1']) && $iqBySku[$iqKey]['sellPInc1'] !== null && $iqBySku[$iqKey]['sellPInc1'] !== '';
+                                if (!isset($iqBySku[$iqKey]) || (!$existingHasPrice && $incomingHasPrice)) {
+                                    $iqBySku[$iqKey] = $iqRow;
+                                }
                             }
                             
                             foreach ($products as &$product) {
-                                $sku = $product['sku'] ?? '';
+                                $sku = strtolower(trim((string)($product['sku'] ?? '')));
                                 if ($sku !== '' && isset($iqBySku[$sku])) {
                                     $iq = $iqBySku[$sku];
                                     $product['iq_price'] = $iq['sellPInc1'];
