@@ -154,8 +154,8 @@ function sendSMTPFunkyEmail($to, $subject, $htmlBody, $headers = array()) {
     $emailContent = "From: " . SMTP_FUNKY_FROM_NAME . " <" . SMTP_FUNKY_FROM_EMAIL . ">\r\n";
     $emailContent .= "To: $to\r\n";
     $emailContent .= "Subject: $subject\r\n";
-    $emailContent .= "Reply-To: " . SMTP_FUNKY_REPLY_TO . "\r\n";
-    $emailContent .= "Bcc: " . SMTP_FUNKY_BCC . "\r\n";
+    // $emailContent .= "Reply-To: " . SMTP_FUNKY_REPLY_TO . "\r\n";
+    // $emailContent .= "Bcc: " . SMTP_FUNKY_BCC . "\r\n";
     $emailContent .= "MIME-Version: 1.0\r\n";
     $emailContent .= "Content-Type: text/html; charset=" . EMAIL_CHARSET . "\r\n";
     $emailContent .= "Content-Transfer-Encoding: " . EMAIL_ENCODING . "\r\n";
@@ -178,41 +178,60 @@ function sendSMTPFunkyEmail($to, $subject, $htmlBody, $headers = array()) {
     return true;
 }
 
+function funkyQuoteLogoSrc($logoSrc) {
+    // Prefer logo_src from quote-system (context/images/logo_rounded.svg).
+    $logoSrc = is_string($logoSrc) ? trim($logoSrc) : '';
+    if ($logoSrc !== '') {
+        return $logoSrc;
+    }
+
+    return '';
+}
+
 function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
     error_log('Attempting to send Funky quote email to: ' . $recipientEmail);
 
     $subject = $quoteData['subject'] ?? 'Your Funky Tiles quote';
-    $logoSrc = $quoteData['logo_src'] ?? '';
+    $logoSrc = funkyQuoteLogoSrc($quoteData['logo_src'] ?? '');
     $quoteLabel = $quoteData['quote_label'] ?? 'Quote';
-    $heading = $quoteData['heading'] ?? 'Thank you for your quote request';
+    $heading = $quoteData['heading'] ?? 'Thank you for your enquiry!';
     $items = $quoteData['items'] ?? [];
     $total = $quoteData['total'] ?? 0;
+    $cellStyle = 'padding:8px 12px 8px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;';
 
     $quantityTotal = 0;
     $lines = '';
     foreach ($items as $item) {
         $name = htmlspecialchars($item['name'] ?? $item['title'] ?? '', ENT_QUOTES, 'UTF-8');
-        $quantity = $item['quantity'] ?? 1;
-        $price = $item['price'] ?? 0;
-        $quantityTotal += $quantity;
-        $lineTotal = number_format($price * $quantity, 2);
+        $quantity = $item['quantity'] ?? null;
+        $quantityTotal += is_numeric($quantity) ? (float)$quantity : 0;
+        $label = $quantity ? $name . ' x ' . htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') : $name;
+        $unitPrice = $item['price'] ?? 0;
+        $linePrice = $item['line_price'] ?? (is_numeric($unitPrice) && is_numeric($quantity) ? $unitPrice * $quantity : $unitPrice);
+        $priceLabel = is_numeric($linePrice) ? 'R' . number_format((float)$linePrice, 2) : (string)$linePrice;
+        $image = trim((string)($item['image'] ?? $item['image_url'] ?? $item['imageUrl'] ?? ''));
+        $imageHtml = $image !== ''
+            ? '<td width="72" valign="middle" style="padding:8px 12px 8px 0;"><img src="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '" alt="" width="64" height="64" style="display:block;width:64px;height:64px;border:0;border-radius:8px;" /></td>'
+            : '';
 
-        $lines .= '
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 12px;">
-          <tr>
-            <td style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;">
-              ' . $name . ' &times; ' . htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') . '
-            </td>
-            <td align="right" style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;">
-              R' . htmlspecialchars($lineTotal, ENT_QUOTES, 'UTF-8') . '
-            </td>
-          </tr>
-        </table>';
+        $lines .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+            . $imageHtml
+            . '<td valign="middle" style="' . $cellStyle . '">' . $label . '</td>'
+            . '<td valign="middle" align="right" style="' . $cellStyle . 'white-space:nowrap;">' . htmlspecialchars($priceLabel, ENT_QUOTES, 'UTF-8') . '</td>'
+            . '</tr></table>';
     }
 
-    $itemCount = $quoteData['item_count'] ?? ($quantityTotal . ' item' . ($quantityTotal === 1 ? '' : 's'));
-    $totalLabel = is_numeric($total) ? 'R' . number_format($total, 2) : $total;
+    if (!isset($quoteData['item_count'])) {
+        $itemCount = $quantityTotal . ' item' . ($quantityTotal == 1 ? '' : 's');
+    } elseif (is_numeric($quoteData['item_count'])) {
+        $count = (int)$quoteData['item_count'];
+        $itemCount = $count . ' item' . ($count === 1 ? '' : 's');
+    } else {
+        $itemCount = $quoteData['item_count'];
+    }
+    $totalLabel = is_numeric($total) ? 'R' . number_format((float)$total, 2) : $total;
 
+    // Markup matches quote-system/app/emails/quote-request.html
     $htmlBody = '<!DOCTYPE html>
 <html lang="en">
   <head>
