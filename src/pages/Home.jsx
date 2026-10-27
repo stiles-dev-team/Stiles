@@ -260,7 +260,7 @@ const Hero = ({ content }) => {
                     text={slide.button_text}
                     styleType="light"
                     href={slide.button_link}
-                    extraStyle="text-sm p-3 min-w-48 lg:text-base lg:p-4 lg:min-w-64"
+                    extraStyle="!text-sm !px-5 !py-2.5 !min-w-40 lg:!text-base lg:!p-4 lg:!min-w-64"
                   />
                 </div>
               {/* {index === 0 ? (
