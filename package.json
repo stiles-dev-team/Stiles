@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node api.js && vite",
+    "dev": "vite",
     "build": "vite build",
     "build:ssr": "vite build && rmdir /s /q build 2>nul & mkdir build & xcopy /E /I /Y dist\\* build\\ && react-snap",
     "lint": "eslint .",

@@ -59,9 +59,11 @@ function Icon({ id, open }) {
 const ProductCategory = () => {
 
     const { slug } = useParams();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page'), 10) || 1);
     const [loading, setLoading] = useState(true);
-    const [productsPerPage, setProductsPerPage] = useState(15);
+    const [productsPerPage, setProductsPerPage] = useState(parseInt(searchParams.get('perPage'), 10) || 15);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
@@ -80,6 +82,10 @@ const ProductCategory = () => {
     const [data, setData] = useState(null);
 
     useEffect(() => {
+        if (promoName) {
+            setData({ name: promoName, description: '', thumbnail: '' });
+            return;
+        }
         fetch(`/data/navbar-categories.json`)
         .then(res => res.json())
         .then(data => {
@@ -87,7 +93,7 @@ const ProductCategory = () => {
             setData(selectedData[0]);
         })
         .catch(err => console.log(err));
-    }, []);
+    }, [slug, promoName]);
 
   return (
     <Layout>
@@ -114,7 +120,16 @@ export default ProductCategory
 
 const Hero = ({slug}) => {
 
+    const [searchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
     const [data, setData] = useState(null);
+    const promoBanners = {
+        'New@Stiles': '/images/home/home-slider-v2.jpg',
+        'Coming Soon': '/images/home/home-slider-v23.jpg',
+        'Funky Tiles': '/images/home/home-slider-v24.jpg',
+        'Exclusive to Stiles': '/images/home/home-slider-v28.jpg',
+    };
+    const bannerImage = promoBanners[promoName] || (data?.thumbnail ? data.thumbnail : '/images/bannerhome.png');
 
     useEffect(() => {
         fetch(`/data/navbar-categories.json`)
@@ -127,10 +142,10 @@ const Hero = ({slug}) => {
     }, []);
 
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${bannerImage})` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>{data?.name || promoName}</h1>
             <div className='!text-white text-center w-full max-w-3xl'>
                 <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
             </div>
@@ -150,6 +165,7 @@ const Content = ({
     onProductsPerPageChange 
 }) => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
@@ -192,12 +208,14 @@ const Content = ({
 
     // Fetch filter values when category changes
     useEffect(() => {
-        if (!dataSlug?.name) return;
+        if (!promoName && !dataSlug?.name) return;
 
         const fetchFilterValues = async () => {
             try {
-                const encodedCategory = encodeCategoryEntities(dataSlug.name);
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
+                const filterUrl = promoName
+                    ? `${import.meta.env.VITE_API_BASE_URL}/api/products.php?promo=${encodeURIComponent(promoName)}&filters=true`
+                    : `${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodeCategoryEntities(dataSlug.name))}&filters=true`;
+                const response = await fetch(filterUrl);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -242,7 +260,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [dataSlug]);
+    }, [dataSlug, promoName]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -262,7 +280,7 @@ const Content = ({
 
     // Modify the initial data loading effect to be more efficient
     useEffect(() => {
-        if (!dataSlug?.name) return;
+        if (!promoName && !dataSlug?.name) return;
         
         setLoading(true);
         const fetchProducts = async () => {
@@ -270,13 +288,17 @@ const Content = ({
                 // Calculate offset based on current page and products per page
                 const offset = (currentPage - 1) * productsPerPage;
                 
-                // Build query parameters for filters
+                // Promo listings match stiles_products.promo. Category listings match the category name.
                 const queryParams = new URLSearchParams({
-                    category: encodeCategoryEntities(dataSlug.name),
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()
                 });
+                if (promoName) {
+                    queryParams.set('promo', promoName);
+                } else {
+                    queryParams.set('category', encodeCategoryEntities(dataSlug.name));
+                }
 
                 // Add all filter parameters at once
                 if (selectedBrands.length > 0) {
@@ -318,7 +340,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [dataSlug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
+    }, [dataSlug, promoName, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
 
     useEffect(() => {
         fetch(`/data/navbar-categories.json`)
