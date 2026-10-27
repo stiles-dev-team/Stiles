@@ -196,32 +196,36 @@ const Hero = ({ content }) => {
     slides: [
           {
             id: 1,
-            title: "New @ Stiles",
-            subtitle: "The latest style at your fingertips",
+            // title: "New @ Stiles",
+            title: "The latest style at your fingertips",
+            // subtitle: "The latest style at your fingertips",
             background_image: "/images/home/home-slider-v2.jpg",
             button_text: "Explore New Ranges",
             button_link: "/product-category/promo?promo=New%40Stiles&sort=asc&perPage=15&page=1"
           },
           {
             id: 2,
-            title: "Coming Soon",
-            subtitle: "Your next favourite is almost here",
+            // title: "Coming Soon",
+            title: "Your next favourite is almost here",
+            // subtitle: "Your next favourite is almost here",
             background_image: "/images/home/home-slider-v23.jpg",
             button_text: "Explore what's Coming Soon",
             button_link: "/product-category/promo?promo=Coming%20Soon&sort=asc&perPage=15&page=1"
           },
           {
             id: 3,
-            title: "Funky Tiles",
-            subtitle: "Add personality to every room",
+            // title: "Funky Tiles",
+            title: "Add personality to every room",
+            // subtitle: "Add personality to every room",
             background_image: "/images/home/home-slider-v24.jpg",
             button_text: "Explore Décor Ranges",
             button_link: "/product-category/brands/Funky%20Tiles?sort=asc&perPage=15&page=1"
           },
           {
             id: 4,
-            title: "Exclusive",
-            subtitle: "Only at Stiles, handpicked for you.",
+            // title: "Exclusive",
+            title: "Only at Stiles, handpicked for you.",
+            // subtitle: "Only at Stiles, handpicked for you.",
             background_image: "/images/home/home-slider-v28.jpg",
             button_text: "Explore Exclusive Ranges",
             button_link: "/product-category/promo?promo=Exclusive%20to%20Stiles&sort=asc&perPage=15&page=1"
