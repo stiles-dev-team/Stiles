@@ -224,7 +224,7 @@ const Hero = ({ content }) => {
           {
             id: 4,
             // title: "Exclusive",
-            title: "Only at Stiles, handpicked for you.",
+            title: "Only at Stiles, handpicked for you",
             // subtitle: "Only at Stiles, handpicked for you.",
             background_image: "/images/home/home-slider-v28.jpg",
             button_text: "Explore Exclusive Ranges",
