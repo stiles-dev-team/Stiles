@@ -7,13 +7,13 @@ export const LARGE_SLABS_MEGA_MENU = [
     items: [
       { label: "Brick Look", href: `${BASE}/brick`, image: "/images/menu-look/brick.png" },
       { label: "Wood", href: `${BASE}/wood-design`, image: "/images/menu-look/wood.png" },
-      { label: "Stone", href: `${BASE}/stone-design`, image: "/images/menu-look/stone.png" },
+      { label: "Stone", href: `${BASE}/stone`, image: "/images/menu-look/stone.png" },
       { label: "Marble", href: `${BASE}/marble-design`, image: "/images/menu-look/marble.png" },
-      { label: "Cement", href: `${BASE}/concrete-cement-design`, image: "/images/menu-look/cement.png" },
-      { label: "Terrazzo", href: `${BASE}/terrazzo-design`, image: "/images/menu-look/terrazzo.png" },
+      { label: "Cement", href: `${BASE}/concrete`, image: "/images/menu-look/cement.png" },
+      { label: "Terrazzo", href: `${BASE}/terrazzo`, image: "/images/menu-look/terrazzo.png" },
       { label: "Patterned", href: `${BASE}/patterned`, image: "/images/menu-look/patterned.png" },
-      { label: "Minimalistic", href: `${BASE}/minimalist-design`, image: "/images/menu-look/minimalist.png" },
-      { label: "Handmade", href: `${BASE}/decor-tiles`, image: "/images/menu-look/handmade.png" },
+      // { label: "Minimalistic", href: `${BASE}/minimalist-design`, image: "/images/menu-look/minimalist.png" },
+      // { label: "Handmade", href: `${BASE}/decor-tiles`, image: "/images/menu-look/handmade.png" },
     ],
   },
   {
