@@ -83,6 +83,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
     label: "Room Heating",
     slug: "room-heating",
     href: `${BATHROOM_ACCESSORY_BASE}/room-heating`,
+    image: "/images/sanware/new-bathroom-accessories/Technical%20Elevation%20of%20Wall%20Heater.png",
   },
 ];
 
