@@ -25,6 +25,25 @@ import { BsFillGrid3X3GapFill, BsFillGridFill } from 'react-icons/bs';
 import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
+import {
+    BathroomAccessoriesSubcategories,
+    BasinSubcategories,
+    ShowerSubcategories,
+    DomesticHotWaterSubcategories,
+    ToiletSubcategories,
+    TapwareSubcategories,
+    KitchenSubcategories,
+    BathSubcategories,
+    isBathroomAccessoriesSlug,
+    isBasinsSlug,
+    isShowersSlug,
+    isDomesticHotWaterSlug,
+    isToiletsSlug,
+    isTapwareSlug,
+    isKitchenSlug,
+    isBathsSlug,
+} from '../components/SanwareSubcategories';
+import { getCategoryBySlug } from '../components/navbar-categories';
 
 // Function to extract plain text from HTML descriptions
 const extractTextFromHTML = (htmlString) => {
@@ -79,21 +98,10 @@ const ProductCategory = () => {
 
     
 
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        if (promoName) {
-            setData({ name: promoName, description: '', thumbnail: '' });
-            return;
-        }
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, [slug, promoName]);
+    const categoryData = getCategoryBySlug(slug);
+    const data = promoName
+        ? { name: promoName, description: '', thumbnail: '' }
+        : categoryData;
 
   return (
     <Layout>
@@ -101,7 +109,27 @@ const ProductCategory = () => {
             <title>{data?.name || 'Products'} | Stiles</title>
             <meta name="description" content={extractTextFromHTML(data?.description)} />
         </Helmet>
-        <Hero slug={slug} />
+        {promoName ? (
+            <Hero slug={slug} />
+        ) : isBathroomAccessoriesSlug(slug) ? (
+            <BathroomAccessoriesSubcategories />
+        ) : isBasinsSlug(slug) ? (
+            <BasinSubcategories />
+        ) : isShowersSlug(slug) ? (
+            <ShowerSubcategories />
+        ) : isDomesticHotWaterSlug(slug) ? (
+            <DomesticHotWaterSubcategories />
+        ) : isToiletsSlug(slug) ? (
+            <ToiletSubcategories />
+        ) : isTapwareSlug(slug) ? (
+            <TapwareSubcategories />
+        ) : isKitchenSlug(slug) ? (
+            <KitchenSubcategories />
+        ) : isBathsSlug(slug) ? (
+            <BathSubcategories />
+        ) : (
+            <Hero slug={slug} />
+        )}
         <Content 
             slug={slug} 
             currentPage={currentPage} 
@@ -119,33 +147,23 @@ const ProductCategory = () => {
 export default ProductCategory
 
 const Hero = ({slug}) => {
-
     const [searchParams] = useSearchParams();
     const promoName = searchParams.get('promo');
-    const [data, setData] = useState(null);
+    const data = getCategoryBySlug(slug);
     const promoBanners = {
         'New@Stiles': '/images/home/home-slider-v2.jpg',
         'Coming Soon': '/images/home/home-slider-v23.jpg',
         'Funky Tiles': '/images/home/home-slider-v24.jpg',
         'Exclusive to Stiles': '/images/home/home-slider-v28.jpg',
     };
-    const bannerImage = promoBanners[promoName] || (data?.thumbnail ? data.thumbnail : '/images/bannerhome.png');
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setData(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    const categoryImage = data?.thumbnail ? data.thumbnail : '/images/bannerhome.png';
+    const bannerImage = promoBanners[promoName] || categoryImage;
 
     return (
         <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${bannerImage})` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name || promoName}</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>{promoName || data?.name}</h1>
             <div className='!text-white text-center w-full max-w-3xl'>
                 <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
             </div>
@@ -170,7 +188,7 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const [dataSlug, setDataSlug] = useState(null);
+    const dataSlug = getCategoryBySlug(slug);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
@@ -186,7 +204,25 @@ const Content = ({
     const [selectedColours, setSelectedColours] = useState(searchParams.get('colours')?.split(',').filter(Boolean) || []);
     const [selectedBrands, setSelectedBrands] = useState(searchParams.get('brands')?.split(',').filter(Boolean) || []);
     const [selectedSizes, setSelectedSizes] = useState(searchParams.get('sizes')?.split(',').filter(Boolean) || []);
+    const [selectedInstallationNeeds, setSelectedInstallationNeeds] = useState(
+        searchParams.get('installation_needs')?.split(',').filter(Boolean) || []
+    );
+    const [selectedSpaces, setSelectedSpaces] = useState(
+        searchParams.get('space')?.split(',').filter(Boolean) || []
+    );
     const [filteredProducts, setFilteredProducts] = useState(null);
+
+    // Keep URL-driven filters in sync (e.g. mega menu links)
+    useEffect(() => {
+        const installationNeedsFromUrl = searchParams.get('installation_needs')?.split(',').filter(Boolean) || [];
+        const spacesFromUrl = searchParams.get('space')?.split(',').filter(Boolean) || [];
+        setSelectedInstallationNeeds((prev) =>
+            prev.join(',') === installationNeedsFromUrl.join(',') ? prev : installationNeedsFromUrl
+        );
+        setSelectedSpaces((prev) =>
+            prev.join(',') === spacesFromUrl.join(',') ? prev : spacesFromUrl
+        );
+    }, [searchParams]);
 
     // Ensure category names match DB's HTML-encoded values (e.g., & -> &amp; without double-encoding)
     const encodeCategoryEntities = (name) => {
@@ -214,7 +250,7 @@ const Content = ({
             try {
                 const filterUrl = promoName
                     ? `${import.meta.env.VITE_API_BASE_URL}/api/products.php?promo=${encodeURIComponent(promoName)}&filters=true`
-                    : `${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodeCategoryEntities(dataSlug.name))}&filters=true`;
+                    : `${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodeCategoryEntities(dataSlug.categoryName || dataSlug.name))}&filters=true`;
                 const response = await fetch(filterUrl);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
@@ -260,7 +296,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [dataSlug, promoName]);
+    }, [slug, promoName]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -297,7 +333,7 @@ const Content = ({
                 if (promoName) {
                     queryParams.set('promo', promoName);
                 } else {
-                    queryParams.set('category', encodeCategoryEntities(dataSlug.name));
+                    queryParams.set('category', encodeCategoryEntities(dataSlug.categoryName || dataSlug.name));
                 }
 
                 // Add all filter parameters at once
@@ -312,6 +348,12 @@ const Content = ({
                 }
                 if (selectedSizes.length > 0) {
                     queryParams.set('sizes', selectedSizes.join(','));
+                }
+                if (selectedSpaces.length > 0) {
+                    queryParams.set('space', selectedSpaces.join(','));
+                }
+                if (selectedInstallationNeeds.length > 0) {
+                    queryParams.set('installation_needs', selectedInstallationNeeds.join(','));
                 }
                 if (sortBy) {
                     queryParams.set('sort', sortBy);
@@ -340,18 +382,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [dataSlug, promoName, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy]);
-
-    useEffect(() => {
-        fetch(`/data/navbar-categories.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selectedData = data.filter(item => item.slug === slug);
-            setDataSlug(selectedData[0]);
-        })
-        .catch(err => console.log(err));
-    }, [slug]);
-
+    }, [slug, promoName, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
@@ -390,13 +421,31 @@ const Content = ({
                 return selectedSizes.some(size => itemSizes.includes(size));
             });
         }
+
+        // Apply space filter
+        if (selectedSpaces.length > 0) {
+            filtered = filtered.filter(item => {
+                const itemSpaces = item.space?.split(',').map(s => s.trim()) || [];
+                return selectedSpaces.some(space => itemSpaces.includes(space));
+            });
+        }
+
+        // Apply installation needs filter
+        if (selectedInstallationNeeds.length > 0) {
+            filtered = filtered.filter(item => {
+                const itemNeeds = item.installation_need?.split(',').map(n => n.trim()) || [];
+                return selectedInstallationNeeds.some(need => itemNeeds.includes(need));
+            });
+        }
         
         console.log('Filtered products:', {
             total: filtered.length,
             selectedBrands,
             selectedFinish,
             selectedColours,
-            selectedSizes
+            selectedSizes,
+            selectedSpaces,
+            selectedInstallationNeeds
         });
         
         setFilteredProducts(filtered);
@@ -407,7 +456,7 @@ const Content = ({
         if (product) {
             applyFilters(product);
         }
-    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes]);
+    }, [product, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds]);
 
     // Update URL when filters change
     useEffect(() => {
@@ -438,17 +487,33 @@ const Content = ({
             newParams.delete('sizes');
         }
 
+        if (selectedSpaces.length > 0) {
+            newParams.set('space', selectedSpaces.join(','));
+        } else {
+            newParams.delete('space');
+        }
+
+        if (selectedInstallationNeeds.length > 0) {
+            newParams.set('installation_needs', selectedInstallationNeeds.join(','));
+        } else {
+            newParams.delete('installation_needs');
+        }
+
         if (sortBy) {
             newParams.set('sort', sortBy);
         } else {
             newParams.delete('sort');
         }
 
+        if (promoName) {
+            newParams.set('promo', promoName);
+        }
+
         newParams.set('perPage', productsPerPage.toString());
         newParams.set('page', currentPage.toString());
         
         setSearchParams(newParams);
-    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, sortBy, productsPerPage, currentPage]);
+    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy, productsPerPage, currentPage, promoName]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -541,6 +606,8 @@ const Content = ({
                             setSelectedFinish([]);
                             setSelectedColours([]);
                             setSelectedSizes([]);
+                            setSelectedSpaces([]);
+                            setSelectedInstallationNeeds([]);
                             setCurrentPage(1);
                         }}
                         className="w-full mb-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all flex items-center justify-center gap-2"
@@ -695,12 +762,12 @@ const Content = ({
                 )}
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full flex flex-row justify-start items-center gap-3'>
-                        <Breadcrumbs>
-                            <a href="/" className="opacity-60">
+                        <Breadcrumbs className="product-breadcrumbs">
+                            <a href="/">
                                 Home
                             </a>
-                            <a href={"/product-category/" + slug}>
-                                {dataSlug?.name}
+                            <a href={promoName ? `/product-category/${slug}?promo=${encodeURIComponent(promoName)}` : `/product-category/${slug}`}>
+                                {promoName || dataSlug?.name}
                             </a>
                         </Breadcrumbs>
                     </div>
