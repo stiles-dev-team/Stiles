@@ -3,6 +3,7 @@
 ob_start();
 
 require_once 'config.php';
+require_once 'sendOrderEmail.php';
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -107,15 +108,7 @@ try {
     </body>
     </html>';
 
-    $headers = array(
-        'MIME-Version: 1.0',
-        'Content-type: text/html; charset=UTF-8',
-        'From: Stiles Store <noreply@stiles.co.za>',
-        'Reply-To: support@stiles.co.za',
-        'X-Mailer: PHP/' . phpversion()
-    );
-
-    $mail_sent = mail($to, $subject, $message, implode("\r\n", $headers));
+    $mail_sent = sendSMTPEmail($to, $subject, $message);
 
     if (!$mail_sent) {
         error_log('Failed to send password reset email to: ' . $to);
