@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node api.js && vite",
-    "build": "vite build",
-    "build:ssr": "vite build && rmdir /s /q build 2>nul & mkdir build & xcopy /E /I /Y dist\\* build\\ && react-snap",
+    "dev": "node init && vite",
+    "build": "node init && vite build",
+    "build:ssr": "node init && vite build && rmdir /s /q build 2>nul & mkdir build & xcopy /E /I /Y dist\\* build\\ && react-snap",
     "lint": "eslint .",
     "preview": "vite preview"
   },

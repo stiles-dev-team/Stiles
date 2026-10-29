@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Select from 'react-select'
 import MediaSelector from '../../components/MediaSelector'
 
 const AdminUniqueCategories = () => {
@@ -51,13 +52,16 @@ const AdminUniqueCategories = () => {
   };
 
   useEffect(() => {
-    if (searchTerm) {
-      const filtered = categories.filter(category =>
-        category.category.toLowerCase().includes(searchTerm.toLowerCase())
+    const sorted = sortCategoriesHierarchically(categories)
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim()
+      setFilteredCategories(
+        sorted.filter((category) =>
+          category.category.toLowerCase().includes(term)
+        )
       )
-      setFilteredCategories(sortCategoriesHierarchically(filtered))
     } else {
-      setFilteredCategories(sortCategoriesHierarchically(categories))
+      setFilteredCategories(sorted)
     }
   }, [categories, searchTerm])
 
@@ -208,7 +212,7 @@ const AdminUniqueCategories = () => {
   }
 
   return (
-    <div className="space-y-0 pt-6">
+    <div className="space-y-6 pt-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -225,33 +229,17 @@ const AdminUniqueCategories = () => {
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white shadow rounded-lg p-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Categories Grid */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h3 className="text-lg font-medium text-gray-900">Category List</h3>
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
         
         {filteredCategories.length === 0 ? (
@@ -363,21 +351,40 @@ const AdminUniqueCategories = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Parent Category
                   </label>
-                  <select
+                  <Select
                     name="parent"
-                    value={formData.parent}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value={0}>Root Category (No Parent)</option>
-                    {categories
-                      .filter(cat => !editingCategory || cat.id !== editingCategory.id)
-                      .map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.category}
-                        </option>
-                      ))}
-                  </select>
+                    value={
+                      formData.parent === 0 || formData.parent === '0'
+                        ? { value: 0, label: 'Root Category (No Parent)' }
+                        : (() => {
+                            const parent = categories.find(
+                              (cat) => String(cat.id) === String(formData.parent)
+                            )
+                            return parent
+                              ? { value: parent.id, label: parent.category }
+                              : { value: 0, label: 'Root Category (No Parent)' }
+                          })()
+                    }
+                    onChange={(option) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        parent: option ? option.value : 0,
+                      }))
+                    }
+                    options={[
+                      { value: 0, label: 'Root Category (No Parent)' },
+                      ...categories
+                        .filter((cat) => !editingCategory || cat.id !== editingCategory.id)
+                        .map((category) => ({
+                          value: category.id,
+                          label: category.category,
+                        })),
+                    ]}
+                    placeholder="Search parent category..."
+                    isClearable
+                    isSearchable
+                    className="text-sm"
+                  />
                 </div>
                 
                 <div>
