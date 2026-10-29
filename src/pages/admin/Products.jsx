@@ -1973,18 +1973,35 @@ const AdminProducts = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Category
               </label>
-              <select
-                value={selectedProductCategory}
-                onChange={(e) => handleProductCategoryChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Categories</option>
-                {getSortedCategories().map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {formatCategoryLabel(category)}
-                  </option>
-                ))}
-              </select>
+              <Select
+                value={
+                  selectedProductCategory === "all"
+                    ? { value: "all", label: "All Categories" }
+                    : (() => {
+                        const cat = uniqueCategories.find(
+                          (c) => String(c.id) === String(selectedProductCategory)
+                        );
+                        return cat
+                          ? { value: String(cat.id), label: formatCategoryLabel(cat) }
+                          : { value: "all", label: "All Categories" };
+                      })()
+                }
+                onChange={(option) =>
+                  handleProductCategoryChange(option?.value || "all")
+                }
+                options={[
+                  { value: "all", label: "All Categories" },
+                  ...getSortedCategories().map((category) => ({
+                    value: String(category.id),
+                    label: formatCategoryLabel(category),
+                  })),
+                ]}
+                placeholder="Search categories..."
+                isClearable
+                isSearchable
+                className="text-sm"
+                classNamePrefix="react-select"
+              />
             </div>
           </div>
           
