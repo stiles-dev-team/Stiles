@@ -37,7 +37,7 @@ export const SANWARE_MEGA_MENU = [
       },
       {
         label: "Accessories",
-        href: `${BASE}/bathroom-accessories`,
+        href: `${BASE}/sanitaryware-accessories`,
         image: "/images/sanware/sanware-icons/Accesaries_.jpg",
       },
       {

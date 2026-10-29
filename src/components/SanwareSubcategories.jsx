@@ -4,7 +4,7 @@ import { Splide, SplideSlide } from '@splidejs/react-splide';
 import { AutoScroll } from '@splidejs/splide-extension-auto-scroll';
 import '@splidejs/react-splide/css';
 
-const BATHROOM_ACCESSORY_BASE = "/product-category/sanitary-ware/bathroom-accessories";
+const BATHROOM_ACCESSORY_BASE = "/product-category/sanitary-ware/sanitaryware-accessories";
 
 const BATHROOM_ACCESSORY_ITEMS = [
   {
@@ -412,7 +412,7 @@ const TOILET_ITEMS = [
 ];
 
 export const isBathroomAccessoriesSlug = (slug) =>
-  String(slug || "").toLowerCase() === "bathroom-accessories";
+  String(slug || "").toLowerCase() === "sanitaryware-accessories";
 
 export const isBasinsSlug = (slug) =>
   String(slug || "").toLowerCase() === "basins";
