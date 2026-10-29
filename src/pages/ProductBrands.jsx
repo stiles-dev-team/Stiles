@@ -150,7 +150,7 @@ const Hero = ({slug, brandInfo, brandLoading}) => {
     console.log('Hero component - displayName:', displayName);
     
     return (
-      <section id='heroHome' className='w-full h-[60vh] bg-[url("/images/bannerhome.png")] relative flex flex-col justify-center items-center pt-20'>
+      <section id='heroHome' className={`w-full h-[60vh] ${slug === 'Funky Tiles' ? 'bg-[url("/images/home/home-slider-v24.jpg")]' : 'bg-[url("/images/bannerhome.png")]'} bg-cover bg-center relative flex flex-col justify-center items-center pt-20`}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>
@@ -545,8 +545,8 @@ const Content = ({
                 </aside>
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full flex flex-row justify-start items-center gap-3'>
-                        <Breadcrumbs className="product-breadcrumbs">
-                            <a href="/">
+                        <Breadcrumbs>
+                            <a href="/" className="opacity-60">
                                 Home
                             </a>
                             <a href={"/product-category/brands/" + slug}>

@@ -28,7 +28,7 @@ const ContactUs = () => {
   }
 
   useEffect(() => {
-    fetch('/data/stiles-locations.json')
+    fetch('/data/stiles-locations.json', { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {
       setLocations(data.locations)
