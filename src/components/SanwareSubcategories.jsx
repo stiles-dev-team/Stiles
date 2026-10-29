@@ -14,7 +14,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
     image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png",
     children: [
       { label: "Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-holder`, image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png" },
-      { label: "Toilet Brush and Holder (Toilet Brush) + (Toilet Holder)", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/new-bathroom-accessories/technical_isometric_toilet_brush_holder_sketch.png" },
+      { label: "Toilet Brush and Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/new-bathroom-accessories/technical_isometric_toilet_brush_holder_sketch.png" },
       { label: "Spare Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/spare-toilet-roll-holder`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_a_modern_toilet_paper_holder.png" },
       { label: "Sanitary Bag Holder", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bag-holder`, image: "/images/sanware/new-bathroom-accessories/Sanitary%20Bag%20Holder%20-%20transparent%20darker.png" },
       { label: "Watse Bin", href: `${BATHROOM_ACCESSORY_BASE}/watse-bin`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
@@ -37,7 +37,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
     href: `${BATHROOM_ACCESSORY_BASE}/shower-and-bath-accessories`,
     image: "/images/sanware/new-bathroom-accessories/shower%20rack%20-%20transparent%20darker.png",
     children: [
-      { label: "Shower Racks (Shower Caddies)", href: `${BATHROOM_ACCESSORY_BASE}/shower-racks`, image: "/images/sanware/new-bathroom-accessories/shower%20rack%20-%20transparent%20darker.png" },
+      { label: "Shower Racks", href: `${BATHROOM_ACCESSORY_BASE}/shower-racks`, image: "/images/sanware/new-bathroom-accessories/shower%20rack%20-%20transparent%20darker.png" },
       { label: "Glass Shelves", href: `${BATHROOM_ACCESSORY_BASE}/glass-shelves`, image: "/images/sanware/new-bathroom-accessories/Glass%20Shelves%20-%20transparent%20darker.png" },
       { label: "Shower Seats", href: `${BATHROOM_ACCESSORY_BASE}/shower-seats`, image: "/images/sanware/new-bathroom-accessories/technical_folding_wall_shelf_sketch.png" },
       { label: "Shower Door Accessories", href: `${BATHROOM_ACCESSORY_BASE}/shower-door-accessories`, image: "/images/sanware/new-bathroom-accessories/isometric_hinge_bracket_technical_sketch.png" },
@@ -89,21 +89,21 @@ const BATHROOM_ACCESSORY_ITEMS = [
 
 const BASIN_ITEMS = [
   { label: "Counter Top Basins", href: "/product-category/sanitary-ware/basins/counter-top-basins", image: "/images/sanware/new-basins/Counter%20Top%20Basins%20-%20transparent%20darker.png" },
-  { label: "Undercounter Basins (Underslung Basin)", href: "/product-category/sanitary-ware/basins/undercounter-basins", image: "/images/sanware/new-basins/Undercounter%20Basins%20-%20transparent%20darker.png" },
+  { label: "Undercounter Basins", href: "/product-category/sanitary-ware/basins/undercounter-basins", image: "/images/sanware/new-basins/Undercounter%20Basins%20-%20transparent%20darker.png" },
   { label: "Freestanding Basins", href: "/product-category/sanitary-ware/basins/freestanding-basins", image: "/images/sanware/new-basins/Counter%20Top%20Basins%20-%20transparent%20darker.png" },
   { label: "Drop in Basins", href: "/product-category/sanitary-ware/basins/drop-in-basins", image: "/images/sanware/new-basins/Drop%20in%20Basins(1)%20-%20transparent%20darker.png" },
   { label: "Semi-Recessed Basins", href: "/product-category/sanitary-ware/basins/semi-recessed-basins", image: "/images/sanware/new-basins/Semi-Recessed%20Basins%20-%20transparent%20darker.png" },
-  { label: "Wall Hung Basins (Same as Handrinse Basins)", href: "/product-category/sanitary-ware/basins/wall-hung-basins", image: "/images/sanware/new-basins/Wall%20Hung%20Basin(1)%20-%20transparent%20darker.png" },
+  { label: "Wall Hung Basins", href: "/product-category/sanitary-ware/basins/wall-hung-basins", image: "/images/sanware/new-basins/Wall%20Hung%20Basin(1)%20-%20transparent%20darker.png" },
   { label: "Pedestal Basins", href: "/product-category/sanitary-ware/basins/pedestal-basins", image: "/images/sanware/new-basins/Pedestal%20Basins(1)%20-%20transparent%20darker.png" },
   { label: "Medical Basins", href: "/product-category/sanitary-ware/basins/medical-basins", image: "/images/sanware/new-basins/Medical%20Basins(1)%20-%20transparent%20darker.png" },
-  { label: "Cabinets (also Vanity)", href: "/product-category/sanitary-ware/basins/cabinets", image: "/images/sanware/new-basins/Cabinets%20-%20transparent%20darker.png" },
+  { label: "Cabinets", href: "/product-category/sanitary-ware/basins/cabinets", image: "/images/sanware/new-basins/Cabinets%20-%20transparent%20darker.png" },
 ];
 
 const SHOWER_BASE = "/product-category/sanitary-ware/showers";
 
 const SHOWER_ITEMS = [
   {
-    label: "Shower Roses (Shower Heads) + (Shower Heads + Arms)",
+    label: "Shower Roses",
     slug: "shower-roses",
     href: `${SHOWER_BASE}/shower-roses`,
     image: "/images/sanware/new-shower/Shower%20Roses%20-%20transparent%20darker.png",
@@ -115,7 +115,7 @@ const SHOWER_ITEMS = [
     image: "/images/sanware/new-shower/Shower%20Arms%20-%20transparent%20darker.png",
   },
   {
-    label: "Shower Rails (Rail Sets) (Shower Bar)",
+    label: "Shower Rails",
     slug: "shower-rails",
     href: `${SHOWER_BASE}/shower-rails`,
     image: "/images/sanware/new-shower/Shower%20Rails%20-%20transparent%20darker.png",
@@ -133,7 +133,7 @@ const SHOWER_ITEMS = [
     image: "/images/sanware/new-shower/Shower%20Pipes%20-%20transparent%20darker.png",
   },
   {
-    label: "Hand Showers (Outlet and Bracket) + (Shower Hoses) + (Wall Outlets)",
+    label: "Hand Showers",
     slug: "hand-showers",
     href: `${SHOWER_BASE}/hand-showers`,
     image: "/images/sanware/new-shower/Hand%20Showers%20-%20transparent%20darker.png",
@@ -173,7 +173,7 @@ const SHOWER_ITEMS = [
     image: "/images/sanware/new-shower/Pet%20Friendly%20-%20transparent%20darker.png",
   },
   {
-    label: "Bidet Spray (Trigger Spray)",
+    label: "Bidet Spray",
     slug: "bidet-spray",
     href: `${SHOWER_BASE}/bidet-spray`,
     image: "/images/sanware/new-shower/Bidet%20Spray%20-%20transparent%20darker.png",
@@ -208,7 +208,7 @@ const TAPWARE_ITEMS = [
       { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers`, image: "/images/sanware/new-tapware/Concealed%20Mixers%20-%20transparent%20darker.png" },
       { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
       { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers`, image: "/images/sanware/new-tapware/Thermostatic%20Mixers%20-%20transparent%20darker.png" },
-      { label: "Sink Mixers (Kitchen Mixers)", href: `${TAPWARE_BASE}/sink-mixers`, image: "/images/sanware/new-tapware/Sink%20Mixers%20-%20transparent%20darker.png" },
+      { label: "Sink Mixers", href: `${TAPWARE_BASE}/sink-mixers`, image: "/images/sanware/new-tapware/Sink%20Mixers%20-%20transparent%20darker.png" },
       { label: "Electronic Mixers", href: `${TAPWARE_BASE}/electronic-mixers`, image: "/images/sanware/new-tapware/Electronic%20Mixers%20copy%20-%20transparent%20darker.png" },
       { label: "Stop Taps", href: `${TAPWARE_BASE}/stop-taps`, image: "/images/sanware/new-tapware/-%20Stop%20Taps%20-%20transparent%20darker.png" },
       { label: "Bib Taps", href: `${TAPWARE_BASE}/bib-taps`, image: "/images/sanware/new-tapware/Bib%20Taps%20-%20transparent%20darker.png" },
@@ -343,7 +343,7 @@ const TOILET_ITEMS = [
     image: "/images/sanware/new-toilets/Close%20Coupled%20Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
   },
   {
-    label: "Back to Wall Floor Mounted Toilets (Floor Mounted Pans)",
+    label: "Back to Wall Floor Mounted Toilets",
     slug: "back-to-wall-floor-mounted-toilets",
     href: `${TOILET_BASE}/back-to-wall-floor-mounted-toilets`,
     image: "/images/sanware/new-toilets/Back%20to%20Wall%20Floor%20Mounted%20Toilets%20_Floor%20Mounted%20Pan%20-%20transparent%20darker.png",
