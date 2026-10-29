@@ -354,8 +354,8 @@ const Content = ({slug, currentPage, productsPerPage, onPageChange, loading, set
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
                     <div className='w-full flex flex-row justify-between items-center gap-3'>
                         <div className='w-full flex flex-row justify-start items-center gap-3'>
-                            <Breadcrumbs>
-                                <a href="/" className="opacity-60">
+                            <Breadcrumbs className="product-breadcrumbs">
+                                <a href="/">
                                     Home
                                 </a>
                                 <a href={"/promos"}>

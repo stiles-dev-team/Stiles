@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import LayoutDark from '../layout/LayoutDark'
+import Layout from '../layout/Layout'
 
 const TileVisualiser = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -95,7 +95,7 @@ const TileVisualiser = () => {
   }
 
   return (
-    <LayoutDark>
+    <Layout>
       <div className='container mx-auto px-4 min-h-screen pt-40 flex flex-col justify-center items-center'>
         <h1 className="text-3xl font-bold mb-8">Tile Visualizer</h1>
         
@@ -139,7 +139,7 @@ const TileVisualiser = () => {
           <p className="text-sm text-gray-500">Use the Roomvo visualizer above to see our tiles in your room</p>
         </div>
       </div>
-    </LayoutDark>
+    </Layout>
   )
 }
 
