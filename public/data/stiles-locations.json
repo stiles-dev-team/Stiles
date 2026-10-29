@@ -127,20 +127,6 @@
             "google_maps": "https://www.google.com/maps?sca_esv=5d5026adf4f3b04e&hl=en&authuser=0&sxsrf=AE3TifNjZXBlLAAXeZv9yPuQdFeW3BSZbw:1748268582586&kgmid=/g/11pphbccb7&shndl=30&shem=lcuae,uaasie&kgs=4052bb83f6b2f97d&um=1&ie=UTF-8&fb=1&gl=mx&sa=X&geocode=KctmQajeCb4eMScGWJw7KzPs&daddr=C/O+Line+Rd+%26,+Wall+St,+Waterval+East,+Rustenburg,+0299,+South+Africa"
         },
         {
-            "title": "Durban",
-            "region": "KwaZulu-Natal",
-            "phone": "+27 (031) 263 1192",
-            "address": "398 Chris Hani Rd, Durban North, Durban, 4065",
-            "email": "websales@stiles.co.za",
-            "google_iframe": null,
-            "hours": [
-                "Mon \u2013 Thurs 7:30AM \u2013 4:30PM",
-                "Fri 7:30AM \u2013 4PM",
-                "Sat 8AM \u2013 12PM"
-            ],
-            "google_maps": "https://www.google.com/maps?sca_esv=5d5026adf4f3b04e&hl=en&authuser=0&sxsrf=AE3TifMfSn5ShgzseORgLRP-SrAct2j7SQ:1748268572254&kgmid=/g/11vprfm_x5&shndl=30&shem=lcuae,uaasie&kgs=dc6dc1960843e9ec&um=1&ie=UTF-8&fb=1&gl=mx&sa=X&geocode=KVunm1mxB_ceMcc8IANYtvi6&daddr=398+Chris+Hani+Rd,+Durban+North,+Durban,+4065,+South+Africa"
-        },
-        {
             "title": "Polokwane",
             "region": "Limpopo",
             "phone": "+27 (015) 880 3340",

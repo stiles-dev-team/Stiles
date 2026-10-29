@@ -69,7 +69,7 @@ const Checkout = () => {
     }
 
     // Fetch store locations
-    fetch('/data/stiles-locations.json')
+    fetch('/data/stiles-locations.json', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setLocations(data.locations || [])

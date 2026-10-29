@@ -23,7 +23,7 @@ const ContactSingle = () => {
     }
 
     useEffect(() => {
-        fetch('/data/stiles-locations.json')
+        fetch('/data/stiles-locations.json', { cache: 'no-store' })
         .then(res => res.json())
         .then(data => {
             const location = data.locations.find(location => location.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') === slug)
