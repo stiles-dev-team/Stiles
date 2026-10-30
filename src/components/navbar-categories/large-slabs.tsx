@@ -52,7 +52,7 @@ export const LARGE_SLABS_MEGA_MENU = [
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}?space=Kitchen`, image: "/images/needs/kitchen.jpg" },
-      // { label: "Bathroom", href: `${BASE}?space=Bathrooms`, image: "/images/needs/bathrooms.jpg" },
+      { label: "Bathroom", href: `${BASE}?space=Bathroom`, image: "/images/needs/bathrooms.jpg" },
       { label: "Indoor", href: `${BASE}?space=Indoor`, image: "/images/needs/indoor.jpg" },
       { label: "Outdoor Walls", href: `${BASE}?space=Outdoor%20Walls`, image: "/images/needs/outdoors.jpg" },
       // { label: "Commercial", href: `${BASE}?space=Commercial`, image: "/images/needs/commercial.jpg" },
