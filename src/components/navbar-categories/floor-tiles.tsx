@@ -55,7 +55,7 @@ export const FLOORING_MEGA_MENU = [
     itemType: "icon",
     items: [
       { label: "Kitchen", href: "/product-category/floor-tiles?space=Kitchen", image: "/images/needs/kitchen.jpg" },
-      // { label: "Bathroom", href: "/product-category/floor-tiles?space=Bathrooms", image: "/images/needs/bathrooms.jpg" },
+      { label: "Bathroom", href: "/product-category/floor-tiles?space=Bathroom", image: "/images/needs/bathrooms.jpg" },
       { label: "Indoor", href: "/product-category/floor-tiles?space=Indoor", image: "/images/needs/indoor.jpg" },
       // {
       //   label: "Outdoor / Slip Resistant",
