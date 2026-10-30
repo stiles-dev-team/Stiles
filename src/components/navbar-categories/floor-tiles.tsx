@@ -55,13 +55,13 @@ export const FLOORING_MEGA_MENU = [
     itemType: "icon",
     items: [
       { label: "Kitchen", href: "/product-category/floor-tiles?space=Kitchen", image: "/images/needs/kitchen.jpg" },
-      { label: "Bathroom", href: "/product-category/floor-tiles?space=Bathrooms", image: "/images/needs/bathrooms.jpg" },
+      // { label: "Bathroom", href: "/product-category/floor-tiles?space=Bathrooms", image: "/images/needs/bathrooms.jpg" },
       { label: "Indoor", href: "/product-category/floor-tiles?space=Indoor", image: "/images/needs/indoor.jpg" },
-      {
-        label: "Outdoor / Slip Resistant",
-        href: "/product-category/floor-tiles?space=Outdoor%20%2F%20Slip%20Resistant",
-        image: "/images/needs/outdoors.jpg",
-      },
+      // {
+      //   label: "Outdoor / Slip Resistant",
+      //   href: "/product-category/floor-tiles?space=Outdoor%20%2F%20Slip%20Resistant",
+      //   image: "/images/needs/outdoors.jpg",
+      // },
       { label: "Pool", href: "/product-category/floor-tiles?space=Pool", image: "/images/needs/pool.jpg" },
       { label: "Commercial", href: "/product-category/floor-tiles?space=Commercial", image: "/images/needs/commercial.jpg" },
       { label: "Countertop", href: "/product-category/floor-tiles?space=Countertop", image: "/images/needs/counters.jpg" },

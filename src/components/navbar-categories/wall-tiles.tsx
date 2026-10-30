@@ -65,7 +65,7 @@ export const WALL_TILES_MEGA_MENU = [
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}?space=Kitchen`, image: "/images/needs/kitchen.jpg" },
-      { label: "Bathroom", href: `${BASE}?space=Bathrooms`, image: "/images/needs/bathrooms.jpg" },
+      // { label: "Bathroom", href: `${BASE}?space=Bathrooms`, image: "/images/needs/bathrooms.jpg" },
       { label: "Indoor", href: `${BASE}?space=Indoor`, image: "/images/needs/indoor.jpg" },
       { label: "Outdoor Walls", href: `${BASE}?space=Outdoor%20Walls`, image: "/images/needs/outdoors.jpg" },
       { label: "Pool", href: `${BASE}?space=Pool`, image: "/images/needs/pool.jpg" },
