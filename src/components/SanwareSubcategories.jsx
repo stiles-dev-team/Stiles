@@ -306,6 +306,7 @@ const KITCHEN_ITEMS = [
     label: "Cleaning Agent",
     slug: "cleaning-agent",
     href: `${KITCHEN_BASE}/cleaning-agent`,
+    image: "/images/sanware/new-kitchen/Technical-Jerry-Can-Product-Sketch.png",
   },
   {
     label: "Sink Wastes",
