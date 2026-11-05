@@ -344,6 +344,12 @@ const Product = () => {
                                     pdf_url: brand.pdf_url,
                                     pdf_text: brand.pdf_text || brand.name
                                 });
+                            } else if (brand?.pdf_text) {
+                                setBrandPdf({
+                                    name: brand.name,
+                                    pdf_url: null,
+                                    pdf_text: brand.pdf_text
+                                });
                             } else {
                                 setBrandPdf(null);
                             }
@@ -931,9 +937,16 @@ const Product = () => {
                     <div dangerouslySetInnerHTML={{ __html: product?.description?.replace(/\[.*?\]/g, '').split('|n|').join('<br />') }} />
                     {brandPdf && (
                         <p className='text-sm text-dark'>
-                            <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
-                                {decodeHtmlEntities(brandPdf.pdf_text)}
-                            </a>
+                            {brandPdf.pdf_url ? (
+                                <a href={brandPdf.pdf_url} target="_blank" rel="noopener noreferrer" className='underline font-bold'>
+                                    {decodeHtmlEntities(brandPdf.pdf_text)}
+                                </a>
+                            ) : (
+                                <div>
+                                    <span className='font-bold'>Please note: </span>
+                                    <span>{decodeHtmlEntities(brandPdf.pdf_text)}</span>
+                                </div>
+                            )}
                         </p>
                     )}
                 </div>
@@ -1133,23 +1146,3 @@ const Product = () => {
 }
 
 export default Product
-
-
-
-const SubscribeBanner = () => {
-    const [email, setEmail] = useState("");
-    const onChange = ({ target }) => setEmail(target.value);
-  
-    return (
-      <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
-        <div className='bg-black/40 w-full h-full absolute top-0 left-0 z-0'></div>
-        <div className='flex flex-col justify-center items-center gap-6 w-full max-w-5xl z-10 relative'>
-          <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Subscribe to our weekly newsletter to get the latest updates and amazing offers delivered in your inbox</p>
-          <div className='relative w-full max-w-[460px] flex justify-center items-center'>
-            <input type="mail" className='w-full h-12 pl-3 pr-24 rounded-full lg:rounded z-0 placeholder:text-sm lg:placeholder:text-base' placeholder='Email Address' />
-            <button className='absolute right-0.5 px-4 h-[42px] hover:bg-primary bg-black hover:text-dark text-white rounded-full lg:rounded-md text-sm font-bold uppercase transition-all'>Subscribe</button>
-          </div>
-        </div>
-      </section>
-    )
-  }

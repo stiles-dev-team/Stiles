@@ -3,6 +3,7 @@
 ob_start();
 
 require_once 'config.php';
+require_once 'sendOrderEmail.php';
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -44,14 +45,13 @@ if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
 
 try {
     // Check if user exists and is active
-    $stmt = $pdo->prepare('SELECT id, first_name, last_name, email FROM users WHERE email = ? AND is_active = TRUE');
+    $stmt = $pdo->prepare('SELECT id, first_name, last_name, email FROM users WHERE email = ? AND is_active = 1');
     $stmt->execute([$data['email']]);
     $user = $stmt->fetch();
 
     if (!$user) {
-        // Don't reveal if email exists or not for security
-        http_response_code(200);
-        echo json_encode(['message' => 'If an account with that email exists, a password reset link has been sent']);
+        http_response_code(404);
+        echo json_encode(['error' => 'No account found with that email address']);
         exit();
     }
 
@@ -108,15 +108,7 @@ try {
     </body>
     </html>';
 
-    $headers = array(
-        'MIME-Version: 1.0',
-        'Content-type: text/html; charset=UTF-8',
-        'From: Stiles Store <noreply@stiles.co.za>',
-        'Reply-To: support@stiles.co.za',
-        'X-Mailer: PHP/' . phpversion()
-    );
-
-    $mail_sent = mail($to, $subject, $message, implode("\r\n", $headers));
+    $mail_sent = sendSMTPEmail($to, $subject, $message);
 
     if (!$mail_sent) {
         error_log('Failed to send password reset email to: ' . $to);
@@ -128,9 +120,8 @@ try {
     // Clear any output buffers
     ob_end_clean();
 
-    // Return success response (don't reveal if email exists)
     http_response_code(200);
-    echo json_encode(['message' => 'If an account with that email exists, a password reset link has been sent']);
+    echo json_encode(['message' => 'A password reset link has been sent to your email address']);
 
 } catch (PDOException $e) {
     error_log('Forgot password error: ' . $e->getMessage());

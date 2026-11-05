@@ -39,6 +39,12 @@ html, body {
     @apply !text-black underline;
 }
 
+@media (min-width: 1920px) {
+  .mega-menu-item-label {
+    font-size: 0.9rem;
+  }
+}
+
 @layer base {
   :root {
         --background: 0 0% 100%;

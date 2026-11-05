@@ -60,6 +60,37 @@ const extractTextFromHTML = (htmlString) => {
     return textContent.trim().replace(/\s+/g, ' ');
 };
 
+const cleanFilterLabel = (value) =>
+    String(value ?? '')
+        .replace(/&amp;/gi, '&')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+const uniqueFilterValues = (values) => {
+    const raw = Array.isArray(values)
+        ? values.flatMap((value) => String(value).split(','))
+        : typeof values === 'string'
+            ? values.split(',')
+            : [];
+
+    const seen = new Map();
+    raw.forEach((value) => {
+        const label = cleanFilterLabel(value);
+        const key = label.toLowerCase();
+        if (!key || seen.has(key)) return;
+        seen.set(key, label);
+    });
+
+    return [...seen.values()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+};
+
+const matchesFilter = (selected, itemValues) =>
+    selected.some((selectedValue) =>
+        itemValues.some((itemValue) => cleanFilterLabel(itemValue).toLowerCase() === cleanFilterLabel(selectedValue).toLowerCase())
+    );
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -144,7 +175,7 @@ const Hero = ({slug}) => {
     const data = getCategoryBySlug(slug);
 
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: 'url("/images/bannerhome.png")' }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
@@ -230,25 +261,11 @@ const Content = ({
                 console.log('Raw API response:', data);
                 
                 if (data.status === 'success' && data.data) {
-                    // Process the data to ensure we have arrays of unique values
-                    const processValues = (values) => {
-                        if (!Array.isArray(values)) {
-                            // If it's a string, split by comma and process
-                            if (typeof values === 'string') {
-                                return values.split(',').map(v => v.trim()).filter(v => v);
-                            }
-                            return [];
-                        }
-                        // Ensure values are unique and sorted
-                        return [...new Set(values)].filter(v => v && v.trim() !== '').sort();
-                    };
-
-                    // Extract and process values from the response
                     const processedData = {
-                        colours: processValues(data.data.colours || []),
-                        finishes: processValues(data.data.finishes || []),
-                        brands: processValues(data.data.brands || []),
-                        sizes: processValues(data.data.sizes || [])
+                        colours: uniqueFilterValues(data.data.colours || []),
+                        finishes: uniqueFilterValues(data.data.finishes || []),
+                        brands: uniqueFilterValues(data.data.brands || []),
+                        sizes: uniqueFilterValues(data.data.sizes || [])
                     };
 
                     console.log('Processed filter values:', processedData);
@@ -356,52 +373,28 @@ const Content = ({
         
         let filtered = [...productsToFilter];
         
-        // Apply brand filter
         if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemBrands = item.brands?.split(',').map(b => b.trim()) || [];
-                return selectedBrands.some(brand => itemBrands.includes(brand));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedBrands, item.brands?.split(',') || []));
         }
-        
-        // Apply finish filter
+
         if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemFinishes = item.finish?.split(',').map(f => f.trim()) || [];
-                return selectedFinish.some(finish => itemFinishes.includes(finish));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedFinish, item.finish?.split(',') || []));
         }
-        
-        // Apply colour filter
+
         if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemColours = item.colour?.split(',').map(c => c.trim()) || [];
-                return selectedColours.some(colour => itemColours.includes(colour));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedColours, item.colour?.split(',') || []));
         }
-        
-        // Apply size filter - recreated exactly like other filters
+
         if (selectedSizes.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemSizes = item.size?.split(',').map(s => s.trim()) || [];
-                return selectedSizes.some(size => itemSizes.includes(size));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedSizes, item.size?.split(',') || []));
         }
 
-        // Apply space filter
         if (selectedSpaces.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemSpaces = item.space?.split(',').map(s => s.trim()) || [];
-                return selectedSpaces.some(space => itemSpaces.includes(space));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedSpaces, item.space?.split(',') || []));
         }
 
-        // Apply installation needs filter
         if (selectedInstallationNeeds.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemNeeds = item.installation_need?.split(',').map(n => n.trim()) || [];
-                return selectedInstallationNeeds.some(need => itemNeeds.includes(need));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedInstallationNeeds, item.installation_need?.split(',') || []));
         }
         
         console.log('Filtered products:', {

@@ -53,6 +53,10 @@ export const getPricingUnit = (product, stockInfo = null) => {
     "183-FR63CO.SB"
   ];
 
+  if (product['attribute:pa_installation_need']) {
+    return 'per item';
+  }
+
   const categories = Array.isArray(product.product_category) 
     ? product.product_category 
     : [product.product_category];

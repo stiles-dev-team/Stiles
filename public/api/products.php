@@ -468,24 +468,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             exit();
         }
         
-        // Add sorting
+        // Add sorting. Funky Tiles always sorts ahead of every other brand.
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-                $orderBy = 'ORDER BY sp.post_date DESC';
+        $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
+        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
                 break;
         }
         
@@ -584,7 +585,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
         }
 
         // If we got here, the table exists and we can query it
-        $stmt = $pdo->query('SELECT * FROM stiles_products WHERE status = "publish" ORDER BY post_date DESC');
+        $stmt = $pdo->query('SELECT * FROM stiles_products WHERE status = "publish" ORDER BY (CASE WHEN LOWER(COALESCE(`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END) ASC, post_date DESC');
         $products = $stmt->fetchAll();
         
         echo json_encode([
@@ -925,24 +926,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             exit();
         }
         
-        // Add sorting
+        // Add sorting. Funky Tiles always sorts ahead of every other brand.
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-                $orderBy = 'ORDER BY sp.post_date DESC';
+        $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
+        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
                 break;
         }
         
@@ -1167,24 +1169,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             exit();
         }
         
-        // Add sorting
+        // Add sorting. Funky Tiles always sorts ahead of every other brand.
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-                $orderBy = 'ORDER BY sp.post_date DESC';
+        $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
+        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
         switch ($sortBy) {
             case 'desc':
-                $orderBy = 'ORDER BY CAST(sp.total_sales AS UNSIGNED) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
                 break;
             case 'nuev':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
                 break;
             case 'vend':
-                $orderBy = 'ORDER BY COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
                 break;
             case 'ascBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "zzzzzz") ASC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
                 break;
             case 'descBrand':
-                $orderBy = 'ORDER BY COALESCE(sp.`attribute:pa_brands`, "") DESC';
+                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
                 break;
         }
         

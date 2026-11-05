@@ -127,7 +127,7 @@ function ImageMegaMenu({ isOpen, menu }) {
                 alt={item.label}
                 className="h-20 w-full max-w-[96px] object-contain"
               />
-              <span className="text-[10px] font-medium leading-tight tracking-wide text-gray-700 group-hover:text-gray-900">
+              <span className="mega-menu-item-label text-[10px] font-medium leading-tight tracking-wide text-gray-700 group-hover:text-gray-900">
                 {item.label}
               </span>
             </a>
@@ -427,7 +427,7 @@ const Navbar = () => {
       });
 
     // Fetch locations
-    fetch("/data/stiles-locations.json")
+    fetch("/data/stiles-locations.json", { cache: "no-store" })
       .then((response) => response.json())
       .then((data) => {
         setLocations(data.locations);

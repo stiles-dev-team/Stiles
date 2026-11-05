@@ -273,7 +273,7 @@ try {
 
     // Add sorting with brand + fuzzy search priority
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
-    $priorityBrands = ['Etienne Tiles', 'Oak', 'Funky Tiles', 'Nest'];
+    $priorityBrands = ['Etienne Tiles', 'Oak', 'Nest'];
     $brandPriorityConditions = [];
     $brandPriorityParams = [];
 
@@ -282,7 +282,9 @@ try {
         $brandPriorityParams[] = '%' . strtolower($brand) . '%';
     }
 
-    $brandPriorityCase = 'CASE WHEN (' . implode(' OR ', $brandPriorityConditions) . ') THEN 0 ELSE 1 END';
+    // Funky Tiles is always first, then the other priority brands, then everyone else.
+    $brandPriorityParams = array_merge(['%funky tile%'], $brandPriorityParams);
+    $brandPriorityCase = 'CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE ? THEN 0 WHEN (' . implode(' OR ', $brandPriorityConditions) . ') THEN 1 ELSE 2 END';
     
     // Build sorting conditions for fuzzy search
     $sortConditions = [];

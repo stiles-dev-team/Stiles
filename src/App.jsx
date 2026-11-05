@@ -11,6 +11,8 @@ import Fireplaces from "./pages/Fireplaces"
 import TermsAndConditions from "./pages/TermsAndConditions"
 import EndOfRange from "./pages/EndOfRange"
 import PrivacyPolicy from "./pages/PrivacyPolicy"
+import CookiePolicy from "./pages/CookiePolicy"
+import CookieConsent from "./components/CookieConsent"
 import ProductDisclaimer from "./pages/ProductDisclaimer"
 import ProductBrands from "./pages/ProductBrands"
 import ProductPromos from "./pages/ProductPromos"
@@ -77,6 +79,7 @@ function App() {
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
           <Route path="/end-of-range" element={<EndOfRange />} />
           <Route path="/privacy-policy-popi-compliance" element={<PrivacyPolicy />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/product-disclaimer" element={<ProductDisclaimer />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact/:slug" element={<ContactSingle />} />
@@ -87,6 +90,7 @@ function App() {
           {/* Testing */}
           {/* <Route path="/test" element={<Test />} /> */}
         </Routes>
+        <CookieConsent />
       </BrowserRouter>
     </AuthProvider>
   )

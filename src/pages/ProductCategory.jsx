@@ -60,6 +60,37 @@ const extractTextFromHTML = (htmlString) => {
     return textContent.trim().replace(/\s+/g, ' ');
 };
 
+const cleanFilterLabel = (value) =>
+    String(value ?? '')
+        .replace(/&amp;/gi, '&')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+const uniqueFilterValues = (values) => {
+    const raw = Array.isArray(values)
+        ? values.flatMap((value) => String(value).split(','))
+        : typeof values === 'string'
+            ? values.split(',')
+            : [];
+
+    const seen = new Map();
+    raw.forEach((value) => {
+        const label = cleanFilterLabel(value);
+        const key = label.toLowerCase();
+        if (!key || seen.has(key)) return;
+        seen.set(key, label);
+    });
+
+    return [...seen.values()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+};
+
+const matchesFilter = (selected, itemValues) =>
+    selected.some((selectedValue) =>
+        itemValues.some((itemValue) => cleanFilterLabel(itemValue).toLowerCase() === cleanFilterLabel(selectedValue).toLowerCase())
+    );
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -78,9 +109,11 @@ function Icon({ id, open }) {
 const ProductCategory = () => {
 
     const { slug } = useParams();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page'), 10) || 1);
     const [loading, setLoading] = useState(true);
-    const [productsPerPage, setProductsPerPage] = useState(15);
+    const [productsPerPage, setProductsPerPage] = useState(parseInt(searchParams.get('perPage'), 10) || 15);
 
     const handlePageChange = (pageNumber) => {
         setLoading(true);
@@ -96,7 +129,10 @@ const ProductCategory = () => {
 
     
 
-    const data = getCategoryBySlug(slug);
+    const categoryData = getCategoryBySlug(slug);
+    const data = promoName
+        ? { name: promoName, description: '', thumbnail: '' }
+        : categoryData;
 
   return (
     <Layout>
@@ -104,7 +140,9 @@ const ProductCategory = () => {
             <title>{data?.name || 'Products'} | Stiles</title>
             <meta name="description" content={extractTextFromHTML(data?.description)} />
         </Helmet>
-        {isBathroomAccessoriesSlug(slug) ? (
+        {promoName ? (
+            <Hero slug={slug} />
+        ) : isBathroomAccessoriesSlug(slug) ? (
             <BathroomAccessoriesSubcategories />
         ) : isBasinsSlug(slug) ? (
             <BasinSubcategories />
@@ -140,13 +178,22 @@ const ProductCategory = () => {
 export default ProductCategory
 
 const Hero = ({slug}) => {
+    const [searchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
     const data = getCategoryBySlug(slug);
+    const promoBanners = {
+        'New@Stiles': '/images/home/home-slider-v2.jpg',
+        'Coming Soon': '/images/home/home-slider-v23.jpg',
+        'Funky Tiles': '/images/home/home-slider-v24.jpg',
+        'Exclusive to Stiles': '/images/home/home-slider-v28.jpg',
+    };
+    const bannerImage = promoBanners[promoName] || '/images/bannerhome.png';
 
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${data?.thumbnail !== "" ? data?.thumbnail : "/images/bannerhome.png"})` }}>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${bannerImage})` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
-            <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
+            <h1 className='text-white font-bold text-5xl text-center'>{promoName || data?.name}</h1>
             <div className='!text-white text-center w-full max-w-3xl'>
                 <p className='!text-white' dangerouslySetInnerHTML={{ __html: data?.description }}></p>
             </div>
@@ -166,6 +213,7 @@ const Content = ({
     onProductsPerPageChange 
 }) => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const promoName = searchParams.get('promo');
     const [open, setOpen] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
@@ -226,12 +274,14 @@ const Content = ({
 
     // Fetch filter values when category changes
     useEffect(() => {
-        if (!dataSlug?.name) return;
+        if (!promoName && !dataSlug?.name) return;
 
         const fetchFilterValues = async () => {
             try {
-                const encodedCategory = encodeCategoryEntities(dataSlug.categoryName || dataSlug.name);
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodedCategory)}&filters=true`);
+                const filterUrl = promoName
+                    ? `${import.meta.env.VITE_API_BASE_URL}/api/products.php?promo=${encodeURIComponent(promoName)}&filters=true`
+                    : `${import.meta.env.VITE_API_BASE_URL}/api/products.php?category=${encodeURIComponent(encodeCategoryEntities(dataSlug.categoryName || dataSlug.name))}&filters=true`;
+                const response = await fetch(filterUrl);
                 if (!response.ok) {
                     throw new Error('Failed to fetch filter values');
                 }
@@ -240,25 +290,11 @@ const Content = ({
                 console.log('Raw API response:', data);
                 
                 if (data.status === 'success' && data.data) {
-                    // Process the data to ensure we have arrays of unique values
-                    const processValues = (values) => {
-                        if (!Array.isArray(values)) {
-                            // If it's a string, split by comma and process
-                            if (typeof values === 'string') {
-                                return values.split(',').map(v => v.trim()).filter(v => v);
-                            }
-                            return [];
-                        }
-                        // Ensure values are unique and sorted
-                        return [...new Set(values)].filter(v => v && v.trim() !== '').sort();
-                    };
-
-                    // Extract and process values from the response
                     const processedData = {
-                        colours: processValues(data.data.colours || []),
-                        finishes: processValues(data.data.finishes || []),
-                        brands: processValues(data.data.brands || []),
-                        sizes: processValues(data.data.sizes || [])
+                        colours: uniqueFilterValues(data.data.colours || []),
+                        finishes: uniqueFilterValues(data.data.finishes || []),
+                        brands: uniqueFilterValues(data.data.brands || []),
+                        sizes: uniqueFilterValues(data.data.sizes || [])
                     };
 
                     console.log('Processed filter values:', processedData);
@@ -276,7 +312,7 @@ const Content = ({
         };
 
         fetchFilterValues();
-    }, [slug]);
+    }, [slug, promoName]);
 
     // Function to update URL parameters
     const updateUrlParams = (updates) => {
@@ -296,7 +332,7 @@ const Content = ({
 
     // Modify the initial data loading effect to be more efficient
     useEffect(() => {
-        if (!dataSlug?.name) return;
+        if (!promoName && !dataSlug?.name) return;
         
         setLoading(true);
         const fetchProducts = async () => {
@@ -304,13 +340,17 @@ const Content = ({
                 // Calculate offset based on current page and products per page
                 const offset = (currentPage - 1) * productsPerPage;
                 
-                // Build query parameters for filters
+                // Promo listings match stiles_products.promo. Category listings match the category name.
                 const queryParams = new URLSearchParams({
-                    category: encodeCategoryEntities(dataSlug.categoryName || dataSlug.name),
                     limit: productsPerPage,
                     offset: offset,
                     _: new Date().getTime()
                 });
+                if (promoName) {
+                    queryParams.set('promo', promoName);
+                } else {
+                    queryParams.set('category', encodeCategoryEntities(dataSlug.categoryName || dataSlug.name));
+                }
 
                 // Add all filter parameters at once
                 if (selectedBrands.length > 0) {
@@ -358,7 +398,7 @@ const Content = ({
         };
 
         fetchProducts();
-    }, [slug, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy]);
+    }, [slug, promoName, currentPage, productsPerPage, selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy]);
 
     // Modify the filter application to be more efficient
     const applyFilters = (productsToFilter) => {
@@ -366,52 +406,28 @@ const Content = ({
         
         let filtered = [...productsToFilter];
         
-        // Apply brand filter
         if (selectedBrands.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemBrands = item.brands?.split(',').map(b => b.trim()) || [];
-                return selectedBrands.some(brand => itemBrands.includes(brand));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedBrands, item.brands?.split(',') || []));
         }
-        
-        // Apply finish filter
+
         if (selectedFinish.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemFinishes = item.finish?.split(',').map(f => f.trim()) || [];
-                return selectedFinish.some(finish => itemFinishes.includes(finish));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedFinish, item.finish?.split(',') || []));
         }
-        
-        // Apply colour filter
+
         if (selectedColours.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemColours = item.colour?.split(',').map(c => c.trim()) || [];
-                return selectedColours.some(colour => itemColours.includes(colour));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedColours, item.colour?.split(',') || []));
         }
-        
-        // Apply size filter - recreated exactly like other filters
+
         if (selectedSizes.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemSizes = item.size?.split(',').map(s => s.trim()) || [];
-                return selectedSizes.some(size => itemSizes.includes(size));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedSizes, item.size?.split(',') || []));
         }
 
-        // Apply space filter
         if (selectedSpaces.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemSpaces = item.space?.split(',').map(s => s.trim()) || [];
-                return selectedSpaces.some(space => itemSpaces.includes(space));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedSpaces, item.space?.split(',') || []));
         }
 
-        // Apply installation needs filter
         if (selectedInstallationNeeds.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemNeeds = item.installation_need?.split(',').map(n => n.trim()) || [];
-                return selectedInstallationNeeds.some(need => itemNeeds.includes(need));
-            });
+            filtered = filtered.filter(item => matchesFilter(selectedInstallationNeeds, item.installation_need?.split(',') || []));
         }
         
         console.log('Filtered products:', {
@@ -481,11 +497,15 @@ const Content = ({
             newParams.delete('sort');
         }
 
+        if (promoName) {
+            newParams.set('promo', promoName);
+        }
+
         newParams.set('perPage', productsPerPage.toString());
         newParams.set('page', currentPage.toString());
         
         setSearchParams(newParams);
-    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy, productsPerPage, currentPage]);
+    }, [selectedBrands, selectedFinish, selectedColours, selectedSizes, selectedSpaces, selectedInstallationNeeds, sortBy, productsPerPage, currentPage, promoName]);
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value);
 
@@ -738,8 +758,8 @@ const Content = ({
                             <a href="/">
                                 Home
                             </a>
-                            <a href={"/product-category/" + slug}>
-                                {dataSlug?.name}
+                            <a href={promoName ? `/product-category/${slug}?promo=${encodeURIComponent(promoName)}` : `/product-category/${slug}`}>
+                                {promoName || dataSlug?.name}
                             </a>
                         </Breadcrumbs>
                     </div>
