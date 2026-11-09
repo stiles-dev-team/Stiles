@@ -54,9 +54,9 @@ export const NAV_MENUS = [
   {
     id: "sanware",
     label: "Sanware",
-    href: "/product-category/sanitary-ware",
-    mobileHref: "/product-category/sanitary-ware",
-    filterBase: "/product-category/sanitary-ware",
+    href: "/product-category/sanitary%20ware",
+    mobileHref: "/product-category/sanitary%20ware",
+    filterBase: "/product-category/sanitary%20ware",
     flatten: true,
     buttonClass: "sanware-button",
     dropdownClass: "sanware-dropdown",
@@ -109,7 +109,7 @@ export const getCategoryBySlug = (slug) => {
         if (slugFromHref(item.href) === key) {
           return {
             name: pickName(key, item.label),
-            categoryName: pickName(key, item.label),
+            categoryName: item.categoryName || pickName(key, item.label),
             slug: key,
             description: "",
             thumbnail: item.image || "",
