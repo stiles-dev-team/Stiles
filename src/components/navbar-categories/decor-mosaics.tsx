@@ -2,7 +2,7 @@ const BASE = "/product-category/tiles/mosaics";
 
 export const DECOR_MOSAICS_MEGA_MENU = [
   {
-    title: "Decor & Mosaics by Look",
+    title: "Décor & Mosaics by Look",
     itemType: "look",
     items: [
       { label: "Brick Look", href: `${BASE}/brick-look`, image: "/images/menu-look/brick.png" },
@@ -24,7 +24,7 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     ],
   },
   {
-    title: "Decor & Mosaics by Colour",
+    title: "Décor & Mosaics by Colour",
     itemType: "colour",
     items: [
       { label: "Grey", href: `${BASE}?colours=grey`, image: "/images/menu-colour/grey.png" },
@@ -46,14 +46,14 @@ export const DECOR_MOSAICS_MEGA_MENU = [
     ],
   },
   // {
-  //   title: "Decor & Mosaics by Size",
+  //   title: "Décor & Mosaics by Size",
   //   itemType: "size",
   //   items: [
   //     { label: "All smaller sizes", href: BASE, dimension: "Small" },
   //   ],
   // },
   {
-    title: "Decor & Mosaics by Space",
+    title: "Décor & Mosaics by Space",
     itemType: "icon",
     items: [
       { label: "Kitchen", href: `${BASE}?space=Kitchen`, image: "/images/needs/kitchen.jpg" },
