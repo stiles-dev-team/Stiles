@@ -41,7 +41,7 @@ export const NAV_MENUS = [
   },
   {
     id: "decor-mosaics",
-    label: "Decor & Mosaics",
+    label: "Décor & Mosaics",
     categoryName: "Mosaics",
     href: "/product-category/tiles/mosaics",
     mobileHref: "/product-category/tiles/mosaics",
