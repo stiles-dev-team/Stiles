@@ -6,7 +6,7 @@ import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { getUniquePromoBadgeVisibilityMap, filterBadgesByUniquePromoBadgeVisibility } from '../utils/uniquePromos';
 // import { toast } from 'sonner';
 
-const ProductCard = memo(({ onClick, prod }) => {
+const ProductCard = memo(({ onClick, prod, compactBadges = false }) => {
     const [isFavourite, setIsFavourite] = useState(false);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -307,17 +307,22 @@ const ProductCard = memo(({ onClick, prod }) => {
                                              !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Coming Soon')) &&
                                              !(product.product_tag && typeof product.product_tag === 'string' && product.product_tag.includes('Special Order'));
                         const topOffset = hasTopBadge ? (index * 38 + 45) : (index * 38);
+                        const stackClass = compactBadges
+                            ? (hasTopBadge
+                                ? 'top-[calc(var(--badge-i)*26px+28px)] md:top-[calc(var(--badge-i)*38px+45px)]'
+                                : 'top-[calc(var(--badge-i)*26px)] md:top-[calc(var(--badge-i)*38px)]')
+                            : '';
                         return (
                             <div 
                                 key={index}
-                                className='absolute left-0 w-fit z-30 p-2 bg-primaryStiles flex flex-col gap-1 max-w-44'
-                                style={{ top: `${topOffset}px` }}
+                                className={`absolute left-0 w-fit z-30 bg-primaryStiles flex flex-col gap-1 ${compactBadges ? `p-1 max-w-28 md:p-2 md:max-w-44 ${stackClass}` : 'p-2 max-w-44'}`}
+                                style={compactBadges ? { '--badge-i': index } : { top: `${topOffset}px` }}
                             >
-                                <div className='bg-primaryStiles px-2 py-1 rounded text-center'>
+                                <div className={`bg-primaryStiles rounded text-center ${compactBadges ? 'px-1 py-0.5 md:px-2 md:py-1' : 'px-2 py-1'}`}>
                                     {badgesPendingVisibility ? (
                                         <div className="h-3 w-20 bg-black/20 rounded animate-pulse" />
                                     ) : (
-                                        <p className='text-dark text-[10px] font-black uppercase leading-tight'>{badge}</p>
+                                        <p className={`text-dark font-black uppercase leading-tight ${compactBadges ? 'text-[8px] md:text-[10px]' : 'text-[10px]'}`}>{badge}</p>
                                     )}
                                 </div>
                             </div>

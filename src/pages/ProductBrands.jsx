@@ -591,7 +591,7 @@ const Content = ({
                         {
                             product && product.map((item) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard key={item.id} prod={item.slug} />
+                                    <ProductCard key={item.id} prod={item.slug} compactBadges />
                                 </a>
                             ))
                         }

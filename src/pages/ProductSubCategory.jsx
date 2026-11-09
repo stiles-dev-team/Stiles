@@ -780,7 +780,7 @@ const Content = ({
                         {loading ? null : hasProducts ? (
                             product.map((item) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard prod={item.slug} />
+                                    <ProductCard prod={item.slug} compactBadges />
                                 </a>
                             ))
                         ) : (
