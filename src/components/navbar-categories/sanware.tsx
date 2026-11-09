@@ -21,7 +21,7 @@ export const SANWARE_MEGA_MENU = [
         image: "/images/sanware/sanware-icons/Bath_.jpg",
       },
       {
-        label: "Tapware (Mixers & Taps)",
+        label: "Mixers and Taps",
         categoryName: "mixers and taps",
         href: `${BASE}/mixers-and-taps`,
         image: "/images/sanware/sanware-icons/Mixer_.jpg",

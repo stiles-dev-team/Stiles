@@ -571,7 +571,7 @@ export const DomesticHotWaterSubcategories = () => (
 );
 
 export const TapwareSubcategories = () => (
-  <SubcategoryCards title="Tapware (Mixers & Taps)" items={TAPWARE_ITEMS} />
+  <SubcategoryCards title="Mixers and Taps" items={TAPWARE_ITEMS} />
 );
 
 export const KitchenSubcategories = () => (

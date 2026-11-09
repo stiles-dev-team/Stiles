@@ -798,7 +798,7 @@ const Content = ({
                         </div>
                     </div>
                     )}
-                    <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
+                    <div className={`grid grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {loading ? null : hasProducts ? (
                             product.map((item) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
