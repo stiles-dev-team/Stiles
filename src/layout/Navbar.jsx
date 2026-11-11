@@ -564,7 +564,7 @@ const Navbar = () => {
             <input
               type="search"
               id="search-input-navbar"
-              className="w-full border border-gray-300 p-4 text-sm rounded-full"
+              className="w-full border border-gray-300 p-4 text-base md:text-sm rounded-full"
               placeholder="Search for products"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -637,12 +637,8 @@ const Navbar = () => {
         <div className="nav:hidden py-3">
           <div className="container mx-auto px-4">
             <div
-              className={`flex w-full items-center justify-between ${pillContainerClass}`}
+              className={`relative flex w-full items-center justify-between ${pillContainerClass}`}
             >
-              <a href="/" className="shrink-0">
-                {/* <img src="/images/logo.png" alt="Stiles" className="h-12" /> */}
-                <img src="/images/logo-black.png" alt="Stiles" className="h-12" />
-              </a>
               <button
                 onClick={() => setShowMenu(true)}
                 className="text-gray-900 p-1"
@@ -650,6 +646,32 @@ const Navbar = () => {
               >
                 <IoMenu size={24} />
               </button>
+              <a href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <img src="/images/logo-black.png" alt="Stiles" className="h-12 w-auto max-w-none object-contain" />
+              </a>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setShowSearch(true);
+                    document.getElementById("search-input-navbar").focus();
+                  }}
+                  className="text-gray-900"
+                  aria-label="Search"
+                >
+                  <IoSearch size={18} />
+                </button>
+                {cartCount > 0 ? (
+                  <a href="/cart" className="relative flex items-center text-gray-900">
+                    <Badge color="red">
+                      <FaCartShopping size={16} />
+                    </Badge>
+                  </a>
+                ) : (
+                  <a href="/cart" className="text-gray-900">
+                    <FaCartShopping size={16} />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -985,8 +1007,8 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       <div
-        className={`w-10/12 h-lvh bg-white fixed top-0 right-0 z-[90] nav:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
-          showMenu ? "translate-x-0" : "translate-x-full"
+        className={`w-10/12 h-lvh bg-white fixed top-0 left-0 z-[90] nav:hidden flex flex-col justify-start items-start max-h-lvh overflow-y-auto transition-all ${
+          showMenu ? "translate-x-0" : "-translate-x-full"
         }`}
         id="navbar-mobile-menu"
       >
