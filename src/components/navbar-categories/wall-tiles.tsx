@@ -57,7 +57,7 @@ export const WALL_TILES_MEGA_MENU = [
       { label: "", href: `${BASE}?sizes=600%20x%201200`, dimension: "600×1200" },
       { label: "", href: `${BASE}?sizes=1600%20x%20800`, dimension: "1600×800" },
       { label: "", href: `${BASE}?sizes=1000%20x%201000`, dimension: "1000×1000" },
-      { label: "Smaller Sizes", href: BASE, dimension: "Small" },
+      // { label: "Smaller Sizes", href: BASE, dimension: "Small" },
     ],
   },
   {

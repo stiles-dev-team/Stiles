@@ -16,6 +16,7 @@ import {
     Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
+import ActiveFilters from '../components/ActiveFilters';
 import { CircularPagination } from '../components/CircularPagination';
 import { FaFacebookF, FaInstagram, FaPinterestP, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
@@ -544,7 +545,7 @@ const Content = ({
                     </Accordion>
                 </aside>
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
-                    <div className='w-full flex flex-row justify-start items-center gap-3'>
+                    <div className='w-full flex flex-row flex-wrap justify-start items-center gap-3'>
                         <Breadcrumbs>
                             <a href="/" className="opacity-60">
                                 Home
@@ -553,6 +554,13 @@ const Content = ({
                                 {brandLoading ? 'Loading...' : (decodeHtmlEntities(brandInfo?.name) || slug)}
                             </a>
                         </Breadcrumbs>
+                        <ActiveFilters
+                            filters={[
+                                { label: 'Colour', values: selectedColours, onRemove: () => { setSelectedColours([]); setCurrentPage(1); } },
+                                { label: 'Finish', values: selectedFinish, onRemove: () => { setSelectedFinish([]); setCurrentPage(1); } },
+                                { label: 'Size', values: selectedSizes, onRemove: () => { setSelectedSizes([]); setCurrentPage(1); } },
+                            ]}
+                        />
                     </div>
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
                         <div className='w-full lg:max-w-80'>

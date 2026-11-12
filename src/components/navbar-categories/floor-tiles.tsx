@@ -47,7 +47,7 @@ export const FLOORING_MEGA_MENU = [
       { label: "", href: "/product-category/floor-tiles?sizes=600%20x%201200", dimension: "600×1200" },
       { label: "", href: "/product-category/floor-tiles?sizes=1600%20x%20800", dimension: "1600×800" },
       { label: "", href: "/product-category/floor-tiles?sizes=1000%20x%201000", dimension: "1000×1000" },
-      { label: "Smaller Sizes", href: "/product-category/floor-tiles", dimension: "Small" },
+      // { label: "Smaller Sizes", href: "/product-category/floor-tiles", dimension: "Small" },
     ],
   },
   {
