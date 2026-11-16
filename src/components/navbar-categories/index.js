@@ -3,12 +3,68 @@ import { WALL_TILES_MEGA_MENU } from "./wall-tiles";
 import { LARGE_SLABS_MEGA_MENU } from "./large-slabs";
 import { DECOR_MOSAICS_MEGA_MENU } from "./decor-mosaics";
 import { SANWARE_MEGA_MENU } from "./sanware";
+import navbarCategories from "../../../public/data/navbar-categories.json";
+
+const DEFAULT_CATEGORY_IMAGE = "/images/bannerhome.png";
+
+const FLOOR_TILE_COLOUR_IMAGES = {
+  blue: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_blue.jpg",
+  brown: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_brown.jpg",
+  gold: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_gold.jpg",
+  green: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_green.jpg",
+  grey: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_grey.jpg",
+  pink: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_pink.jpg",
+  red: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_red.jpg",
+  white: "/images/product-category/colour/floor-tiles/Stiles new catagories websliders_floor_colour_white.jpg",
+};
+
+const WALL_TILE_COLOUR_IMAGES = {
+  blue: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_blue.jpg",
+  brown: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_brown.jpg",
+  gold: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_gold.jpg",
+  green: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_green.jpg",
+  grey: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_grey.jpg",
+  pink: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_pink.jpg",
+  red: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_red.jpg",
+  white: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colour_white.jpg",
+  yellow: "/images/product-category/colour/wall-tiles/Stiles new catagories websliders_walltile by colouryellow.jpg",
+};
+
+const categoriesBySlug = new Map();
+for (const category of navbarCategories) {
+  const slug = String(category.slug || "").toLowerCase();
+  if (!slug) continue;
+  const existing = categoriesBySlug.get(slug);
+  if (!existing || (!existing.thumbnail && category.thumbnail)) {
+    categoriesBySlug.set(slug, category);
+  }
+}
+
+const jsonThumbnailForSlug = (slug) =>
+  String(categoriesBySlug.get(slug)?.thumbnail || "").trim();
+
+const backgroundImageForSlug = (slug) =>
+  colourImageForSlug(slug) || jsonThumbnailForSlug(slug) || DEFAULT_CATEGORY_IMAGE;
+
+const colourImageForSlug = (slug) => {
+  const imagesBySlug = {
+    "floor-tiles": FLOOR_TILE_COLOUR_IMAGES,
+    flooring: FLOOR_TILE_COLOUR_IMAGES,
+    "wall-tiles": WALL_TILE_COLOUR_IMAGES,
+  };
+  const images = imagesBySlug[slug];
+  if (!images || typeof window === "undefined") return "";
+  const colours = new URLSearchParams(window.location.search).get("colours") || "";
+  const colour = colours.split(",")[0].trim().toLowerCase();
+  const image = images[colour];
+  return image ? encodeURI(image) : "";
+};
 
 export const NAV_MENUS = [
   {
     id: "floor-tiles",
     label: "Floor Tiles",
-    href: "/product-category/flooring",
+    href: "/product-category/floor-tiles",
     mobileHref: "/product-category/floor-tiles",
     filterBase: "/product-category/floor-tiles",
     flatten: false,
@@ -87,7 +143,7 @@ const pickName = (slug, label) => {
 export const getCategoryBySlug = (slug) => {
   const key = String(slug || "").toLowerCase();
   if (!key) {
-    return { name: "", categoryName: "", slug: "", description: "", thumbnail: "" };
+    return { name: "", categoryName: "", slug: "", description: "", thumbnail: DEFAULT_CATEGORY_IMAGE };
   }
 
   const menuMatch = NAV_MENUS.find(
@@ -99,7 +155,7 @@ export const getCategoryBySlug = (slug) => {
       categoryName: menuMatch.categoryName || menuMatch.label,
       slug: key,
       description: "",
-      thumbnail: "",
+      thumbnail: backgroundImageForSlug(key),
     };
   }
 
@@ -112,7 +168,7 @@ export const getCategoryBySlug = (slug) => {
             categoryName: item.categoryName || pickName(key, item.label),
             slug: key,
             description: "",
-            thumbnail: item.image || "",
+            thumbnail: backgroundImageForSlug(key),
           };
         }
       }
@@ -124,6 +180,6 @@ export const getCategoryBySlug = (slug) => {
     categoryName: nameFromSlug(key),
     slug: key,
     description: "",
-    thumbnail: "",
+    thumbnail: backgroundImageForSlug(key),
   };
 };

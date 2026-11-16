@@ -188,7 +188,7 @@ const Hero = ({slug}) => {
         'Funky Tiles': '/images/home/home-slider-v24.jpg',
         'Exclusive to Stiles': '/images/home/home-slider-v28.jpg',
     };
-    const bannerImage = promoBanners[promoName] || '/images/bannerhome.png';
+    const bannerImage = promoBanners[promoName] || data?.thumbnail || '/images/bannerhome.png';
 
     return (
         <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url(${bannerImage})` }}>
