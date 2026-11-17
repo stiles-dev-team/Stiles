@@ -123,7 +123,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
         $category = $_GET['category'];
-        $categoryPattern = '%' . $category . '%';
+        $categoryNames = array_values(array_filter(array_map('trim', explode('|||', $category)), function ($name) {
+            return $name !== '';
+        }));
+        if (empty($categoryNames)) {
+            $categoryNames = [$category];
+        }
+        $categoryConditions = [];
+        $categoryParams = [];
+        foreach ($categoryNames as $categoryName) {
+            $categoryConditions[] = 'product_category LIKE ?';
+            $categoryParams[] = '%' . $categoryName . '%';
+        }
         
         // First get all products for this category
         $stmt = $pdo->prepare('
@@ -136,10 +147,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
                 `attribute:pa_installation_need` as installation_need
             FROM stiles_products 
             WHERE status = "publish" 
-            AND product_category LIKE ?
+            AND ' . implode(' AND ', $categoryConditions) . '
         ');
         
-        $stmt->execute([$categoryPattern]);
+        $stmt->execute($categoryParams);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the results to get unique values
@@ -1048,6 +1059,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
     try {
         $category = $_GET['category'];
+        $categoryNames = array_values(array_filter(array_map('trim', explode('|||', $category)), function ($name) {
+            return $name !== '';
+        }));
+        if (empty($categoryNames)) {
+            $categoryNames = [$category];
+        }
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
         $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
         
@@ -1060,8 +1077,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         error_log("Fetching products for category: {$category} with limit: {$limit} and offset: {$offset}");
         
         // Build the base query
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND sp.product_category LIKE ?';
-        $params = ['%' . $category . '%'];
+        $categoryConditions = [];
+        $params = [];
+        foreach ($categoryNames as $categoryName) {
+            $categoryConditions[] = 'sp.product_category LIKE ?';
+            $params[] = '%' . $categoryName . '%';
+        }
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND ' . implode(' AND ', $categoryConditions);
         
         // Add filter conditions
         if (isset($_GET['brands']) && !empty($_GET['brands'])) {

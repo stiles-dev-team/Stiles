@@ -159,10 +159,14 @@ export const getCategoryBySlug = (slug) => {
     };
   }
 
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  let slugMatch = null;
   for (const menu of NAV_MENUS) {
     for (const column of menu.columns || []) {
       for (const item of column.items || []) {
-        if (slugFromHref(item.href) === key) {
+        if (slugFromHref(item.href) !== key) continue;
+        const hrefPath = String(item.href || "").split("?")[0];
+        if (currentPath && hrefPath && currentPath.includes(hrefPath)) {
           return {
             name: pickName(key, item.label),
             categoryName: item.categoryName || pickName(key, item.label),
@@ -171,8 +175,18 @@ export const getCategoryBySlug = (slug) => {
             thumbnail: backgroundImageForSlug(key),
           };
         }
+        if (!slugMatch) slugMatch = item;
       }
     }
+  }
+  if (slugMatch) {
+    return {
+      name: pickName(key, slugMatch.label),
+      categoryName: slugMatch.categoryName || pickName(key, slugMatch.label),
+      slug: key,
+      description: "",
+      thumbnail: backgroundImageForSlug(key),
+    };
   }
 
   return {
