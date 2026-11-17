@@ -396,8 +396,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -863,8 +867,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -1126,8 +1134,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
