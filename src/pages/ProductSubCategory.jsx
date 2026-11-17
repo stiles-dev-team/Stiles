@@ -44,7 +44,7 @@ import {
     isKitchenSlug,
     isBathsSlug,
 } from '../components/SanwareSubcategories';
-import { getCategoryBySlug } from '../components/navbar-categories';
+import { useCategoryBySlug } from '../components/navbar-categories';
 
 // Function to extract plain text from HTML descriptions
 const extractTextFromHTML = (htmlString) => {
@@ -128,7 +128,7 @@ const ProductSubCategory = () => {
 
     
 
-    const data = getCategoryBySlug(slug);
+    const data = useCategoryBySlug(slug);
 
   return (
     <Layout>
@@ -173,7 +173,7 @@ const ProductSubCategory = () => {
 export default ProductSubCategory
 
 const Hero = ({slug}) => {
-    const data = getCategoryBySlug(slug);
+    const data = useCategoryBySlug(slug);
 
     return (
         <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url("${data?.thumbnail || "/images/bannerhome.png"}")` }}>
@@ -204,7 +204,7 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const dataSlug = getCategoryBySlug(slug);
+    const dataSlug = useCategoryBySlug(slug);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
     const [gridView, setGridView] = useState(true);
 
