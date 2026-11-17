@@ -205,6 +205,7 @@ const TAPWARE_ITEMS = [
     image: "/images/sanware/new-tapware/Mixers%20-%20transparent%20darker.png",
     children: [
       { label: "Basin Mixers", href: `${TAPWARE_BASE}/basin-mixers`, image: "/images/sanware/new-tapware/Mixers%20-%20transparent%20darker.png" },
+      { label: "Exposed Bath Mixers", href: `${TAPWARE_BASE}/exposed-bath-mixers`, image: "/images/sanware/new-tapware/Technical%20Sketch%20of%20Wall-Mounted%20Bath%20Mixer.png" },
       { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers`, image: "/images/sanware/new-tapware/Concealed%20Mixers%20-%20transparent%20darker.png" },
       { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
       { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers`, image: "/images/sanware/new-tapware/Thermostatic%20Mixers%20-%20transparent%20darker.png" },
