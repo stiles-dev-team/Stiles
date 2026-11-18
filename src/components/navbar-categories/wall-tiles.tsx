@@ -9,7 +9,7 @@ export const WALL_TILES_MEGA_MENU = [
       { label: "Wood", href: `${BASE}/wood-design`, categoryName: "Wall Tiles|||Wood", image: "/images/menu-look/wood.png" },
       { label: "Stone", href: `${BASE}/stone`, categoryName: "Wall Tiles|||Stone", image: "/images/menu-look/stone.png" },
       { label: "Marble", href: `${BASE}/marble`, categoryName: "Wall Tiles|||Marble", image: "/images/menu-look/marble.png" },
-      { label: "Cement", href: `${BASE}/concrete`, categoryName: "Wall Tiles|||Cement", image: "/images/menu-look/cement.png" },
+      { label: "Cement", href: `${BASE}/cement`, categoryName: "Wall Tiles|||Cement", image: "/images/menu-look/cement.png" },
       { label: "Terrazzo", href: `${BASE}/terrazo`, categoryName: "Wall Tiles|||Terrazzo", image: "/images/menu-look/terrazzo.png" },
       { label: "Patterned", href: `${BASE}/patterned`, categoryName: "Wall Tiles|||Patterned", image: "/images/menu-look/patterned.png" },
       // { label: "Minimalistic", href: `${BASE}/minimalist`, image: "/images/menu-look/minimalist.png" },
