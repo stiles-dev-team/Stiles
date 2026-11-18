@@ -7,7 +7,7 @@ export const FLOORING_MEGA_MENU = [
       { label: "Wood", href: "/product-category/floor-tiles/wood-look", categoryName: "Floor Tiles|||Wood", image: "/images/menu-look/wood.png" },
       { label: "Stone", href: "/product-category/floor-tiles/stone", categoryName: "Floor Tiles|||Stone", image: "/images/menu-look/stone.png" },
       { label: "Marble", href: "/product-category/floor-tiles/marble", categoryName: "Floor Tiles|||Marble", image: "/images/menu-look/marble.png" },
-      { label: "Cement", href: "/product-category/floor-tiles/concrete", categoryName: "Floor Tiles|||Cement", image: "/images/menu-look/cement.png" },
+      { label: "Cement", href: "/product-category/floor-tiles/cement", categoryName: "Floor Tiles|||Cement", image: "/images/menu-look/cement.png" },
       { label: "Terrazzo", href: "/product-category/floor-tiles/terrazzo", categoryName: "Floor Tiles|||Terrazzo", image: "/images/menu-look/terrazzo.png" },
       { label: "Patterned", href: "/product-category/floor-tiles/patterned", categoryName: "Floor Tiles|||Patterned", image: "/images/menu-look/patterned.png" },
       // { label: "Minimalistic", href: "/product-category/floor-tiles/minimalist", image: "/images/menu-look/minimalist.png" },
