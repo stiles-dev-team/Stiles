@@ -6,6 +6,37 @@ import { getPricingUnit, formatPriceWithUnit } from '../utils/pricingUtils';
 import { getUniquePromoBadgeVisibilityMap, filterBadgesByUniquePromoBadgeVisibility } from '../utils/uniquePromos';
 // import { toast } from 'sonner';
 
+// Quick fix: product images were cache-busted with ?v=Date.now() on every render.
+// That made each paint a new URL, so the browser never cached the file, in-flight
+// lazy loads were aborted, and onError's placeholder was replaced on the next render.
+// Keep a stable URL, lazy-load off-screen cards, and store the fallback in state
+// so a broken URL cannot come back.
+const PRODUCT_IMAGE_FALLBACK = '/images/placeholder-images-image_large.webp';
+
+function ProductImage({ src, alt, className, onClick }) {
+    const [current, setCurrent] = useState(src || PRODUCT_IMAGE_FALLBACK);
+
+    useEffect(() => {
+        setCurrent(src || PRODUCT_IMAGE_FALLBACK);
+    }, [src]);
+
+    return (
+        <img
+            src={current}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            width={414}
+            height={414}
+            className={className}
+            onClick={onClick}
+            onError={() => {
+                if (current !== PRODUCT_IMAGE_FALLBACK) setCurrent(PRODUCT_IMAGE_FALLBACK);
+            }}
+        />
+    );
+}
+
 const ProductCard = memo(({ onClick, prod, compactBadges = false }) => {
     const [isFavourite, setIsFavourite] = useState(false);
     const [product, setProduct] = useState(null);
@@ -243,29 +274,19 @@ const ProductCard = memo(({ onClick, prod, compactBadges = false }) => {
                         Promo
                     </div>
                 )} */}
-                <img 
-                    src={product.images[0]?.url ? `${product.images[0].url}?v=${new Date().getTime()}` : '/images/placeholder-images-image_large.webp'} 
+                <ProductImage
+                    src={product.images[0]?.url}
                     alt={product.title}
-                    loading="lazy"
-                    width={414}
-                    height={414}
-                    className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product.images.length > 1 ? 'opacity-0' : 'opacity-100'}`} 
-                    onClick={onClick} 
-                    onError={(e) => {
-                        e.target.src = '/images/placeholder-images-image_large.webp';
-                    }} 
+                    className={`w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center relative z-0 cursor-pointer transition-opacity duration-300 ${isHovered && product.images.length > 1 ? 'opacity-0' : 'opacity-100'}`}
+                    onClick={onClick}
                 />
-                {product.images.length > 1 && (
-                    <img 
-                        src={product.images[1]?.url ? `${product.images[1].url}?v=${new Date().getTime()}` : '/images/placeholder-images-image_large.webp'} 
-                        alt={`${product.title} - Hover`} 
-                        className={`absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
+                {/* Second image only mounts on hover, so a grid does not download two uncached files per card. */}
+                {isHovered && product.images.length > 1 && (
+                    <ProductImage
+                        src={product.images[1]?.url}
+                        alt={`${product.title} - Hover`}
+                        className="absolute top-0 left-0 w-full rounded-lg lg:rounded-xl aspect-square object-cover object-center cursor-pointer opacity-100"
                         onClick={onClick}
-                        width={414}
-                        height={414}
-                        onError={(e) => {
-                            e.target.src = '/images/placeholder-images-image_large.webp';
-                        }}
                     />
                 )}
             </div>

@@ -92,6 +92,39 @@ const matchesFilter = (selected, itemValues) =>
         itemValues.some((itemValue) => cleanFilterLabel(itemValue).toLowerCase() === cleanFilterLabel(selectedValue).toLowerCase())
     );
 
+// Quick fix: category banners sit above the fold, so they stay eager (not lazy).
+// A CSS background has no error event. Probe the URL once — a hit is reused from
+// the browser cache, a 404 stays on the local banner instead of a broken background.
+const BANNER_FALLBACK = '/images/bannerhome.png';
+
+function useBannerSrc(url) {
+    const [src, setSrc] = useState(BANNER_FALLBACK);
+
+    useEffect(() => {
+        const next = url || BANNER_FALLBACK;
+        if (next === BANNER_FALLBACK) {
+            setSrc(BANNER_FALLBACK);
+            return;
+        }
+
+        let cancelled = false;
+        const probe = new Image();
+        probe.onload = () => {
+            if (!cancelled) setSrc(next);
+        };
+        probe.onerror = () => {
+            if (!cancelled) setSrc(BANNER_FALLBACK);
+        };
+        probe.src = next;
+
+        return () => {
+            cancelled = true;
+        };
+    }, [url]);
+
+    return src;
+}
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -174,9 +207,10 @@ export default ProductSubCategory
 
 const Hero = ({slug}) => {
     const data = useCategoryBySlug(slug);
+    const bannerSrc = useBannerSrc(data?.thumbnail);
 
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url("${data?.thumbnail || "/images/bannerhome.png"}")` }}>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url("${String(bannerSrc).replace(/"/g, '')}")` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
