@@ -239,7 +239,7 @@ const Content = ({
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
     const dataSlug = useCategoryBySlug(slug);
-    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'desc');
     const [gridView, setGridView] = useState(true);
 
     const [colours, setColours] = useState([]);
