@@ -17,6 +17,7 @@ import ProductDisclaimer from "./pages/ProductDisclaimer"
 import ProductBrands from "./pages/ProductBrands"
 import ProductPromos from "./pages/ProductPromos"
 import Promo from "./pages/Promo"
+import Campaign from "./pages/Campaign"
 import Cart from "./pages/Cart"
 import ContactUs from "./pages/ContactUs"
 import ContactSingle from "./pages/ContactSingle"
@@ -75,6 +76,7 @@ function App() {
           <Route path="/admin/*" element={<Admin />} />
 
           <Route path="/promo/:promo" element={<Promo />} />
+          <Route path="/campaign/:campaignName" element={<Campaign />} />
 
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
           <Route path="/end-of-range" element={<EndOfRange />} />
