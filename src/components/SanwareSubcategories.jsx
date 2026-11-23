@@ -256,7 +256,7 @@ const TAPWARE_ITEMS = [
   },
 ];
 
-const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen-sinks";
+const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen";
 
 const KITCHEN_ITEMS = [
   {
@@ -434,7 +434,7 @@ export const isTapwareSlug = (slug) =>
   String(slug || "").toLowerCase() === "mixers-and-taps";
 
 export const isKitchenSlug = (slug) =>
-  String(slug || "").toLowerCase() === "kitchen-sinks";
+  String(slug || "").toLowerCase() === "kitchen";
 
 export const isBathsSlug = (slug) =>
   String(slug || "").toLowerCase() === "baths";
