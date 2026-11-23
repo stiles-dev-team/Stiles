@@ -140,6 +140,7 @@ const AdminProducts = () => {
   const [showUpdateFieldsModal, setShowUpdateFieldsModal] = useState(false);
   const [updateFieldsData, setUpdateFieldsData] = useState(emptyUpdateFields());
   const [updateFieldsSubmitting, setUpdateFieldsSubmitting] = useState(false);
+  const [removingCategory, setRemovingCategory] = useState(false);
   const [sortField, setSortField] = useState(searchParams.get('sort_field') || null);
   const [sortDirection, setSortDirection] = useState(searchParams.get('sort_direction') || 'asc');
   
@@ -462,6 +463,65 @@ const AdminProducts = () => {
   const openUpdateFieldsModal = () => {
     setUpdateFieldsData(emptyUpdateFields());
     setShowUpdateFieldsModal(true);
+  };
+
+  const handleRemoveCategoryField = async () => {
+    if (removingCategory) return;
+
+    if (selectedProducts.length === 0) {
+      alert("Please select products to update");
+      return;
+    }
+
+    if (selectedProductCategory.length !== 1) {
+      alert("Select exactly one product category");
+      return;
+    }
+
+    const category = uniqueCategories.find(
+      (cat) => String(cat.id) === String(selectedProductCategory[0])
+    );
+    const categoryName = sanitizeFilterValue(category?.category);
+    if (!categoryName) {
+      alert("Could not find the selected category");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Remove "${categoryName}" from ${selectedProducts.length} product(s)? Only this category will be removed.`
+    );
+    if (!confirmed) return;
+
+    setRemovingCategory(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-products.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          action: "remove_category",
+          ids: selectedProducts,
+          product_category: categoryName,
+        }),
+      });
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert(result.message || `Removed ${categoryName} from the selected products`);
+        setSelectedProducts([]);
+        invalidateCache();
+        fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection, false);
+      } else {
+        alert(result.message || "Error removing category");
+      }
+    } catch (error) {
+      console.error("Error removing category:", error);
+      alert("Error removing category");
+    } finally {
+      setRemovingCategory(false);
+    }
   };
 
   const handleBulkAppendFields = async (e) => {
@@ -2286,6 +2346,15 @@ const AdminProducts = () => {
               </button>
             </div>
             <div className="flex items-center space-x-2">
+              {selectedProductCategory.length === 1 && (
+                <button
+                  onClick={handleRemoveCategoryField}
+                  disabled={removingCategory}
+                  className="px-4 py-2 bg-pink-600 text-white rounded-md text-sm font-medium hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {removingCategory ? "Removing..." : "Delete Category Field"}
+                </button>
+              )}
               <button
                 onClick={openUpdateFieldsModal}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
@@ -2299,7 +2368,7 @@ const AdminProducts = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                Delete Selected
+                Delete Products
               </button>
             </div>
           </div>

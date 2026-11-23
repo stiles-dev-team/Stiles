@@ -38,6 +38,41 @@ function append_csv_values($existing, $new) {
     return implode(', ', $merged);
 }
 
+function category_tokens($value) {
+    if (is_array($value)) {
+        $tokens = [];
+        foreach ($value as $item) {
+            $tokens = array_merge($tokens, category_tokens($item));
+        }
+        return $tokens;
+    }
+
+    $normalized = str_replace("\xC2\xA0", ' ', (string) $value);
+    $parts = array_map('trim', explode(',', $normalized));
+    return array_values(array_filter($parts, function ($part) {
+        return $part !== '';
+    }));
+}
+
+function single_category_name($value) {
+    $tokens = category_tokens($value);
+    if (count($tokens) === 0) {
+        throw new InvalidArgumentException('A category is required');
+    }
+    if (count($tokens) !== 1) {
+        throw new InvalidArgumentException('Only one category can be removed at a time');
+    }
+    return $tokens[0];
+}
+
+function remove_csv_value($existing, $remove) {
+    $target = single_category_name($remove);
+    $kept = array_values(array_filter(category_tokens($existing), function ($part) use ($target) {
+        return strcasecmp($part, $target) !== 0;
+    }));
+    return implode(', ', $kept);
+}
+
 function quoted_column($field) {
     return strpos($field, ':') !== false ? "`$field`" : $field;
 }
@@ -655,6 +690,66 @@ try {
                     echo json_encode([
                         'status' => 'error',
                         'message' => 'Failed to update products',
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+                break;
+            }
+
+            // Remove one category name from the selected products. Other fields stay unchanged.
+            if (is_array($data) && isset($data['action']) && $data['action'] === 'remove_category') {
+                $ids = isset($data['ids']) && is_array($data['ids']) ? $data['ids'] : [];
+
+                if (empty($ids)) {
+                    http_response_code(400);
+                    echo json_encode(['status' => 'error', 'message' => 'No products selected']);
+                    exit();
+                }
+
+                try {
+                    $categoryName = single_category_name($data['product_category'] ?? '');
+                } catch (InvalidArgumentException $e) {
+                    http_response_code(400);
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                    exit();
+                }
+
+                $selectStmt = $pdo->prepare('SELECT ID, product_category FROM stiles_products WHERE ID = ?');
+                $updateStmt = $pdo->prepare('UPDATE stiles_products SET product_category = ? WHERE ID = ?');
+                $updated = 0;
+
+                $pdo->beginTransaction();
+                try {
+                    foreach ($ids as $id) {
+                        $selectStmt->execute([$id]);
+                        $product = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                        if (!$product) {
+                            continue;
+                        }
+
+                        $current = (string) ($product['product_category'] ?? '');
+                        $next = remove_csv_value($current, $categoryName);
+                        if ($next === implode(', ', category_tokens($current))) {
+                            continue;
+                        }
+
+                        $updateStmt->execute([$next, $id]);
+                        $updated++;
+                    }
+
+                    $pdo->commit();
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => "Removed \"$categoryName\" from $updated product(s)",
+                        'updated' => $updated,
+                    ]);
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    error_log('remove_category error: ' . $e->getMessage());
+                    http_response_code(500);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Failed to remove category',
                         'error' => $e->getMessage(),
                     ]);
                 }
