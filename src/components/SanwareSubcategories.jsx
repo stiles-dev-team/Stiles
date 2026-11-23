@@ -207,7 +207,7 @@ const TAPWARE_ITEMS = [
       { label: "Basin Mixers", href: `${TAPWARE_BASE}/basin-mixers`, image: "/images/sanware/new-tapware/Mixers%20-%20transparent%20darker.png" },
       { label: "Exposed Bath Mixers", href: `${TAPWARE_BASE}/exposed-bath-mixers`, image: "/images/sanware/new-tapware/Technical%20Sketch%20of%20Wall-Mounted%20Bath%20Mixer.png" },
       { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers`, image: "/images/sanware/new-tapware/Concealed%20Mixers%20-%20transparent%20darker.png" },
-      { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
+      { label: "Concealed Diverter Mixers", href: `${TAPWARE_BASE}/concealed-diverter-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
       { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers`, image: "/images/sanware/new-tapware/Thermostatic%20Mixers%20-%20transparent%20darker.png" },
       { label: "Sink Mixers", href: `${TAPWARE_BASE}/sink-mixers`, image: "/images/sanware/new-tapware/Sink%20Mixers%20-%20transparent%20darker.png" },
       { label: "Electronic Mixers", href: `${TAPWARE_BASE}/electronic-mixers`, image: "/images/sanware/new-tapware/Electronic%20Mixers%20copy%20-%20transparent%20darker.png" },
