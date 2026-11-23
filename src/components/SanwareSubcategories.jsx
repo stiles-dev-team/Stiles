@@ -364,9 +364,9 @@ const TOILET_ITEMS = [
     ],
   },
   {
-    label: "Accesible Toilets",
-    slug: "accesible-toilets",
-    href: `${TOILET_BASE}/accesible-toilets`,
+    label: "Accessible Toilets",
+    slug: "accessible-toilets",
+    href: `${TOILET_BASE}/accessible-toilets`,
     image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(1).png",
   },
   {
