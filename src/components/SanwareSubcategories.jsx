@@ -17,7 +17,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
       { label: "Toilet Brush and Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/new-bathroom-accessories/technical_isometric_toilet_brush_holder_sketch.png" },
       { label: "Spare Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/spare-toilet-roll-holder`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_a_modern_toilet_paper_holder.png" },
       { label: "Sanitary Bag Holder", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bag-holder`, image: "/images/sanware/new-bathroom-accessories/Sanitary%20Bag%20Holder%20-%20transparent%20darker.png" },
-      { label: "Watse Bin", href: `${BATHROOM_ACCESSORY_BASE}/watse-bin`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
+      { label: "Waste Bin", href: `${BATHROOM_ACCESSORY_BASE}/waste-bin`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
     ],
   },
   {
