@@ -314,9 +314,14 @@ try {
                 }
                 
                 if (!empty($category) && $category !== 'all') {
-                    $whereConditions[] = 'sp.product_category LIKE ?';
-                    $params[] = '%' . $category . '%';
-                    error_log('Category filter applied: ' . $category . ' (searching for products containing this category in product_category field)');
+                    $categoryNames = array_values(array_filter(array_map('trim', explode('|||', $category)), function ($name) {
+                        return $name !== '' && $name !== 'all';
+                    }));
+                    foreach ($categoryNames as $categoryName) {
+                        $whereConditions[] = 'sp.product_category LIKE ?';
+                        $params[] = '%' . $categoryName . '%';
+                    }
+                    error_log('Category filter applied: ' . implode(', ', $categoryNames));
                 }
                 
                 if (!empty($brand) && $brand !== 'all') {

@@ -40,6 +40,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+/**
+ * Product order for tile categories, applied before the selected sort.
+ * Floor tiles: 600x600, then any other 600x size (smallest first), then the
+ * remaining mega-menu sizes in menu order, then every other size smallest first.
+ * Wall tiles, mosaics, and large tiles/slabs: smallest size first.
+ *
+ * @return string[] SQL expressions, each already including ASC/DESC
+ */
+function tileSizeOrderExpressions($category) {
+    $normalized = str_replace(['-', '_'], ' ', strtolower((string)$category));
+    $isFloor = strpos($normalized, 'floor tile') !== false;
+    $isWall = strpos($normalized, 'wall tile') !== false;
+    $isMosaic = strpos($normalized, 'mosaic') !== false;
+    $isLarge = strpos($normalized, 'large tile') !== false || strpos($normalized, 'large slab') !== false;
+
+    if (!$isFloor && !$isWall && !$isMosaic && !$isLarge) {
+        return [];
+    }
+
+    // First size only. Orientations are usually duplicated ("600 x 1200, 1200 x 600").
+    $norm = "REPLACE(REPLACE(REPLACE(LOWER(SUBSTRING_INDEX(COALESCE(sp.`attribute:pa_size`, ''), ',', 1)), UNHEX('C2A0'), ''), '×', 'x'), ' ', '')";
+    $width = "CAST({$norm} AS UNSIGNED)";
+    $height = "(CASE WHEN LOCATE('x', {$norm}) > 0 THEN CAST(SUBSTRING({$norm}, LOCATE('x', {$norm}) + 1) AS UNSIGNED) ELSE 0 END)";
+    $area = "({$width} * {$height})";
+    $minDim = "LEAST({$width}, {$height})";
+    $maxDim = "GREATEST({$width}, {$height})";
+    $unparsed = "(CASE WHEN {$width} = 0 OR {$height} = 0 THEN 1 ELSE 0 END)";
+
+    if (!$isFloor) {
+        return [
+            "{$unparsed} ASC",
+            "{$area} ASC",
+            "{$minDim} ASC",
+            "{$maxDim} ASC",
+        ];
+    }
+
+    // 600x1200 is on the floor-tile menu, but it belongs with the other 600x tiles.
+    $group = "(CASE
+        WHEN {$width} = 600 AND {$height} = 600 THEN 0
+        WHEN {$width} = 600 OR {$height} = 600 THEN 1
+        WHEN {$minDim} = 1080 AND {$maxDim} = 1080 THEN 2
+        WHEN {$minDim} = 800 AND {$maxDim} = 800 THEN 3
+        WHEN {$minDim} = 1200 AND {$maxDim} = 1200 THEN 4
+        WHEN {$minDim} = 800 AND {$maxDim} = 1600 THEN 5
+        WHEN {$minDim} = 1000 AND {$maxDim} = 1000 THEN 6
+        WHEN {$width} = 0 OR {$height} = 0 THEN 8
+        ELSE 7
+    END)";
+    $areaWithinGroup = "(CASE WHEN {$group} = 1 OR {$group} >= 7 THEN {$area} ELSE 0 END)";
+
+    return [
+        "{$group} ASC",
+        "{$areaWithinGroup} ASC",
+        "{$minDim} ASC",
+        "{$maxDim} ASC",
+    ];
+}
+
 // Get unique filter values by promo
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
@@ -123,7 +182,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
         $category = $_GET['category'];
-        $categoryPattern = '%' . $category . '%';
+        $categoryNames = array_values(array_filter(array_map('trim', explode('|||', $category)), function ($name) {
+            return $name !== '';
+        }));
+        if (empty($categoryNames)) {
+            $categoryNames = [$category];
+        }
+        $categoryConditions = [];
+        $categoryParams = [];
+        foreach ($categoryNames as $categoryName) {
+            $categoryConditions[] = 'product_category LIKE ?';
+            $categoryParams[] = '%' . $categoryName . '%';
+        }
         
         // First get all products for this category
         $stmt = $pdo->prepare('
@@ -136,10 +206,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
                 `attribute:pa_installation_need` as installation_need
             FROM stiles_products 
             WHERE status = "publish" 
-            AND product_category LIKE ?
+            AND ' . implode(' AND ', $categoryConditions) . '
         ');
         
-        $stmt->execute([$categoryPattern]);
+        $stmt->execute($categoryParams);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Process the results to get unique values
@@ -385,8 +455,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -431,6 +505,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
                 $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
             }
         }
+
+        $filteringByColourFinishOrSpace =
+            (isset($_GET['colours']) && $_GET['colours'] !== '') ||
+            (isset($_GET['finish']) && $_GET['finish'] !== '') ||
+            (isset($_GET['space']) && $_GET['space'] !== '');
+        if ($filteringByColourFinishOrSpace && empty($_GET['installation_needs'])) {
+            $baseQuery .= ' AND (sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "")';
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -471,22 +553,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['brand']) && (!isset($_G
         // Add sorting. Funky Tiles always sorts ahead of every other brand.
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
         $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
-        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
+        $installationLast = '(CASE WHEN sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "" THEN 0 ELSE 1 END)';
+        $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, sp.post_date DESC";
         switch ($sortBy) {
             case 'desc':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
                 break;
             case 'nuev':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
                 break;
             case 'vend':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
                 break;
             case 'ascBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
                 break;
             case 'descBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
                 break;
         }
         
@@ -843,8 +926,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -889,6 +976,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
                 $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
             }
         }
+
+        $filteringByColourFinishOrSpace =
+            (isset($_GET['colours']) && $_GET['colours'] !== '') ||
+            (isset($_GET['finish']) && $_GET['finish'] !== '') ||
+            (isset($_GET['space']) && $_GET['space'] !== '');
+        if ($filteringByColourFinishOrSpace && empty($_GET['installation_needs'])) {
+            $baseQuery .= ' AND (sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "")';
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -929,22 +1024,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
         // Add sorting. Funky Tiles always sorts ahead of every other brand.
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
         $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
-        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
+        $installationLast = '(CASE WHEN sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "" THEN 0 ELSE 1 END)';
+        $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, sp.post_date DESC";
         switch ($sortBy) {
             case 'desc':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
                 break;
             case 'nuev':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
                 break;
             case 'vend':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
                 break;
             case 'ascBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
                 break;
             case 'descBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
                 break;
         }
         
@@ -1030,6 +1126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && (!isset($_G
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
     try {
         $category = $_GET['category'];
+        $categoryNames = array_values(array_filter(array_map('trim', explode('|||', $category)), function ($name) {
+            return $name !== '';
+        }));
+        if (empty($categoryNames)) {
+            $categoryNames = [$category];
+        }
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
         $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
         
@@ -1042,8 +1144,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         error_log("Fetching products for category: {$category} with limit: {$limit} and offset: {$offset}");
         
         // Build the base query
-        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND sp.product_category LIKE ?';
-        $params = ['%' . $category . '%'];
+        $categoryConditions = [];
+        $params = [];
+        foreach ($categoryNames as $categoryName) {
+            $categoryConditions[] = 'sp.product_category LIKE ?';
+            $params[] = '%' . $categoryName . '%';
+        }
+        $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND ' . implode(' AND ', $categoryConditions);
         
         // Add filter conditions
         if (isset($_GET['brands']) && !empty($_GET['brands'])) {
@@ -1086,8 +1193,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             $colourConditions = [];
             foreach ($colours as $colour) {
                 $cleanColour = trim($colour);
-                $colourConditions[] = 'sp.`attribute:pa_colour` LIKE ?';
-                $params[] = '%' . $cleanColour. '%';
+                if ($cleanColour === '') {
+                    continue;
+                }
+                // Whole word, any case: "Red" matches "Red" and "Dark Red", not "Multicolour" or "Reddish".
+                $colourConditions[] = 'LOWER(sp.`attribute:pa_colour`) REGEXP ?';
+                $params[] = '(^|[^a-z0-9])' . preg_quote(strtolower($cleanColour), '/') . '([^a-z0-9]|$)';
             }
             if (!empty($colourConditions)) {
                 $baseQuery .= ' AND (' . implode(' OR ', $colourConditions) . ')';
@@ -1132,6 +1243,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
                 $baseQuery .= ' AND (' . implode(' OR ', $installationNeedConditions) . ')';
             }
         }
+
+        $filteringByColourFinishOrSpace =
+            (isset($_GET['colours']) && $_GET['colours'] !== '') ||
+            (isset($_GET['finish']) && $_GET['finish'] !== '') ||
+            (isset($_GET['space']) && $_GET['space'] !== '');
+        if ($filteringByColourFinishOrSpace && empty($_GET['installation_needs'])) {
+            $baseQuery .= ' AND (sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "")';
+        }
         
         if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
             $baseQuery .= ' AND COALESCE(iq.sellPInc1, sp.regular_price) >= ?';
@@ -1169,25 +1288,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
             exit();
         }
         
-        // Add sorting. Funky Tiles always sorts ahead of every other brand.
-        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'asc';
+        // Tile categories are grouped by size first. Within a size, Funky Tiles
+        // sorts ahead of every other brand. Popularity is the default sort.
+        $sortBy = isset($_GET['sort']) && $_GET['sort'] !== '' ? $_GET['sort'] : 'desc';
         $funkyFirst = '(CASE WHEN LOWER(COALESCE(sp.`attribute:pa_brands`, "")) LIKE "%funky tile%" THEN 0 ELSE 1 END)';
-        $orderBy = "ORDER BY {$funkyFirst} ASC, sp.post_date DESC";
+        $installationLast = '(CASE WHEN sp.`attribute:pa_installation_need` IS NULL OR TRIM(sp.`attribute:pa_installation_need`) = "" THEN 0 ELSE 1 END)';
+        $sizeOrder = tileSizeOrderExpressions($category);
+        $sizeOrderSql = empty($sizeOrder) ? '' : implode(', ', $sizeOrder) . ', ';
+        $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC, sp.ID DESC";
         switch ($sortBy) {
+            case 'asc':
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, sp.post_date DESC, sp.ID DESC";
+                break;
             case 'desc':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, CAST(sp.total_sales AS UNSIGNED) DESC, sp.ID DESC";
                 break;
             case 'nuev':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 999999999) ASC, sp.ID DESC";
                 break;
             case 'vend':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, COALESCE(CAST(iq.sellPInc1 AS DECIMAL(10,2)), 0) DESC, sp.ID DESC";
                 break;
             case 'ascBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"zzzzzz\") ASC, sp.ID DESC";
                 break;
             case 'descBrand':
-                $orderBy = "ORDER BY {$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC";
+                $orderBy = "ORDER BY {$installationLast} ASC, {$sizeOrderSql}{$funkyFirst} ASC, COALESCE(sp.`attribute:pa_brands`, \"\") DESC, sp.ID DESC";
                 break;
         }
         

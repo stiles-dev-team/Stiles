@@ -205,8 +205,9 @@ const TAPWARE_ITEMS = [
     image: "/images/sanware/new-tapware/Mixers%20-%20transparent%20darker.png",
     children: [
       { label: "Basin Mixers", href: `${TAPWARE_BASE}/basin-mixers`, image: "/images/sanware/new-tapware/Mixers%20-%20transparent%20darker.png" },
+      { label: "Exposed Bath Mixers", href: `${TAPWARE_BASE}/exposed-bath-mixers`, image: "/images/sanware/new-tapware/Technical%20Sketch%20of%20Wall-Mounted%20Bath%20Mixer.png" },
       { label: "Concealed Mixers", href: `${TAPWARE_BASE}/concealed-mixers`, image: "/images/sanware/new-tapware/Concealed%20Mixers%20-%20transparent%20darker.png" },
-      { label: "Concealed Diver Mixers", href: `${TAPWARE_BASE}/concealed-diver-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
+      { label: "Concealed Diverter Mixers", href: `${TAPWARE_BASE}/concealed-diverter-mixers`, image: "/images/sanware/new-tapware/Concealed%20Diver%20Mixers%20-%20transparent%20darker.png" },
       { label: "Thermostatic Mixers", href: `${TAPWARE_BASE}/thermostatic-mixers`, image: "/images/sanware/new-tapware/Thermostatic%20Mixers%20-%20transparent%20darker.png" },
       { label: "Sink Mixers", href: `${TAPWARE_BASE}/sink-mixers`, image: "/images/sanware/new-tapware/Sink%20Mixers%20-%20transparent%20darker.png" },
       { label: "Electronic Mixers", href: `${TAPWARE_BASE}/electronic-mixers`, image: "/images/sanware/new-tapware/Electronic%20Mixers%20copy%20-%20transparent%20darker.png" },
@@ -255,7 +256,7 @@ const TAPWARE_ITEMS = [
   },
 ];
 
-const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen-sinks";
+const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen";
 
 const KITCHEN_ITEMS = [
   {
@@ -363,9 +364,9 @@ const TOILET_ITEMS = [
     ],
   },
   {
-    label: "Accesible Toilets",
-    slug: "accesible-toilets",
-    href: `${TOILET_BASE}/accesible-toilets`,
+    label: "Accessible Toilets",
+    slug: "accessible-toilets",
+    href: `${TOILET_BASE}/accessible-toilets`,
     image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(1).png",
   },
   {
@@ -433,7 +434,7 @@ export const isTapwareSlug = (slug) =>
   String(slug || "").toLowerCase() === "mixers-and-taps";
 
 export const isKitchenSlug = (slug) =>
-  String(slug || "").toLowerCase() === "kitchen-sinks";
+  String(slug || "").toLowerCase() === "kitchen";
 
 export const isBathsSlug = (slug) =>
   String(slug || "").toLowerCase() === "baths";
@@ -571,7 +572,7 @@ export const DomesticHotWaterSubcategories = () => (
 );
 
 export const TapwareSubcategories = () => (
-  <SubcategoryCards title="Tapware (Mixers & Taps)" items={TAPWARE_ITEMS} />
+  <SubcategoryCards title="Mixers and Taps" items={TAPWARE_ITEMS} />
 );
 
 export const KitchenSubcategories = () => (

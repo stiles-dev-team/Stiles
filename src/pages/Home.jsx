@@ -288,7 +288,7 @@ const Hero = ({ content }) => {
 const WhoWeAre = ({ content }) => {
   return (
     <section id="whoweareHome" className='container mx-auto px-4 flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20'>
-      <h2 className='text-4xl lg:text-7xl text-dark font-bold w-full lg:w-4/12'>{(content?.whoWeAre?.title) || 'WE ARE STILES'}</h2>
+      <h2 className='text-4xl lg:text-7xl text-black font-bold w-full lg:w-4/12'>{(content?.whoWeAre?.title) || 'WE ARE STILES'}</h2>
       <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
         <p className='text-sm lg:text-base'>
           At Stiles, we’re all about keeping things stylish, in your home, your office, your restaurant, and any space you can imagine! Our goal at Stiles is to be exclusive and unique, offering only the best quality tiles and sanitaryware in South Africa. Quality and style will always outweigh price when we select products.
@@ -656,7 +656,7 @@ const SubscribeBanner = () => {
   };
 
   return (
-    <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/bannerhome.png")] bg-cover bg-center relative'>
+    <section className='w-full py-20 lg:py-32 px-4 flex flex-col justify-center items-center bg-[url("/images/home/email-pic.jpg")] bg-cover bg-center relative'>
       <div className='bg-black/40 w-full h-full absolute top-0 left-0 z-0'></div>
       <div className='flex flex-col justify-center items-center gap-6 w-full max-w-5xl z-10 relative'>
         <p className='text-lg leading-tight lg:text-4xl font-medium text-white text-center'>Subscribe to our weekly newsletter to get the latest updates and amazing offers delivered in your inbox</p>
@@ -801,7 +801,7 @@ const WeWorkWithTheBest = () => {
   return (
     <section id="WeWorkWithTheBest" className='container mx-auto px-4 flex flex-col justify-start items-start gap-5'>
       <div className='flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-20 w-full pb-5'>
-        <h2 className='text-3xl lg:text-5xl uppercase text-dark font-bold w-full lg:w-4/12'>We work with the best</h2>
+        <h2 className='text-3xl lg:text-5xl uppercase text-black font-bold w-full lg:w-4/12'>We work with the best</h2>
         <div className='w-full lg:w-8/12 flex flex-col justify-start items-start gap-5'>
           <p className='text-sm lg:text-base'>We are picky when it comes to our brands and only stock the most stylish tiles and sanitaryware you can find in the country. We love showcasing brands that are exclusively available to us, as well as top quality well-known brands. View our wide selection of brands specially hand-picked for you.</p>
         </div>

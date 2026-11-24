@@ -65,7 +65,9 @@ const AdminProducts = () => {
   const [selectedProductTypes, setSelectedProductTypes] = useState(
     sanitizeAttributeList(searchParams.get('product_type'))
   );
-  const [selectedProductCategory, setSelectedProductCategory] = useState(searchParams.get('category_id') || "all");
+  const [selectedProductCategory, setSelectedProductCategory] = useState(
+    sanitizeAttributeList(searchParams.get('category_id')).filter((id) => id !== "all")
+  );
   const [selectedSoldOut, setSelectedSoldOut] = useState(searchParams.get('sold_out') || "all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -246,14 +248,11 @@ const AdminProducts = () => {
     }
     
     // Update or remove category_id
-    if (updates.category_id !== undefined) {
-      if (updates.category_id && updates.category_id !== 'all') newParams.set('category_id', updates.category_id);
-      else newParams.delete('category_id');
-    } else if (selectedProductCategory && selectedProductCategory !== 'all') {
-      newParams.set('category_id', selectedProductCategory);
-    } else {
-      newParams.delete('category_id');
-    }
+    const categoryIds = sanitizeAttributeList(
+      updates.category_id !== undefined ? updates.category_id : selectedProductCategory
+    ).filter((id) => id !== "all");
+    if (categoryIds.length > 0) newParams.set("category_id", categoryIds.join(","));
+    else newParams.delete("category_id");
     
     // Update or remove sold_out
     if (updates.sold_out !== undefined) {
@@ -686,7 +685,7 @@ const AdminProducts = () => {
       installationNeed: installationNeed || 'all',
       promo: promo || 'all',
       productType: Array.isArray(productType) ? productType.sort().join(',') : '',
-      productCategory: productCategory || 'all',
+      productCategory: sanitizeAttributeList(productCategory).filter((id) => id !== "all").join(",") || "all",
       sortField: effectiveSortField,
       sortDirection: effectiveSortDirection
     });
@@ -752,22 +751,18 @@ const AdminProducts = () => {
       if (installationNeed && installationNeed !== "all") params.append("installation_need", sanitizeFilterValue(installationNeed));
       if (promo && promo !== "all") params.append("promo", sanitizeFilterValue(promo));
       if (productType && productType.length > 0) params.append("product_type", sanitizeAttributeList(productType).join(","));
-      if (productCategory && productCategory !== "all") {
-        // Find the category name from the ID
-        // If uniqueCategories is not loaded yet, try to use the ID as fallback
-        const selectedCategory = uniqueCategories.length > 0 
-          ? uniqueCategories.find(cat => String(cat.id) === String(productCategory))
-          : null;
-        
-        if (selectedCategory) {
-          params.append("category", sanitizeFilterValue(selectedCategory.category));
-          console.log('Product Category Filter - ID:', productCategory, 'Name:', selectedCategory.category);
-        } else if (uniqueCategories.length === 0) {
-          // If categories not loaded yet, store the ID and we'll retry after categories load
-          console.warn('uniqueCategories not loaded yet, category filter will be applied after categories load');
-          // Don't add the filter yet - it will be applied when categories load
+      const categoryIds = sanitizeAttributeList(productCategory).filter((id) => id !== "all");
+      if (categoryIds.length > 0) {
+        if (uniqueCategories.length === 0) {
+          console.warn("uniqueCategories not loaded yet, category filter will be applied after categories load");
         } else {
-          console.warn('Category not found in uniqueCategories:', productCategory, 'Available categories:', uniqueCategories.map(c => ({id: c.id, name: c.category})));
+          const categoryNames = categoryIds
+            .map((id) => uniqueCategories.find((cat) => String(cat.id) === String(id)))
+            .filter(Boolean)
+            .map((cat) => sanitizeFilterValue(cat.category));
+          if (categoryNames.length > 0) {
+            params.append("category", categoryNames.join("|||"));
+          }
         }
       }
       // Always apply a sort to ensure consistent ordering
@@ -989,7 +984,7 @@ const AdminProducts = () => {
     if (uniqueCategories.length > 0 && !categoriesLoadedRef.current) {
       categoriesLoadedRef.current = true;
       // If a category is selected, refetch products with the filter
-      if (selectedProductCategory !== "all") {
+      if (selectedProductCategory.length > 0) {
         fetchProducts(currentPage, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, selectedProductCategory, sortField, sortDirection);
       }
     }
@@ -1641,10 +1636,11 @@ const AdminProducts = () => {
   };
 
   const handleProductCategoryChange = (value) => {
-    setSelectedProductCategory(value);
+    const ids = sanitizeAttributeList(value).filter((id) => id !== "all");
+    setSelectedProductCategory(ids);
     setCurrentPage(1);
-    updateURLParams({ category_id: value, page: 1 });
-    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, value, sortField, sortDirection);
+    updateURLParams({ category_id: ids, page: 1 });
+    fetchProducts(1, searchTerm, selectedCategory, selectedStatus, selectedColour, selectedFinish, selectedSpace, selectedInstallationNeed, selectedPromo, selectedProductTypes, ids, sortField, sortDirection);
   };
 
   const handleProductTypeChange = (selectedOptions) => {
@@ -1974,33 +1970,48 @@ const AdminProducts = () => {
                 Product Category
               </label>
               <Select
-                value={
-                  selectedProductCategory === "all"
-                    ? { value: "all", label: "All Categories" }
-                    : (() => {
-                        const cat = uniqueCategories.find(
-                          (c) => String(c.id) === String(selectedProductCategory)
-                        );
-                        return cat
-                          ? { value: String(cat.id), label: formatCategoryLabel(cat) }
-                          : { value: "all", label: "All Categories" };
-                      })()
+                isMulti
+                value={selectedProductCategory
+                  .map((id) => {
+                    const cat = uniqueCategories.find((c) => String(c.id) === String(id));
+                    return cat
+                      ? { value: String(cat.id), label: cat.category }
+                      : null;
+                  })
+                  .filter(Boolean)}
+                onChange={(options) =>
+                  handleProductCategoryChange((options || []).map((option) => option.value))
                 }
-                onChange={(option) =>
-                  handleProductCategoryChange(option?.value || "all")
-                }
-                options={[
-                  { value: "all", label: "All Categories" },
-                  ...getSortedCategories().map((category) => ({
-                    value: String(category.id),
-                    label: formatCategoryLabel(category),
-                  })),
-                ]}
-                placeholder="Search categories..."
+                options={getSortedCategories().map((category) => ({
+                  value: String(category.id),
+                  label: formatCategoryLabel(category),
+                }))}
+                placeholder={selectedProductCategory.length ? "" : "Search categories, then press Enter"}
                 isClearable
                 isSearchable
+                hideSelectedOptions={false}
+                closeMenuOnSelect={false}
                 className="text-sm"
                 classNamePrefix="react-select"
+                styles={{
+                  multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: "#e7f3f3",
+                    borderRadius: "9999px",
+                    paddingLeft: "4px",
+                  }),
+                  multiValueLabel: (base) => ({
+                    ...base,
+                    color: "#3f7c7c",
+                    fontSize: "0.8125rem",
+                  }),
+                  multiValueRemove: (base) => ({
+                    ...base,
+                    color: "#3f7c7c",
+                    borderRadius: "9999px",
+                    ":hover": { backgroundColor: "#d3e8e8", color: "#245c5c" },
+                  }),
+                }}
               />
             </div>
           </div>
@@ -2167,7 +2178,7 @@ const AdminProducts = () => {
                 setSelectedInstallationNeed("all");
                 setSelectedPromo("all");
                 setSelectedProductTypes([]);
-                setSelectedProductCategory("all");
+                setSelectedProductCategory([]);
                 setSelectedSoldOut("all");
                 setCurrentPage(1);
                 setSortField(null);
@@ -2194,7 +2205,7 @@ const AdminProducts = () => {
                   ? `Showing ${products.length} of ${pagination.total_products} products`
                   : `Showing ${filteredProducts.length} of ${products.length} on this page (${selectedSoldOut === "sold_out" ? "sold out" : "in stock"})`}
               </div>
-              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedSpace !== "all" || selectedInstallationNeed !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory !== "all" || selectedSoldOut !== "all") && (
+              {(searchTerm || selectedCategory !== "all" || selectedStatus !== "all" || selectedColour !== "all" || selectedFinish !== "all" || selectedSpace !== "all" || selectedInstallationNeed !== "all" || selectedPromo !== "all" || selectedProductTypes.length > 0 || selectedProductCategory.length > 0 || selectedSoldOut !== "all") && (
                 <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
                   <span className="font-medium">Active Filters:</span>
                   {searchTerm && (
@@ -2242,9 +2253,9 @@ const AdminProducts = () => {
                       Product Type: {selectedProductTypes.join(", ")}
                     </span>
                   )}
-                  {selectedProductCategory !== "all" && (
+                  {selectedProductCategory.length > 0 && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800">
-                      Product Category: {uniqueCategories.find(cat => String(cat.id) === String(selectedProductCategory))?.category || selectedProductCategory}
+                      Product Category: {selectedProductCategory.map((id) => uniqueCategories.find(cat => String(cat.id) === String(id))?.category || id).join(", ")}
                     </span>
                   )}
                   {selectedSoldOut !== "all" && (

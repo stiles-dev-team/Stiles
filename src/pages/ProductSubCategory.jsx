@@ -17,6 +17,7 @@ import {
     Spinner
 } from "@material-tailwind/react";
 import ProductCard from '../components/ProductCard';
+import ActiveFilters from '../components/ActiveFilters';
 import { CircularPagination } from '../components/CircularPagination';
 import { FaFacebook, FaFacebookF, FaInstagram, FaPinterest, FaPinterestP, FaTwitter, FaWhatsapp, FaX, FaXTwitter } from 'react-icons/fa6';
 import { RiHandbagLine } from 'react-icons/ri';
@@ -43,7 +44,7 @@ import {
     isKitchenSlug,
     isBathsSlug,
 } from '../components/SanwareSubcategories';
-import { getCategoryBySlug } from '../components/navbar-categories';
+import { useCategoryBySlug } from '../components/navbar-categories';
 
 // Function to extract plain text from HTML descriptions
 const extractTextFromHTML = (htmlString) => {
@@ -91,6 +92,39 @@ const matchesFilter = (selected, itemValues) =>
         itemValues.some((itemValue) => cleanFilterLabel(itemValue).toLowerCase() === cleanFilterLabel(selectedValue).toLowerCase())
     );
 
+// Quick fix: category banners sit above the fold, so they stay eager (not lazy).
+// A CSS background has no error event. Probe the URL once — a hit is reused from
+// the browser cache, a 404 stays on the local banner instead of a broken background.
+const BANNER_FALLBACK = '/images/bannerhome.png';
+
+function useBannerSrc(url) {
+    const [src, setSrc] = useState(BANNER_FALLBACK);
+
+    useEffect(() => {
+        const next = url || BANNER_FALLBACK;
+        if (next === BANNER_FALLBACK) {
+            setSrc(BANNER_FALLBACK);
+            return;
+        }
+
+        let cancelled = false;
+        const probe = new Image();
+        probe.onload = () => {
+            if (!cancelled) setSrc(next);
+        };
+        probe.onerror = () => {
+            if (!cancelled) setSrc(BANNER_FALLBACK);
+        };
+        probe.src = next;
+
+        return () => {
+            cancelled = true;
+        };
+    }, [url]);
+
+    return src;
+}
+
 function Icon({ id, open }) {
     return (
       <svg
@@ -127,7 +161,7 @@ const ProductSubCategory = () => {
 
     
 
-    const data = getCategoryBySlug(slug);
+    const data = useCategoryBySlug(slug);
 
   return (
     <Layout>
@@ -172,10 +206,11 @@ const ProductSubCategory = () => {
 export default ProductSubCategory
 
 const Hero = ({slug}) => {
-    const data = getCategoryBySlug(slug);
+    const data = useCategoryBySlug(slug);
+    const bannerSrc = useBannerSrc(data?.thumbnail);
 
     return (
-        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: 'url("/images/bannerhome.png")' }}>
+        <section id='heroHome' className='w-full h-[60vh] relative flex flex-col justify-center items-center pt-20 bg-cover bg-center' style={{ backgroundImage: `url("${String(bannerSrc).replace(/"/g, '')}")` }}>
         <div className='w-full h-full absolute z-0 top-0 left-0 bg-black/30'></div>
         <div className='relative z-10 container mx-auto px-4 flex flex-col justify-center items-center gap-2'>
             <h1 className='text-white font-bold text-5xl text-center'>{data?.name}</h1>
@@ -203,8 +238,8 @@ const Content = ({
     const [openDialog, setOpenDialog] = useState(false);
     const [product, setProduct] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
-    const dataSlug = getCategoryBySlug(slug);
-    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'asc');
+    const dataSlug = useCategoryBySlug(slug);
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'desc');
     const [gridView, setGridView] = useState(true);
 
     const [colours, setColours] = useState([]);
@@ -728,7 +763,7 @@ const Content = ({
                 </aside>
                 )}
                 <div className='w-full flex flex-col justify-start items-start gap-5'>
-                    <div className='w-full flex flex-row justify-start items-center gap-3'>
+                    <div className='w-full flex flex-row flex-wrap justify-start items-center gap-3'>
                         <Breadcrumbs className="product-breadcrumbs">
                             <a href="/">
                                 Home
@@ -740,6 +775,16 @@ const Content = ({
                                 {dataSlug?.name}
                             </a>
                         </Breadcrumbs>
+                        <ActiveFilters
+                            filters={[
+                                { label: 'Colour', values: selectedColours, onRemove: () => { setSelectedColours([]); setCurrentPage(1); } },
+                                { label: 'Finish', values: selectedFinish, onRemove: () => { setSelectedFinish([]); setCurrentPage(1); } },
+                                { label: 'Size', values: selectedSizes, onRemove: () => { setSelectedSizes([]); setCurrentPage(1); } },
+                                { label: 'Brand', values: selectedBrands, onRemove: () => { setSelectedBrands([]); setCurrentPage(1); } },
+                                { label: 'Space', values: selectedSpaces, onRemove: () => { setSelectedSpaces([]); setCurrentPage(1); } },
+                                { label: 'Installation', values: selectedInstallationNeeds, onRemove: () => { setSelectedInstallationNeeds([]); setCurrentPage(1); } },
+                            ]}
+                        />
                     </div>
                     {hasProducts && (
                     <div className='w-full flex flex-col lg:flex-row justify-between items-center gap-3'>
@@ -776,11 +821,11 @@ const Content = ({
                         </div>
                     </div>
                     )}
-                    <div className={`grid grid-cols-1 lg:grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
+                    <div className={`grid grid-cols-2 ${gridView === true ? "xl:grid-cols-3" : "xl:grid-cols-2"} gap-5 w-full relative`}>
                         {loading ? null : hasProducts ? (
                             product.map((item) => (
                                 <a href={"/product/" + item.slug} key={item.id}>
-                                    <ProductCard prod={item.slug} />
+                                    <ProductCard prod={item.slug} compactBadges />
                                 </a>
                             ))
                         ) : (
