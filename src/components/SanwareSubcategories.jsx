@@ -14,7 +14,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
     image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png",
     children: [
       { label: "Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-holder`, image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png" },
-      { label: "Toilet Brush and Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/new-bathroom-accessories/technical_isometric_toilet_brush_holder_sketch.png" },
+      // { label: "Toilet Brush and Holder", href: `${BATHROOM_ACCESSORY_BASE}/toilet-brush-and-holder`, image: "/images/sanware/new-bathroom-accessories/technical_isometric_toilet_brush_holder_sketch.png" },
       { label: "Spare Toilet Roll Holder", href: `${BATHROOM_ACCESSORY_BASE}/spare-toilet-roll-holder`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_a_modern_toilet_paper_holder.png" },
       { label: "Sanitary Bag Holder", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bag-holder`, image: "/images/sanware/new-bathroom-accessories/Sanitary%20Bag%20Holder%20-%20transparent%20darker.png" },
       { label: "Waste Bin", href: `${BATHROOM_ACCESSORY_BASE}/waste-bin`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
@@ -43,7 +43,7 @@ const BATHROOM_ACCESSORY_ITEMS = [
       { label: "Shower Door Accessories", href: `${BATHROOM_ACCESSORY_BASE}/shower-door-accessories`, image: "/images/sanware/new-bathroom-accessories/isometric_hinge_bracket_technical_sketch.png" },
       { label: "Towel Rails", href: `${BATHROOM_ACCESSORY_BASE}/towel-rails`, image: "/images/sanware/new-bathroom-accessories/Towel%20Rails%20-%20transparent%20darker.png" },
       { label: "Robe Hooks", href: `${BATHROOM_ACCESSORY_BASE}/robe-hooks`, image: "/images/sanware/new-bathroom-accessories/Robe%20Hooks%20-%20transparent%20darker.png" },
-      { label: "Shower Filters", href: `${BATHROOM_ACCESSORY_BASE}/shower-filters`, image: "/images/sanware/new-bathroom-accessories/technical_cylindrical_component_sketch.png" },
+      // { label: "Shower Filters", href: `${BATHROOM_ACCESSORY_BASE}/shower-filters`, image: "/images/sanware/new-bathroom-accessories/technical_cylindrical_component_sketch.png" },
     ],
   },
   {
@@ -71,12 +71,12 @@ const BATHROOM_ACCESSORY_ITEMS = [
     image: "/images/sanware/new-bathroom-accessories/handdryer%20-%20transparent%20darker.png",
     children: [
       { label: "Hand Dryers", href: `${BATHROOM_ACCESSORY_BASE}/hand-dryers`, image: "/images/sanware/new-bathroom-accessories/handdryer%20-%20transparent%20darker.png" },
-      { label: "Toilet Roll Dispenser", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-dispenser`, image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png" },
-      { label: "Sanitary Bins", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bins`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
+      // { label: "Toilet Roll Dispenser", href: `${BATHROOM_ACCESSORY_BASE}/toilet-roll-dispenser`, image: "/images/sanware/new-bathroom-accessories/Toilet%20Roll%20Holder%20-%20transparent%20darker.png" },
+      // { label: "Sanitary Bins", href: `${BATHROOM_ACCESSORY_BASE}/sanitary-bins`, image: "/images/sanware/new-bathroom-accessories/technical_sketch_of_wall_mounted_dispenser.png" },
       { label: "Soap Dispensers", href: `${BATHROOM_ACCESSORY_BASE}/soap-dispensers`, image: "/images/sanware/new-bathroom-accessories/Soap%20Dispensers%20-%20transparent%20darker.png" },
-      { label: "Paper Towel Dispenser", href: `${BATHROOM_ACCESSORY_BASE}/paper-towel-dispenser`, image: "/images/sanware/new-bathroom-accessories/Paper%20Towel%20Dispenser%20-%20transparent%20darker.png" },
-      { label: "Wall Bin", href: `${BATHROOM_ACCESSORY_BASE}/wall-bin`, image: "/images/sanware/new-bathroom-accessories/wall%20bin%20-%20transparent%20darker.png" },
-      { label: "Grab Rails", href: `${BATHROOM_ACCESSORY_BASE}/grab-rails`, image: "/images/sanware/new-bathroom-accessories/grab%20rail%20-%20transparent%20darker.png" },
+      // { label: "Paper Towel Dispenser", href: `${BATHROOM_ACCESSORY_BASE}/paper-towel-dispenser`, image: "/images/sanware/new-bathroom-accessories/Paper%20Towel%20Dispenser%20-%20transparent%20darker.png" },
+      // { label: "Wall Bin", href: `${BATHROOM_ACCESSORY_BASE}/wall-bin`, image: "/images/sanware/new-bathroom-accessories/wall%20bin%20-%20transparent%20darker.png" },
+      // { label: "Grab Rails", href: `${BATHROOM_ACCESSORY_BASE}/grab-rails`, image: "/images/sanware/new-bathroom-accessories/grab%20rail%20-%20transparent%20darker.png" },
     ],
   },
   {
@@ -147,11 +147,11 @@ const SHOWER_ITEMS = [
       { label: "Shower Screen", href: `${SHOWER_BASE}/shower-screen`, image: "/images/sanware/new-shower/Shower%20Screen%20-%20transparent%20darker.png" },
       { label: "Pivot Door", href: `${SHOWER_BASE}/pivot-door`, image: "/images/sanware/new-shower/Pivot%20Door%20-%20transparent%20darker.png" },
       { label: "Return Panel", href: `${SHOWER_BASE}/return-panel`, image: "/images/sanware/new-shower/Return%20Panel%20-%20transparent%20darker.png" },
-      { label: "Tri Slider", href: `${SHOWER_BASE}/tri-slider`, image: "/images/sanware/new-shower/Tri%20Slider%20-%20transparent%20darker.png" },
-      { label: "Bi Slider", href: `${SHOWER_BASE}/bi-slider`, image: "/images/sanware/new-shower/Bi%20Slider%20-%20transparent%20darker.png" },
+      // { label: "Tri-Slider", href: `${SHOWER_BASE}/tri-slider`, image: "/images/sanware/new-shower/Tri%20Slider%20-%20transparent%20darker.png" },
+      { label: "Bi-Slider", href: `${SHOWER_BASE}/bi-slider`, image: "/images/sanware/new-shower/Bi%20Slider%20-%20transparent%20darker.png" },
       { label: "Bath Screen", href: `${SHOWER_BASE}/bath-screen`, image: "/images/sanware/new-shower/Bath%20Screen%20-%20transparent%20darker.png" },
       { label: "Telescopic Shower Door", href: `${SHOWER_BASE}/telescopic-shower-door`, image: "/images/sanware/new-shower/Telescopic%20Shower%20Door%20-%20transparent%20darker.png" },
-      { label: "Mono Telescopic Shower Door", href: `${SHOWER_BASE}/mono-telescopic-shower-door`, image: "/images/sanware/new-shower/Mono%20Telescopic%20Shower%20Door%20-%20transparent%20darker.png" },
+      // { label: "Mono Telescopic Shower Door", href: `${SHOWER_BASE}/mono-telescopic-shower-door`, image: "/images/sanware/new-shower/Mono%20Telescopic%20Shower%20Door%20-%20transparent%20darker.png" },
     ],
   },
   {
@@ -167,17 +167,17 @@ const SHOWER_ITEMS = [
     image: "/images/sanware/new-shower/shower%20wall%20panel%20-%20transparent%20darker.png",
   },
   {
-    label: "Pet Friendly",
+    label: "Pet-Friendly",
     slug: "pet-friendly",
     href: `${SHOWER_BASE}/pet-friendly`,
     image: "/images/sanware/new-shower/Pet%20Friendly%20-%20transparent%20darker.png",
   },
-  {
-    label: "Bidet Spray",
-    slug: "bidet-spray",
-    href: `${SHOWER_BASE}/bidet-spray`,
-    image: "/images/sanware/new-shower/Bidet%20Spray%20-%20transparent%20darker.png",
-  },
+  // {
+  //   label: "Bidet Spray",
+  //   slug: "bidet-spray",
+  //   href: `${SHOWER_BASE}/bidet-spray`,
+  //   image: "/images/sanware/new-shower/Bidet%20Spray%20-%20transparent%20darker.png",
+  // },
 ];
 
 const DOMESTIC_HOT_WATER_BASE = "/product-category/sanitary-ware/domestic-hot-water";
@@ -275,8 +275,8 @@ const KITCHEN_ITEMS = [
     href: `${KITCHEN_BASE}/prep-bowl`,
     image: "/images/sanware/new-kitchen/undermount%20prep%20-%20transparent%20darker.png",
     children: [
-      { label: "Undermount Sinks", href: `${KITCHEN_BASE}/prep-bowl-undermount-sinks`, image: "/images/sanware/new-kitchen/undermount%20prep%20-%20transparent%20darker.png" },
-      { label: "Drop in Sink", href: `${KITCHEN_BASE}/prep-bowl-drop-in-sink`, image: "/images/sanware/new-kitchen/dropin%20prep%20-%20transparent%20darker.png" },
+      // { label: "Undermount Prep Bowls", href: `${KITCHEN_BASE}/undermount-prep-bowls`, image: "/images/sanware/new-kitchen/undermount%20prep%20-%20transparent%20darker.png" },
+      { label: "Drop-In Prep Bowls", href: `${KITCHEN_BASE}/drop-in-prep-bowls`, image: "/images/sanware/new-kitchen/dropin%20prep%20-%20transparent%20darker.png" },
     ],
   },
   {
@@ -315,12 +315,12 @@ const KITCHEN_ITEMS = [
     href: `${KITCHEN_BASE}/sink-wastes`,
     image: "/images/sanware/new-kitchen/Sink%20Wastes%20-%20transparent%20darker.png",
   },
-  {
-    label: "Water Filters",
-    slug: "water-filters",
-    href: `${KITCHEN_BASE}/water-filters`,
-    image: "/images/sanware/new-kitchen/Water%20Filters%20-%20transparent%20darker.png",
-  },
+  // {
+  //   label: "Water Filters",
+  //   slug: "water-filters",
+  //   href: `${KITCHEN_BASE}/water-filters`,
+  //   image: "/images/sanware/new-kitchen/Water%20Filters%20-%20transparent%20darker.png",
+  // },
 ];
 
 const BATH_ITEMS = [
@@ -332,36 +332,36 @@ const BATH_ITEMS = [
 const TOILET_BASE = "/product-category/sanitary-ware/toilets";
 
 const TOILET_ITEMS = [
-  {
-    label: "Wall Hung Toilets",
-    slug: "wall-hung-toilets",
-    href: `${TOILET_BASE}/wall-hung-toilets`,
-    image: "/images/sanware/new-toilets/Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
-  },
-  {
-    label: "Close Coupled Wall Hung Toilets",
-    slug: "close-coupled-wall-hung-toilets",
-    href: `${TOILET_BASE}/close-coupled-wall-hung-toilets`,
-    image: "/images/sanware/new-toilets/Close%20Coupled%20Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
-  },
-  {
-    label: "Back to Wall Floor Mounted Toilets",
-    slug: "back-to-wall-floor-mounted-toilets",
-    href: `${TOILET_BASE}/back-to-wall-floor-mounted-toilets`,
-    image: "/images/sanware/new-toilets/Back%20to%20Wall%20Floor%20Mounted%20Toilets%20_Floor%20Mounted%20Pan%20-%20transparent%20darker.png",
-  },
+  // {
+  //   label: "Wall Hung Toilets",
+  //   slug: "wall-hung-toilets",
+  //   href: `${TOILET_BASE}/wall-hung-toilets`,
+  //   image: "/images/sanware/new-toilets/Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
+  // },
+  // {
+  //   label: "Close Coupled Wall Hung Toilets",
+  //   slug: "close-coupled-wall-hung-toilets",
+  //   href: `${TOILET_BASE}/close-coupled-wall-hung-toilets`,
+  //   image: "/images/sanware/new-toilets/Close%20Coupled%20Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
+  // },
+  // {
+  //   label: "Back to Wall Floor Mounted Toilets",
+  //   slug: "back-to-wall-floor-mounted-toilets",
+  //   href: `${TOILET_BASE}/back-to-wall-floor-mounted-toilets`,
+  //   image: "/images/sanware/new-toilets/Back%20to%20Wall%20Floor%20Mounted%20Toilets%20_Floor%20Mounted%20Pan%20-%20transparent%20darker.png",
+  // },
   {
     label: "Close Coupled Toilets",
     slug: "close-coupled-toilets",
     href: `${TOILET_BASE}/close-coupled-toilets`,
     image: "/images/sanware/new-toilets/Back%20to%20Wall%20Closed%20Coupled%20Toilets%20-%20transparent%20darker.png",
-    children: [
-      {
-        label: "Back to Wall Closed Coupled Toilets",
-        href: `${TOILET_BASE}/back-to-wall-closed-coupled-toilets`,
-        image: "/images/sanware/new-toilets/Back%20to%20Wall%20Closed%20Coupled%20Toilets%20-%20transparent%20darker.png",
-      },
-    ],
+    // children: [
+    //   {
+    //     label: "Back to Wall Closed Coupled Toilets",
+    //     href: `${TOILET_BASE}/back-to-wall-closed-coupled-toilets`,
+    //     image: "/images/sanware/new-toilets/Back%20to%20Wall%20Closed%20Coupled%20Toilets%20-%20transparent%20darker.png",
+    //   },
+    // ],
   },
   {
     label: "Accessible Toilets",
@@ -393,10 +393,10 @@ const TOILET_ITEMS = [
     href: `${TOILET_BASE}/concealed-systems`,
     image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png",
     children: [
-      { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/wall-hung-cisterns`, image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
-      { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/dry-wall-wall-hung-cisterns`, image: "/images/sanware/new-toilets/Dry%20Wall%20Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
-      { label: "Floor Mount Cisterns", href: `${TOILET_BASE}/floor-mount-cisterns`, image: "/images/sanware/new-toilets/Floor%20Mount%20Cisterns%20-%20transparent%20darker.png" },
-      { label: "Actuator Plates", href: `${TOILET_BASE}/actuator-plates`, image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(2).png" },
+      // { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/wall-hung-cisterns`, image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
+      // { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/dry-wall-wall-hung-cisterns`, image: "/images/sanware/new-toilets/Dry%20Wall%20Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
+      // { label: "Floor Mount Cisterns", href: `${TOILET_BASE}/floor-mount-cisterns`, image: "/images/sanware/new-toilets/Floor%20Mount%20Cisterns%20-%20transparent%20darker.png" },
+      { label: "Actuator Plates", href: `${TOILET_BASE}/concealed-systems/actuator-plates`, image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(2).png" },
     ],
   },
   {
@@ -405,10 +405,10 @@ const TOILET_ITEMS = [
     href: `${TOILET_BASE}/urinals`,
     image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_17%20PM%20(4).png",
     children: [
-      { label: "Back Entry Urinal", href: `${TOILET_BASE}/back-entry-urinal`, image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_17%20PM%20(4).png" },
-      { label: "Top Entry Urinal", href: `${TOILET_BASE}/top-entry-urinal`, image: "/images/sanware/new-toilets/Top%20Entry%20Urinal%20-%20transparent%20darker.png" },
+      // { label: "Back Entry Urinal", href: `${TOILET_BASE}/back-entry-urinal`, image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_17%20PM%20(4).png" },
+      // { label: "Top Entry Urinal", href: `${TOILET_BASE}/top-entry-urinal`, image: "/images/sanware/new-toilets/Top%20Entry%20Urinal%20-%20transparent%20darker.png" },
       { label: "Electronic Urinal", href: `${TOILET_BASE}/electronic-urinal`, image: "/images/sanware/new-toilets/Electronic%20Urinal%20-%20transparent%20darker.png" },
-      { label: "Waterless Urinal", href: `${TOILET_BASE}/waterless-urinal`, image: "/images/sanware/new-toilets/Waterless%20Urinal%20-%20transparent%20darker.png" },
+      // { label: "Waterless Urinal", href: `${TOILET_BASE}/waterless-urinal`, image: "/images/sanware/new-toilets/Waterless%20Urinal%20-%20transparent%20darker.png" },
     ],
   },
 ];

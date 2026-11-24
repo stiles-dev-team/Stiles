@@ -260,6 +260,18 @@ const nameFromSlug = (slug) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
+// Product category text that must be searched as stored, including hyphens.
+// Pet-friendly, Bi-Sliders, Tri-Sliders, and Drop-In Prep Bowls do not match the spaced slug labels.
+const CATEGORY_SEARCH_NAMES = {
+  "pet-friendly": "Pet-friendly",
+  "bi-slider": "Bi-Sliders",
+  "tri-slider": "Tri-Sliders",
+  "drop-in-prep-bowls": "Drop-In Prep Bowls",
+};
+
+const categorySearchName = (slug, fallback) =>
+  CATEGORY_SEARCH_NAMES[String(slug || "").toLowerCase()] || fallback;
+
 const slugFromHref = (href) => {
   if (!href) return "";
   const path = String(href).split("?")[0];
@@ -326,7 +338,7 @@ export const getCategoryBySlug = (slug, path) => {
 
   return {
     name: nameFromSlug(key),
-    categoryName: nameFromSlug(key),
+    categoryName: categorySearchName(key, nameFromSlug(key)),
     slug: key,
     description: presentation.description,
     thumbnail: presentation.thumbnail,
