@@ -30,6 +30,7 @@ const AdminUsers = () => {
       setLoading(true)
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -95,6 +96,7 @@ const AdminUsers = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -124,6 +126,7 @@ const AdminUsers = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -194,6 +197,7 @@ const AdminUsers = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -241,6 +245,7 @@ const AdminUsers = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin-users.php`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
