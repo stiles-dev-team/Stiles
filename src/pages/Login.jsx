@@ -29,6 +29,7 @@ const Login = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/login.php`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
