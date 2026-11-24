@@ -256,7 +256,7 @@ const TAPWARE_ITEMS = [
   },
 ];
 
-const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen-sinks";
+const KITCHEN_BASE = "/product-category/sanitary-ware/kitchen";
 
 const KITCHEN_ITEMS = [
   {
@@ -364,9 +364,9 @@ const TOILET_ITEMS = [
     ],
   },
   {
-    label: "Accesible Toilets",
-    slug: "accesible-toilets",
-    href: `${TOILET_BASE}/accesible-toilets`,
+    label: "Accessible Toilets",
+    slug: "accessible-toilets",
+    href: `${TOILET_BASE}/accessible-toilets`,
     image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(1).png",
   },
   {
@@ -434,7 +434,7 @@ export const isTapwareSlug = (slug) =>
   String(slug || "").toLowerCase() === "mixers-and-taps";
 
 export const isKitchenSlug = (slug) =>
-  String(slug || "").toLowerCase() === "kitchen-sinks";
+  String(slug || "").toLowerCase() === "kitchen";
 
 export const isBathsSlug = (slug) =>
   String(slug || "").toLowerCase() === "baths";

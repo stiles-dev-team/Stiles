@@ -33,7 +33,7 @@ export const SANWARE_MEGA_MENU = [
       },
       {
         label: "Kitchen",
-        href: `${BASE}/kitchen-sinks`,
+        href: `${BASE}/kitchen`,
         image: "/images/sanware/sanware-icons/Kitchen_.jpg",
       },
       {
