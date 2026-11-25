@@ -138,7 +138,7 @@ const extractTextFromHTML = (htmlString) => {
 
 const ProductTagCategory = () => {
 
-    const { slug, category, subcategory } = useParams();
+    const { slug, category, subcategory, group } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [productsPerPage, setProductsPerPage] = useState(15);
@@ -195,6 +195,7 @@ const ProductTagCategory = () => {
             slug={slug} 
             category={category}
             subcategory={subcategory}
+            group={group}
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage}
             productsPerPage={productsPerPage} 
@@ -230,6 +231,7 @@ const Content = ({
     slug, 
     category,
     subcategory,
+    group,
     currentPage, 
     setCurrentPage,
     productsPerPage, 
@@ -732,7 +734,12 @@ const Content = ({
                             <a href={"/product-category/" + category + "/" + subcategory}>
                                 {subcategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                             </a>
-                            <a href={"/product-category/" + category + "/" + subcategory + "/" + slug}>
+                            {group && (
+                                <a href={"/product-category/" + category + "/" + subcategory + "/" + group}>
+                                    {group.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                </a>
+                            )}
+                            <a href={"/product-category/" + category + "/" + subcategory + (group ? "/" + group : "") + "/" + slug}>
                                 {dataSlug?.name}
                             </a>
                         </Breadcrumbs>

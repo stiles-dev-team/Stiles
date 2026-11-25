@@ -66,6 +66,7 @@ function App() {
           <Route path="/product-category/brands/:slug" element={<ProductBrands />} />
           <Route path="/product-category/:slug" element={<ProductCategory />} />
           <Route path="/product-category/:category/:slug" element={<ProductSubCategory />} />
+          <Route path="/product-category/:category/:subcategory/:group/:slug" element={<ProductTagCategory />} />
           <Route path="/product-category/:category/:subcategory/:slug" element={<ProductTagCategory />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/calore-kamado-jan" element={<Fireplaces />} />
