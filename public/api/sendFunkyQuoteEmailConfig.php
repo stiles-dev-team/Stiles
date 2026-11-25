@@ -178,6 +178,97 @@ function sendSMTPFunkyEmail($to, $subject, $htmlBody, $headers = array()) {
     return true;
 }
 
+function funkyQuotePlainText($value) {
+    if (is_array($value)) {
+        $parts = [];
+        foreach ($value as $part) {
+            if (is_scalar($part)) {
+                $part = trim((string)$part);
+                if ($part !== '') {
+                    $parts[] = $part;
+                }
+            }
+        }
+        $value = implode(', ', $parts);
+    } elseif (is_scalar($value)) {
+        $value = (string)$value;
+    } else {
+        return '';
+    }
+
+    // New lines in the message body can end the SMTP message early.
+    $value = str_replace(["\r", "\n"], ' ', $value);
+    return trim($value);
+}
+
+function funkyQuoteHtml($value) {
+    $text = funkyQuotePlainText($value);
+    if ($text === '') {
+        return '';
+    }
+
+    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function funkyQuoteAddressValue($quoteData, $key) {
+    if (!is_array($quoteData)) {
+        return '';
+    }
+
+    if (array_key_exists($key, $quoteData)) {
+        $value = funkyQuotePlainText($quoteData[$key]);
+        if ($value !== '') {
+            return $value;
+        }
+    }
+
+    $nested = $quoteData['shippingAddress'] ?? $quoteData['shipping_address'] ?? null;
+    if (is_array($nested) && array_key_exists($key, $nested)) {
+        return funkyQuotePlainText($nested[$key]);
+    }
+
+    return '';
+}
+
+function funkyQuoteAddressSection($quoteData) {
+    $addressFields = [
+        'Address' => funkyQuoteAddressValue($quoteData, 'address'),
+        'Town' => funkyQuoteAddressValue($quoteData, 'town'),
+        'State' => funkyQuoteAddressValue($quoteData, 'state'),
+        'ZIP code' => funkyQuoteAddressValue($quoteData, 'zip_code'),
+        'Country' => funkyQuoteAddressValue($quoteData, 'country'),
+    ];
+
+    $addressRows = '';
+    foreach ($addressFields as $label => $value) {
+        if ($value === '') {
+            continue;
+        }
+        $addressRows .= '<tr>'
+            . '<td width="120" valign="top" style="padding:4px 16px 4px 0;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#8c8c8c;">' . $label . '</td>'
+            . '<td valign="top" style="padding:4px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;">' . funkyQuoteHtml($value) . '</td>'
+            . '</tr>';
+    }
+
+    if ($addressRows === '') {
+        return '';
+    }
+
+    return '
+            <tr>
+              <td style="padding:0 8px 8px;font-family:Helvetica,Arial,sans-serif;font-size:22px;line-height:28px;font-weight:700;color:#111111;">
+                Delivery address
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 8px 32px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  ' . $addressRows . '
+                </table>
+              </td>
+            </tr>';
+}
+
 function funkyQuoteLogoSrc($logoSrc) {
     // Prefer logo_src from quote-system (context/images/logo_rounded.svg).
     $logoSrc = is_string($logoSrc) ? trim($logoSrc) : '';
@@ -191,33 +282,40 @@ function funkyQuoteLogoSrc($logoSrc) {
 function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
     error_log('Attempting to send Funky quote email to: ' . $recipientEmail);
 
-    $subject = $quoteData['subject'] ?? 'Your Funky Tiles quote';
+    if (!is_array($quoteData)) {
+        $quoteData = [];
+    }
+
+    $subject = funkyQuotePlainText($quoteData['subject'] ?? '') ?: 'Your Funky Tiles quote';
     $logoSrc = funkyQuoteLogoSrc($quoteData['logo_src'] ?? '');
-    $quoteLabel = $quoteData['quote_label'] ?? 'Quote';
-    $heading = $quoteData['heading'] ?? 'Thank you for your enquiry!';
-    $items = $quoteData['items'] ?? [];
+    $quoteLabel = funkyQuotePlainText($quoteData['quote_label'] ?? '') ?: 'Quote';
+    $heading = funkyQuotePlainText($quoteData['heading'] ?? '') ?: 'Thank you for your enquiry!';
+    $items = is_array($quoteData['items'] ?? null) ? $quoteData['items'] : [];
     $total = $quoteData['total'] ?? 0;
     $cellStyle = 'padding:8px 12px 8px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;';
 
     $quantityTotal = 0;
     $lines = '';
     foreach ($items as $item) {
-        $name = htmlspecialchars($item['name'] ?? $item['title'] ?? '', ENT_QUOTES, 'UTF-8');
+        if (!is_array($item)) {
+            continue;
+        }
+        $name = funkyQuoteHtml($item['name'] ?? $item['title'] ?? '');
         $quantity = $item['quantity'] ?? null;
         $quantityTotal += is_numeric($quantity) ? (float)$quantity : 0;
-        $label = $quantity ? $name . ' x ' . htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') : $name;
+        $label = $quantity ? $name . ' x ' . funkyQuoteHtml($quantity) : $name;
         $unitPrice = $item['price'] ?? 0;
         $linePrice = $item['line_price'] ?? (is_numeric($unitPrice) && is_numeric($quantity) ? $unitPrice * $quantity : $unitPrice);
         $priceLabel = is_numeric($linePrice) ? 'R' . number_format((float)$linePrice, 2) : (string)$linePrice;
         $image = trim((string)($item['image'] ?? $item['image_url'] ?? $item['imageUrl'] ?? ''));
         $imageHtml = $image !== ''
-            ? '<td width="72" valign="middle" style="padding:8px 12px 8px 0;"><img src="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '" alt="" width="64" height="64" style="display:block;width:64px;height:64px;border:0;border-radius:8px;" /></td>'
+            ? '<td width="72" valign="middle" style="padding:8px 12px 8px 0;"><img src="' . funkyQuoteHtml($image) . '" alt="" width="64" height="64" style="display:block;width:64px;height:64px;border:0;border-radius:8px;" /></td>'
             : '';
 
         $lines .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
             . $imageHtml
             . '<td valign="middle" style="' . $cellStyle . '">' . $label . '</td>'
-            . '<td valign="middle" align="right" style="' . $cellStyle . 'white-space:nowrap;">' . htmlspecialchars($priceLabel, ENT_QUOTES, 'UTF-8') . '</td>'
+            . '<td valign="middle" align="right" style="' . $cellStyle . 'white-space:nowrap;">' . funkyQuoteHtml($priceLabel) . '</td>'
             . '</tr></table>';
     }
 
@@ -229,7 +327,14 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
     } else {
         $itemCount = $quoteData['item_count'];
     }
-    $totalLabel = is_numeric($total) ? 'R' . number_format((float)$total, 2) : $total;
+    $totalLabel = is_numeric($total) ? 'R' . number_format((float)$total, 2) : funkyQuotePlainText($total);
+
+    try {
+        $addressSection = funkyQuoteAddressSection($quoteData);
+    } catch (Throwable $e) {
+        error_log('Funky quote address section skipped: ' . $e->getMessage());
+        $addressSection = '';
+    }
 
     // Markup matches quote-system/app/emails/quote-request.html
     $htmlBody = '<!DOCTYPE html>
@@ -237,7 +342,7 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>' . htmlspecialchars($subject, ENT_QUOTES, 'UTF-8') . '</title>
+    <title>' . funkyQuoteHtml($subject) . '</title>
   </head>
   <body style="margin:0;padding:0;background-color:#ffffff;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;">
@@ -249,10 +354,10 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td align="left" valign="middle">
-                      <img src="' . htmlspecialchars($logoSrc, ENT_QUOTES, 'UTF-8') . '" alt="Funky Tiles" width="120" style="display:block;width:120px;height:auto;border:0;" />
+                      <img src="' . funkyQuoteHtml($logoSrc) . '" alt="Funky Tiles" width="120" style="display:block;width:120px;height:auto;border:0;" />
                     </td>
                     <td align="right" valign="middle" style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;letter-spacing:1px;color:#8c8c8c;text-transform:uppercase;">
-                      ' . htmlspecialchars($quoteLabel, ENT_QUOTES, 'UTF-8') . '
+                      ' . funkyQuoteHtml($quoteLabel) . '
                     </td>
                   </tr>
                 </table>
@@ -260,7 +365,7 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
             </tr>
             <tr>
               <td style="padding:0 8px 8px;font-family:Helvetica,Arial,sans-serif;font-size:28px;line-height:36px;font-weight:700;color:#111111;">
-                ' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '
+                ' . funkyQuoteHtml($heading) . '
               </td>
             </tr>
             <tr>
@@ -268,6 +373,7 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
                 We have received your quote request and will be in touch shortly.
               </td>
             </tr>
+            ' . $addressSection . '
             <tr>
               <td style="padding:24px 8px 8px;border-top:1px solid #e3e3e3;font-family:Helvetica,Arial,sans-serif;font-size:22px;line-height:28px;font-weight:700;color:#111111;">
                 Quote summary
@@ -283,10 +389,10 @@ function sendFunkyQuoteEmail($quoteData, $recipientEmail) {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#111111;">
-                      ' . htmlspecialchars($itemCount, ENT_QUOTES, 'UTF-8') . '
+                      ' . funkyQuoteHtml($itemCount) . '
                     </td>
                     <td align="right" style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:#111111;">
-                      ' . htmlspecialchars($totalLabel, ENT_QUOTES, 'UTF-8') . '
+                      ' . funkyQuoteHtml($totalLabel) . '
                     </td>
                   </tr>
                 </table>
