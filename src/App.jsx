@@ -76,7 +76,9 @@ function App() {
           <Route path="/admin/*" element={<Admin />} />
 
           <Route path="/promo/:promo" element={<Promo />} />
-          <Route path="/campaign/:campaignName" element={<Campaign />} />
+          <Route path="/campaigns/twiggy" element={<Campaign />} />
+          <Route path="/campaigns" element={<Navigate to="/campaigns/twiggy" replace />} />
+          <Route path="/campaign/twiggy" element={<Navigate to="/campaigns/twiggy" replace />} />
 
           <Route path="/stiles-terms-and-conditions-of-sale" element={<TermsAndConditions />} />
           <Route path="/end-of-range" element={<EndOfRange />} />
