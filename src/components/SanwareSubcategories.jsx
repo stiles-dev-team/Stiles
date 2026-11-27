@@ -332,12 +332,12 @@ const BATH_ITEMS = [
 const TOILET_BASE = "/product-category/sanitary-ware/toilets";
 
 const TOILET_ITEMS = [
-  // {
-  //   label: "Wall Hung Toilets",
-  //   slug: "wall-hung-toilets",
-  //   href: `${TOILET_BASE}/wall-hung-toilets`,
-  //   image: "/images/sanware/new-toilets/Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
-  // },
+  {
+    label: "Wall Hung Toilets",
+    slug: "wall-hung-toilets",
+    href: `${TOILET_BASE}/wall-hung-toilets`,
+    image: "/images/sanware/new-toilets/Wall%20Hung%20Toilets%20-%20transparent%20darker.png",
+  },
   // {
   //   label: "Close Coupled Wall Hung Toilets",
   //   slug: "close-coupled-wall-hung-toilets",
@@ -393,8 +393,8 @@ const TOILET_ITEMS = [
     href: `${TOILET_BASE}/concealed-systems`,
     image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png",
     children: [
-      // { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/concealed-systems/wall-hung-cisterns`, image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
-      // { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/concealed-systems/dry-wall-wall-hung-cisterns`, image: "/images/sanware/new-toilets/Dry%20Wall%20Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
+      { label: "Wall Hung Cisterns", href: `${TOILET_BASE}/concealed-systems/wall-hung-cisterns`, image: "/images/sanware/new-toilets/Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
+      { label: "Dry Wall Wall Hung Cisterns", href: `${TOILET_BASE}/concealed-systems/dry-wall-wall-hung-cisterns`, image: "/images/sanware/new-toilets/Dry%20Wall%20Wall%20Hung%20Cisterns%20-%20transparent%20darker.png" },
       // { label: "Floor Mount Cisterns", href: `${TOILET_BASE}/concealed-systems/floor-mount-cisterns`, image: "/images/sanware/new-toilets/Floor%20Mount%20Cisterns%20-%20transparent%20darker.png" },
       { label: "Actuator Plates", href: `${TOILET_BASE}/concealed-systems/actuator-plates`, image: "/images/sanware/new-toilets/ChatGPT%20Image%20Sep%2025,%202026,%2002_14_16%20PM%20(2).png" },
     ],

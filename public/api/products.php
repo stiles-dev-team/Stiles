@@ -99,6 +99,24 @@ function tileSizeOrderExpressions($category) {
     ];
 }
 
+/**
+ * Letters and numbers only, so "wall-hung-toilets", "Wall hung toilets",
+ * and "Wall-hung toilets" all compare as the same text.
+ */
+function categoryText($value) {
+    $text = html_entity_decode((string)$value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace(['-', '_', ' ', '&', '/', ',', '.', '+', "'", '"', '(', ')', ':', ';'], '', $text);
+    return strtolower($text);
+}
+
+function categoryTextSql($column) {
+    $expr = "REPLACE({$column}, '&amp;', '')";
+    foreach (['-', '_', ' ', '&', '/', ',', '.', '+', "'", '"', '(', ')', ':', ';'] as $char) {
+        $expr = "REPLACE({$expr}, '" . str_replace("'", "''", $char) . "', '')";
+    }
+    return "LOWER({$expr})";
+}
+
 // Get unique filter values by promo
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['promo']) && isset($_GET['filters']) && $_GET['filters'] === 'true') {
     try {
@@ -191,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category']) && isset($_
         $categoryConditions = [];
         $categoryParams = [];
         foreach ($categoryNames as $categoryName) {
-            $categoryConditions[] = 'product_category LIKE ?';
-            $categoryParams[] = '%' . $categoryName . '%';
+            $categoryConditions[] = categoryTextSql('product_category') . ' LIKE ?';
+            $categoryParams[] = '%' . categoryText($categoryName) . '%';
         }
         
         // First get all products for this category
@@ -1147,8 +1165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['category'])) {
         $categoryConditions = [];
         $params = [];
         foreach ($categoryNames as $categoryName) {
-            $categoryConditions[] = 'sp.product_category LIKE ?';
-            $params[] = '%' . $categoryName . '%';
+            $categoryConditions[] = categoryTextSql('sp.product_category') . ' LIKE ?';
+            $params[] = '%' . categoryText($categoryName) . '%';
         }
         $baseQuery = 'SELECT COUNT(*) as total FROM stiles_products sp LEFT JOIN iq_table iq ON sp.sku = iq.code WHERE sp.status = "publish" AND ' . implode(' AND ', $categoryConditions);
         
